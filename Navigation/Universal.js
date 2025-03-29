@@ -9,21 +9,24 @@ const UniversalNavi = () => {
 
     return (
 
-        <Stack.Navigator>
-            {true ? (
-                <Stack.Screen
-                    name="MainApp"
-                    component={MainTab}
-                    options={{ headerShown: false }}
-                />
-            ) : (
-                <Stack.Screen
-                    name="Auth"
-                    component={AuthStack}
-                    options={{ headerShown: false }}
-                />
-            )}
-        </Stack.Navigator>
+        <Stack.Navigator
+
+        >
+            {
+                true ? (
+                    <Stack.Screen
+                        name="MainApp"
+                        component={MainTab}
+                        options={{ headerShown: false }}
+                    />
+                ) : (
+                    <Stack.Screen
+                        name="Auth"
+                        component={AuthStack}
+                        options={{ headerShown: false }}
+                    />
+                )}
+        </Stack.Navigator >
 
     );
 }

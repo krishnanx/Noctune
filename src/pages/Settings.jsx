@@ -3,7 +3,7 @@ import { View } from 'react-native'
 
 const Settings = () => {
     return (
-        <View>settings</View>
+        <View></View>
     )
 }
 
