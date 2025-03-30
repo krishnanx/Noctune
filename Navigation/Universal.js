@@ -8,9 +8,7 @@ const UniversalNavi = () => {
 
 
     return (
-
         <Stack.Navigator
-
         >
             {
                 true ? (

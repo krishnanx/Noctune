@@ -10,4 +10,5 @@ export const darkTheme = {
         text: '#ffffff',
         border: '#333333',
     },
+
 };

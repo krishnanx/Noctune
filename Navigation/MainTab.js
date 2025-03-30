@@ -17,7 +17,7 @@ const MainTab = () => {
                     return <Icon name={iconName} size={size} color={color} />;
                 },
             })}
-            initialRouteName="Home"
+            initialRouteName="Search"
         >
             <Tab.Screen name="Home" component={Home} options={{ headerShown: false }} />
             <Tab.Screen name="Search" component={Search} options={{ headerShown: false }} />

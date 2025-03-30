@@ -10,8 +10,7 @@ import store from './Store/store';
 export default function App() {
   const { Mode } = useSelector((state) => state.theme)
   return (
-    <SafeAreaProvider
-    >
+    <SafeAreaProvider>
 
       <StatusBar
         barStyle={Mode == 'light' ? "dark-content" : "light-content"}// Options: "dark-content" or "light-content"
