@@ -1,11 +1,24 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { View, StyleSheet, Text, TextInput } from "react-native"
 import { useTheme } from '@react-navigation/native';
 import { Input } from '@ui-kitten/components';
 import { Searchbar } from 'react-native-paper';
 import Svg, { Path } from "react-native-svg";
+import { Keyboard } from "react-native";
+import { useDispatch } from 'react-redux';
+import { changeState } from '../../Store/KeyboardSlice';
 const Search = () => {
     const { colors } = useTheme(); // Get theme colors
+    const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+    const dispatch = useDispatch();
+    useEffect(() => {
+        const keybaordDidShow = Keyboard.addListener("keyboardDidShow", () => dispatch(changeState(true)));
+        const keyboardDidHide = Keyboard.addListener("keyboardDidHide", () => dispatch(changeState(false)));
+        return () => {
+            keybaordDidShow.remove();
+            keyboardDidHide.remove();
+        }
+    }, [])
     const styles = StyleSheet.create({
         Main: {
             backgroundColor: colors.background,
