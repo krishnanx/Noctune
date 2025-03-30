@@ -45,6 +45,7 @@ const Search = () => {
         }
     })
     const [text, setText] = useState('');
+
     return (
         <View
             style={styles.Main}
@@ -59,6 +60,7 @@ const Search = () => {
             >
                 <Searchbar
                     style={{ padding: 0, margin: 0, width: 350 }}
+                    onSubmitEditing={() => console.log("Submitted:", text)}
                     icon={() => (
                         <View
                             style={{ width: 40, height: 40, backgroundColor: 'black', borderRadius: 0, justifyContent: 'center', alignItems: 'center' }}
@@ -79,7 +81,7 @@ const Search = () => {
             <Text
                 style={{ color: "white" }}
             >
-                {text}
+
             </Text>
         </View>
     )
