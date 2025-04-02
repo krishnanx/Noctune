@@ -7,6 +7,7 @@ import Svg, { Path } from "react-native-svg";
 import { Keyboard } from "react-native";
 import { useDispatch } from 'react-redux';
 import { changeState } from '../../Store/KeyboardSlice';
+import { DownloadMusic } from '../../Store/MusicSlice';
 const Search = () => {
     const { colors } = useTheme(); // Get theme colors
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
@@ -60,7 +61,7 @@ const Search = () => {
             >
                 <Searchbar
                     style={{ padding: 0, margin: 0, width: 350 }}
-                    onSubmitEditing={() => console.log("Submitted:", text)}
+                    onSubmitEditing={() => dispatch(DownloadMusic({ text }))}
                     icon={() => (
                         <View
                             style={{ width: 40, height: 40, backgroundColor: 'black', borderRadius: 0, justifyContent: 'center', alignItems: 'center' }}

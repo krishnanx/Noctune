@@ -6,6 +6,8 @@ import { darkTheme } from './Theme/darkTheme';
 import { lightTheme } from './Theme/lightTheme';
 import { useSelector } from 'react-redux';
 
+import Websocket from './src/Websocket/Websocket';
+
 export default function App() {
   const { Mode } = useSelector((state) => state.theme);
 
@@ -32,6 +34,7 @@ export default function App() {
 
         </View>
       </TouchableWithoutFeedback>
+      <Websocket />
     </SafeAreaProvider>
   );
 }
