@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-
+import Constants from 'expo-constants';
 const Websocket = () => {
     const [data, setData] = useState("Waiting for updates...");
     const dispatch = useDispatch();
@@ -13,7 +13,7 @@ const Websocket = () => {
         const connectWebSocket = () => {
             console.log("Attempting to connect to WebSocket...");
 
-            ws = new WebSocket("ws://192.168.26.235:80");
+            ws = new WebSocket(Constants.expoConfig.extra.WEBSOC);
 
             ws.onopen = () => {
                 console.log("Connected to WebSocket server");
