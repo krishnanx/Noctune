@@ -8,6 +8,7 @@ import { Keyboard } from "react-native";
 import { useDispatch } from 'react-redux';
 import { changeState } from '../../Store/KeyboardSlice';
 import { DownloadMusic } from '../../Store/MusicSlice';
+
 const Search = () => {
     const { colors } = useTheme(); // Get theme colors
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
