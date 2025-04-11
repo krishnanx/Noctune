@@ -19,6 +19,7 @@
     "dotenv": "^16.4.7",
     "expo": "~52.0.41",
     "expo-constants": "^17.0.8",
+    "expo-device": "~7.0.3",
     "expo-status-bar": "~2.0.1",
     "expo-system-ui": "^4.0.8",
     "music-metadata-browser": "^2.5.11",
