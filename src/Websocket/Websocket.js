@@ -1,17 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import Constants from "expo-constants";
 import * as Device from "expo-device";
 
 const Websocket = () => {
     const [deviceName, setDeviceName] = useState(null);
-    const [reconnectAttempts, setReconnectAttempts] = useState(0);
     const dispatch = useDispatch();
+    const hasConnected = useRef(false); // Prevent multiple WebSocket connections
 
     useEffect(() => {
         const fetchDeviceName = async () => {
             try {
-                // Fallback if getDeviceNameAsync is not available
                 const name =
                     Device.getDeviceNameAsync && typeof Device.getDeviceNameAsync === "function"
                         ? await Device.getDeviceNameAsync()
@@ -30,28 +29,27 @@ const Websocket = () => {
     }, []);
 
     useEffect(() => {
-        if (!deviceName) return;
+        if (!deviceName || hasConnected.current) return;
 
+        hasConnected.current = true; // Prevent reconnecting on deviceName change
         let ws;
         let reconnectTimeout;
         let pingInterval;
+        const id = Math.random().toString(36).slice(2, 8);
 
         const connectWebSocket = () => {
-            console.log("Attempting to connect to WebSocket...");
-            const id = Math.random().toString(36).slice(2, 8);
             console.log(`[${id}] Connecting WebSocket...`);
+            //Constants.expoConfig.extra.WEBSOC
+            //ws://192.168.1.48:80
             ws = new WebSocket(Constants.expoConfig.extra.WEBSOC);
-
 
             ws.onopen = () => {
                 console.log("Connected to WebSocket server");
-                ws.send("Hello from React Native!");
-
-                setReconnectAttempts(0);
+                ws.send(`Hello from React Native ${id}!`);
 
                 pingInterval = setInterval(() => {
                     if (ws.readyState === WebSocket.OPEN) {
-                        ws.send(JSON.stringify({ type: "ping", device: deviceName, id: id }));
+                        ws.send(JSON.stringify({ type: "ping", device: deviceName, id }));
                         console.log("pinged");
                     }
                 }, 25000);
@@ -61,9 +59,7 @@ const Websocket = () => {
                 try {
                     const parsed = typeof event.data === "string" ? JSON.parse(event.data) : {};
                     console.log("Parsed data:", parsed);
-
-                    // Example: dispatch something if needed
-                    // dispatch(addData(parsed.new));
+                    // dispatch(addData(parsed));
                 } catch (e) {
                     console.log("Non-JSON message received:", event.data);
                 }
@@ -81,13 +77,14 @@ const Websocket = () => {
             };
         };
 
+        let reconnectAttempts = 0;
+
         const attemptReconnect = () => {
             if (reconnectAttempts < 5) {
-                const nextAttempt = reconnectAttempts + 1;
-                console.log(`Reconnect attempt ${nextAttempt}...`);
-                setReconnectAttempts(nextAttempt);
+                reconnectAttempts++;
+                console.log(`Reconnect attempt ${reconnectAttempts}...`);
 
-                reconnectTimeout = setTimeout(connectWebSocket, 2000 * nextAttempt); // Exponential backoff
+                reconnectTimeout = setTimeout(connectWebSocket, 2000 * reconnectAttempts);
             } else {
                 console.error("Max reconnection attempts reached.");
             }

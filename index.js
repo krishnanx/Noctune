@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import store from "./Store/store";
 import App from './App';
 import { PaperProvider } from 'react-native-paper';
+
 // Wrap App inside Provider
 const ReduxApp = () => (
     <Provider store={store}>
@@ -12,6 +13,7 @@ const ReduxApp = () => (
         </PaperProvider>
     </Provider>
 );
+
 
 // Register the wrapped App
 registerRootComponent(ReduxApp);
