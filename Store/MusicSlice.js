@@ -10,28 +10,38 @@ const MusicSlice = createSlice({
         addMusic(state, action) {
             state.data = action.payload
         }
-    }
+    },
+    extraReducers: (builder) => {
+        builder
+            .addCase(FetchMetadata.pending, (state) => {
+                state.status = "loading";
+            })
+            .addCase(FetchMetadata.fulfilled, (state, action) => {
+                state.data = action.payload;
+                state.status = "idle";
+            })
+            .addCase(FetchMetadata.rejected, (state, action) => {
+                state.status = "error";
+            });
+    },
+
 })
 export const { addMusic } = MusicSlice.actions;
 export default MusicSlice.reducer;
-export const DownloadMusic = createAsyncThunk(
-    "/Download",
-    async ({ text }, { rejectWithValue }) => {  // <-- Destructure rejectWithValue
+export const FetchMetadata = createAsyncThunk(
+    "/FetchMetadata",
+    async ({ text }, { rejectWithValue }) => {
         try {
-            console.log("function reached", text);
-            console.log("server", Constants.expoConfig.extra.SERVER)
-            const response = await axios.post(
+            console.log("📥 Fetching metadata for:", text);
+            console.log("🔗 Express server:", Constants.expoConfig.extra.SERVER);
 
-                Constants.expoConfig.extra.SERVER,
-                { data: text },
-                {
-                    headers: { "Content-Type": "application/json" },
-                    responseType: "arraybuffer", // <-- Important for binary data
-                }
-            );
-
-            return response.data; // This will be the MP3 binary data
+            const response = await axios.get(`${Constants.expoConfig.extra.SERVER}/api/metadata`, {
+                params: { url: text },
+            });
+            console.log(response.data);
+            return response.data; // Metadata (title, duration, etc.)
         } catch (error) {
+            console.error("❌ Metadata fetch error:", error.message);
             return rejectWithValue(error.response?.data || "Something went wrong");
         }
     }

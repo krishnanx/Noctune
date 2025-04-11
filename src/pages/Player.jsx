@@ -13,8 +13,9 @@ import { SkipBack, SkipForward } from "react-native-feather";
 import Constants from "expo-constants";
 import Icon from "react-native-vector-icons/FontAwesome";
 import Chevron from "react-native-vector-icons/Feather";
-import { MaterialIcons } from "@expo/vector-icons"; 
-
+import { MaterialIcons } from "@expo/vector-icons";
+import { useDispatch, useSelector } from "react-redux";
+import { FetchMetadata } from "../../Store/MusicSlice";
 const TOTAL_DURATION = 225;
 
 const Player = () => {
@@ -25,42 +26,48 @@ const Player = () => {
   const [liked, setLiked] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
-
-
+  const { data } = useSelector((state) => state.data);
+  const dispatch = useDispatch();
   const audioUrl = "https://www.youtube.com/watch?v=ql9VWZ3KfQg";
   //const SERVER = "http://192.168.1.48:80/api/stream";
   //`${SERVER}?url=${encodeURIComponent(audioUrl)}`
   const streamUrl =
     typeof Constants.expoConfig.extra.SERVER !== "undefined"
-      ? `${Constants.expoConfig.extra.SERVER}?url=${encodeURIComponent(
-          audioUrl
-        )}`
+      ? `${Constants.expoConfig.extra.SERVER}/api/stream?url=${encodeURIComponent(
+        audioUrl
+      )}`
       : audioUrl; // fallback to direct URL if SERVER is undefined
 
   useEffect(() => {
-    loadAudio();
+    if (data) {
+      loadAudio();
+    }
 
     return () => {
       unloadAudio();
     };
+  }, [data]);
+  useEffect(() => {
+    dispatch(FetchMetadata({ text: "https://www.youtube.com/watch?v=ql9VWZ3KfQg" }))
   }, []);
-
   const loadAudio = async () => {
     try {
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: false,
-        staysActiveInBackground: true,
-        playsInSilentModeIOS: true,
-        shouldDuckAndroid: true,
-        playThroughEarpieceAndroid: false,
-      });
+      if (data) {
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: false,
+          staysActiveInBackground: true,
+          playsInSilentModeIOS: true,
+          shouldDuckAndroid: true,
+          playThroughEarpieceAndroid: false,
+        });
 
-      const { sound } = await Audio.Sound.createAsync(
-        { uri: streamUrl },
-        { shouldPlay: false },
-        onPlaybackStatusUpdate
-      );
-      soundRef.current = sound;
+        const { sound } = await Audio.Sound.createAsync(
+          { uri: streamUrl },
+          { shouldPlay: false },
+          onPlaybackStatusUpdate
+        );
+        soundRef.current = sound;
+      }
     } catch (error) {
       console.log("Error loading audio:", error);
     }
@@ -199,7 +206,7 @@ const Player = () => {
       alignItems: "left",
     },
     songName: {
-      fontSize: 24,
+      fontSize: 18,
       fontWeight: "bold",
       color: "white",
     },
@@ -242,7 +249,7 @@ const Player = () => {
       borderTopLeftRadius: 20,
       borderTopRightRadius: 20,
       padding: 20,
-   
+
       backgroundColor: "rgba(0,0,0,0.8)",
     },
     option: {
@@ -269,13 +276,16 @@ const Player = () => {
       </View>
 
       <Image
-        source={require("../../assets/icon.png")}
+        source={{ uri: data?.thumbnail }}
         style={styles.albumArt}
       />
-
       <View style={styles.container}>
-        <Text style={styles.songName}>Shape of You</Text>
-        <Text style={styles.singerName}>Ed Sheeran</Text>
+        <View
+          style={{ width: 300 }}
+        >
+          <Text style={styles.songName}>{data?.title}</Text>
+        </View>
+        <Text style={styles.singerName}>{data?.uploader}</Text>
       </View>
 
       <TouchableOpacity onPress={() => setLiked(!liked)}>
