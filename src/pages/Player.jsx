@@ -6,6 +6,7 @@ import { SkipBack, SkipForward } from "react-native-feather";
 import Constants from "expo-constants";
 import Icon from "react-native-vector-icons/FontAwesome";
 import Chevron from "react-native-vector-icons/Feather";
+import { MaterialIcons } from "@expo/vector-icons"; 
 
 const TOTAL_DURATION = 225;
 
@@ -215,7 +216,7 @@ const Player = () => {
       marginBottom: 10,
       padding: 8,
       position: "absolute",
-      left:20,
+      left: 20,
     },
   });
 
@@ -229,6 +230,9 @@ const Player = () => {
         />
       </TouchableOpacity>
 
+      <View style={{ position: "absolute", top: 30, right: 30 }}>
+        <MaterialIcons name="more-vert" size={28} color="white" />
+      </View>
       <Image
         source={require("../../assets/icon.png")}
         style={styles.albumArt}
