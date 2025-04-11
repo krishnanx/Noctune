@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { Audio } from "expo-av";
 import { SkipBack, SkipForward } from "react-native-feather";
+import Constants from "expo-constants";
 import Icon from "react-native-vector-icons/FontAwesome";
 
 const TOTAL_DURATION = 225;
@@ -15,9 +16,9 @@ const Player = () => {
   const [liked, setLiked] = useState(false);
 
   const audioUrl = "https://www.youtube.com/watch?v=ql9VWZ3KfQg";
-  const SERVER = "http://192.168.1.48:80/api/stream";
+  //const SERVER = "http://192.168.1.48:80/api/stream";
   //`${SERVER}?url=${encodeURIComponent(audioUrl)}`
-  const streamUrl = typeof SERVER !== "undefined"
+  const streamUrl = typeof Constants.expoConfig.extra.SERVER !== "undefined"
     ? `${Constants.expoConfig.extra.SERVER}?url=${encodeURIComponent(audioUrl)}`
     : audioUrl; // fallback to direct URL if SERVER is undefined
 
