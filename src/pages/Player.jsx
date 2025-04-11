@@ -1,10 +1,19 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Modal,
+} from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { Audio } from "expo-av";
 import { SkipBack, SkipForward } from "react-native-feather";
 import Constants from "expo-constants";
 import Icon from "react-native-vector-icons/FontAwesome";
+import Chevron from "react-native-vector-icons/Feather";
+import { MaterialIcons } from "@expo/vector-icons"; 
 
 const TOTAL_DURATION = 225;
 
@@ -14,13 +23,19 @@ const Player = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progressSeconds, setProgressSeconds] = useState(0);
   const [liked, setLiked] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
 
   const audioUrl = "https://www.youtube.com/watch?v=ql9VWZ3KfQg";
   //const SERVER = "http://192.168.1.48:80/api/stream";
   //`${SERVER}?url=${encodeURIComponent(audioUrl)}`
-  const streamUrl = typeof Constants.expoConfig.extra.SERVER !== "undefined"
-    ? `${Constants.expoConfig.extra.SERVER}?url=${encodeURIComponent(audioUrl)}`
-    : audioUrl; // fallback to direct URL if SERVER is undefined
+  const streamUrl =
+    typeof Constants.expoConfig.extra.SERVER !== "undefined"
+      ? `${Constants.expoConfig.extra.SERVER}?url=${encodeURIComponent(
+          audioUrl
+        )}`
+      : audioUrl; // fallback to direct URL if SERVER is undefined
 
   useEffect(() => {
     loadAudio();
@@ -80,6 +95,14 @@ const Player = () => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+  };
+
+  const toggleMinimize = () => {
+    setIsMinimized((prev) => !prev);
+  };
+
+  const toggleModal = () => {
+    setIsModalVisible((prev) => !prev);
   };
 
   const progressPercent = (progressSeconds / TOTAL_DURATION) * 100;
@@ -200,11 +223,55 @@ const Player = () => {
       top: 480,
       left: 140,
     },
+    chevronButton: {
+      alignSelf: "left",
+      marginTop: 20,
+      marginBottom: 10,
+      padding: 8,
+      position: "absolute",
+      left: 20,
+    },
+    modalOverlay: {
+      flex: 1,
+      justifyContent: "flex-end",
+      backgroundColor: "rgba(0,0,0,0.5)", // backdrop blur
+    },
+    modalContent: {
+      height: "50%", // half the screen
+      backgroundColor: "white",
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+      padding: 20,
+   
+      backgroundColor: "rgba(0,0,0,0.8)",
+    },
+    option: {
+      fontSize: 18,
+      marginVertical: 12,
+      color: "white",
+    },
   });
 
   return (
     <View style={styles.Main}>
-      <Image source={require("../../assets/icon.png")} style={styles.albumArt} />
+      <TouchableOpacity onPress={toggleMinimize} style={styles.chevronButton}>
+        <Chevron
+          name={isMinimized ? "chevron-up" : "chevron-down"}
+          size={28}
+          color={colors.text}
+        />
+      </TouchableOpacity>
+
+      <View style={{ position: "absolute", top: 30, right: 30 }}>
+        <TouchableOpacity onPress={toggleModal}>
+          <MaterialIcons name="more-vert" size={28} color="white" />
+        </TouchableOpacity>
+      </View>
+
+      <Image
+        source={require("../../assets/icon.png")}
+        style={styles.albumArt}
+      />
 
       <View style={styles.container}>
         <Text style={styles.songName}>Shape of You</Text>
@@ -222,7 +289,9 @@ const Player = () => {
 
       <View style={styles.progressBarContainer}>
         <View style={styles.progressBarBackground}>
-          <View style={[styles.progressBarFill, { width: `${progressPercent}%` }]} />
+          <View
+            style={[styles.progressBarFill, { width: `${progressPercent}%` }]}
+          />
         </View>
         <View style={styles.timeContainer}>
           <Text style={styles.timeText}>{formatTime(progressSeconds)}</Text>
@@ -235,7 +304,10 @@ const Player = () => {
           <SkipBack width={40} height={40} stroke={colors.text} />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.playPauseButton} onPress={togglePlayPause}>
+        <TouchableOpacity
+          style={styles.playPauseButton}
+          onPress={togglePlayPause}
+        >
           {isPlaying ? (
             <View style={styles.pauseLinesContainer}>
               <View style={styles.pauseLine} />
@@ -250,6 +322,25 @@ const Player = () => {
           <SkipForward width={40} height={40} stroke={colors.text} />
         </TouchableOpacity>
       </View>
+
+      <Modal
+        transparent
+        visible={isModalVisible}
+        animationType="slide"
+        onRequestClose={() => setIsModalVisible(false)} // Android back button
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPressOut={() => setIsModalVisible(false)} // tap outside closes
+        >
+          <View style={styles.modalContent}>
+            <Text style={styles.option}>Add to Liked Songs</Text>
+            <Text style={styles.option}>Add to playlist</Text>
+            <Text style={styles.option}>Media Quality</Text>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </View>
   );
 };
