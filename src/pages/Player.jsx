@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Modal,
+} from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { Audio } from "expo-av";
 import { SkipBack, SkipForward } from "react-native-feather";
@@ -17,6 +24,8 @@ const Player = () => {
   const [progressSeconds, setProgressSeconds] = useState(0);
   const [liked, setLiked] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
 
   const audioUrl = "https://www.youtube.com/watch?v=ql9VWZ3KfQg";
   //const SERVER = "http://192.168.1.48:80/api/stream";
@@ -90,6 +99,10 @@ const Player = () => {
 
   const toggleMinimize = () => {
     setIsMinimized((prev) => !prev);
+  };
+
+  const toggleModal = () => {
+    setIsModalVisible((prev) => !prev);
   };
 
   const progressPercent = (progressSeconds / TOTAL_DURATION) * 100;
@@ -218,6 +231,25 @@ const Player = () => {
       position: "absolute",
       left: 20,
     },
+    modalOverlay: {
+      flex: 1,
+      justifyContent: "flex-end",
+      backgroundColor: "rgba(0,0,0,0.5)", // backdrop blur
+    },
+    modalContent: {
+      height: "50%", // half the screen
+      backgroundColor: "white",
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+      padding: 20,
+   
+      backgroundColor: "rgba(0,0,0,0.8)",
+    },
+    option: {
+      fontSize: 18,
+      marginVertical: 12,
+      color: "white",
+    },
   });
 
   return (
@@ -231,8 +263,11 @@ const Player = () => {
       </TouchableOpacity>
 
       <View style={{ position: "absolute", top: 30, right: 30 }}>
-        <MaterialIcons name="more-vert" size={28} color="white" />
+        <TouchableOpacity onPress={toggleModal}>
+          <MaterialIcons name="more-vert" size={28} color="white" />
+        </TouchableOpacity>
       </View>
+
       <Image
         source={require("../../assets/icon.png")}
         style={styles.albumArt}
@@ -287,6 +322,25 @@ const Player = () => {
           <SkipForward width={40} height={40} stroke={colors.text} />
         </TouchableOpacity>
       </View>
+
+      <Modal
+        transparent
+        visible={isModalVisible}
+        animationType="slide"
+        onRequestClose={() => setIsModalVisible(false)} // Android back button
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPressOut={() => setIsModalVisible(false)} // tap outside closes
+        >
+          <View style={styles.modalContent}>
+            <Text style={styles.option}>Add to Liked Songs</Text>
+            <Text style={styles.option}>Add to playlist</Text>
+            <Text style={styles.option}>Media Quality</Text>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </View>
   );
 };
