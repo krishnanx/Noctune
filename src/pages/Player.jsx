@@ -269,11 +269,8 @@ const togglePlayPause = async () => {
 
   return (
     <View style={styles.Main}>
-      <TouchableOpacity  style={styles.chevronButton}>
-        <Chevron
-          size={28}
-          color={colors.text}
-        />
+      <TouchableOpacity style={styles.chevronButton}>
+        <Chevron size={28} color={colors.text} />
       </TouchableOpacity>
 
       <View style={{ position: "absolute", top: 30, right: 30 }}>
@@ -353,6 +350,7 @@ const togglePlayPause = async () => {
             <Text style={styles.option}>Add to Liked Songs</Text>
             <Text style={styles.option}>Add to playlist</Text>
             <Text style={styles.option}>Media Quality</Text>
+            <Text style={styles.option}>Share</Text>
           </View>
         </TouchableOpacity>
       </Modal>
