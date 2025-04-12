@@ -1,17 +1,26 @@
-import React, { useEffect, useState } from 'react'
-import {View,StyleSheet,Text,TextInput,Image,} from "react-native";
-import { useTheme } from '@react-navigation/native';
-import { Input } from '@ui-kitten/components';
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  StyleSheet,
+  Text,
+  TextInput,
+  Image,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Platform,
+  Dimensions,
+  FlatList,
+} from "react-native";
+import { useTheme } from "@react-navigation/native";
+import { Input } from "@ui-kitten/components";
 import { Entypo } from "@expo/vector-icons";
-import { Searchbar } from 'react-native-paper';
+import { Searchbar } from "react-native-paper";
 import Svg, { Path } from "react-native-svg";
 import { Keyboard } from "react-native";
-import { useDispatch } from 'react-redux';
-import { changeState } from '../../Store/KeyboardSlice';
-import { DownloadMusic } from '../../Store/MusicSlice'; 
+import { useDispatch } from "react-redux";
+import { changeState } from "../../Store/KeyboardSlice";
+//import { DownloadMusic } from "../../Store/MusicSlice";
 import { ScrollView } from "react-native";
-
-
 
 const Search = () => {
   const { colors } = useTheme(); // Get theme colors
@@ -70,9 +79,44 @@ const Search = () => {
       artist: "Justin Bieber",
       image: "https://picsum.photos/200",
     },
+    {
+      id: 9,
+      title: "Blinding Lights",
+      artist: "The Weeknd",
+      image: "https://picsum.photos/200",
+    },
+    {
+      id: 10,
+      title: "Peaches",
+      artist: "Justin Bieber",
+      image: "https://picsum.photos/200",
+    },
+    {
+      id: 11,
+      title: "Blinding Lights",
+      artist: "The Weeknd",
+      image: "https://picsum.photos/200",
+    },
+    {
+      id: 12,
+      title: "Peaches",
+      artist: "Justin Bieber",
+      image: "https://picsum.photos/200",
+    },
+    {
+      id: 13,
+      title: "Blinding Lights",
+      artist: "The Weeknd",
+      image: "https://picsum.photos/200",
+    },
+    {
+      id: 14,
+      title: "Peaches",
+      artist: "Justin Bieber",
+      image: "https://picsum.photos/200",
+    },
   ];
-  
- 
+
   useEffect(() => {
     const keybaordDidShow = Keyboard.addListener("keyboardDidShow", () =>
       dispatch(changeState(true))
@@ -84,17 +128,17 @@ const Search = () => {
       keybaordDidShow.remove();
       keyboardDidHide.remove();
     };
-  }, [])
+  }, []);
 
   const styles = StyleSheet.create({
     Main: {
       backgroundColor: colors.background,
       width: "100%",
-      alignItems: "center",
+      //alignItems: "center",  //commented this
       //padding: 10, //added
-      //paddingTop: 50, //added
-      //flex: 1, //added
-      height: "100%", //min height
+      //paddingTop: 40, //added
+      flex: 1, //added
+      //height: "100%", //had to comment this
     },
     input: {
       width: "70%",
@@ -110,6 +154,8 @@ const Search = () => {
       justifyContent: "center",
       alignItems: "center",
       height: "15%",
+      //paddingTop: 40,
+      //marginBottom: 20,
     },
     dropdownContainer: {
       paddingVertical: 10, //check
@@ -148,8 +194,7 @@ const Search = () => {
   });
 
   const [text, setText] = useState("");
-  
- 
+
   return (
     <View style={styles.Main}>
       {/* <Input
@@ -162,7 +207,7 @@ const Search = () => {
         <Searchbar
           style={{ padding: 0, margin: 0, width: 350 }}
           onSubmitEditing={() => {
-            dispatch(DownloadMusic({ text }));
+            //dispatch(DownloadMusic({ text }));
             setFetchSong(sampleSongs);
           }}
           icon={() => (
@@ -190,7 +235,7 @@ const Search = () => {
           onChangeText={(value) => {
             setText(value);
             if (value === "") {
-              setFetchSong([]); 
+              setFetchSong([]);
             }
           }}
           //onFocus={() => setIsFocussed(true)}
@@ -199,28 +244,53 @@ const Search = () => {
           value={text}
         />
       </View>
-
-      {fetchSong.length > 0 && (
-        <View style={styles.dropdownContainer}>
-          {/*<Text style={styles.heading}>Recent Searches</Text>*/}
-          {fetchSong.map((item) => (
-            <View key={item.id} style={styles.card}>
-              <Image source={{ uri: item.image }} style={styles.cardImage} />
-              <View style={{ flex: 1 }}>
-                <Text style={styles.songName}>{item.title}</Text>
-                <Text style={styles.artistName}>{item.artist}</Text>
+      {/*<ScrollView>
+        {fetchSong.length > 0 && (
+          <View style={styles.dropdownContainer}>
+            {/*<Text style={styles.heading}>Recent Searches</Text>
+            {fetchSong.map((item) => (
+              <View key={item.id} style={styles.card}>
+                <Image source={{ uri: item.image }} style={styles.cardImage} />
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.songName}>{item.title}</Text>
+                  <Text style={styles.artistName}>{item.artist}</Text>
+                </View>
+                <View style={{ marginLeft: "auto" }}>
+                  <Entypo name="dots-three-vertical" size={20} color="white" />
+                </View>
               </View>
-              <View style={{ marginLeft: "auto" }}>
-                <Entypo name="dots-three-vertical" size={20} color="white" />
+            ))}
+          </View>
+        )}
+      </ScrollView>*/}
+      <View style={{ flexGrow: 1 }}>
+        <KeyboardAvoidingView>
+          <FlatList
+            data={fetchSong}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <View style={styles.card}>
+                <Image source={{ uri: item.image }} style={styles.cardImage} />
+                <View>
+                  <Text style={styles.songName}>{item.title}</Text>
+                  <Text style={styles.artistName}>{item.artist}</Text>
+                </View>
+                <View style={{ marginLeft: "auto" }}>
+                  <Entypo name="dots-three-vertical" size={20} color="white" />
+                </View>
               </View>
-            </View>
-          ))}
-        </View>
-      )}
-
-      <Text style={{ color: "white" }}></Text>
+            )}
+            contentContainerStyle={{
+              paddingBottom: 100,
+              //flexGrow: 1,
+            }}
+            keyboardShouldPersistTaps="handled"
+          />
+          <Text style={{ color: "white" }}></Text>
+        </KeyboardAvoidingView>
+      </View>
     </View>
   );
-}
+};
 
-export default Search
+export default Search;

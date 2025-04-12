@@ -59,7 +59,7 @@ Stay tune to know more!
 
 ---
 
-#### BACKEND (Python FastAPI / Flask)
+#### BACKEND (Python FastAPI)
 
 **3. Parse the Search Query**
 - Extract:
@@ -74,7 +74,7 @@ Stay tune to know more!
 
 ---
 
-#### DATABASE (e.g., Supabase, Firebase, MongoDB)
+#### DATABASE (Supabase)
 
 **5. User Profile Structure**
 ```json
