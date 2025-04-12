@@ -16,7 +16,6 @@ import Chevron from "react-native-vector-icons/Feather";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { FetchMetadata } from "../../Store/MusicSlice";
-const TOTAL_DURATION = 225;
 
 const Player = () => {
   const { colors } = useTheme();
@@ -28,14 +27,17 @@ const Player = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const { data } = useSelector((state) => state.data);
   const dispatch = useDispatch();
-  const audioUrl = "https://www.youtube.com/watch?v=ql9VWZ3KfQg";
+
+
+  const audioUrl = "https://www.youtube.com/watch?v=pQq9eP5OFhw";
+  
   //const SERVER = "http://192.168.1.48:80/api/stream";
   //`${SERVER}?url=${encodeURIComponent(audioUrl)}`
   const streamUrl =
     typeof Constants.expoConfig.extra.SERVER !== "undefined"
-      ? `${Constants.expoConfig.extra.SERVER}/api/stream?url=${encodeURIComponent(
-        audioUrl
-      )}`
+      ? `${
+          Constants.expoConfig.extra.SERVER
+        }/api/stream?url=${encodeURIComponent(audioUrl)}`
       : audioUrl; // fallback to direct URL if SERVER is undefined
 
   useEffect(() => {
@@ -48,7 +50,9 @@ const Player = () => {
     };
   }, [data]);
   useEffect(() => {
-    dispatch(FetchMetadata({ text: "https://www.youtube.com/watch?v=ql9VWZ3KfQg" }))
+    dispatch(
+      FetchMetadata({ text: "https://www.youtube.com/watch?v=pQq9eP5OFhw" })
+    );
   }, []);
   const loadAudio = async () => {
     try {
@@ -67,6 +71,7 @@ const Player = () => {
           onPlaybackStatusUpdate
         );
         soundRef.current = sound;
+         console.log("Audio Loaded", soundRef.current);
       }
     } catch (error) {
       console.log("Error loading audio:", error);
@@ -80,23 +85,26 @@ const Player = () => {
     }
   };
 
-  const onPlaybackStatusUpdate = (status) => {
-    if (status.isLoaded && typeof status.positionMillis === "number") {
-      setProgressSeconds(Math.floor(status.positionMillis / 1000));
-    }
-  };
+const onPlaybackStatusUpdate = (status) => {
+  if (status.isLoaded && typeof status.positionMillis === "number") {
+    const currentSeconds = Math.floor(status.positionMillis / 1000);
+    setProgressSeconds(currentSeconds);
+  }
+};
 
-  const togglePlayPause = async () => {
-    if (!soundRef.current) return;
+const togglePlayPause = async () => {
+  if (!soundRef.current) return;
 
-    if (isPlaying) {
-      await soundRef.current.pauseAsync();
-    } else {
-      await soundRef.current.playAsync();
-    }
+  if (isPlaying) {
+    await soundRef.current.pauseAsync();
+  } else {
+    await soundRef.current.playFromPositionAsync(0); // play from beginning if needed
+    // or just playAsync() to resume from last position
+  }
 
-    setIsPlaying((prev) => !prev);
-  };
+  setIsPlaying((prev) => !prev);
+};
+
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -104,13 +112,13 @@ const Player = () => {
     return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
   };
 
-  const toggleMinimize = () => {
-    setIsMinimized((prev) => !prev);
-  };
 
   const toggleModal = () => {
     setIsModalVisible((prev) => !prev);
   };
+  
+
+  const TOTAL_DURATION = data?.duration ;
 
   const progressPercent = (progressSeconds / TOTAL_DURATION) * 100;
 
@@ -132,13 +140,13 @@ const Player = () => {
     progressBarBackground: {
       width: "100%",
       height: 3,
-      backgroundColor: "#ccc",
+      backgroundColor: colors.text,
       borderRadius: 1.5,
       overflow: "hidden",
     },
     progressBarFill: {
       height: 3,
-      backgroundColor: colors.primary ?? "dodgerblue",
+      backgroundColor: colors.text ??colors.primary,
     },
     timeContainer: {
       flexDirection: "row",
@@ -261,12 +269,8 @@ const Player = () => {
 
   return (
     <View style={styles.Main}>
-      <TouchableOpacity onPress={toggleMinimize} style={styles.chevronButton}>
-        <Chevron
-          name={isMinimized ? "chevron-up" : "chevron-down"}
-          size={28}
-          color={colors.text}
-        />
+      <TouchableOpacity style={styles.chevronButton}>
+        <Chevron size={28} color={colors.text} />
       </TouchableOpacity>
 
       <View style={{ position: "absolute", top: 30, right: 30 }}>
@@ -275,14 +279,9 @@ const Player = () => {
         </TouchableOpacity>
       </View>
 
-      <Image
-        source={{ uri: data?.thumbnail }}
-        style={styles.albumArt}
-      />
+      <Image source={{ uri: data?.thumbnail }} style={styles.albumArt} />
       <View style={styles.container}>
-        <View
-          style={{ width: 300 }}
-        >
+        <View style={{ width: 300 }}>
           <Text style={styles.songName}>{data?.title}</Text>
         </View>
         <Text style={styles.singerName}>{data?.uploader}</Text>
@@ -300,7 +299,10 @@ const Player = () => {
       <View style={styles.progressBarContainer}>
         <View style={styles.progressBarBackground}>
           <View
-            style={[styles.progressBarFill, { width: `${progressPercent}%` }]}
+            style={[
+              styles.progressBarFill,
+              { width: `${progressPercent}%`, backgroundColor: "green" },
+            ]}
           />
         </View>
         <View style={styles.timeContainer}>
@@ -348,6 +350,7 @@ const Player = () => {
             <Text style={styles.option}>Add to Liked Songs</Text>
             <Text style={styles.option}>Add to playlist</Text>
             <Text style={styles.option}>Media Quality</Text>
+            <Text style={styles.option}>Share</Text>
           </View>
         </TouchableOpacity>
       </Modal>
