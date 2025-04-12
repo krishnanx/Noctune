@@ -9,10 +9,10 @@ Noctune gives you access to everything you could dream of—without the cost.
 Stay tune to know more!
 
 ## Tech stack
-- React Native
-- Express js
-- Fast api
-- Supabase
+- Frontend: React Native
+- Backend: Express js and Fast-API
+- Database: Supabase
+- Cloud Services: CloudFlare
   
 
 ### ML-Powered Music App – Feature Checklist & Steps
