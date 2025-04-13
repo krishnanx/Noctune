@@ -28,9 +28,8 @@ const Player = () => {
   const { data } = useSelector((state) => state.data);
   const dispatch = useDispatch();
 
-
   const audioUrl = "https://www.youtube.com/watch?v=pQq9eP5OFhw";
-  
+
   //const SERVER = "http://192.168.1.48:80/api/stream";
   //`${SERVER}?url=${encodeURIComponent(audioUrl)}`
   const streamUrl =
@@ -71,7 +70,7 @@ const Player = () => {
           onPlaybackStatusUpdate
         );
         soundRef.current = sound;
-         console.log("Audio Loaded", soundRef.current);
+        console.log("Audio Loaded", soundRef.current);
       }
     } catch (error) {
       console.log("Error loading audio:", error);
@@ -85,26 +84,25 @@ const Player = () => {
     }
   };
 
-const onPlaybackStatusUpdate = (status) => {
-  if (status.isLoaded && typeof status.positionMillis === "number") {
-    const currentSeconds = Math.floor(status.positionMillis / 1000);
-    setProgressSeconds(currentSeconds);
-  }
-};
+  const onPlaybackStatusUpdate = (status) => {
+    if (status.isLoaded && typeof status.positionMillis === "number") {
+      const currentSeconds = Math.floor(status.positionMillis / 1000);
+      setProgressSeconds(currentSeconds);
+    }
+  };
 
-const togglePlayPause = async () => {
-  if (!soundRef.current) return;
+  const togglePlayPause = async () => {
+    if (!soundRef.current) return;
 
-  if (isPlaying) {
-    await soundRef.current.pauseAsync();
-  } else {
-    await soundRef.current.playFromPositionAsync(0); // play from beginning if needed
-    // or just playAsync() to resume from last position
-  }
+    if (isPlaying) {
+      await soundRef.current.pauseAsync();
+    } else {
+      await soundRef.current.playFromPositionAsync(0); // play from beginning if needed
+      // or just playAsync() to resume from last position
+    }
 
-  setIsPlaying((prev) => !prev);
-};
-
+    setIsPlaying((prev) => !prev);
+  };
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -112,13 +110,11 @@ const togglePlayPause = async () => {
     return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
   };
 
-
   const toggleModal = () => {
     setIsModalVisible((prev) => !prev);
   };
-  
 
-  const TOTAL_DURATION = data?.duration ;
+  const TOTAL_DURATION = data?.duration;
 
   const progressPercent = (progressSeconds / TOTAL_DURATION) * 100;
 
@@ -146,7 +142,7 @@ const togglePlayPause = async () => {
     },
     progressBarFill: {
       height: 3,
-      backgroundColor: colors.text ??colors.primary,
+      backgroundColor: colors.text ?? colors.primary,
     },
     timeContainer: {
       flexDirection: "row",
@@ -245,6 +241,7 @@ const togglePlayPause = async () => {
       padding: 8,
       position: "absolute",
       left: 20,
+      zIndex: 10,
     },
     modalOverlay: {
       flex: 1,
@@ -269,9 +266,7 @@ const togglePlayPause = async () => {
 
   return (
     <View style={styles.Main}>
-      <TouchableOpacity style={styles.chevronButton}>
-        <Chevron size={28} color={colors.text} />
-      </TouchableOpacity>
+     
 
       <View style={{ position: "absolute", top: 30, right: 30 }}>
         <TouchableOpacity onPress={toggleModal}>
@@ -279,37 +274,16 @@ const togglePlayPause = async () => {
         </TouchableOpacity>
       </View>
 
-      <Image source={{ uri: data?.thumbnail }} style={styles.albumArt} />
-      <View style={styles.container}>
-        <View style={{ width: 300 }}>
-          <Text style={styles.songName}>{data?.title}</Text>
-        </View>
-        <Text style={styles.singerName}>{data?.uploader}</Text>
-      </View>
-
-      <TouchableOpacity onPress={() => setLiked(!liked)}>
-        <Icon
-          name={liked ? "heart" : "heart-o"}
-          size={28}
-          color={liked ? "white" : "gray"}
-          style={styles.heartIcon}
-        />
-      </TouchableOpacity>
-
-      <View style={styles.progressBarContainer}>
-        <View style={styles.progressBarBackground}>
-          <View
-            style={[
-              styles.progressBarFill,
-              { width: `${progressPercent}%`, backgroundColor: "green" },
-            ]}
-          />
-        </View>
-        <View style={styles.timeContainer}>
-          <Text style={styles.timeText}>{formatTime(progressSeconds)}</Text>
-          <Text style={styles.timeText}>{formatTime(TOTAL_DURATION)}</Text>
-        </View>
-      </View>
+      <MetaData
+        data={data}
+        liked={liked}
+        setLiked={setLiked}
+        progressPercent={progressPercent}
+        progressSeconds={progressSeconds}
+        TOTAL_DURATION={TOTAL_DURATION}
+        formatTime={formatTime}
+        styles={styles} // pass your styles here if needed
+      />
 
       <View style={styles.controlsContainer}>
         <TouchableOpacity style={styles.skipButton}>
@@ -359,3 +333,53 @@ const togglePlayPause = async () => {
 };
 
 export default Player;
+
+
+
+const MetaData = ({
+  data,
+  liked,
+  setLiked,
+  progressPercent,
+  progressSeconds,
+  TOTAL_DURATION,
+  formatTime,
+  styles,
+}) => (
+  <>
+    <View style={styles.Main}>
+      <Image source={{ uri: data?.thumbnail }} style={styles.albumArt} />
+
+      <View style={styles.container}>
+        <View style={{ width: 300 }}>
+          <Text style={styles.songName}>{data?.title}</Text>
+        </View>
+        <Text style={styles.singerName}>{data?.uploader}</Text>
+      </View>
+
+      <TouchableOpacity onPress={() => setLiked(!liked)}>
+        <Icon
+          name={liked ? "heart" : "heart-o"}
+          size={28}
+          color={liked ? "white" : "gray"}
+          style={styles.heartIcon}
+        />
+      </TouchableOpacity>
+
+      <View style={styles.progressBarContainer}>
+        <View style={styles.progressBarBackground}>
+          <View
+            style={[
+              styles.progressBarFill,
+              { width: `${progressPercent}%`, backgroundColor: "green" },
+            ]}
+          />
+        </View>
+        <View style={styles.timeContainer}>
+          <Text style={styles.timeText}>{formatTime(progressSeconds)}</Text>
+          <Text style={styles.timeText}>{formatTime(TOTAL_DURATION)}</Text>
+        </View>
+      </View>
+    </View>
+  </>
+);
