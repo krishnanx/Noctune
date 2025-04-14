@@ -12,7 +12,6 @@ import { Audio } from "expo-av";
 import { SkipBack, SkipForward } from "react-native-feather";
 import Constants from "expo-constants";
 import Icon from "react-native-vector-icons/FontAwesome";
-import Chevron from "react-native-vector-icons/Feather";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { FetchMetadata } from "../../Store/MusicSlice";
@@ -21,10 +20,9 @@ const Player = () => {
   const { colors } = useTheme();
   const soundRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [progressSeconds, setProgressSeconds] = useState(0);
-  const [liked, setLiked] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(false);
+  const [progressSeconds, setProgressSeconds] = useState(0); 
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [liked, setLiked] = useState(false);
   const { data } = useSelector((state) => state.data);
   const dispatch = useDispatch();
 
@@ -234,15 +232,6 @@ const Player = () => {
       top: 480,
       left: 140,
     },
-    chevronButton: {
-      alignSelf: "left",
-      marginTop: 20,
-      marginBottom: 10,
-      padding: 8,
-      position: "absolute",
-      left: 20,
-      zIndex: 10,
-    },
     modalOverlay: {
       flex: 1,
       justifyContent: "flex-end",
@@ -266,15 +255,13 @@ const Player = () => {
 
   return (
     <View style={styles.Main}>
-     
-
       <View style={{ position: "absolute", top: 30, right: 30 }}>
         <TouchableOpacity onPress={toggleModal}>
           <MaterialIcons name="more-vert" size={28} color="white" />
         </TouchableOpacity>
       </View>
 
-      <MetaData
+      <Metadata
         data={data}
         liked={liked}
         setLiked={setLiked}
@@ -282,52 +269,20 @@ const Player = () => {
         progressSeconds={progressSeconds}
         TOTAL_DURATION={TOTAL_DURATION}
         formatTime={formatTime}
-        styles={styles} // pass your styles here if needed
+        styles={styles}
       />
 
-      <View style={styles.controlsContainer}>
-        <TouchableOpacity style={styles.skipButton}>
-          <SkipBack width={40} height={40} stroke={colors.text} />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.playPauseButton}
-          onPress={togglePlayPause}
-        >
-          {isPlaying ? (
-            <View style={styles.pauseLinesContainer}>
-              <View style={styles.pauseLine} />
-              <View style={styles.pauseLine} />
-            </View>
-          ) : (
-            <View style={styles.triangle} />
-          )}
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.skipButton}>
-          <SkipForward width={40} height={40} stroke={colors.text} />
-        </TouchableOpacity>
-      </View>
-
-      <Modal
-        transparent
-        visible={isModalVisible}
-        animationType="slide"
-        onRequestClose={() => setIsModalVisible(false)} // Android back button
-      >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPressOut={() => setIsModalVisible(false)} // tap outside closes
-        >
-          <View style={styles.modalContent}>
-            <Text style={styles.option}>Add to Liked Songs</Text>
-            <Text style={styles.option}>Add to playlist</Text>
-            <Text style={styles.option}>Media Quality</Text>
-            <Text style={styles.option}>Share</Text>
-          </View>
-        </TouchableOpacity>
-      </Modal>
+      <Controls
+        togglePlayPause={togglePlayPause}
+        isPlaying={isPlaying}
+        styles={styles}
+        colors={colors}
+      />
+      <Custom_modal
+        isModalVisible={isModalVisible}
+        styles={styles}
+        toggleModal={toggleModal}
+      />
     </View>
   );
 };
@@ -335,8 +290,7 @@ const Player = () => {
 export default Player;
 
 
-
-const MetaData = ({
+const Metadata = ({
   data,
   liked,
   setLiked,
@@ -347,39 +301,89 @@ const MetaData = ({
   styles,
 }) => (
   <>
-    <View style={styles.Main}>
-      <Image source={{ uri: data?.thumbnail }} style={styles.albumArt} />
+    <Image source={{ uri: data?.thumbnail }} style={styles.albumArt} />
 
-      <View style={styles.container}>
-        <View style={{ width: 300 }}>
-          <Text style={styles.songName}>{data?.title}</Text>
-        </View>
-        <Text style={styles.singerName}>{data?.uploader}</Text>
+    <View style={styles.container}>
+      <View style={{ width: 300 }}>
+        <Text style={styles.songName}>{data?.title}</Text>
       </View>
+      <Text style={styles.singerName}>{data?.uploader}</Text>
+    </View>
 
-      <TouchableOpacity onPress={() => setLiked(!liked)}>
-        <Icon
-          name={liked ? "heart" : "heart-o"}
-          size={28}
-          color={liked ? "white" : "gray"}
-          style={styles.heartIcon}
+    <TouchableOpacity onPress={() => setLiked(!liked)}>
+      <Icon
+        name={liked ? "heart" : "heart-o"}
+        size={28}
+        color={liked ? "white" : "gray"}
+        style={styles.heartIcon}
+      />
+    </TouchableOpacity>
+
+    <View style={styles.progressBarContainer}>
+      <View style={styles.progressBarBackground}>
+        <View
+          style={[
+            styles.progressBarFill,
+            { width: `${progressPercent}%`, backgroundColor: "green" },
+          ]}
         />
-      </TouchableOpacity>
-
-      <View style={styles.progressBarContainer}>
-        <View style={styles.progressBarBackground}>
-          <View
-            style={[
-              styles.progressBarFill,
-              { width: `${progressPercent}%`, backgroundColor: "green" },
-            ]}
-          />
-        </View>
-        <View style={styles.timeContainer}>
-          <Text style={styles.timeText}>{formatTime(progressSeconds)}</Text>
-          <Text style={styles.timeText}>{formatTime(TOTAL_DURATION)}</Text>
-        </View>
+      </View>
+      <View style={styles.timeContainer}>
+        <Text style={styles.timeText}>{formatTime(progressSeconds)}</Text>
+        <Text style={styles.timeText}>{formatTime(TOTAL_DURATION)}</Text>
       </View>
     </View>
   </>
 );
+
+const Controls = ({ togglePlayPause, isPlaying, styles,colors }) => {
+  return (
+    <View style={styles.controlsContainer}>
+      <TouchableOpacity style={styles.skipButton}>
+        <SkipBack width={40} height={40} stroke={colors.text} />
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.playPauseButton}
+        onPress={togglePlayPause}
+      >
+        {isPlaying ? (
+          <View style={styles.pauseLinesContainer}>
+            <View style={styles.pauseLine} />
+            <View style={styles.pauseLine} />
+          </View>
+        ) : (
+          <View style={styles.triangle} />
+        )}
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.skipButton}>
+        <SkipForward width={40} height={40} stroke={colors.text} />
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+const Custom_modal = ({ isModalVisible, styles, toggleModal }) => {
+  return (
+    <Modal
+      transparent
+      visible={isModalVisible}
+      animationType="slide"
+      onRequestClose={() => toggleModal()}
+    >
+      <TouchableOpacity
+        style={styles.modalOverlay}
+        activeOpacity={1}
+        onPressOut={() => toggleModal()}
+      >
+        <View style={styles.modalContent}>
+          <Text style={styles.option}>Add to Liked Songs</Text>
+          <Text style={styles.option}>Add to playlist</Text>
+          <Text style={styles.option}>Media Quality</Text>
+          <Text style={styles.option}>Share</Text>
+        </View>
+      </TouchableOpacity>
+    </Modal>
+  );
+};
