@@ -23,7 +23,7 @@ const Player = () => {
   const [progressSeconds, setProgressSeconds] = useState(0); 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [liked, setLiked] = useState(false);
-  const { data } = useSelector((state) => state.data);
+  const { data,status } = useSelector((state) => state.data);
   const dispatch = useDispatch();
 
   const audioUrl = "https://www.youtube.com/watch?v=pQq9eP5OFhw";
@@ -39,6 +39,7 @@ const Player = () => {
 
   useEffect(() => {
     if (data) {
+      //console.log("data:",data);
       loadAudio();
     }
 
@@ -46,11 +47,11 @@ const Player = () => {
       unloadAudio();
     };
   }, [data]);
-  useEffect(() => {
-    dispatch(
-      FetchMetadata({ text: "https://www.youtube.com/watch?v=pQq9eP5OFhw" })
-    );
-  }, []);
+  // useEffect(() => {
+  //   dispatch(
+  //     FetchMetadata({ text: "https://www.youtube.com/watch?v=pQq9eP5OFhw" })
+  //   );
+  // }, []);
   const loadAudio = async () => {
     try {
       if (data) {
@@ -88,19 +89,17 @@ const Player = () => {
       setProgressSeconds(currentSeconds);
     }
   };
-
   const togglePlayPause = async () => {
     if (!soundRef.current) return;
-
+  
     if (isPlaying) {
       await soundRef.current.pauseAsync();
     } else {
-      await soundRef.current.playFromPositionAsync(0); // play from beginning if needed
-      // or just playAsync() to resume from last position
+      await soundRef.current.playAsync(); // resumes from last position
     }
-
+  
     setIsPlaying((prev) => !prev);
-  };
+  }
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);

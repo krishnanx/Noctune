@@ -5,11 +5,37 @@ import UniversalNavi from './Navigation/Universal';
 import { darkTheme } from './Theme/darkTheme';
 import { lightTheme } from './Theme/lightTheme';
 import { useSelector } from 'react-redux';
-
+import { useDispatch } from 'react-redux';
 import Websocket from './src/Websocket/Websocket';
-
+import { FetchMetadata } from './Store/MusicSlice';
+import { useEffect } from 'react';
+import { Text } from 'react-native';
 export default function App() {
   const { Mode } = useSelector((state) => state.theme);
+  const { data,status } = useSelector((state) => state.data);
+  const dispatch = useDispatch();
+   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Dispatch the action to fetch metadata
+        await dispatch(FetchMetadata({ text: "https://www.youtube.com/watch?v=pQq9eP5OFhw" })).unwrap();
+      } catch (error) {
+        console.error("❌ Error occurred while fetching metadata:", error);
+        // Handle error within the component (e.g., set an error state)
+        // You can use local state or display a message in the UI
+      }
+    };
+
+    fetchData();
+  }, [dispatch]);
+
+  if (status === "loading") {
+    return <Text>Loading...</Text>;
+  }
+
+  if (status === "error") {
+    return <Text>Something went wrong while fetching data.</Text>;
+  }
 
   return (
     <SafeAreaProvider>
