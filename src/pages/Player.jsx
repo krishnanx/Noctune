@@ -46,6 +46,7 @@ const Player = () => {
 
   useEffect(() => {
     if (data) {
+      console.log("data:",data);
       loadAudio();
     }
 
@@ -99,12 +100,13 @@ const Player = () => {
   };
 
   const tailFill = async (currentSec) => {
-    for (let sec = currentSec + 1; sec <= data?.duration; sec++) {
-      // wait 1 s
-      await new Promise((res) => setTimeout(res, 1000));
-      setProgressSeconds(sec);
-    }
+    // for (let sec = currentSec + 1; sec <= data?.duration; sec++) {
+    //   // wait 1 s
+    //   await new Promise(res => setTimeout(res, 1000));
+    //   setProgressSeconds(sec);
+    // }
     // once done:
+    setProgressSeconds(currentSec);
     setIsPlaying(false);
     unloadAudio();
     return; // if you want to free the sound
@@ -119,8 +121,9 @@ const Player = () => {
       }
 
       if (status.didJustFinish) {
-        if (progressSeconds != data?.duration) {
-          tailFill(progressSeconds);
+        if(progressSeconds!=data?.duration && progressSeconds!= 0){
+          console.log("finishing up!!")
+          tailFill(data?.duration);
         }
       }
     } else if (status.error) {
