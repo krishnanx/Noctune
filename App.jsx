@@ -18,7 +18,7 @@ export default function App() {
     const fetchData = async () => {
       try {
         // Dispatch the action to fetch metadata
-        await dispatch(FetchMetadata({ text: "https://www.youtube.com/watch?v=pQq9eP5OFhw" })).unwrap();
+        await dispatch(FetchMetadata({ text: "https://www.youtube.com/watch?v=e1mOmdykmwI" })).unwrap();
       } catch (error) {
         console.error("❌ Error occurred while fetching metadata:", error);
         // Handle error within the component (e.g., set an error state)

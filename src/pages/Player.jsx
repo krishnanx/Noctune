@@ -26,7 +26,7 @@ const Player = () => {
   const { data,status } = useSelector((state) => state.data);
   const dispatch = useDispatch();
 
-  const audioUrl = "https://www.youtube.com/watch?v=pQq9eP5OFhw";
+  const audioUrl = "https://www.youtube.com/watch?v=e1mOmdykmwI";
 
   //const SERVER = "http://192.168.1.48:80/api/stream";
   //`${SERVER}?url=${encodeURIComponent(audioUrl)}`
@@ -44,9 +44,26 @@ const Player = () => {
     }
 
     return () => {
-      unloadAudio();
+      console.log("hi")
     };
   }, [data]);
+  useEffect(()=>{
+    console.log("sec:",progressSeconds);
+    console.log("isPlaying?...:",isPlaying);
+  },[progressSeconds,isPlaying])
+  // useEffect(() => {
+  //   if (isPlaying && soundRef.current) {
+  //     const intervalId = setInterval(() => {
+  //       soundRef.current.getStatusAsync().then((status) => {
+  //         if (status.isLoaded && typeof status.positionMillis === 'number') {
+  //           setProgressSeconds(Math.floor(status.positionMillis / 1000));
+  //         }
+  //       });
+  //     }, 1000);
+  
+  //     return () => clearInterval(intervalId);
+  //   }
+  // }, [isPlaying]);
   // useEffect(() => {
   //   dispatch(
   //     FetchMetadata({ text: "https://www.youtube.com/watch?v=pQq9eP5OFhw" })
@@ -55,6 +72,11 @@ const Player = () => {
   const loadAudio = async () => {
     try {
       if (data) {
+        if (soundRef.current) {
+          await soundRef.current.unloadAsync();
+          soundRef.current = null;
+        }
+        setProgressSeconds(0)
         await Audio.setAudioModeAsync({
           allowsRecordingIOS: false,
           staysActiveInBackground: true,
@@ -65,10 +87,14 @@ const Player = () => {
 
         const { sound } = await Audio.Sound.createAsync(
           { uri: streamUrl },
-          { shouldPlay: false },
+          { shouldPlay: false,progressUpdateIntervalMillis: 1060  },
           onPlaybackStatusUpdate
         );
         soundRef.current = sound;
+        sound.setOnPlaybackStatusUpdate((status) => {
+          // console.log("isPlaying:", status.isPlaying, "positionMillis:", status.positionMillis);
+          onPlaybackStatusUpdate(status);
+        });
         console.log("Audio Loaded", soundRef.current);
       }
     } catch (error) {
@@ -82,23 +108,50 @@ const Player = () => {
       soundRef.current = null;
     }
   };
-
+  const tailFill = async (currentSec) => {
+    for (let sec = currentSec + 1; sec <= data?.duration; sec++) {
+      // wait 1 s
+      await new Promise(res => setTimeout(res, 1000));
+      setProgressSeconds(sec);
+    }
+    // once done:
+    setIsPlaying(false);
+    unloadAudio();
+    return  // if you want to free the sound
+  };
+  
   const onPlaybackStatusUpdate = (status) => {
-    if (status.isLoaded && typeof status.positionMillis === "number") {
-      const currentSeconds = Math.floor(status.positionMillis / 1000);
-      setProgressSeconds(currentSeconds);
+    if (status.isLoaded) {
+      console.log("hi?")
+      console.log("positionMillis:", status.positionMillis/1000);
+      if (status.isPlaying) {
+        setProgressSeconds((prev)=>prev+1);
+      }
+  
+      if (status.didJustFinish) {
+        if(progressSeconds!=data?.duration){
+          tailFill(progressSeconds);
+        }
+        
+      }
+    } else if (status.error) {
+      console.log(`Playback error: ${status.error}`);
     }
   };
+  
   const togglePlayPause = async () => {
     if (!soundRef.current) return;
   
     if (isPlaying) {
       await soundRef.current.pauseAsync();
+      setProgressSeconds((prev)=>prev-1);
     } else {
       await soundRef.current.playAsync(); // resumes from last position
+      setProgressSeconds((prev)=>prev-1);
     }
   
     setIsPlaying((prev) => !prev);
+   
   }
 
   const formatTime = (seconds) => {
@@ -112,8 +165,8 @@ const Player = () => {
   };
 
   const TOTAL_DURATION = data?.duration;
+  
 
-  const progressPercent = (progressSeconds / TOTAL_DURATION) * 100;
 
   const styles = StyleSheet.create({
     Main: {
@@ -264,7 +317,7 @@ const Player = () => {
         data={data}
         liked={liked}
         setLiked={setLiked}
-        progressPercent={progressPercent}
+        progressPercent={ TOTAL_DURATION ? (progressSeconds / TOTAL_DURATION) * 100 : 0}
         progressSeconds={progressSeconds}
         TOTAL_DURATION={TOTAL_DURATION}
         formatTime={formatTime}
