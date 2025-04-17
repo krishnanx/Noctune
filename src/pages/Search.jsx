@@ -3,13 +3,10 @@ import {
   View,
   StyleSheet,
   Text,
-  TextInput,
   Image,
   KeyboardAvoidingView,
-  TouchableWithoutFeedback,
-  Platform,
-  Dimensions,
   FlatList,
+  ActivityIndicator
 } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { Input } from "@ui-kitten/components";
@@ -19,103 +16,19 @@ import Svg, { Path } from "react-native-svg";
 import { Keyboard } from "react-native";
 import { useDispatch } from "react-redux";
 import { changeState } from "../../Store/KeyboardSlice";
+//import ytdl from "react-native-ytdl";
+import YTSearch from "youtube-search-api";
 //import { DownloadMusic } from "../../Store/MusicSlice";
 import { ScrollView } from "react-native";
 
 const Search = () => {
   const { colors } = useTheme(); // Get theme colors
-  //const [isDropdownVisible, setDropdownVisible] = useState(false);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [fetchSong, setFetchSong] = useState([]);
+  const [text, setText] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const dispatch = useDispatch();
-
-  // Temporary dummy data for fetched songs
-  const sampleSongs = [
-    {
-      id: 1,
-      title: "Levitating",
-      artist: "Dua Lipa",
-      image: "https://picsum.photos/200",
-    },
-    {
-      id: 2,
-      title: "Perfect",
-      artist: "Ed Sheeran",
-      image: "https://picsum.photos/200",
-    },
-    {
-      id: 3,
-      title: "Espresso",
-      artist: "Sabrina Carpenter",
-      image: "https://picsum.photos/200",
-    },
-    {
-      id: 4,
-      title: "Roar",
-      artist: "Katy Perry",
-      image: "https://picsum.photos/200",
-    },
-    {
-      id: 5,
-      title: "Wildest Dreams",
-      artist: "Taylor Swift",
-      image: "https://picsum.photos/200",
-    },
-    {
-      id: 6,
-      title: "Shape of You",
-      artist: "Ed Sheeran",
-      image: "https://picsum.photos/200",
-    },
-    {
-      id: 7,
-      title: "Blinding Lights",
-      artist: "The Weeknd",
-      image: "https://picsum.photos/200",
-    },
-    {
-      id: 8,
-      title: "Peaches",
-      artist: "Justin Bieber",
-      image: "https://picsum.photos/200",
-    },
-    {
-      id: 9,
-      title: "Blinding Lights",
-      artist: "The Weeknd",
-      image: "https://picsum.photos/200",
-    },
-    {
-      id: 10,
-      title: "Peaches",
-      artist: "Justin Bieber",
-      image: "https://picsum.photos/200",
-    },
-    {
-      id: 11,
-      title: "Blinding Lights",
-      artist: "The Weeknd",
-      image: "https://picsum.photos/200",
-    },
-    {
-      id: 12,
-      title: "Peaches",
-      artist: "Justin Bieber",
-      image: "https://picsum.photos/200",
-    },
-    {
-      id: 13,
-      title: "Blinding Lights",
-      artist: "The Weeknd",
-      image: "https://picsum.photos/200",
-    },
-    {
-      id: 14,
-      title: "Peaches",
-      artist: "Justin Bieber",
-      image: "https://picsum.photos/200",
-    },
-  ];
 
   useEffect(() => {
     const keybaordDidShow = Keyboard.addListener("keyboardDidShow", () =>
@@ -130,13 +43,49 @@ const Search = () => {
     };
   }, []);
 
+  const searchYouTube = async(query) => {
+    if(!query.trim()) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try{
+      const searchResults = await YTSearch.GetListByKeyword(query, false, 5);
+      if (
+        searchResults &&
+        searchResults.items &&
+        Array.isArray(searchResults.items)
+      ) {
+        const formattedresults = searchResults.items.map(item => {
+          return {
+            id: item.id?.videoId || String(Math.random()),
+            title: item.title || "Unknown Title",
+            artist: item.channelTitle || "Unknown Artist",
+            image:
+              item.thumbnail && item.thumbnail.thumbnails
+                ? item.thumbnail.thumbnails[0]?.url
+                : "https://picsum.photos/200",
+            url: `https://www.youtube.com/watch?v=${item.id}`,
+          };
+        });
+        setFetchSong(formattedresults);
+      } else {
+        setFetchSong([]);
+      }
+  }
+    catch(err){
+      setError('Failed to search Youtube.Please try again');
+    }
+    finally{
+      setIsLoading(false);
+    }
+  };
+
+  
   const styles = StyleSheet.create({
     Main: {
       backgroundColor: colors.background,
       width: "100%",
-      //alignItems: "center",  //commented this
-      //padding: 10, //added
-      //paddingTop: 40, //added
       flex: 1, //added
       //height: "100%", //had to comment this
     },
@@ -150,35 +99,34 @@ const Search = () => {
     },
     InputView: {
       width: "100%",
-      //backgroundColor: "pink",
       justifyContent: "center",
       alignItems: "center",
       height: "15%",
       //paddingTop: 40,
       //marginBottom: 20,
     },
-    dropdownContainer: {
+    /*dropdownContainer: {
       paddingVertical: 10, //check
       paddingHorizontal: 15,
       borderRadius: 10,
       width: "100%",
       gap: 12,
-    },
+    },*/
     card: {
-      width: "95%", //95
+      width: "98%", //95
       alignSelf: "center",
       borderRadius: 20,
       padding: 15,
-      paddingLeft: 5,
-      marginVertical: 5,
+      paddingLeft: 15,
+      marginVertical: 10,
       flexDirection: "row",
       alignItems: "center",
-      gap: 15,
+      gap: 10,
       backgroundColor: "rgba(50,50,50,0.4)",
     },
     cardImage: {
-      width: 60,
-      height: 60,
+      width: 50,
+      height: 50,
       borderRadius: 8,
       marginRight: 15,
     },
@@ -188,27 +136,27 @@ const Search = () => {
     },
     songName: {
       color: "white",
-      fontSize: 18,
+      fontSize: 15,
       fontWeight: "bold",
     },
   });
 
-  const [text, setText] = useState("");
-
+  
   return (
     <View style={styles.Main}>
       {/* <Input
-                placeholder='Place your Text'
-                value={""}
-                onChangeText={nextValue => { }}
-            /> */}
+          placeholder='Place your Text'
+          value={""}
+          onChangeText={nextValue => { }}
+      />*/}
 
       <View style={styles.InputView}>
         <Searchbar
           style={{ padding: 0, margin: 0, width: 350 }}
           onSubmitEditing={() => {
             //dispatch(DownloadMusic({ text }));
-            setFetchSong(sampleSongs);
+            //setFetchSong(sampleSongs);
+            searchYouTube(text)
           }}
           icon={() => (
             <View
@@ -238,54 +186,41 @@ const Search = () => {
               setFetchSong([]);
             }
           }}
-          //onFocus={() => setIsFocussed(true)}
-          //onBlur={() => setIsFocussed(false)}
-          //onChangeText={setText}
           value={text}
         />
       </View>
-      {/*<ScrollView>
-        {fetchSong.length > 0 && (
-          <View style={styles.dropdownContainer}>
-            {/*<Text style={styles.heading}>Recent Searches</Text>
-            {fetchSong.map((item) => (
-              <View key={item.id} style={styles.card}>
-                <Image source={{ uri: item.image }} style={styles.cardImage} />
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.songName}>{item.title}</Text>
-                  <Text style={styles.artistName}>{item.artist}</Text>
-                </View>
-                <View style={{ marginLeft: "auto" }}>
-                  <Entypo name="dots-three-vertical" size={20} color="white" />
-                </View>
-              </View>
-            ))}
-          </View>
-        )}
-      </ScrollView>*/}
       <View style={{ flexGrow: 1 }}>
         <KeyboardAvoidingView>
+           {isLoading ? (
+            <View style={{ padding: 20 }}>
+              <ActivityIndicator size="large" color="white" />
+            </View>
+          ) : error ? (
+            <View style={{ padding: 20, alignItems: 'center' }}>
+              <Text style={{ color: 'red', textAlign: 'center' }}>{error}</Text>
+            </View>
+          ) : (
           <FlatList
             data={fetchSong}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
               <View style={styles.card}>
                 <Image source={{ uri: item.image }} style={styles.cardImage} />
-                <View>
+                <View style>
                   <Text style={styles.songName}>{item.title}</Text>
                   <Text style={styles.artistName}>{item.artist}</Text>
                 </View>
-                <View style={{ marginLeft: "auto" }}>
+                <View >
                   <Entypo name="dots-three-vertical" size={20} color="white" />
                 </View>
               </View>
             )}
             contentContainerStyle={{
               paddingBottom: 100,
-              //flexGrow: 1,
             }}
             keyboardShouldPersistTaps="handled"
           />
+          ) }
           <Text style={{ color: "white" }}></Text>
         </KeyboardAvoidingView>
       </View>
