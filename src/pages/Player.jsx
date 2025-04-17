@@ -46,7 +46,7 @@ const Player = () => {
 
   useEffect(() => {
     if (data) {
-      console.log("data:",data);
+      console.log("data:", data);
       loadAudio();
     }
 
@@ -121,8 +121,8 @@ const Player = () => {
       }
 
       if (status.didJustFinish) {
-        if(progressSeconds!=data?.duration && progressSeconds!= 0){
-          console.log("finishing up!!")
+        if (progressSeconds != data?.duration && progressSeconds != 0) {
+          console.log("finishing up!!");
           tailFill(data?.duration);
         }
       }
@@ -152,7 +152,6 @@ const Player = () => {
       setProgressSeconds(0);
     }
   };
-
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -245,7 +244,7 @@ const Player = () => {
     },
     progressBarContainer: {
       position: "absolute",
-      top: 560,
+      bottom: 140,
       width: "90%",
       alignSelf: "center",
     },
@@ -289,7 +288,9 @@ const Player = () => {
     },
     playPauseButton: {
       width: 70,
+      position: "absolute",
       height: 70,
+      top: 50,
       borderRadius: 35,
       backgroundColor: "white",
       justifyContent: "center",
@@ -327,6 +328,7 @@ const Player = () => {
     miniTriangle: {
       width: 0,
       height: 0,
+
       backgroundColor: "transparent",
       borderStyle: "solid",
       borderLeftWidth: 10,
@@ -358,21 +360,21 @@ const Player = () => {
       marginHorizontal: 2,
       borderRadius: 1,
     },
-    skipButton: {
-      marginHorizontal: 20,
-    },
+    skipButton: { top: 65, marginHorizontal: 65 },
     container: {
       position: "absolute",
-      top: 470,
+      top: 490,
       left: 25,
       alignItems: "left",
     },
     songName: {
       fontSize: 18,
+      top: 20,
       fontWeight: "bold",
       color: "white",
     },
     singerName: {
+      top: 20,
       fontSize: 18,
       fontWeight: "300",
       color: "gray",
@@ -380,7 +382,7 @@ const Player = () => {
     },
     albumArt: {
       position: "absolute",
-      top: 100,
+      top: 120,
       width: 340,
       height: 340,
       borderRadius: 20,
@@ -389,7 +391,7 @@ const Player = () => {
     },
     heartIcon: {
       position: "absolute",
-      top: 480,
+      top: 510,
       left: 140,
     },
     modalOverlay: {
@@ -455,7 +457,7 @@ const Player = () => {
             ) : (
               <View style={styles.miniTriangle} />
             )}
-           </TouchableOpacity>
+          </TouchableOpacity>
         </View>
 
         {/* Mini progress bar */}
@@ -504,8 +506,8 @@ const Player = () => {
       />
 
       <TouchableOpacity onPress={replaySound}>
-        <View style={{ bottom: 13, left: 150 }}>
-          <Ionicons name="refresh" size={30} color="white" />
+        <View style={{ left: 150 }}>
+          <Ionicons name="refresh" size={24} color="white" />
         </View>
       </TouchableOpacity>
 
@@ -576,7 +578,7 @@ const Controls = ({ togglePlayPause, isPlaying, styles, colors }) => {
   return (
     <View style={styles.controlsContainer}>
       <TouchableOpacity style={styles.skipButton}>
-        <SkipBack width={40} height={40} stroke={colors.text} />
+        <SkipBack width={35} height={35} stroke={colors.text} />
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -594,7 +596,7 @@ const Controls = ({ togglePlayPause, isPlaying, styles, colors }) => {
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.skipButton}>
-        <SkipForward width={40} height={40} stroke={colors.text} />
+        <SkipForward width={35} height={35} stroke={colors.text} />
       </TouchableOpacity>
     </View>
   );
