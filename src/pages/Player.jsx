@@ -35,7 +35,7 @@ const Player = () => {
   const animatedHeight = useRef(new Animated.Value(windowHeight)).current;
   const animatedWidth = useRef(new Animated.Value(windowWidth)).current;
 
-  const audioUrl = "https://www.youtube.com/watch?v=e1mOmdykmwI";
+  const audioUrl = "https://youtu.be/ql9VWZ3KfQg?si=dtklV4MOw4AkCdpk";
 
   const streamUrl =
     typeof Constants.expoConfig.extra.SERVER !== "undefined"
