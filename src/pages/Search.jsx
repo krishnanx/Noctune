@@ -9,7 +9,6 @@ import {
   ActivityIndicator
 } from "react-native";
 import { useTheme } from "@react-navigation/native";
-import { Input } from "@ui-kitten/components";
 import { Entypo } from "@expo/vector-icons";
 import { Searchbar } from "react-native-paper";
 import Svg, { Path } from "react-native-svg";
@@ -18,70 +17,91 @@ import { useDispatch } from "react-redux";
 import { changeState } from "../../Store/KeyboardSlice";
 //import ytdl from "react-native-ytdl";
 import YTSearch from "youtube-search-api";
+import YoutubeMusicApi from "youtube-music-api";
 //import { DownloadMusic } from "../../Store/MusicSlice";
 import { ScrollView } from "react-native";
 
 const Search = () => {
   const { colors } = useTheme(); // Get theme colors
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-  const [fetchSong, setFetchSong] = useState([]);
-  const [text, setText] = useState("");
+  const [songs, setSongs] = useState([]);
+  const [query, setText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isApiInitialized, setIsApiInitialized] = useState(false);
+  const [ytmusicApi, setYtMusicApi] = useState(null);
   const dispatch = useDispatch();
 
+  
+
   useEffect(() => {
+    const initializeApi = async () => {
+      try {
+        const api = new YoutubeMusicApi();
+        await api.initalize();   //initialize the api
+        setYtMusicApi(api);
+        setIsApiInitialized(true);
+        console.log("YouTube Music API initialized successfully");
+      } catch (err) {
+        console.error("Failed to initialize YouTube Music API:", err);
+        setError("Failed to initialize music search. Please try again later.");
+      }
+    };
+
+    initializeApi();
     const keybaordDidShow = Keyboard.addListener("keyboardDidShow", () =>
       dispatch(changeState(true))
     );
     const keyboardDidHide = Keyboard.addListener("keyboardDidHide", () =>
       dispatch(changeState(false))
     );
+
     return () => {
       keybaordDidShow.remove();
       keyboardDidHide.remove();
     };
   }, []);
 
-  const searchYouTube = async(query) => {
-    if(!query.trim()) return;
 
+  const searchMusic = async (searchText) => {  
+    if (!searchText || !searchText.trim()) return;
+    if (!isApiInitialized) {
+       setError(
+         "Please try again."
+       );
+      return;
+    }
     setIsLoading(true);
     setError(null);
 
-    try{
-      const searchResults = await YTSearch.GetListByKeyword(query, false, 5);
-      if (
-        searchResults &&
-        searchResults.items &&
-        Array.isArray(searchResults.items)
-      ) {
-        const formattedresults = searchResults.items.map(item => {
-          return {
-            id: item.id?.videoId || String(Math.random()),
-            title: item.title || "Unknown Title",
-            artist: item.channelTitle || "Unknown Artist",
-            image:
-              item.thumbnail && item.thumbnail.thumbnails
-                ? item.thumbnail.thumbnails[0]?.url
-                : "https://picsum.photos/200",
-            url: `https://www.youtube.com/watch?v=${item.id}`,
-          };
-        });
-        setFetchSong(formattedresults);
-      } else {
-        setFetchSong([]);
-      }
-  }
-    catch(err){
-      setError('Failed to search Youtube.Please try again');
-    }
-    finally{
-      setIsLoading(false);
-    }
+     try {
+       const results = await ytmusicApi.search(searchText, "song");
+       console.log("Search results:", results);
+
+       if (results && results.content && results.content.length > 0) {
+         //Process top5 results only
+         const topResults = results.content.slice(0, 5).map((item) => ({
+           id: item.videoId,
+           title: item.name,
+           artist: item.artist ? item.artist.name : "Unknown Artist",
+           image: item.thumbnails ? item.thumbnails[0].url : null,
+           url: `https://www.youtube.com/watch?v=${item.videoId}`,
+         }));
+
+         setSongs(topResults);
+       } else {
+         setSongs([]);
+         setError("No songs found");
+       }
+     } catch (err) {
+       console.error("Search error:", err);
+       setError("Failed to search for music. Please try again.");
+     } finally {
+       setIsLoading(false);
+     }
   };
 
-  
+
   const styles = StyleSheet.create({
     Main: {
       backgroundColor: colors.background,
@@ -105,13 +125,6 @@ const Search = () => {
       //paddingTop: 40,
       //marginBottom: 20,
     },
-    /*dropdownContainer: {
-      paddingVertical: 10, //check
-      paddingHorizontal: 15,
-      borderRadius: 10,
-      width: "100%",
-      gap: 12,
-    },*/
     card: {
       width: "98%", //95
       alignSelf: "center",
@@ -122,7 +135,7 @@ const Search = () => {
       flexDirection: "row",
       alignItems: "center",
       gap: 10,
-      backgroundColor: "rgba(50,50,50,0.4)",
+      backgroundColor: "rgba(50,50,50,0.5)",
     },
     cardImage: {
       width: 50,
@@ -132,16 +145,22 @@ const Search = () => {
     },
     artistName: {
       color: "white",
-      fontSize: 14,
+      fontSize: 13,
     },
     songName: {
       color: "white",
-      fontSize: 15,
+      fontSize: 16,
       fontWeight: "bold",
     },
+    textContainer: {
+      flex:1,
+      paddingRight:10,
+    },
+    dotsContainer: {
+      marginLeft:'auto',
+    }
   });
 
-  
   return (
     <View style={styles.Main}>
       {/* <Input
@@ -153,10 +172,11 @@ const Search = () => {
       <View style={styles.InputView}>
         <Searchbar
           style={{ padding: 0, margin: 0, width: 350 }}
+          placeholder="Search for music..."
           onSubmitEditing={() => {
             //dispatch(DownloadMusic({ text }));
             //setFetchSong(sampleSongs);
-            searchYouTube(text)
+            searchMusic(query);
           }}
           icon={() => (
             <View
@@ -178,49 +198,64 @@ const Search = () => {
             </View>
           )}
           onClearIconPress={() => {
-            setFetchSong([]);
+            setText("");
+            setSongs([]);
           }}
           onChangeText={(value) => {
             setText(value);
             if (value === "") {
-              setFetchSong([]);
+              setSongs([]);
             }
           }}
-          value={text}
+          //value={text}
+          value={query}
         />
       </View>
       <View style={{ flexGrow: 1 }}>
         <KeyboardAvoidingView>
-           {isLoading ? (
+          {isLoading ? (
             <View style={{ padding: 20 }}>
               <ActivityIndicator size="large" color="white" />
             </View>
           ) : error ? (
-            <View style={{ padding: 20, alignItems: 'center' }}>
-              <Text style={{ color: 'red', textAlign: 'center' }}>{error}</Text>
+            <View style={{ padding: 20, alignItems: "center" }}>
+              <Text style={{ color: "red", textAlign: "center" }}>{error}</Text>
             </View>
           ) : (
-          <FlatList
-            data={fetchSong}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => (
-              <View style={styles.card}>
-                <Image source={{ uri: item.image }} style={styles.cardImage} />
-                <View style>
-                  <Text style={styles.songName}>{item.title}</Text>
-                  <Text style={styles.artistName}>{item.artist}</Text>
+            <FlatList
+              data={songs}
+              keyExtractor={(item) => item.id.toString()}
+              renderItem={({ item }) => (
+                <View style={styles.card}>
+                  <Image
+                    source={{ uri: item.image }}
+                    style={styles.cardImage}
+                  />
+                  <View style={styles.textContainer}>
+                    <Text
+                      numberOfLines={1}
+                      ellipsizeMode="tail"
+                      style={styles.songName}
+                    >
+                      {item.title}
+                    </Text>
+                    <Text style={styles.artistName}>{item.artist}</Text>
+                  </View>
+                  <View style={styles.dotsContainer}>
+                    <Entypo
+                      name="dots-three-vertical"
+                      size={20}
+                      color="white"
+                    />
+                  </View>
                 </View>
-                <View >
-                  <Entypo name="dots-three-vertical" size={20} color="white" />
-                </View>
-              </View>
-            )}
-            contentContainerStyle={{
-              paddingBottom: 100,
-            }}
-            keyboardShouldPersistTaps="handled"
-          />
-          ) }
+              )}
+              contentContainerStyle={{
+                paddingBottom: 100,
+              }}
+              keyboardShouldPersistTaps="handled"
+            />
+          )}
           <Text style={{ color: "white" }}></Text>
         </KeyboardAvoidingView>
       </View>
