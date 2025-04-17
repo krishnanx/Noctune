@@ -6,7 +6,9 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
+  Image,
 } from "react-native";
+import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import UniversalNavi from "./Navigation/Universal";
@@ -16,10 +18,9 @@ import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import Websocket from "./src/Websocket/Websocket";
 import { FetchMetadata } from "./Store/MusicSlice";
-import { useEffect, useRef } from "react";
-import { Text, Animated, Easing, ImageBackground } from "react-native";
-import Svg, { Circle, G } from "react-native-svg";
-import music from"./assets/music.png"
+import {  useEffect, useRef } from "react";
+import { Text, Animated,  } from "react-native";
+import note from "./assets/note.png"
 
 export default function App() {
   const { Mode } = useSelector((state) => state.theme);
@@ -46,24 +47,14 @@ export default function App() {
     return (
       <>
         <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          style={{
+            backgroundColor: "black",
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
         >
-          <ImageBackground
-            source={music}
-            style={{
-              paddingVertical: 50,
-              width: 40,
-              height: 40,
-            }}
-          />
-          <Text style={{ padding: 20, fontSize: 28, textAlign: "center" }}>
-            𝙉𝙤𝙘𝙩𝙪𝙣𝙚 - 𝙂𝙚𝙩𝙩𝙞𝙣𝙜 𝙇𝙤𝙨𝙩 𝙞𝙣 𝙀𝙫𝙚𝙧𝙮 𝙉𝙤𝙩𝙚
-          </Text>
-          <Text style={{ fontSize: 18, paddingBottom: 80 }}>
-            "𝘞𝘩𝘦𝘯 𝘸𝘰𝘳𝘥𝘴 𝘧𝘢𝘪𝘭, 𝘮𝘶𝘴𝘪𝘤 𝘧𝘪𝘯𝘥𝘴 𝘺𝘰𝘶."
-          </Text>
-          <CirclingLoader />
-          <Text style={{ color: "gray" }}>Loading...</Text>
+          <FadeInText />
         </View>
       </>
     );
@@ -108,54 +99,206 @@ const styles = StyleSheet.create({
   },
 });
 
-const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+const DotWave = () => {
+  const dot1 = new Animated.Value(0);
+  const dot2 = new Animated.Value(0);
+  const dot3 = new Animated.Value(0);
 
-const CirclingLoader = () => {
-  const rotateClock = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
+  const animateDots = () => {
     Animated.loop(
-      Animated.timing(rotateClock, {
-        toValue: 1,
-        duration: 2000,
-        easing: Easing.linear,
-        useNativeDriver: false,
-      })
+      Animated.sequence([
+        Animated.timing(dot1, {
+          toValue: 1,
+          duration: 300, // Faster animation speed
+          useNativeDriver: true,
+        }),
+        Animated.timing(dot1, {
+          toValue: 0,
+          duration: 300, // Faster animation speed
+          useNativeDriver: true,
+        }),
+        Animated.timing(dot2, {
+          toValue: 1,
+          duration: 300, // Faster animation speed
+          delay: 0, // Adjusted to match the faster speed
+          useNativeDriver: true,
+        }),
+        Animated.timing(dot2, {
+          toValue: 0,
+          duration: 300, // Faster animation speed
+          useNativeDriver: true,
+        }),
+        Animated.timing(dot3, {
+          toValue: 1,
+          duration: 300, // Faster animation speed
+          delay: 0, // Adjusted to match the faster speed
+          useNativeDriver: true,
+        }),
+        Animated.timing(dot3, {
+          toValue: 0,
+          duration: 300, // Faster animation speed
+          useNativeDriver: true,
+        }),
+      ])
     ).start();
-  }, [rotateClock]);
+  };
+
+  React.useEffect(() => {
+    animateDots();
+  }, []);
+
+  const dotStyle = (dotValue) => ({
+    transform: [
+      {
+        translateY: dotValue.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0, -10], // Adjust the distance here
+        }),
+      },
+    ],
+  });
+
+  const styles = StyleSheet.create({
+    container: {
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      marginTop: 50,
+    },
+    dot: {
+      width: 15,
+      height: 15,
+      backgroundColor: "white",
+      borderRadius: 50,
+      marginHorizontal: 5,
+    },
+  });
 
   return (
-    <View style={{ justifyContent: "center", alignItems: "center" }}>
-      <Svg width="100" height="100" viewBox="0 0 100 100">
-        <G transform="translate(50, 50)">
-          {Array.from({ length: 12 }, (_, i) => {
-            const angle = i * 30 * (Math.PI / 180);
-            const radius = 35;
-            const x = radius * Math.sin(angle);
-            const y = -radius * Math.cos(angle);
-
-            const inputStart = i / 12;
-            const inputEnd = (i + 1) / 12;
-
-            const opacity = rotateClock.interpolate({
-              inputRange: [0, inputStart, inputEnd, 1],
-              outputRange: [0.2, 1, 0.2, 0.2],
-              extrapolate: "clamp",
-            });
-
-            return (
-              <AnimatedCircle
-                key={i}
-                cx={x}
-                cy={y}
-                r="5"
-                fill="black"
-                opacity={opacity}
-              />
-            );
-          })}
-        </G>
-      </Svg>
+    <View style={styles.container}>
+      <Animated.View style={[styles.dot, dotStyle(dot1)]} />
+      <Animated.View style={[styles.dot, dotStyle(dot2)]} />
+      <Animated.View style={[styles.dot, dotStyle(dot3)]} />
     </View>
   );
 };
+
+const NUMBER_OF_BARS = 20;
+
+const WaveformLoader = () => {
+  const animations = useRef(
+    [...Array(NUMBER_OF_BARS)].map(() => new Animated.Value(20))
+  ).current;
+
+  useEffect(() => {
+    animations.forEach((anim, i) => {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(anim, {
+            toValue: 60,
+            duration: 1000,
+            delay: i * 100,
+            useNativeDriver: false,
+          }),
+          Animated.timing(anim, {
+            toValue: 20,
+            duration: 400,
+            useNativeDriver: false,
+          }),
+        ])
+      ).start();
+    });
+  }, []);
+
+  const styles = StyleSheet.create({
+    container: {
+      flexDirection: "row",
+      alignItems: "flex-end",
+      justifyContent: "center",
+      backgroundColor: "black", // for contrast
+      height: 100,
+      paddingHorizontal: 10,
+    },
+    bar: {
+      width: 6,
+      marginHorizontal: 3,
+      backgroundColor: "beige", // wave color
+      borderRadius: 3,
+    },
+  });
+
+  return (
+    <View style={styles.container}>
+      {animations.map((anim, index) => (
+        <Animated.View
+          key={index}
+          style={[
+            styles.bar,
+            {
+              height: anim,
+            },
+          ]}
+        />
+      ))}
+    </View>
+  );
+};
+
+const FadeInText = () => {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 3000,
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
+  return (
+    <Animated.View style={{ opacity: fadeAnim }}>
+      <Image
+        source={note}
+        style={{ width: 30, height: 40, alignSelf: "center" }} // center alignment in React Native
+      />
+      <Text
+        style={{
+          color: "wheat",
+          paddingBottom: 30,
+          fontSize: 50,
+          textAlign: "center",
+        }}
+      >
+        𝙉𝙤𝙘𝙩𝙪𝙣𝙚
+      </Text>
+
+      <Text
+        style={{
+          color: "beige",
+          paddingHorizontal: 20,
+          fontSize: 28,
+          textAlign: "center",
+        }}
+      >
+        𝙂𝙚𝙩𝙩𝙞𝙣𝙜 𝙇𝙤𝙨𝙩 𝙞𝙣 𝙀𝙫𝙚𝙧𝙮 𝙉𝙤𝙩𝙚
+      </Text>
+      <Text
+        style={{ textAlign: "center", alignItems: "center", paddingTop: 160 }}
+      >
+        <WaveformLoader />
+      </Text>
+      <Text
+        style={{
+          color: "beige",
+          padding: 20,
+          fontSize: 18,
+          textAlign: "center",
+        }}
+      >
+        "𝚆𝚑𝚎𝚗  𝚠𝚘𝚛𝚍𝚜  𝚏𝚊𝚒𝚕,  𝚖𝚞𝚜𝚒𝚌  𝚏𝚒𝚗𝚍𝚜  𝚢𝚘𝚞... "
+      </Text>
+    </Animated.View>
+  );
+};
+
+
