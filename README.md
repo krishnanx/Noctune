@@ -6,7 +6,7 @@ Noctune is the solution to our problem.
 The idea is to provide Free music streaming to all.
 Noctune gives you access to everything you could dream of—without the cost.
 
-Stay tune to know more!
+Stay tuned to know more!
 
 ## Tech stack
 - Frontend: React Native
