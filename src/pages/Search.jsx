@@ -26,7 +26,7 @@ import { addUrl } from "../../Store/MusicSlice";
 const Search = () => {
   const { colors } = useTheme(); // Get theme colors
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-  const [songs, setSongs] = useState([]);
+  const [songs, setSongs] = useState({});
   const [query, setText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -87,7 +87,7 @@ const Search = () => {
 
         setSongs(topResults);
       } else {
-        setSongs([]);
+        setSongs({});
         setError("No songs found");
       }
     } catch (err) {

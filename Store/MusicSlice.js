@@ -9,7 +9,6 @@ const MusicSlice = createSlice({
     data: [],
     status: "idle",
     Url: "",
-    metadata: null, // Make sure this exists
     error:null
   },
   reducers: {
@@ -28,7 +27,7 @@ const MusicSlice = createSlice({
       .addCase(FetchMetadata.fulfilled, (state, action) => {
         state.status = "succeeded";
         // Store the metadata explicitly
-        state.metadata = action.payload;
+        state.data = action.payload;
         console.log("Metadata stored in state:", action.payload);
       })
       .addCase(FetchMetadata.rejected, (state, action) => {
@@ -52,15 +51,14 @@ export const FetchMetadata = createAsyncThunk(
           params: { url: text },
         }
       );
-      console.log("Full Response:", response);
+      
       const metadata = {
         title: response.headers.get("X-Title"),
         uploader: response.headers.get("X-Artist"),
         thumbnail: response.headers.get("X-Thumbnail"),
         duration: Number(response.headers.get("X-Duration")),
       };
-      console.log("RESPONSEEEEE");
-      console.log(response);
+     
       console.log("META DATA");
       console.log(metadata);
       return metadata; // Metadata (title, duration, etc.)

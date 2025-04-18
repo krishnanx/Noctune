@@ -38,7 +38,7 @@ const Player = () => {
   const [isMinimized, setIsMinimized] = useState(false);
   const animatedHeight = useRef(new Animated.Value(windowHeight)).current;
   const animatedWidth = useRef(new Animated.Value(windowWidth)).current;
-  const { data, status } = useSelector((state) => state.data);
+  const { data, status , url,error } = useSelector((state) => state.data);
 const audioUrl = useSelector((state) => state.data.Url);
 console.log("Current URL state:", audioUrl);
 
