@@ -6,7 +6,7 @@ const MusicSlice = createSlice({
     name: "Music",
     initialState: {
         data: [],
-        status:"idle"
+        status:"loading"
     },
     reducers: {
         addMusic(state, action) {
