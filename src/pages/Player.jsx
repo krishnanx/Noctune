@@ -18,6 +18,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { FetchMetadata } from "../../Store/MusicSlice";
+import { useNavigation } from "@react-navigation/native";
 
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
@@ -29,13 +30,23 @@ const Player = () => {
   const [progressSeconds, setProgressSeconds] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [liked, setLiked] = useState(false);
-  const { data, status } = useSelector((state) => state.data);
+ // const [audioUrl, setAudioUrl] = useState("");
+
+
   const dispatch = useDispatch();
+  const navigation = useNavigation();
   const [isMinimized, setIsMinimized] = useState(false);
   const animatedHeight = useRef(new Animated.Value(windowHeight)).current;
   const animatedWidth = useRef(new Animated.Value(windowWidth)).current;
+  const { data, status } = useSelector((state) => state.data);
+const audioUrl = useSelector((state) => state.data.Url);
+console.log("Current URL state:", audioUrl);
 
-  const audioUrl = "https://youtu.be/ql9VWZ3KfQg?si=dtklV4MOw4AkCdpk";
+  // useEffect(() => {
+  //   if (data) {
+  //     setAudioUrl(data.url); // Assuming the data object contains a field `url` with the audio URL
+  //   }
+  // }, [data]);
 
   const streamUrl =
     typeof Constants.expoConfig.extra.SERVER !== "undefined"
