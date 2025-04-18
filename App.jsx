@@ -8,7 +8,7 @@ import {
   Keyboard,
   Image,
 } from "react-native";
-import React from "react";
+import React,{useState} from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import UniversalNavi from "./Navigation/Universal";
@@ -24,24 +24,16 @@ import note from "./assets/note.png"
 
 export default function App() {
   const { Mode } = useSelector((state) => state.theme);
-  const { data, status } = useSelector((state) => state.data);
-  const dispatch = useDispatch();
+  //const { data, status } = useSelector((state) => state.data);
+  const [status, setStatus] = useState("loading");
+  
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        // Dispatch the action to fetch metadata
-        await dispatch(
-          FetchMetadata({ text: "https://www.youtube.com/watch?v=e1mOmdykmwI" })
-        ).unwrap();
-      } catch (error) {
-        console.error("❌ Error occurred while fetching metadata:", error);
-        // Handle error within the component (e.g., set an error state)
-        // You can use local state or display a message in the UI
-      }
+      setInterval(()=>{setStatus("idle")},2000);
     };
 
     fetchData();
-  }, [dispatch]);
+  }, []);
 
   if (status === "loading") {
     return (
