@@ -42,7 +42,14 @@ const MainTab = () => {
       >
         <Tab.Screen name="Home" component={Home} />
         <Tab.Screen name="Search" component={Search} />
-        <Tab.Screen name="Player" component={Player} />
+        <Tab.Screen
+          name="Player"
+          component={Player}
+          options={{
+            unmountOnBlur: false, // keeps Player alive when you leave and return
+          }}
+        />
+
         <Tab.Screen name="Settings" component={Settings} />
       </Tab.Navigator>
     );

@@ -6,7 +6,7 @@ import {
   Image,
   KeyboardAvoidingView,
   FlatList,
-  ActivityIndicator
+  ActivityIndicator,
 } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { Entypo } from "@expo/vector-icons";
@@ -16,10 +16,12 @@ import { Keyboard } from "react-native";
 import { useDispatch } from "react-redux";
 import { changeState } from "../../Store/KeyboardSlice";
 //import ytdl from "react-native-ytdl";
-import YTSearch from "youtube-search-api";
+//import YTSearch from "youtube-search-api";
 import YoutubeMusicApi from "youtube-music-api";
 //import { DownloadMusic } from "../../Store/MusicSlice";
 import { ScrollView } from "react-native";
+import { FetchMetadata } from "../../Store/MusicSlice";
+import { addUrl } from "../../Store/MusicSlice";
 
 const Search = () => {
   const { colors } = useTheme(); // Get theme colors
@@ -32,13 +34,11 @@ const Search = () => {
   const [ytmusicApi, setYtMusicApi] = useState(null);
   const dispatch = useDispatch();
 
-  
-
   useEffect(() => {
     const initializeApi = async () => {
       try {
         const api = new YoutubeMusicApi();
-        await api.initalize();   //initialize the api
+        await api.initalize(); //initialize the api
         setYtMusicApi(api);
         setIsApiInitialized(true);
         console.log("YouTube Music API initialized successfully");
@@ -62,46 +62,47 @@ const Search = () => {
     };
   }, []);
 
-
-  const searchMusic = async (searchText) => {  
+  const searchMusic = async (searchText) => {
     if (!searchText || !searchText.trim()) return;
     if (!isApiInitialized) {
-       setError(
-         "Please try again."
-       );
+      setError("Please try again.");
       return;
     }
     setIsLoading(true);
     setError(null);
 
-     try {
-       const results = await ytmusicApi.search(searchText, "song");
-       console.log("Search results:", results);
+    try {
+      const results = await ytmusicApi.search(searchText, "song");
+      console.log("Search results:", results);
 
-       if (results && results.content && results.content.length > 0) {
-         //Process top5 results only
-         const topResults = results.content.slice(0, 5).map((item) => ({
-           id: item.videoId,
-           title: item.name,
-           artist: item.artist ? item.artist.name : "Unknown Artist",
-           image: item.thumbnails ? item.thumbnails[0].url : null,
-           url: `https://www.youtube.com/watch?v=${item.videoId}`,
-         }));
+      if (results && results.content && results.content.length > 0) {
+        //Process top5 results only
+        const topResults = results.content.slice(0, 5).map((item) => ({
+          id: item.videoId,
+          title: item.name,
+          artist: item.artist ? item.artist.name : "Unknown Artist",
+          image: item.thumbnails ? item.thumbnails[0].url : null,
+          url: `https://www.youtube.com/watch?v=${item.videoId}`,
+        }));
 
-         setSongs(topResults);
-       } else {
-         setSongs([]);
-         setError("No songs found");
-       }
-     } catch (err) {
-       console.error("Search error:", err);
-       setError("Failed to search for music. Please try again.");
-     } finally {
-       setIsLoading(false);
-     }
+        setSongs(topResults);
+      } else {
+        setSongs([]);
+        setError("No songs found");
+      }
+    } catch (err) {
+      console.error("Search error:", err);
+      setError("Failed to search for music. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
-
-
+const handleCardPress = (song) => {
+  console.log("Card pressed with URL:", song.url);
+  dispatch(FetchMetadata({ text: song.url }));
+  dispatch(addUrl(song.url));
+  console.log("Dispatches complete");
+};
   const styles = StyleSheet.create({
     Main: {
       backgroundColor: colors.background,
@@ -153,12 +154,12 @@ const Search = () => {
       fontWeight: "bold",
     },
     textContainer: {
-      flex:1,
-      paddingRight:10,
+      flex: 1,
+      paddingRight: 10,
     },
     dotsContainer: {
-      marginLeft:'auto',
-    }
+      marginLeft: "auto",
+    },
   });
 
   return (
@@ -168,7 +169,6 @@ const Search = () => {
           value={""}
           onChangeText={nextValue => { }}
       />*/}
-
       <View style={styles.InputView}>
         <Searchbar
           style={{ padding: 0, margin: 0, width: 350 }}
@@ -226,7 +226,10 @@ const Search = () => {
               data={songs}
               keyExtractor={(item) => item.id.toString()}
               renderItem={({ item }) => (
-                <View style={styles.card}>
+                <View
+                  style={styles.card}
+                  onTouchEnd={() => handleCardPress(item)}
+                >
                   <Image
                     source={{ uri: item.image }}
                     style={styles.cardImage}
