@@ -1,23 +1,31 @@
-import React,{useEffect,useRef} from 'react'
-import { useSelector,useDispatch } from 'react-redux';
+import React, { useEffect, useRef } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { loadAudio } from './music';
+
 const Audioloader = () => {
-    
-const {data,pos,seek,isPlaying} = useSelector((state) => state.data);
-const seekRef = useRef(seek);
-const dispatch = useDispatch();
-useEffect(() => {
-  seekRef.current = seek; 
-}, [seek]);
+  const { data, pos, seek } = useSelector((state) => state.data);
+  const seekRef = useRef(seek);
+  const prevPosRef = useRef(null);
+  const hasLoadedOnce = useRef(false);
+  const dispatch = useDispatch();
 
+  // Keep seek ref updated
+  useEffect(() => {
+    seekRef.current = seek;
+  }, [seek]);
 
-useEffect(() => {
-  loadAudio(data, pos, dispatch, () => seekRef.current);
-}, []);
+  useEffect(() => {
+    console.log("pos:",pos);
+    console.log("prev pos:",prevPosRef.current )
+    if (prevPosRef.current !== pos) {
+      console.log("Loading audio");
+      loadAudio(data, pos, dispatch, () => seekRef.current);
+      prevPosRef.current = pos;
+      
+    }
+  }, [pos, data, dispatch]);
 
-  return (
-    <></>
-  )
-}
+  return null;
+};
 
-export default Audioloader
+export default Audioloader;

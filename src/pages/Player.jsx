@@ -17,8 +17,9 @@ import { useDispatch, useSelector } from "react-redux";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { FetchMetadata } from "../../Store/MusicSlice";
 import { useNavigation } from "@react-navigation/native";
-import { changePos ,progress,setIsPlaying} from "../../Store/MusicSlice";
+import { changePos ,progress,setIsPlaying,load} from "../../Store/MusicSlice";
 import { loadAudio, soundRef } from "../functions/music";
+
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
 
@@ -29,6 +30,8 @@ const Player = () => {
   const [progressSeconds, setProgressSeconds] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [liked, setLiked] = useState(false);
+  const [lastPress, setLastPress] = useState(0);
+  const DOUBLE_PRESS_DELAY = 800;
  // const [audioUrl, setAudioUrl] = useState("");
 
 
@@ -126,7 +129,26 @@ const Player = () => {
       setIsMinimized(!isMinimized);
     });
   };
-
+  const handlePress = async(value) => {
+    const timeNow = Date.now();
+    if (timeNow - lastPress < DOUBLE_PRESS_DELAY) {
+      // Double press detected
+      console.log('Double press detected!');
+      dispatch(setIsPlaying(false));
+      dispatch(changePos(value));
+      dispatch(load(false));
+      dispatch(load(true));
+      // Action for double press
+    } else {
+      // Regular single press action
+      console.log('Single press detected');
+      console.log("hi");
+      dispatch(progress(0));
+      await soundRef.current.playFromPositionAsync(0);
+      // Action for single press
+    }
+    setLastPress(timeNow);
+  };
   const TOTAL_DURATION = data?data[pos]?.duration:0;
 
   const styles = StyleSheet.create({
@@ -460,6 +482,7 @@ const Player = () => {
         colors={colors}
         dispatch={dispatch}
         changePos = {changePos}
+        handlePress = {handlePress}
       />
       <Custom_modal
         isModalVisible={isModalVisible}
@@ -518,13 +541,10 @@ const Metadata = ({
   </>
 );
 
-const Controls = ({ togglePlayPause, isPlaying, styles, colors,dispatch,changePos }) => {
+const Controls = ({ togglePlayPause, isPlaying, styles, colors,dispatch,changePos,handlePress }) => {
   return (
     <View style={styles.controlsContainer}>
-      <TouchableOpacity style={styles.skipButton}  onPress={()=>{
-        dispatch(setIsPlaying(false))
-        dispatch(changePos(-1))
-        }}>
+      <TouchableOpacity style={styles.skipButton}  onPress={()=>{handlePress(-1)}}>
         <SkipBack width={35} height={35} stroke={colors.text} />
       </TouchableOpacity>
 
@@ -543,8 +563,9 @@ const Controls = ({ togglePlayPause, isPlaying, styles, colors,dispatch,changePo
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.skipButton} onPress={()=>{
-        dispatch(setIsPlaying(false))
-        dispatch(changePos(+1))}
+        handlePress(+1)
+        }
+        
         }>
         <SkipForward width={35} height={35} stroke={colors.text} />
       </TouchableOpacity>
