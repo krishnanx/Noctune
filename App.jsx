@@ -8,7 +8,7 @@ import {
   Keyboard,
   Image,
 } from "react-native";
-import React from "react";
+import React,{useState} from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import UniversalNavi from "./Navigation/Universal";
@@ -24,31 +24,23 @@ import note from "./assets/note.png"
 
 export default function App() {
   const { Mode } = useSelector((state) => state.theme);
-  const { data, status } = useSelector((state) => state.data);
-  const dispatch = useDispatch();
+  //const { data, status } = useSelector((state) => state.data);
+  const [status, setStatus] = useState("loading");
+  
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        // Dispatch the action to fetch metadata
-        await dispatch(
-          FetchMetadata({ text: "https://www.youtube.com/watch?v=e1mOmdykmwI" })
-        ).unwrap();
-      } catch (error) {
-        console.error("❌ Error occurred while fetching metadata:", error);
-        // Handle error within the component (e.g., set an error state)
-        // You can use local state or display a message in the UI
-      }
+      setInterval(()=>{setStatus("idle")},2000);
     };
 
     fetchData();
-  }, [dispatch]);
+  }, []);
 
   if (status === "loading") {
     return (
       <>
         <View
           style={{
-            backgroundColor: "black",
+            backgroundColor: "#141414",
             flex: 1,
             justifyContent: "center",
             alignItems: "center",
@@ -99,6 +91,90 @@ const styles = StyleSheet.create({
   },
 });
 
+const DotWave = () => {
+  const dot1 = new Animated.Value(0);
+  const dot2 = new Animated.Value(0);
+  const dot3 = new Animated.Value(0);
+
+  const animateDots = () => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(dot1, {
+          toValue: 1,
+          duration: 300, // Faster animation speed
+          useNativeDriver: true,
+        }),
+        Animated.timing(dot1, {
+          toValue: 0,
+          duration: 300, // Faster animation speed
+          useNativeDriver: true,
+        }),
+        Animated.timing(dot2, {
+          toValue: 1,
+          duration: 300, // Faster animation speed
+          delay: 0, // Adjusted to match the faster speed
+          useNativeDriver: true,
+        }),
+        Animated.timing(dot2, {
+          toValue: 0,
+          duration: 300, // Faster animation speed
+          useNativeDriver: true,
+        }),
+        Animated.timing(dot3, {
+          toValue: 1,
+          duration: 300, // Faster animation speed
+          delay: 0, // Adjusted to match the faster speed
+          useNativeDriver: true,
+        }),
+        Animated.timing(dot3, {
+          toValue: 0,
+          duration: 300, // Faster animation speed
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  };
+
+  React.useEffect(() => {
+    animateDots();
+  }, []);
+
+  const dotStyle = (dotValue) => ({
+    transform: [
+      {
+        translateY: dotValue.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0, -10], // Adjust the distance here
+        }),
+      },
+    ],
+  });
+
+  const styles = StyleSheet.create({
+    container: {
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      marginTop: 50,
+    },
+    dot: {
+      width: 15,
+      height: 15,
+      backgroundColor: "white",
+      borderRadius: 50,
+      marginHorizontal: 5,
+    },
+  });
+
+  return (
+    <View style={styles.container}>
+      <Animated.View style={[styles.dot, dotStyle(dot1)]} />
+      <Animated.View style={[styles.dot, dotStyle(dot2)]} />
+      <Animated.View style={[styles.dot, dotStyle(dot3)]} />
+    </View>
+  );
+};
+
 const NUMBER_OF_BARS = 20;
 
 const WaveformLoader = () => {
@@ -131,7 +207,7 @@ const WaveformLoader = () => {
       flexDirection: "row",
       alignItems: "flex-end",
       justifyContent: "center",
-      backgroundColor: "black", // for contrast
+      backgroundColor: "#141414", // for contrast
       height: 100,
       paddingHorizontal: 10,
     },

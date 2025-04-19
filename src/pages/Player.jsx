@@ -10,23 +10,22 @@ import {
   Animated,
 } from "react-native";
 import { useTheme } from "@react-navigation/native";
-import { Audio } from "expo-av";
 import { SkipBack, SkipForward } from "react-native-feather";
-import Constants from "expo-constants";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { FetchMetadata } from "../../Store/MusicSlice";
 import { useNavigation } from "@react-navigation/native";
-
+import { changePos ,progress,setIsPlaying} from "../../Store/MusicSlice";
+import { loadAudio, soundRef } from "../functions/music";
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
 
 const Player = () => {
   const { colors } = useTheme();
-  const soundRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  
+  //const [isPlaying, setIsPlaying] = useState(false);
   const [progressSeconds, setProgressSeconds] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [liked, setLiked] = useState(false);
@@ -38,9 +37,9 @@ const Player = () => {
   const [isMinimized, setIsMinimized] = useState(false);
   const animatedHeight = useRef(new Animated.Value(windowHeight)).current;
   const animatedWidth = useRef(new Animated.Value(windowWidth)).current;
-  const { data, status } = useSelector((state) => state.data);
-const audioUrl = useSelector((state) => state.data.Url);
-console.log("Current URL state:", audioUrl);
+  const { data,pos,seek,isplaying} = useSelector((state) => state.data);
+// const audioUrl = useSelector((state) => state.data.Url);
+// console.log("Current URL state:", audioUrl);
 
   // useEffect(() => {
   //   if (data) {
@@ -48,119 +47,51 @@ console.log("Current URL state:", audioUrl);
   //   }
   // }, [data]);
 
-  const streamUrl =
-    typeof Constants.expoConfig.extra.SERVER !== "undefined"
-      ? `${
-          Constants.expoConfig.extra.SERVER
-        }/api/stream?url=${encodeURIComponent(audioUrl)}`
-      : audioUrl; // fallback to direct URL if SERVER is undefined
+  // const streamUrl =
+  //   typeof Constants.expoConfig.extra.SERVER !== "undefined"
+  //     ? `${
+  //         Constants.expoConfig.extra.SERVER
+  //       }/api/stream?url=${encodeURIComponent(audioUrl)}`
+  //     : audioUrl; // fallback to direct URL if SERVER is undefined
+
+  // useEffect(() => {
+  //   if (data[pos]) {
+  //     console.log("data:", data[pos]);
+  //     loadAudio();
+  //   }
+
+  //   return () => {
+  //     console.log("Cleanup");
+  //     unloadAudio()
+  //   };
+  // }, [pos]);
 
   useEffect(() => {
-    if (data) {
-      console.log("data:", data);
-      loadAudio();
-    }
+    console.log("sec:", seek);
+    console.log("isPlaying?...:", isplaying);
+  }, [seek, isplaying]);
 
-    return () => {
-      console.log("Cleanup");
-    };
-  }, [data]);
-
-  useEffect(() => {
-    console.log("sec:", progressSeconds);
-    console.log("isPlaying?...:", isPlaying);
-  }, [progressSeconds, isPlaying]);
-
-  const loadAudio = async () => {
-    try {
-      if (data) {
-        if (soundRef.current) {
-          await soundRef.current.unloadAsync();
-          soundRef.current = null;
-        }
-        setProgressSeconds(0);
-        await Audio.setAudioModeAsync({
-          allowsRecordingIOS: false,
-          staysActiveInBackground: true,
-          playsInSilentModeIOS: true,
-          shouldDuckAndroid: true,
-          playThroughEarpieceAndroid: false,
-        });
-
-        const { sound } = await Audio.Sound.createAsync(
-          { uri: streamUrl },
-          { shouldPlay: false, progressUpdateIntervalMillis: 1060 },
-          onPlaybackStatusUpdate
-        );
-        soundRef.current = sound;
-        sound.setOnPlaybackStatusUpdate((status) => {
-          onPlaybackStatusUpdate(status);
-        });
-        console.log("Audio Loaded", soundRef.current);
-      }
-    } catch (error) {
-      console.log("Error loading audio:", error);
-    }
-  };
-
-  const unloadAudio = async () => {
-    if (soundRef.current) {
-      await soundRef.current.unloadAsync();
-      soundRef.current = null;
-    }
-  };
-
-  const tailFill = async (currentSec) => {
-    // for (let sec = currentSec + 1; sec <= data?.duration; sec++) {
-    //   // wait 1 s
-    //   await new Promise(res => setTimeout(res, 1000));
-    //   setProgressSeconds(sec);
-    // }
-    // once done:
-    setProgressSeconds(currentSec);
-    setIsPlaying(false);
-    unloadAudio();
-    return; // if you want to free the sound
-  };
-
-  const onPlaybackStatusUpdate = (status) => {
-    if (status.isLoaded) {
-      console.log("hi?");
-      console.log("positionMillis:", status.positionMillis / 1000);
-      if (status.isPlaying) {
-        setProgressSeconds((prev) => prev + 1);
-      }
-
-      if (status.didJustFinish) {
-        if (progressSeconds != data?.duration && progressSeconds != 0) {
-          console.log("finishing up!!");
-          tailFill(data?.duration);
-        }
-      }
-    } else if (status.error) {
-      console.log(`Playback error: ${status.error}`);
-    }
-  };
-
+  
   const togglePlayPause = async () => {
     if (!soundRef.current) return;
 
-    if (isPlaying) {
+    if (isplaying) {
       await soundRef.current.pauseAsync();
-      setProgressSeconds((prev) => prev - 1);
+      dispatch(progress(-1));
     } else {
       await soundRef.current.playAsync(); // resumes from last position
-      setProgressSeconds((prev) => prev - 1);
+      dispatch(progress(-1));
     }
 
-    setIsPlaying((prev) => !prev);
+    dispatch(setIsPlaying("toggle"));
+
   };
 
   const replaySound = async () => {
-    if (isPlaying) {
+    if (isplaying) {
       await soundRef.current.setPositionAsync(0);
       await soundRef.current.playAsync();
-      setProgressSeconds(0);
+      progress(0);
     }
   };
 
@@ -196,7 +127,7 @@ console.log("Current URL state:", audioUrl);
     });
   };
 
-  const TOTAL_DURATION = data?.duration;
+  const TOTAL_DURATION = data?data[pos]?.duration:0;
 
   const styles = StyleSheet.create({
     Main: {
@@ -442,15 +373,15 @@ console.log("Current URL state:", audioUrl);
       >
         <View style={styles.miniPlayerInfo}>
           <Image
-            source={{ uri: data?.thumbnail }}
+            source={{ uri: data?data[pos]?.thumbnail:null }}
             style={styles.miniPlayerThumbnail}
           />
           <View style={styles.miniPlayerTextContainer}>
             <Text style={styles.miniPlayerTitle} numberOfLines={1}>
-              {data?.title}
+              {data?data[pos].title:"Unknown Title"}
             </Text>
             <Text style={styles.miniPlayerArtist} numberOfLines={1}>
-              {data?.uploader}
+              {data?data[pos].uploader:"Unknown Artist"}
             </Text>
           </View>
         </View>
@@ -460,7 +391,7 @@ console.log("Current URL state:", audioUrl);
             onPress={togglePlayPause}
             style={styles.miniPlayPauseButton}
           >
-            {isPlaying ? (
+            {isplaying ? (
               <View style={styles.pauseLinesContainer}>
                 <View style={styles.miniPauseLine} />
                 <View style={styles.miniPauseLine} />
@@ -478,7 +409,7 @@ console.log("Current URL state:", audioUrl);
               styles.miniProgressBarFill,
               {
                 width: `${
-                  TOTAL_DURATION ? (progressSeconds / TOTAL_DURATION) * 100 : 0
+                  TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0
                 }%`,
               },
             ]}
@@ -504,13 +435,13 @@ console.log("Current URL state:", audioUrl);
       </View>
 
       <Metadata
-        data={data}
+        data={data[pos]}
         liked={liked}
         setLiked={setLiked}
         progressPercent={
-          TOTAL_DURATION ? (progressSeconds / TOTAL_DURATION) * 100 : 0
+          TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0
         }
-        progressSeconds={progressSeconds}
+        seek={seek}
         TOTAL_DURATION={TOTAL_DURATION}
         formatTime={formatTime}
         styles={styles}
@@ -524,9 +455,11 @@ console.log("Current URL state:", audioUrl);
 
       <Controls
         togglePlayPause={togglePlayPause}
-        isPlaying={isPlaying}
+        isPlaying={isplaying}
         styles={styles}
         colors={colors}
+        dispatch={dispatch}
+        changePos = {changePos}
       />
       <Custom_modal
         isModalVisible={isModalVisible}
@@ -544,13 +477,13 @@ const Metadata = ({
   liked,
   setLiked,
   progressPercent,
-  progressSeconds,
+  seek,
   TOTAL_DURATION,
   formatTime,
   styles,
 }) => (
   <>
-    <Image source={{ uri: data?.thumbnail }} style={styles.albumArt} />
+    <Image source={{ uri: data?.image }} style={styles.albumArt} />
 
     <View style={styles.container}>
       <View style={{ width: 300 }}>
@@ -578,23 +511,26 @@ const Metadata = ({
         />
       </View>
       <View style={styles.timeContainer}>
-        <Text style={styles.timeText}>{formatTime(progressSeconds)}</Text>
+        <Text style={styles.timeText}>{formatTime(seek)}</Text>
         <Text style={styles.timeText}>{formatTime(TOTAL_DURATION)}</Text>
       </View>
     </View>
   </>
 );
 
-const Controls = ({ togglePlayPause, isPlaying, styles, colors }) => {
+const Controls = ({ togglePlayPause, isPlaying, styles, colors,dispatch,changePos }) => {
   return (
     <View style={styles.controlsContainer}>
-      <TouchableOpacity style={styles.skipButton}>
+      <TouchableOpacity style={styles.skipButton}  onPress={()=>{
+        dispatch(setIsPlaying(false))
+        dispatch(changePos(-1))
+        }}>
         <SkipBack width={35} height={35} stroke={colors.text} />
       </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.playPauseButton}
-        onPress={togglePlayPause}
+        onPress={()=>togglePlayPause()}
       >
         {isPlaying ? (
           <View style={styles.pauseLinesContainer}>
@@ -606,7 +542,10 @@ const Controls = ({ togglePlayPause, isPlaying, styles, colors }) => {
         )}
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.skipButton}>
+      <TouchableOpacity style={styles.skipButton} onPress={()=>{
+        dispatch(setIsPlaying(false))
+        dispatch(changePos(+1))}
+        }>
         <SkipForward width={35} height={35} stroke={colors.text} />
       </TouchableOpacity>
     </View>

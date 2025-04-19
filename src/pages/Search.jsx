@@ -13,7 +13,7 @@ import { Entypo } from "@expo/vector-icons";
 import { Searchbar } from "react-native-paper";
 import Svg, { Path } from "react-native-svg";
 import { Keyboard } from "react-native";
-import { useDispatch } from "react-redux";
+import { useDispatch,useSelector } from "react-redux";
 import { changeState } from "../../Store/KeyboardSlice";
 //import ytdl from "react-native-ytdl";
 //import YTSearch from "youtube-search-api";
@@ -21,19 +21,22 @@ import YoutubeMusicApi from "youtube-music-api";
 //import { DownloadMusic } from "../../Store/MusicSlice";
 import { ScrollView } from "react-native";
 import { FetchMetadata } from "../../Store/MusicSlice";
-import { addUrl } from "../../Store/MusicSlice";
-
+import { addMusic } from "../../Store/MusicSlice";
+import {loadAudio,unloadAudio} from "../functions/music.js"
+import Audioloader from "../functions/Audioloader.jsx";
+import { useFocusEffect } from '@react-navigation/native';
 const Search = () => {
   const { colors } = useTheme(); // Get theme colors
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-  const [songs, setSongs] = useState([]);
+  const [songs, setSongs] = useState({});
   const [query, setText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isApiInitialized, setIsApiInitialized] = useState(false);
   const [ytmusicApi, setYtMusicApi] = useState(null);
   const dispatch = useDispatch();
-
+  const {data,pos} = useSelector((state)=>state.data);
+  const [shouldLoad, setShouldLoad] = useState(false);
   useEffect(() => {
     const initializeApi = async () => {
       try {
@@ -61,7 +64,16 @@ const Search = () => {
       keyboardDidHide.remove();
     };
   }, []);
-
+  useFocusEffect(
+    React.useCallback(() => {
+      // When screen is focused
+      return () => {
+        // When screen is unfocused (like going to another page)
+        setShouldLoad(false);
+        console.log("it is false")
+      };
+    }, [])
+  );
   const searchMusic = async (searchText) => {
     if (!searchText || !searchText.trim()) return;
     if (!isApiInitialized) {
@@ -83,11 +95,12 @@ const Search = () => {
           artist: item.artist ? item.artist.name : "Unknown Artist",
           image: item.thumbnails ? item.thumbnails[0].url : null,
           url: `https://www.youtube.com/watch?v=${item.videoId}`,
+          duration : (item.duration/1000),
         }));
 
         setSongs(topResults);
       } else {
-        setSongs([]);
+        setSongs({});
         setError("No songs found");
       }
     } catch (err) {
@@ -98,9 +111,12 @@ const Search = () => {
     }
   };
 const handleCardPress = (song) => {
+  unloadAudio();
   console.log("Card pressed with URL:", song.url);
-  dispatch(FetchMetadata({ text: song.url }));
-  dispatch(addUrl(song.url));
+  // dispatch(FetchMetadata({ text: song.url }));
+  console.log(song)
+  dispatch(addMusic(song));
+  setShouldLoad(true); 
   console.log("Dispatches complete");
 };
   const styles = StyleSheet.create({
@@ -169,6 +185,7 @@ const handleCardPress = (song) => {
           value={""}
           onChangeText={nextValue => { }}
       />*/}
+      {shouldLoad && <Audioloader />}
       <View style={styles.InputView}>
         <Searchbar
           style={{ padding: 0, margin: 0, width: 350 }}
