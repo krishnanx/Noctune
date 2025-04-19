@@ -9,10 +9,17 @@ const MusicSlice = createSlice({
     data: [],
     pos:-1,
     seek:0,
-    isplaying:false
+    isplaying:false,
+    canLoad:false
   },
   reducers: {
     addMusic(state, action) {
+      state.data = state.data.filter(item => item.id !== action.payload.id);
+      if (state.pos > state.data.length - 1) {
+        state.pos = state.data.length - 1;  // Ensure pos doesn't go out of bounds
+      } else if (state.pos > state.data.length) {
+        state.pos -= 1; // Decrement pos if item is before the current pos
+      }
       console.log(action.payload.image);
       const upscaledUrl = action.payload.image.replace(/w\d+-h\d+/, 'w500-h500');
       const newMusic = {
@@ -64,6 +71,10 @@ const MusicSlice = createSlice({
       } else if (action.payload === "toggle") {
         state.isplaying = !state.isplaying; // Toggle
       }
+    },
+    load(state,action){
+      state.canLoad = action.payload;
+      console.log("canLoad:",state.canLoad)
     }
     
   },
@@ -92,7 +103,7 @@ const MusicSlice = createSlice({
   //     });
   // },
 });
-export const { addMusic, changePos,progress,setIsPlaying } = MusicSlice.actions;
+export const { addMusic, changePos,progress,setIsPlaying,load } = MusicSlice.actions;
 export default MusicSlice.reducer;
 // export const FetchMetadata = createAsyncThunk(
 //   "/FetchMetadata",

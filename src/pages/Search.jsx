@@ -21,7 +21,7 @@ import YoutubeMusicApi from "youtube-music-api";
 //import { DownloadMusic } from "../../Store/MusicSlice";
 import { ScrollView } from "react-native";
 import { FetchMetadata } from "../../Store/MusicSlice";
-import { addMusic } from "../../Store/MusicSlice";
+import { addMusic,load } from "../../Store/MusicSlice";
 import {loadAudio,unloadAudio} from "../functions/music.js"
 import Audioloader from "../functions/Audioloader.jsx";
 import { useFocusEffect } from '@react-navigation/native';
@@ -69,7 +69,7 @@ const Search = () => {
       // When screen is focused
       return () => {
         // When screen is unfocused (like going to another page)
-        setShouldLoad(false);
+        dispatch(load(false));
         console.log("it is false")
       };
     }, [])
@@ -116,7 +116,7 @@ const handleCardPress = (song) => {
   // dispatch(FetchMetadata({ text: song.url }));
   console.log(song)
   dispatch(addMusic(song));
-  setShouldLoad(true); 
+  dispatch(load(true))
   console.log("Dispatches complete");
 };
   const styles = StyleSheet.create({
@@ -185,7 +185,7 @@ const handleCardPress = (song) => {
           value={""}
           onChangeText={nextValue => { }}
       />*/}
-      {shouldLoad && <Audioloader />}
+      
       <View style={styles.InputView}>
         <Searchbar
           style={{ padding: 0, margin: 0, width: 350 }}
