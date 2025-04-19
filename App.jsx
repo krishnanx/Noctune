@@ -21,10 +21,10 @@ import { FetchMetadata } from "./Store/MusicSlice";
 import {  useEffect, useRef } from "react";
 import { Text, Animated,  } from "react-native";
 import note from "./assets/note.png"
-
+import Audioloader from "./src/functions/Audioloader";
 export default function App() {
   const { Mode } = useSelector((state) => state.theme);
-  //const { data, status } = useSelector((state) => state.data);
+  const { data,pos,seek,isplaying,canLoad } = useSelector((state) => state.data);
   const [status, setStatus] = useState("loading");
   
   useEffect(() => {
@@ -79,6 +79,7 @@ export default function App() {
         </View>
       </TouchableWithoutFeedback>
       <Websocket />
+      {canLoad && <Audioloader />}
     </SafeAreaProvider>
   );
 }
