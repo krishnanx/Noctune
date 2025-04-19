@@ -40,7 +40,7 @@ export default function App() {
       <>
         <View
           style={{
-            backgroundColor: "black",
+            backgroundColor: "#141414",
             flex: 1,
             justifyContent: "center",
             alignItems: "center",
@@ -123,7 +123,7 @@ const WaveformLoader = () => {
       flexDirection: "row",
       alignItems: "flex-end",
       justifyContent: "center",
-      backgroundColor: "black", // for contrast
+      backgroundColor: "#141414", // for contrast
       height: 100,
       paddingHorizontal: 10,
     },
