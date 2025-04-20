@@ -43,6 +43,10 @@ const MainTab = () => {
             ),
             headerShown: false,
             tabBarHideOnKeyboard: true,
+            tabBarStyle: {
+              height: "7%", // <== custom height in pixels
+              padding: "auto",
+            },
           };
         }}
         initialRouteName="Search"

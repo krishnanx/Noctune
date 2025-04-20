@@ -18,7 +18,7 @@ import { changeState } from "../../Store/KeyboardSlice";
 //import ytdl from "react-native-ytdl";
 //import YTSearch from "youtube-search-api";
 import YoutubeMusicApi from "youtube-music-api";
-//import { DownloadMusic } from "../../Store/MusicSlice";
+import { DownloadMusic } from "../../Store/MusicSlice";
 import { ScrollView } from "react-native";
 import { FetchMetadata } from "../../Store/MusicSlice";
 import { addMusic,load } from "../../Store/MusicSlice";
@@ -26,7 +26,8 @@ import {loadAudio,unloadAudio} from "../functions/music.js"
 import Audioloader from "../functions/Audioloader.jsx";
 import { useFocusEffect } from '@react-navigation/native';
 import { useNavigation } from "@react-navigation/native";
-import Player from "./Player.jsx";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import store from "../../Store/store"
 
 const Search = () => {
   const { colors } = useTheme(); // Get theme colors
@@ -41,6 +42,50 @@ const Search = () => {
   const navigation = useNavigation(); 
   const {data,pos} = useSelector((state)=>state.data);
   const [shouldLoad, setShouldLoad] = useState(false);
+
+useEffect(() => {
+  const loadLastSong = async () => {
+    try {
+      const jsonValue = await AsyncStorage.getItem("lastPlayedSong");
+
+      if (jsonValue != null) {
+        const lastSong = JSON.parse(jsonValue);
+
+        if (lastSong && lastSong.url) {
+          // First, dispatch action to add song to store
+          dispatch(addMusic(lastSong));
+
+          // Then wait for state update
+          setTimeout(() => {
+            const currentState = store.getState();
+            const { data, pos } = currentState.data;
+
+            if (data && data.length > 0 && pos >= 0) {
+              console.log(
+                "Using Audioloader component for previously saved song"
+              );
+              // No need to directly call loadAudio - your Audioloader component
+              // should handle this since it watches for changes to pos
+              dispatch(load(true)); // This should trigger your Audioloader component
+            } else {
+              console.warn(
+                "Data or position not valid after loading saved song"
+              );
+            }
+          }, 100);
+        } else {
+          console.warn("No valid song data found in AsyncStorage");
+        }
+      }
+    } catch (e) {
+      console.error("Error loading last song", e);
+    }
+  };
+
+  loadLastSong();
+}, []);
+
+
   useEffect(() => {
     const initializeApi = async () => {
       try {
@@ -123,9 +168,19 @@ const handleCardPress = (song) => {
   dispatch(load(true));
   console.log("Dispatches complete");
 
-  // Navigate to Player screen
-  //navigation.navigate("Player"); // Passing song data to Player screen
+  // Add this line to save the song metadata to AsyncStorage
+ saveLastPlayedSong(song);
 };
+
+const saveLastPlayedSong = async (song) => {
+  try {
+    const jsonValue = JSON.stringify(song);
+    await AsyncStorage.setItem("lastPlayedSong", jsonValue);
+  } catch (e) {
+    console.error("Error saving song metadata", e);
+  }
+};
+
   const styles = StyleSheet.create({
     Main: {
       backgroundColor: colors.background,
