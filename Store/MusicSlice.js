@@ -7,32 +7,36 @@ const MusicSlice = createSlice({
   name: "Music",
   initialState: {
     data: [],
-    pos:-1,
-    seek:0,
-    isplaying:false,
-    canLoad:false
+    pos: -1,
+    seek: 0,
+    isplaying: false,
+    canLoad: false,
+    isMinimized: true,
   },
   reducers: {
     addMusic(state, action) {
-      state.data = state.data.filter(item => item.id !== action.payload.id);
+      state.data = state.data.filter((item) => item.id !== action.payload.id);
       if (state.pos > state.data.length - 1) {
-        state.pos = state.data.length - 1;  // Ensure pos doesn't go out of bounds
+        state.pos = state.data.length - 1; // Ensure pos doesn't go out of bounds
       } else if (state.pos > state.data.length) {
         state.pos -= 1; // Decrement pos if item is before the current pos
       }
       console.log(action.payload.image);
-      const upscaledUrl = action.payload.image.replace(/w\d+-h\d+/, 'w500-h500');
+      const upscaledUrl = action.payload.image.replace(
+        /w\d+-h\d+/,
+        "w500-h500"
+      );
       const newMusic = {
-        id:action.payload.id,
-        title: action.payload.title || null ,
+        id: action.payload.id,
+        title: action.payload.title || null,
         uploader: action.payload.artist || null,
-        image: upscaledUrl || null, 
+        image: upscaledUrl || null,
         duration: action.payload.duration || null,
         url: action.payload.url || null,
-        duration: action.payload.duration || 0
+        duration: action.payload.duration || 0,
       };
-      console.log("Music data:",newMusic)
-      const insertPos = state.pos+ 1;
+      console.log("Music data:", newMusic);
+      const insertPos = state.pos + 1;
       const newArray = [
         ...state.data.slice(0, insertPos),
         newMusic,
@@ -43,26 +47,25 @@ const MusicSlice = createSlice({
     },
     changePos(state, action) {
       console.log(state.pos);
-      console.log(state.data.length-1)
-      if(action.payload == +1){
-        if(state.pos!==state.data.length-1){
+      console.log(state.data.length - 1);
+      if (action.payload == +1) {
+        if (state.pos !== state.data.length - 1) {
           state.pos = state.pos + 1;
         }
-      }
-      else if(action.payload == -1){
-        if(state.pos>0){
+      } else if (action.payload == -1) {
+        if (state.pos > 0) {
           state.pos = state.pos - 1;
         }
       }
     },
     progress(state, action) {
-      console.log("bro?")
-      
+      console.log("bro?");
+
       if (action.payload === 1 || action.payload === -1) {
-        console.log(action.payload)
-        state.seek = state.seek + action.payload;   // Increment or decrement by 1
+        console.log(action.payload);
+        state.seek = state.seek + action.payload; // Increment or decrement by 1
       } else {
-        state.seek = action.payload;  // Set the seek to the exact value if not +1 or -1
+        state.seek = action.payload; // Set the seek to the exact value if not +1 or -1
       }
     },
     setIsPlaying(state, action) {
@@ -72,11 +75,17 @@ const MusicSlice = createSlice({
         state.isplaying = !state.isplaying; // Toggle
       }
     },
-    load(state,action){
+    load(state, action) {
       state.canLoad = action.payload;
-      console.log("canLoad:",state.canLoad)
-    }
-    
+      console.log("canLoad:", state.canLoad);
+    },
+    toggleMinimized(state, action) {
+      if (typeof action.payload === "boolean") {
+        state.isMinimized = action.payload;
+      } else {
+        state.isMinimized = !state.isMinimized;
+      }
+    },
   },
   // extraReducers: (builder) => {
   //   builder
@@ -86,15 +95,15 @@ const MusicSlice = createSlice({
   //     .addCase(FetchMetadata.fulfilled, (state, action) => {
   //       state.status = "succeeded";
   //       // Store the metadata explicitly
-        // const newMusic = {
-        //   id:action.payload.id,
-        //   title: action.payload.title,
-        //   uploader: action.payload.uploader,
-        //   image: action.payload.thumbnail, 
-        //   duration: action.payload.duration,
-        //   url: action.payload.url || null, 
-        // };
-        // state.data = [...state.data,newMusic];
+  // const newMusic = {
+  //   id:action.payload.id,
+  //   title: action.payload.title,
+  //   uploader: action.payload.uploader,
+  //   image: action.payload.thumbnail,
+  //   duration: action.payload.duration,
+  //   url: action.payload.url || null,
+  // };
+  // state.data = [...state.data,newMusic];
   //       console.log("Metadata stored in state:", action.payload);
   //     })
   //     .addCase(FetchMetadata.rejected, (state, action) => {
@@ -103,7 +112,8 @@ const MusicSlice = createSlice({
   //     });
   // },
 });
-export const { addMusic, changePos,progress,setIsPlaying,load } = MusicSlice.actions;
+export const { addMusic, changePos, progress, setIsPlaying, load, toggleMinimized } =
+  MusicSlice.actions;
 export default MusicSlice.reducer;
 // export const FetchMetadata = createAsyncThunk(
 //   "/FetchMetadata",

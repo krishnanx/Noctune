@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from "react";
 import { Text, Animated } from "react-native";
 import { StyleSheet, View, Image } from "react-native";
-import Note from "../../assets/music.svg";
+
 
 const WaveformLoader = () => {
   const NUMBER_OF_BARS = 20;
@@ -34,7 +34,6 @@ const WaveformLoader = () => {
       flexDirection: "row",
       alignItems: "flex-end",
       justifyContent: "center",
-      backgroundColor: "black", // for contrast
       height: 100,
       paddingHorizontal: 10,
     },
@@ -76,7 +75,6 @@ const Waveform = () => {
 
   return (
     <Animated.View style={{ opacity: fadeAnim }}>
-      <Note width={30} height={40} fill="wheat" />
       <Text
         style={{
           color: "wheat",
