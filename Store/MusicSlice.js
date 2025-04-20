@@ -11,7 +11,6 @@ const MusicSlice = createSlice({
     seek: 0,
     isplaying: false,
     canLoad: false,
-    isMinimized: true,
   },
   reducers: {
     addMusic(state, action) {
@@ -79,13 +78,6 @@ const MusicSlice = createSlice({
       state.canLoad = action.payload;
       console.log("canLoad:", state.canLoad);
     },
-    toggleMinimized(state, action) {
-      if (typeof action.payload === "boolean") {
-        state.isMinimized = action.payload;
-      } else {
-        state.isMinimized = !state.isMinimized;
-      }
-    },
   },
   // extraReducers: (builder) => {
   //   builder
@@ -112,7 +104,7 @@ const MusicSlice = createSlice({
   //     });
   // },
 });
-export const { addMusic, changePos, progress, setIsPlaying, load, toggleMinimized } =
+export const { addMusic, changePos, progress, setIsPlaying, load,  } =
   MusicSlice.actions;
 export default MusicSlice.reducer;
 // export const FetchMetadata = createAsyncThunk(

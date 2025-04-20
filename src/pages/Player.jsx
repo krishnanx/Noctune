@@ -16,7 +16,6 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { FetchMetadata } from "../../Store/MusicSlice";
 import { useNavigation } from "@react-navigation/native";
 import { changePos ,progress,setIsPlaying,load} from "../../Store/MusicSlice";
 import { loadAudio, soundRef } from "../functions/music";
@@ -92,7 +91,7 @@ const Player = () => {
     if (isplaying) {
       await soundRef.current.setPositionAsync(0);
       await soundRef.current.playAsync();
-      progress(0);
+      dispatch(progress(0));
     }
   };
 
@@ -413,10 +412,10 @@ const Player = () => {
                 />
                 <View style={styles.miniPlayerTextContainer}>
                   <Text style={styles.miniPlayerTitle} numberOfLines={1}>
-                    {data ? data[pos].title : "Unknown Title"}
+                    {data ? data[pos]?.title : "Unknown Title"}
                   </Text>
                   <Text style={styles.miniPlayerArtist} numberOfLines={1}>
-                    {data ? data[pos].uploader : "Unknown Artist"}
+                    {data ? data[pos]?.uploader : "Unknown Artist"}
                   </Text>
                 </View>
               </View>
@@ -473,7 +472,11 @@ const Player = () => {
       </View>
 
       <Metadata
-        data={data[pos]}
+        data={
+          data && data[pos]
+            ? data[pos]
+            : { title: "Unknown Song", uploader: "Unknown Artist" }
+        }
         liked={liked}
         setLiked={setLiked}
         progressPercent={TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0}
@@ -524,11 +527,13 @@ const Metadata = ({
 
     <View style={styles.container}>
       <View style={{ width: 300 }}>
-        <Text style={styles.songName}>{data?.title}</Text>
+        <Text style={styles.songName}>{data?.title || "Unknown Song"}</Text>
       </View>
-      <Text style={styles.singerName}>{data?.uploader}</Text>
+      <Text style={styles.singerName}>
+        {data?.uploader || "Unknown Artist"}
+      </Text>
     </View>
-
+    
     <TouchableOpacity onPress={() => setLiked(!liked)}>
       <Icon
         name={liked ? "heart" : "heart-o"}

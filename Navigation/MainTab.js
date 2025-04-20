@@ -10,7 +10,6 @@ import { useSelector } from "react-redux";
 import { Keyboard } from "react-native";
 
 const Tab = createBottomTabNavigator();
-const Stack = createNativeStackNavigator();
 
 const MainTab = () => {
   const { status } = useSelector((state) => state.key);
@@ -56,6 +55,5 @@ const MainTab = () => {
     </>
   );
 };
-
 
 export default MainTab;
