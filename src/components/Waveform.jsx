@@ -85,7 +85,6 @@ const Waveform = () => {
       >
         𝙉𝙤𝙘𝙩𝙪𝙣𝙚
       </Text>
-
       <Text
         style={{
           color: "beige",

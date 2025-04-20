@@ -8,7 +8,7 @@ import {
   Keyboard,
   Image,
 } from "react-native";
-import React,{useState} from "react";
+import React, { useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import UniversalNavi from "./Navigation/Universal";
@@ -18,19 +18,23 @@ import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import Websocket from "./src/Websocket/Websocket";
 import { FetchMetadata } from "./Store/MusicSlice";
-import {  useEffect, useRef } from "react";
-import { Text, Animated,  } from "react-native";
+import { useEffect, useRef } from "react";
+import { Text, Animated } from "react-native";
 import Waveform from "./src/components/Waveform";
 import Audioloader from "./src/functions/Audioloader";
 
 export default function App() {
   const { Mode } = useSelector((state) => state.theme);
-  const { data,pos,seek,isplaying,canLoad } = useSelector((state) => state.data);
+  const { data, pos, seek, isplaying, canLoad } = useSelector(
+    (state) => state.data
+  );
   const [status, setStatus] = useState("loading");
-  
+
   useEffect(() => {
     const fetchData = async () => {
-      setInterval(()=>{setStatus("idle")},2000);
+      setInterval(() => {
+        setStatus("idle");
+      }, 2000);
     };
 
     fetchData();
