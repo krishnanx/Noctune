@@ -25,6 +25,9 @@ import { addMusic,load } from "../../Store/MusicSlice";
 import {loadAudio,unloadAudio} from "../functions/music.js"
 import Audioloader from "../functions/Audioloader.jsx";
 import { useFocusEffect } from '@react-navigation/native';
+import { useNavigation } from "@react-navigation/native";
+import Player from "./Player.jsx";
+
 const Search = () => {
   const { colors } = useTheme(); // Get theme colors
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
@@ -35,6 +38,7 @@ const Search = () => {
   const [isApiInitialized, setIsApiInitialized] = useState(false);
   const [ytmusicApi, setYtMusicApi] = useState(null);
   const dispatch = useDispatch();
+  const navigation = useNavigation(); 
   const {data,pos} = useSelector((state)=>state.data);
   const [shouldLoad, setShouldLoad] = useState(false);
   useEffect(() => {
@@ -114,16 +118,20 @@ const handleCardPress = (song) => {
   unloadAudio();
   console.log("Card pressed with URL:", song.url);
   // dispatch(FetchMetadata({ text: song.url }));
-  console.log(song)
+  console.log(song);
   dispatch(addMusic(song));
-  dispatch(load(true))
+  dispatch(load(true));
   console.log("Dispatches complete");
+
+  // Navigate to Player screen
+  //navigation.navigate("Player"); // Passing song data to Player screen
 };
   const styles = StyleSheet.create({
     Main: {
       backgroundColor: colors.background,
       width: "100%",
       flex: 1, //added
+      zIndex: 1000,
       //height: "100%", //had to comment this
     },
     input: {
