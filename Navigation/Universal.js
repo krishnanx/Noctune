@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import AuthStack from "./AuthStack";
-import StackNav from "./MainTab";
+import MainTab from "./MainTab";
 
 const Stack = createStackNavigator();
 const UniversalNavi = () => {
@@ -10,7 +10,7 @@ const UniversalNavi = () => {
       {true ? (
         <Stack.Screen
           name="MainApp"
-          component={StackNav}
+          component={MainTab}
           options={{ headerShown: false }}
         />
       ) : (
