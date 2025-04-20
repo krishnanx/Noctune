@@ -36,7 +36,7 @@ const Player = () => {
 
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const [isMinimized, setIsMinimized] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(true);
   const animatedHeight = useRef(new Animated.Value(windowHeight)).current;
   const animatedWidth = useRef(new Animated.Value(windowWidth)).current;
   const { data, pos, seek, isplaying } = useSelector((state) => state.data);
@@ -160,14 +160,16 @@ const Player = () => {
     miniPlayer: {
       flex: 1,
       position: "absolute",
-      top: "690",
-      width: windowWidth,
-      height: "9%",
-      backgroundColor: colors.background,
+      top: "695",
+      width: "95%",
+      height: "7%",
+      backgroundColor: "gray",
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
-      paddingHorizontal: 16,
+      padding: 7, // Inner space
+      margin: 10, // Outer space
+      borderRadius: 7,
       borderTopWidth: 1,
       borderTopColor: "rgba(255,255,255,0.1)",
       shadowColor: "#000",
@@ -180,29 +182,26 @@ const Player = () => {
     miniPlayerInfo: {
       flexDirection: "row",
       alignItems: "center",
-      flex: 1,
     },
     miniPlayerThumbnail: {
-      width: 50,
-      height: 50,
+      width: 43,
+      height: 43,
       borderRadius: 4,
       marginRight: 12,
-      zIndex: 10,
-      resizeMode: "cover", // this helps!
-      backgroundColor: "red", // keep for debug, remove later
+      backgroundColor: "black", // keep for debug, remove later
     },
 
     miniPlayerTextContainer: {
       flex: 1,
     },
     miniPlayerTitle: {
-      color: "white",
+      color: colors.text,
       fontSize: 14,
       fontWeight: "bold",
       marginBottom: 2,
     },
     miniPlayerArtist: {
-      color: "gray",
+      color: colors.text,
       fontSize: 12,
     },
     miniPlayerControls: {
@@ -228,15 +227,16 @@ const Player = () => {
     },
     miniProgressBar: {
       position: "absolute",
-      top: 80,
-      left: 0,
-      right: 0,
-      height: 2,
+      top: 54,
+      left: 7,
+      right: 3,
+      height: 3,
       zIndex: 10,
     },
     miniProgressBarFill: {
       height: 2,
-      backgroundColor: "green",
+      backgroundColor: colors.text,
+      borderRadius: 3,
     },
     timeContainer: {
       flexDirection: "row",
@@ -260,7 +260,7 @@ const Player = () => {
       height: 70,
       top: 50,
       borderRadius: 35,
-      backgroundColor: "white",
+      backgroundColor: colors.text,
       justifyContent: "center",
       alignItems: "center",
       shadowColor: "#000",
@@ -273,10 +273,12 @@ const Player = () => {
       width: 36,
       height: 36,
       borderRadius: 18,
-      backgroundColor: "white",
+      backgroundColor: colors.text,
       justifyContent: "center",
       alignItems: "center",
       marginHorizontal: 8,
+      position: "absolute",
+      right: 0,
     },
     triangle: {
       width: 0,
@@ -365,20 +367,21 @@ const Player = () => {
     modalOverlay: {
       flex: 1,
       justifyContent: "flex-end",
-      backgroundColor: "rgba(0,0,0,0.5)", // backdrop blur
+      backgroundColor: "rgba(98, 92, 92, 0.5)", // backdrop blur
     },
     modalContent: {
-      height: "50%", // half the screen
-      backgroundColor: "white",
+      height: "60%", // half the screen
+      backgroundColor: colors.text,
       borderTopLeftRadius: 20,
       borderTopRightRadius: 20,
-      padding: 20,
+      padding: 25,
       backgroundColor: "rgba(0,0,0,0.8)",
+      gap: 15,
     },
     option: {
       fontSize: 18,
-      marginVertical: 12,
-      color: "white",
+      marginVertical: 10,
+      color: colors.text,
     },
     button: {
       padding: 6,
@@ -407,7 +410,7 @@ const Player = () => {
             <View style={styles.miniPlayer} activeOpacity={0.9}>
               <View style={styles.miniPlayerInfo}>
                 <Image
-                  source={{ uri: data ? data[pos]?.thumbnail : null }}
+                  source={{ uri: data ? data[pos]?.image : null }}
                   style={styles.miniPlayerThumbnail}
                 />
                 <View style={styles.miniPlayerTextContainer}>
@@ -461,15 +464,16 @@ const Player = () => {
     <View style={styles.Main}>
       <TouchableOpacity style={styles.button} onPress={togglePlayerSize}>
         <View style={{ transform: [{ rotate: "90deg" }] }}>
-          <Ionicons name="chevron-forward" size={24} color="white" />
+          <Ionicons name="chevron-forward" size={24} color={colors.text} />
         </View>
       </TouchableOpacity>
-
-      <View style={{ position: "absolute", top: 30, right: 30 }}>
-        <TouchableOpacity onPress={toggleModal}>
-          <MaterialIcons name="more-vert" size={28} color="white" />
-        </TouchableOpacity>
-      </View>
+      <TouchableWithoutFeedback>
+        <View style={{ position: "absolute", top: 30, right: 30 }}>
+          <TouchableWithoutFeedback onPress={toggleModal}>
+            <MaterialIcons name="more-vert" size={28} color={colors.text} />
+          </TouchableWithoutFeedback>
+        </View>
+      </TouchableWithoutFeedback>
 
       <Metadata
         data={
@@ -488,7 +492,7 @@ const Player = () => {
 
       <TouchableOpacity onPress={replaySound}>
         <View style={[{ left: 150 }, { bottom: 50 }]}>
-          <Ionicons name="refresh" size={24} color="white" />
+          <Ionicons name="refresh" size={24} color={colors.text} />
         </View>
       </TouchableOpacity>
 
@@ -538,7 +542,7 @@ const Metadata = ({
       <Icon
         name={liked ? "heart" : "heart-o"}
         size={28}
-        color={liked ? "white" : "gray"}
+        color={liked ? colors.text : "gray"}
         style={styles.heartIcon}
       />
     </TouchableOpacity>
@@ -592,7 +596,9 @@ const Controls = ({ togglePlayPause, isPlaying, styles, colors,dispatch,changePo
   );
 };
 
-const Custom_modal = ({ isModalVisible, styles, toggleModal }) => {
+const Custom_modal = ({ isModalVisible,styles, toggleModal }) => {
+    const { data, pos} = useSelector((state) => state.data);
+    
   return (
     <Modal
       transparent
@@ -606,6 +612,21 @@ const Custom_modal = ({ isModalVisible, styles, toggleModal }) => {
         onPressOut={() => toggleModal()}
       >
         <View style={styles.modalContent}>
+          <View style={styles.miniPlayerInfo}>
+            <Image
+              source={{ uri: data ? data[pos]?.image : null }}
+              style={styles.miniPlayerThumbnail}
+            />
+            <View style={styles.miniPlayerTextContainer}>
+              <Text style={styles.miniPlayerTitle} numberOfLines={1}>
+                {data ? data[pos]?.title : "Unknown Title"}
+              </Text>
+              <Text style={styles.miniPlayerArtist} numberOfLines={1}>
+                {data ? data[pos]?.uploader : "Unknown Artist"}
+              </Text>
+            </View>
+          </View>
+
           <Text style={styles.option}>Add to Liked Songs</Text>
           <Text style={styles.option}>Add to playlist</Text>
           <Text style={styles.option}>Media Quality</Text>
