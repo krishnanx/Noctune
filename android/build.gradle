@@ -41,7 +41,8 @@ allprojects {
     }
     configurations.all {
     resolutionStrategy {
-        force 'com.google.guava:guava:31.0.1-android'
+        force 'androidx.core:core:1.13.1'
+
     }
 }
 }

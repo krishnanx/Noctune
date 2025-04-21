@@ -43,6 +43,7 @@ export default function App() {
   if (status === "loading") {
     return (
       <>
+      
         <View
           style={{
             backgroundColor: "#141414",
