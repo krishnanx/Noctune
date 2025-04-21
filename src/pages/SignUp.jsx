@@ -6,7 +6,7 @@ import {
   Platform,
   TouchableOpacity,
   StyleSheet,
-  TextInput
+  TextInput,
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { useTheme } from "@react-navigation/native";
@@ -35,7 +35,7 @@ const SignUp = () => {
       backgroundColor: colors.background,
       padding: 20,
       marginTop: 30,
-      paddingBottom:100,
+      paddingBottom: 100,
     },
     appName: {
       color: "wheat",
