@@ -8,6 +8,7 @@ import {
   Modal,
   Dimensions,
   Animated,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { SkipBack, SkipForward } from "react-native-feather";
@@ -15,7 +16,6 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { FetchMetadata } from "../../Store/MusicSlice";
 import { useNavigation } from "@react-navigation/native";
 import { changePos ,progress,setIsPlaying,load} from "../../Store/MusicSlice";
 import { loadAudio, soundRef } from "../functions/music";
@@ -25,24 +25,23 @@ const windowWidth = Dimensions.get("window").width;
 
 const Player = () => {
   const { colors } = useTheme();
-  
+
   //const [isPlaying, setIsPlaying] = useState(false);
   const [progressSeconds, setProgressSeconds] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [liked, setLiked] = useState(false);
   const [lastPress, setLastPress] = useState(0);
   const DOUBLE_PRESS_DELAY = 800;
- // const [audioUrl, setAudioUrl] = useState("");
-
+  // const [audioUrl, setAudioUrl] = useState("");
 
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const [isMinimized, setIsMinimized] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(true);
   const animatedHeight = useRef(new Animated.Value(windowHeight)).current;
   const animatedWidth = useRef(new Animated.Value(windowWidth)).current;
-  const { data,pos,seek,isplaying} = useSelector((state) => state.data);
-// const audioUrl = useSelector((state) => state.data.Url);
-// console.log("Current URL state:", audioUrl);
+  const { data, pos, seek, isplaying } = useSelector((state) => state.data);
+  // const audioUrl = useSelector((state) => state.data.Url);
+  // console.log("Current URL state:", audioUrl);
 
   // useEffect(() => {
   //   if (data) {
@@ -74,7 +73,6 @@ const Player = () => {
     console.log("isPlaying?...:", isplaying);
   }, [seek, isplaying]);
 
-  
   const togglePlayPause = async () => {
     if (!soundRef.current) return;
 
@@ -87,14 +85,13 @@ const Player = () => {
     }
 
     dispatch(setIsPlaying("toggle"));
-
   };
 
   const replaySound = async () => {
     if (isplaying) {
       await soundRef.current.setPositionAsync(0);
       await soundRef.current.playAsync();
-      progress(0);
+      dispatch(progress(0));
     }
   };
 
@@ -129,11 +126,11 @@ const Player = () => {
       setIsMinimized(!isMinimized);
     });
   };
-  const handlePress = async(value) => {
+  const handlePress = async (value) => {
     const timeNow = Date.now();
     if (timeNow - lastPress < DOUBLE_PRESS_DELAY) {
       // Double press detected
-      console.log('Double press detected!');
+      console.log("Double press detected!");
       dispatch(setIsPlaying(false));
       dispatch(changePos(value));
       dispatch(load(false));
@@ -141,7 +138,7 @@ const Player = () => {
       // Action for double press
     } else {
       // Regular single press action
-      console.log('Single press detected');
+      console.log("Single press detected");
       console.log("hi");
       dispatch(progress(0));
       await soundRef.current.playFromPositionAsync(0);
@@ -149,7 +146,7 @@ const Player = () => {
     }
     setLastPress(timeNow);
   };
-  const TOTAL_DURATION = data?data[pos]?.duration:0;
+  const TOTAL_DURATION = data ? data[pos]?.duration : 0;
 
   const styles = StyleSheet.create({
     Main: {
@@ -161,15 +158,18 @@ const Player = () => {
       height: "100%",
     },
     miniPlayer: {
+      flex: 1,
       position: "absolute",
-      bottom: 0,
-      width: windowWidth,
-      height: 70,
-      backgroundColor: colors.background,
+      top: "695",
+      width: "95%",
+      height: "7%",
+      backgroundColor: "gray",
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
-      paddingHorizontal: 16,
+      padding: 7, // Inner space
+      margin: 10, // Outer space
+      borderRadius: 7,
       borderTopWidth: 1,
       borderTopColor: "rgba(255,255,255,0.1)",
       shadowColor: "#000",
@@ -177,29 +177,31 @@ const Player = () => {
       shadowOpacity: 0.1,
       shadowRadius: 3,
       elevation: 5,
+      zIndex: 100,
     },
     miniPlayerInfo: {
       flexDirection: "row",
       alignItems: "center",
-      flex: 1,
     },
     miniPlayerThumbnail: {
-      width: 50,
-      height: 50,
+      width: 43,
+      height: 43,
       borderRadius: 4,
       marginRight: 12,
+      backgroundColor: "black", // keep for debug, remove later
     },
+
     miniPlayerTextContainer: {
       flex: 1,
     },
     miniPlayerTitle: {
-      color: "white",
+      color: colors.text,
       fontSize: 14,
       fontWeight: "bold",
       marginBottom: 2,
     },
     miniPlayerArtist: {
-      color: "gray",
+      color: colors.text,
       fontSize: 12,
     },
     miniPlayerControls: {
@@ -208,7 +210,7 @@ const Player = () => {
     },
     progressBarContainer: {
       position: "absolute",
-      bottom: 140,
+      bottom: 200,
       width: "90%",
       alignSelf: "center",
     },
@@ -225,14 +227,16 @@ const Player = () => {
     },
     miniProgressBar: {
       position: "absolute",
-      bottom: 0,
-      left: 0,
-      right: 0,
-      height: 2,
+      top: 54,
+      left: 7,
+      right: 3,
+      height: 3,
+      zIndex: 10,
     },
     miniProgressBarFill: {
       height: 2,
-      backgroundColor: "green",
+      backgroundColor: colors.text,
+      borderRadius: 3,
     },
     timeContainer: {
       flexDirection: "row",
@@ -256,7 +260,7 @@ const Player = () => {
       height: 70,
       top: 50,
       borderRadius: 35,
-      backgroundColor: "white",
+      backgroundColor: colors.text,
       justifyContent: "center",
       alignItems: "center",
       shadowColor: "#000",
@@ -269,10 +273,12 @@ const Player = () => {
       width: 36,
       height: 36,
       borderRadius: 18,
-      backgroundColor: "white",
+      backgroundColor: colors.text,
       justifyContent: "center",
       alignItems: "center",
       marginHorizontal: 8,
+      position: "absolute",
+      right: 0,
     },
     triangle: {
       width: 0,
@@ -361,25 +367,26 @@ const Player = () => {
     modalOverlay: {
       flex: 1,
       justifyContent: "flex-end",
-      backgroundColor: "rgba(0,0,0,0.5)", // backdrop blur
+      backgroundColor: "rgba(98, 92, 92, 0.5)", // backdrop blur
     },
     modalContent: {
-      height: "50%", // half the screen
-      backgroundColor: "white",
+      height: "60%", // half the screen
+      backgroundColor: colors.text,
       borderTopLeftRadius: 20,
       borderTopRightRadius: 20,
-      padding: 20,
+      padding: 25,
       backgroundColor: "rgba(0,0,0,0.8)",
+      gap: 15,
     },
     option: {
       fontSize: 18,
-      marginVertical: 12,
-      color: "white",
+      marginVertical: 10,
+      color: colors.text,
     },
     button: {
       padding: 6,
       position: "absolute",
-      top: 30,
+      top: 35,
       left: 30,
       zIndex: 10,
     },
@@ -388,56 +395,67 @@ const Player = () => {
   // Render the mini player if minimized
   if (isMinimized) {
     return (
-      <TouchableOpacity
-        style={styles.miniPlayer}
-        activeOpacity={0.9}
-        onPress={togglePlayerSize}
-      >
-        <View style={styles.miniPlayerInfo}>
-          <Image
-            source={{ uri: data?data[pos]?.thumbnail:null }}
-            style={styles.miniPlayerThumbnail}
-          />
-          <View style={styles.miniPlayerTextContainer}>
-            <Text style={styles.miniPlayerTitle} numberOfLines={1}>
-              {data?data[pos].title:"Unknown Title"}
-            </Text>
-            <Text style={styles.miniPlayerArtist} numberOfLines={1}>
-              {data?data[pos].uploader:"Unknown Artist"}
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.miniPlayerControls}>
-          <TouchableOpacity
-            onPress={togglePlayPause}
-            style={styles.miniPlayPauseButton}
-          >
-            {isplaying ? (
-              <View style={styles.pauseLinesContainer}>
-                <View style={styles.miniPauseLine} />
-                <View style={styles.miniPauseLine} />
+      // Remove the TouchableWithoutFeedback wrapping the entire view
+      <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+        <View
+          style={{
+            position: "static",
+            bottom: "10%",
+            width: "100%",
+            zIndex: 0,
+          }}
+        >
+          {/* Apply TouchableWithoutFeedback only to the mini player */}
+          <TouchableWithoutFeedback onPress={togglePlayerSize}>
+            <View style={styles.miniPlayer} activeOpacity={0.9}>
+              <View style={styles.miniPlayerInfo}>
+                <Image
+                  source={{ uri: data ? data[pos]?.image : null }}
+                  style={styles.miniPlayerThumbnail}
+                />
+                <View style={styles.miniPlayerTextContainer}>
+                  <Text style={styles.miniPlayerTitle} numberOfLines={1}>
+                    {data ? data[pos]?.title : "Unknown Title"}
+                  </Text>
+                  <Text style={styles.miniPlayerArtist} numberOfLines={1}>
+                    {data ? data[pos]?.uploader : "Unknown Artist"}
+                  </Text>
+                </View>
               </View>
-            ) : (
-              <View style={styles.miniTriangle} />
-            )}
-          </TouchableOpacity>
-        </View>
 
-        {/* Mini progress bar */}
-        <View style={styles.miniProgressBar}>
-          <View
-            style={[
-              styles.miniProgressBarFill,
-              {
-                width: `${
-                  TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0
-                }%`,
-              },
-            ]}
-          />
+              <View style={styles.miniPlayerControls}>
+                <TouchableOpacity
+                  onPress={togglePlayPause}
+                  style={styles.miniPlayPauseButton}
+                >
+                  {isplaying ? (
+                    <View style={styles.pauseLinesContainer}>
+                      <View style={styles.miniPauseLine} />
+                      <View style={styles.miniPauseLine} />
+                    </View>
+                  ) : (
+                    <View style={styles.miniTriangle} />
+                  )}
+                </TouchableOpacity>
+              </View>
+
+              {/* Mini progress bar */}
+              <View style={styles.miniProgressBar}>
+                <View
+                  style={[
+                    styles.miniProgressBarFill,
+                    {
+                      width: `${
+                        TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0
+                      }%`,
+                    },
+                  ]}
+                />
+              </View>
+            </View>
+          </TouchableWithoutFeedback>
         </View>
-      </TouchableOpacity>
+      </View>
     );
   }
 
@@ -446,23 +464,26 @@ const Player = () => {
     <View style={styles.Main}>
       <TouchableOpacity style={styles.button} onPress={togglePlayerSize}>
         <View style={{ transform: [{ rotate: "90deg" }] }}>
-          <Ionicons name="chevron-forward" size={24} color="white" />
+          <Ionicons name="chevron-forward" size={24} color={colors.text} />
         </View>
       </TouchableOpacity>
-
-      <View style={{ position: "absolute", top: 30, right: 30 }}>
-        <TouchableOpacity onPress={toggleModal}>
-          <MaterialIcons name="more-vert" size={28} color="white" />
-        </TouchableOpacity>
-      </View>
+      <TouchableWithoutFeedback>
+        <View style={{ position: "absolute", top: 30, right: 30 }}>
+          <TouchableWithoutFeedback onPress={toggleModal}>
+            <MaterialIcons name="more-vert" size={28} color={colors.text} />
+          </TouchableWithoutFeedback>
+        </View>
+      </TouchableWithoutFeedback>
 
       <Metadata
-        data={data[pos]}
+        data={
+          data && data[pos]
+            ? data[pos]
+            : { title: "Unknown Song", uploader: "Unknown Artist" }
+        }
         liked={liked}
         setLiked={setLiked}
-        progressPercent={
-          TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0
-        }
+        progressPercent={TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0}
         seek={seek}
         TOTAL_DURATION={TOTAL_DURATION}
         formatTime={formatTime}
@@ -470,8 +491,8 @@ const Player = () => {
       />
 
       <TouchableOpacity onPress={replaySound}>
-        <View style={{ left: 150 }}>
-          <Ionicons name="refresh" size={24} color="white" />
+        <View style={[{ left: 150 }, { bottom: 50 }]}>
+          <Ionicons name="refresh" size={24} color={colors.text} />
         </View>
       </TouchableOpacity>
 
@@ -481,8 +502,8 @@ const Player = () => {
         styles={styles}
         colors={colors}
         dispatch={dispatch}
-        changePos = {changePos}
-        handlePress = {handlePress}
+        changePos={changePos}
+        handlePress={handlePress}
       />
       <Custom_modal
         isModalVisible={isModalVisible}
@@ -510,16 +531,18 @@ const Metadata = ({
 
     <View style={styles.container}>
       <View style={{ width: 300 }}>
-        <Text style={styles.songName}>{data?.title}</Text>
+        <Text style={styles.songName}>{data?.title || "Unknown Song"}</Text>
       </View>
-      <Text style={styles.singerName}>{data?.uploader}</Text>
+      <Text style={styles.singerName}>
+        {data?.uploader || "Unknown Artist"}
+      </Text>
     </View>
-
+    
     <TouchableOpacity onPress={() => setLiked(!liked)}>
       <Icon
         name={liked ? "heart" : "heart-o"}
         size={28}
-        color={liked ? "white" : "gray"}
+        color={liked ? colors.text : "gray"}
         style={styles.heartIcon}
       />
     </TouchableOpacity>
@@ -573,7 +596,9 @@ const Controls = ({ togglePlayPause, isPlaying, styles, colors,dispatch,changePo
   );
 };
 
-const Custom_modal = ({ isModalVisible, styles, toggleModal }) => {
+const Custom_modal = ({ isModalVisible,styles, toggleModal }) => {
+    const { data, pos} = useSelector((state) => state.data);
+    
   return (
     <Modal
       transparent
@@ -587,6 +612,21 @@ const Custom_modal = ({ isModalVisible, styles, toggleModal }) => {
         onPressOut={() => toggleModal()}
       >
         <View style={styles.modalContent}>
+          <View style={styles.miniPlayerInfo}>
+            <Image
+              source={{ uri: data ? data[pos]?.image : null }}
+              style={styles.miniPlayerThumbnail}
+            />
+            <View style={styles.miniPlayerTextContainer}>
+              <Text style={styles.miniPlayerTitle} numberOfLines={1}>
+                {data ? data[pos]?.title : "Unknown Title"}
+              </Text>
+              <Text style={styles.miniPlayerArtist} numberOfLines={1}>
+                {data ? data[pos]?.uploader : "Unknown Artist"}
+              </Text>
+            </View>
+          </View>
+
           <Text style={styles.option}>Add to Liked Songs</Text>
           <Text style={styles.option}>Add to playlist</Text>
           <Text style={styles.option}>Media Quality</Text>

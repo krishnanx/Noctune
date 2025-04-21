@@ -1,34 +1,44 @@
-import React, { useEffect, useState } from 'react'
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import Home from '../src/pages/Home';
-import Player from '../src/pages/Player';
-import Settings from '../src/pages/Settings';
-import Search from '../src/pages/Search';
-import { useSelector } from 'react-redux';
+import React, { useEffect, useState } from "react";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import Home from "../src/pages/Home";
+import Player from "../src/pages/Player";
+import Settings from "../src/pages/Settings";
+import Search from "../src/pages/Search";
+import { useSelector } from "react-redux";
 import { Keyboard } from "react-native";
+import Playlist from '../src/pages/Playlist';
 
 const Tab = createBottomTabNavigator();
 
 const MainTab = () => {
-    const { status } = useSelector((state) => state.key);
-    const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-    useEffect(() => {
-        const keybaordDidShow = Keyboard.addListener("keyboardWillShow", () => setKeyboardVisible(true));
-        const keyboardDidHide = Keyboard.addListener("keyboardDidHide", () => setKeyboardVisible(false));
-        return () => {
-            keybaordDidShow.remove();
-            keyboardDidHide.remove();
-        }
-    }, [])
-    return (
+  const { status } = useSelector((state) => state.key);
+  const isMinimized = useSelector((state) => state.data.isMinimized);
+
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+  useEffect(() => {
+    const keybaordDidShow = Keyboard.addListener("keyboardWillShow", () =>
+      setKeyboardVisible(true)
+    );
+    const keyboardDidHide = Keyboard.addListener("keyboardDidHide", () =>
+      setKeyboardVisible(false)
+    );
+    return () => {
+      keybaordDidShow.remove();
+      keyboardDidHide.remove();
+    };
+  }, []);
+  return (
+    <>
       <Tab.Navigator
         screenOptions={({ route }) => {
           let iconName;
           if (route.name === "Home") iconName = "home-outline";
           else if (route.name === "Search") iconName = "magnify";
-          else if (route.name === "Player") iconName = "play-circle-outline";
+          else if (route.name === "playlist") iconName = "music-note"
           else if (route.name === "Settings") iconName = "cog-outline";
+          
 
           return {
             tabBarIcon: ({ color, size }) => (
@@ -36,16 +46,23 @@ const MainTab = () => {
             ),
             headerShown: false,
             tabBarHideOnKeyboard: true,
+            tabBarStyle: {
+              height: "7%", // <== custom height in pixels
+              padding: "auto",
+            },
           };
         }}
         initialRouteName="Search"
       >
         <Tab.Screen name="Home" component={Home} />
         <Tab.Screen name="Search" component={Search} />
-        <Tab.Screen name="Player" component={Player} />
+        <Tab.Screen name="playlist" component={Playlist}/>
         <Tab.Screen name="Settings" component={Settings} />
+       
       </Tab.Navigator>
-    );
-}
+      <Player />
+    </>
+  );
+};
 
 export default MainTab;
