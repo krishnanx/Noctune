@@ -13,6 +13,7 @@ Stay tuned to know more!
 - Backend: Express js and Fast-API
 - Database: Supabase
 - Cloud Services: CloudFlare
+- Realtime communication: websocket 
   
 
 
