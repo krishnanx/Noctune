@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
-import { SafeAreaProvider } from "react-native-safe-area-context";
+import { SafeAreaProvider,SafeAreaView } from "react-native-safe-area-context";
 import UniversalNavi from "./Navigation/Universal";
 import { darkTheme } from "./Theme/darkTheme";
 import { lightTheme } from "./Theme/lightTheme";
@@ -64,28 +64,30 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <View style={styles.container}>
-          <StatusBar
-            barStyle={Mode === "light" ? "dark-content" : "light-content"}
-            backgroundColor={Mode === "light" ? "#ffffff" : "#141414"}
-            translucent={false}
-          />
+      <SafeAreaView style={{ flex: 1, backgroundColor: Mode === "light" ? "#ffffff" : "#141414" }}>
+       
+          <View style={styles.container}>
+            <StatusBar
+              barStyle={Mode === "light" ? "dark-content" : "light-content"}
+              backgroundColor={Mode === "light" ? "#ffffff" : "#141414"}
+              translucent={false}
+            />
 
-          <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : undefined}
-            style={{ flex: 1 }}
-          >
-            <NavigationContainer
-              theme={Mode === "light" ? lightTheme : darkTheme}
+            <KeyboardAvoidingView
+              behavior={Platform.OS === "ios" ? "padding" : undefined}
+              style={{ flex: 1 }}
             >
-              <UniversalNavi />
-            </NavigationContainer>
-          </KeyboardAvoidingView>
-        </View>
-      </TouchableWithoutFeedback>
-      <Websocket />
-      {canLoad && <Audioloader />}
+              <NavigationContainer
+                theme={Mode === "light" ? lightTheme : darkTheme}
+              >
+                <UniversalNavi />
+              </NavigationContainer>
+            </KeyboardAvoidingView>
+          </View>
+       
+        <Websocket />
+        {canLoad && <Audioloader />}
+      </SafeAreaView>
     </SafeAreaProvider>
   );
 }
@@ -93,7 +95,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#141414",
+    // backgroundColor: "#141414",
     width: "100%",
   },
 });

@@ -1,0 +1,12 @@
+import React from 'react'
+import Svg,{Path} from 'react-native-svg'
+
+const Download = ({width=24,height=24,fill="#e3e3e3"}) => {
+  return (
+    <Svg xmlns="http://www.w3.org/2000/svg" height={height} viewBox="0 -960 960 960" width={width} fill={fill}>
+         <Path d="M160-80v-80h640v80H160Zm320-160L200-600h160v-280h240v280h160L480-240Zm0-130 116-150h-76v-280h-80v280h-76l116 150Zm0-150Z"/>
+    </Svg>
+  )
+}
+
+export default Download
