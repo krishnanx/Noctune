@@ -3,7 +3,7 @@ const { getDefaultConfig } = require("expo/metro-config");
 const path = require("path");
 
 const config = getDefaultConfig(__dirname);
-
+config.resolver.unstable_conditionNames = [ 'browser', 'require', 'react-native', ]
 // Custom resolver for missing assets
 config.resolver = {
   ...config.resolver,
@@ -11,6 +11,7 @@ config.resolver = {
   extraNodeModules: {
     "missing-asset-registry-path": path.resolve(__dirname, "assets"),
   },
+ 
 };
 
 // Force Metro to resolve specific asset paths

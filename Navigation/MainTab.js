@@ -8,6 +8,7 @@ import Settings from "../src/pages/Settings";
 import Search from "../src/pages/Search";
 import { useSelector } from "react-redux";
 import { Keyboard } from "react-native";
+import Playlist from '../src/pages/Playlist';
 
 const Tab = createBottomTabNavigator();
 
@@ -35,7 +36,9 @@ const MainTab = () => {
           let iconName;
           if (route.name === "Home") iconName = "home-outline";
           else if (route.name === "Search") iconName = "magnify";
+          else if (route.name === "playlist") iconName = "music-note"
           else if (route.name === "Settings") iconName = "cog-outline";
+          
 
           return {
             tabBarIcon: ({ color, size }) => (
@@ -53,7 +56,9 @@ const MainTab = () => {
       >
         <Tab.Screen name="Home" component={Home} />
         <Tab.Screen name="Search" component={Search} />
+        <Tab.Screen name="playlist" component={Playlist}/>
         <Tab.Screen name="Settings" component={Settings} />
+       
       </Tab.Navigator>
       <Player />
     </>
