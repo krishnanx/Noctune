@@ -37,7 +37,7 @@ const MainTab = () => {
           let iconName;
           if (route.name === "Home") iconName = "home-outline";
           else if (route.name === "Search") iconName = "magnify";
-          else if (route.name === "Library") iconName = "music-note"
+          else if (route.name === "Library") iconName = "music-box-multiple-outline"
           else if (route.name === "Settings") iconName = "cog-outline";
           
 
