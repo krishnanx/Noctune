@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import { Text, Animated } from "react-native";
-import { StyleSheet, View, Image } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 
 const WaveformLoader = () => {
