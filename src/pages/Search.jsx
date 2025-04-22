@@ -28,7 +28,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import store from "../../Store/store";
-import Waveform from "../Components/Waveform.jsx";
+
 const Search = () => {
   const { colors } = useTheme(); // Get theme colors
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
@@ -341,9 +341,7 @@ const Search = () => {
           <Text style={{ color: "white" }}></Text>
         </KeyboardAvoidingView>
       </View>
-      <View style={{marginBottom:100}}>
-        <Waveform />
-      </View>
+    
     </View>
   );
 };
