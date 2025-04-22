@@ -20,7 +20,7 @@ import Websocket from "./src/Websocket/Websocket";
 import { FetchMetadata } from "./Store/MusicSlice";
 import { useEffect, useRef } from "react";
 import { Text, Animated } from "react-native";
-import Waveform from "./src/components/Waveform";
+import Waveform from "./src/Components/Waveform";
 import Audioloader from "./src/functions/Audioloader";
 
 export default function App() {
