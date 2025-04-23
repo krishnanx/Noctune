@@ -4,24 +4,30 @@ import { Download } from 'react-native-feather';
 import ThreeDots from '../Components/ThreeDots';
 import SearchIcon from '../Components/Search';
 import AddIcon from '../Components/AddIcon';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useTheme } from "@react-navigation/native";
 import MusicNote from "../Components/MusicNote"
 import Collab from "../Components/Collab"
 import icon from "../../assets/favicon.png"
+import { addPlaylist } from '../../Store/PlaylistSlice';
+import { useNavigation } from '@react-navigation/native';
 const Library = () => {
-     const [isModalVisible, setIsModalVisible] = useState(false);
-     const [isPlaylistaddVisible, setisPlaylistaddVisible] = useState(false);
-     const [isPrivate,setIsPrivate] = useState(false);
-     const { colors } = useTheme();
-     const {data} = useSelector((state)=>state.playlist);
-     const toggleModal = () => {
-        setIsModalVisible((prev) => !prev);
-      };
-      const togglePlaylistadd = () => {
-        setisPlaylistaddVisible((prev) => !prev);
-      };
-     const styles = StyleSheet.create({
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isPlaylistaddVisible, setisPlaylistaddVisible] = useState(false);
+    const [isPrivate,setIsPrivate] = useState(false);
+    const [playlistName,setPlaylistName] = useState("");
+    const [description,setDescription] = useState("")
+    const { colors } = useTheme();
+    const {data} = useSelector((state)=>state.playlist);
+    const navigation = useNavigation();
+    const toggleModal = () => {
+    setIsModalVisible((prev) => !prev);
+    };
+    const togglePlaylistadd = () => {
+    setisPlaylistaddVisible((prev) => !prev);
+    };
+    const dispatch = useDispatch();
+    const styles = StyleSheet.create({
             Main:{
                 flex:1,
                 width:"100%"
@@ -181,6 +187,9 @@ const Library = () => {
         }
         const handlePlaylist = () => {
             togglePlaylistadd();
+            dispatch(addPlaylist({name:playlistName,desc:description}));
+            setDescription("");
+            setPlaylistName("");
         }
   return (
    <ScrollView
@@ -216,7 +225,11 @@ const Library = () => {
     >
         <FlatList
             data={data}
-            renderItem={({ item }) => <DisplayPlaylist item={item} styles={styles}/>}
+            renderItem={({ item,index }) => <DisplayPlaylist item={item} 
+            index={index} 
+            styles={styles}
+            navigation = {navigation}
+            />}
             keyExtractor={(item, index) => index.toString()}
             scrollEnabled={false}
         />
@@ -233,6 +246,12 @@ const Library = () => {
             isPrivate={isPrivate}
             setIsPrivate={setIsPrivate}
             handlePlaylist={handlePlaylist}
+            description={description}
+            setDescription={setDescription}
+            setPlaylistName={setPlaylistName}
+            playlistName={playlistName}
+            
+
         />
     
     </View>
@@ -339,7 +358,17 @@ const Custom_modal = ({ isModalVisible,styles, toggleModal,handlePress }) => {
     </Modal>
   )};
       
-const Playlistadd = ({isPlaylistaddVisible,togglePlaylistadd,styles,isPrivate,setIsPrivate,handlePlaylist}) => {
+const Playlistadd = ({isPlaylistaddVisible,
+    togglePlaylistadd,
+    styles,
+    isPrivate,
+    setIsPrivate,
+    handlePlaylist,
+    playlistName,
+    setPlaylistName,
+    description,
+    setDescription
+}) => {
     return (
         <Modal
         transparent
@@ -354,16 +383,16 @@ const Playlistadd = ({isPlaylistaddVisible,togglePlaylistadd,styles,isPrivate,se
                     <Text style={{fontSize:20,color:"white"}}>Create Playlist</Text>
                     <TextInput
                         placeholder="Playlist Name"
-                        // value={playlistName}
-                        // onChangeText={setPlaylistName}
+                        value={playlistName}
+                        onChangeText={setPlaylistName}
                         placeholderTextColor="white"
                         style={styles.input}
                     />
 
                     <TextInput
                         placeholder="Description (optional)"
-                        // value={description}
-                        // onChangeText={setDescription}
+                        value={description}
+                        onChangeText={setDescription}
                         placeholderTextColor="white"
                         style={[styles.input,{height:100}]}
                     />
@@ -398,10 +427,13 @@ const Playlistadd = ({isPlaylistaddVisible,togglePlaylistadd,styles,isPrivate,se
         </Modal>
     )
 }
-const DisplayPlaylist = ({item,styles}) => {
+const DisplayPlaylist = ({item,index,styles,navigation}) => {
     return (
         <TouchableHighlight
-            onPress={()=>console.log(item)}
+            onPress={() => {
+                console.log("Navigating to Playlist");
+                navigation.navigate("Playlist", { index: index });
+            }}
             style={{
                 borderRadius:3
             }}
@@ -416,7 +448,11 @@ const DisplayPlaylist = ({item,styles}) => {
                 <View
                 style={styles.ImageContainer}
                 >
-                    <Image source={icon} style={{width:50,height:50}}/>
+                    <Image
+                        source={item.image ? { uri: item.image } : icon}
+                        style={{ width: 50, height: 50 }}
+                         // fallback if user image fails to load
+                    />
                 </View>
                 <View
                 style={styles.Name}
