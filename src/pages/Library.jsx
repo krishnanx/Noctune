@@ -1,5 +1,5 @@
 import React,{useState} from 'react'
-import { ScrollView, View,StyleSheet,Text, ViewBase, TouchableOpacity,Modal,Image } from 'react-native'
+import { ScrollView, View,StyleSheet,Text, ViewBase, TouchableOpacity,Modal,Image,TextInput,Switch} from 'react-native'
 import { Download } from 'react-native-feather';
 import ThreeDots from '../Components/ThreeDots';
 import SearchIcon from '../Components/Search';
@@ -10,84 +10,147 @@ import MusicNote from "../Components/MusicNote"
 import Collab from "../Components/Collab"
 const Library = () => {
      const [isModalVisible, setIsModalVisible] = useState(false);
+     const [isPlaylistaddVisible, setisPlaylistaddVisible] = useState(false);
+     const [isPrivate,setIsPrivate] = useState(false);
      const { colors } = useTheme();
      const toggleModal = () => {
         setIsModalVisible((prev) => !prev);
       };
+      const togglePlaylistadd = () => {
+        setisPlaylistaddVisible((prev) => !prev);
+      };
      const styles = StyleSheet.create({
-              Main:{
-                  flex:1,
-                  width:"100%"
-    
-              },
-              insideMain: {
-                  paddingHorizontal: 20,
-                  paddingTop: 20,
-                  flexDirection: "column",
-                  flex:1,
-                  flexGrow:1
-                
-                },
-                Header:{
-                    width:"100%",
-                    flexDirection:"row",
-                    justifyContent:"space-between"
-                },
-                HeaderInside:
-                    {
-                    flexDirection:"row",
-                    justifyContent:"space-between",
-                    alignItems:"center"
-                    }
-                ,
-                body:{
-                    width:"100%",
-                    height:"auto"
-                },
-                modalOverlay: {
-                    flex: 1,
-                    justifyContent: "flex-end",
-                    //backgroundColor: "rgba(98, 92, 92, 0.5)", // backdrop blur
-                  },
-                  modalContent: {
-                    height: "20%", 
-                    backgroundColor: colors.text,
-                    borderTopLeftRadius: 20,
-                    borderTopRightRadius: 20,
-                    padding: 25,
-                    backgroundColor: "rgba(0,0,0,1)",
-                    gap: 15,
-                  },
-                  option: {
-                    fontSize: 18,
-                    marginVertical: 10,
-                    color: colors.text,
-                  },
-                modal1:{
-                    width:"100%",
-                    height:"50%",
-                    flexDirection:"row",
+            Main:{
+                flex:1,
+                width:"100%"
 
-                },
-                modal1R:{
-                    width:"80%",
-                    height:"auto",
-                    //backgroundColor:"white",
-                    justifyContent:"center",
-                    alignItems:"center",
-                    
-                },
-                modal1L:{
-                    width:"20%",
-                    height:"auto",
-                    //backgroundColor:"red",
-                    justifyContent:"center",
-                    alignItems:"center"
+            },
+            insideMain: {
+                paddingHorizontal: 20,
+                paddingTop: 20,
+                flexDirection: "column",
+                flex:1,
+                flexGrow:1
+                
+            },
+            Header:{
+                width:"100%",
+                flexDirection:"row",
+                justifyContent:"space-between"
+            },
+            HeaderInside:
+                {
+                flexDirection:"row",
+                justifyContent:"space-between",
+                alignItems:"center"
                 }
+            ,
+            body:{
+                width:"100%",
+                height:"auto"
+            },
+            modalOverlay: {
+                flex: 1,
+                justifyContent: "flex-end",
+                //backgroundColor: "rgba(98, 92, 92, 0.5)", // backdrop blur
+            },
+            modalContent: {
+                height: "20%", 
+                backgroundColor: colors.text,
+                borderTopLeftRadius: 20,
+                borderTopRightRadius: 20,
+                padding: 25,
+                backgroundColor: "rgba(0,0,0,1)",
+                gap: 15,
+            },
+            option: {
+            fontSize: 18,
+            marginVertical: 10,
+            color: colors.text,
+            },
+            modal1:{
+                width:"100%",
+                height:"50%",
+                flexDirection:"row",
+
+            },
+            modal1R:{
+                width:"80%",
+                height:"auto",
+                //backgroundColor:"white",
+                justifyContent:"center",
+                alignItems:"center",
+                
+            },
+            modal1L:{
+                width:"20%",
+                height:"auto",
+                //backgroundColor:"red",
+                justifyContent:"center",
+                alignItems:"center"
+            },
+            PlaylistModal:{
+                height: 350, 
+                backgroundColor: colors.text,
+                borderRadius:20,
+                padding: 25,
+                backgroundColor: "rgba(0,0,0,1)",
+                gap: 15,
+                width:"80%"
+
+            },
+            playlistMain:{
+                
+                flex: 1,
+                justifyContent: "center",
+                alignItems:"center",
+                //backgroundColor: "rgba(98, 92, 92, 0.)", // backdrop blur
+                    
+                
+            },
+            input:{
+                width:"100%",
+                color:"white",
+                borderColor:"wheat",
+                borderWidth:1,
+                padding:10
+            },
+            switchContainer:{
+                width:"100%",
+                height:30,
+                alignItems:"center",
+                flexDirection:"row",
+                justifyContent:"space-around",
                
-            });
+            },
+            ButtonContainer:{
+                width:"100%",
+                height:60,
+                flexDirection:"row",
+                justifyContent:"flex-end",
+                alignItems:"center",
+                //backgroundColor:"white"
+
+            },
+            Button:{
+                color:"white",
+                width:120,
+                height:40,
+                backgroundColor:"wheat",
+                borderRadius:20,
+                justifyContent:"center",
+                alignItems:"center"
+            }
+
+
+            
+        });
         const handlePress = () =>{
            toggleModal();
+           togglePlaylistadd();
+        }
+        const handlePlaylist = () => {
+            togglePlaylistadd();
         }
   return (
    <ScrollView
@@ -125,6 +188,15 @@ const Library = () => {
         isModalVisible={isModalVisible}
         styles={styles}
         toggleModal={toggleModal}
+        handlePress={handlePress}
+      />
+      <Playlistadd 
+      isPlaylistaddVisible={isPlaylistaddVisible} 
+      togglePlaylistadd={togglePlaylistadd}
+      styles={styles}
+      isPrivate={isPrivate}
+      setIsPrivate={setIsPrivate}
+      handlePlaylist={handlePlaylist}
       />
     </View>
    </ScrollView>
@@ -133,7 +205,7 @@ const Library = () => {
 }
 
 export default Library
-const Custom_modal = ({ isModalVisible,styles, toggleModal }) => {
+const Custom_modal = ({ isModalVisible,styles, toggleModal,handlePress }) => {
     const { data, pos} = useSelector((state) => state.data);
     
   return (
@@ -150,8 +222,9 @@ const Custom_modal = ({ isModalVisible,styles, toggleModal }) => {
         onPressOut={() => toggleModal()}
       >
         <View style={styles.modalContent}>
-            <View
+            <TouchableOpacity
                 style={styles.modal1}
+                onPress={()=>handlePress()}
             >
                 <View
                     style={styles.modal1L}
@@ -180,9 +253,10 @@ const Custom_modal = ({ isModalVisible,styles, toggleModal }) => {
                        </Text>
                     </View>
                 </View>
-            </View>
-            <View
-                style={styles.modal1}
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+            style={styles.modal1}
             >
                 <View
                     style={styles.modal1L}
@@ -212,7 +286,8 @@ const Custom_modal = ({ isModalVisible,styles, toggleModal }) => {
                        </Text>
                     </View>
                 </View>
-            </View>
+            </TouchableOpacity>
+            
 
          
         </View>
@@ -225,3 +300,63 @@ const Custom_modal = ({ isModalVisible,styles, toggleModal }) => {
       </TouchableOpacity>
     </Modal>
   )};
+      
+    const Playlistadd = ({isPlaylistaddVisible,togglePlaylistadd,styles,isPrivate,setIsPrivate,handlePlaylist}) => {
+    return (
+        <Modal
+        transparent
+        visible={isPlaylistaddVisible}
+        animationType="slide"
+        onRequestClose={() => togglePlaylistadd()}
+        >
+           <View
+                style={styles.playlistMain}
+           >
+                <View style={styles.PlaylistModal}>
+                    <Text style={{fontSize:20,color:"white"}}>Create Playlist</Text>
+                    <TextInput
+                        placeholder="Playlist Name"
+                        // value={playlistName}
+                        // onChangeText={setPlaylistName}
+                        placeholderTextColor="white"
+                        style={styles.input}
+                    />
+
+                    <TextInput
+                        placeholder="Description (optional)"
+                        // value={description}
+                        // onChangeText={setDescription}
+                        placeholderTextColor="white"
+                        style={[styles.input,{height:100}]}
+                    />
+
+                    <View style={styles.switchContainer}>
+                        <Text
+                            style={{color:"white"}}
+                        >Private</Text>
+                        <Switch 
+                        value={isPrivate} 
+                        onValueChange={setIsPrivate} 
+                        trackColor={{ false: "#767577", true: "wheat" }} 
+                        thumbColor={!isPrivate ? "white" : "wheat"}
+                        />
+                    </View>
+                    <View
+                        style={styles.ButtonContainer}
+                        >
+                        <TouchableOpacity
+                            style={styles.Button}
+                            onPress={()=>handlePlaylist()}
+                        >
+                            <Text
+                                
+                            >
+                            Drop the Beat
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+           </View>
+        </Modal>
+    )
+}
