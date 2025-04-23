@@ -1,5 +1,5 @@
 import React,{useState} from 'react'
-import { ScrollView, View,StyleSheet,Text, ViewBase, TouchableOpacity,Modal,Image,TextInput,Switch} from 'react-native'
+import { ScrollView, View,StyleSheet,Text, ViewBase, TouchableOpacity,Modal,Image,TextInput,Switch, FlatList,TouchableHighlight} from 'react-native'
 import { Download } from 'react-native-feather';
 import ThreeDots from '../Components/ThreeDots';
 import SearchIcon from '../Components/Search';
@@ -8,11 +8,13 @@ import { useSelector } from 'react-redux';
 import { useTheme } from "@react-navigation/native";
 import MusicNote from "../Components/MusicNote"
 import Collab from "../Components/Collab"
+import icon from "../../assets/favicon.png"
 const Library = () => {
      const [isModalVisible, setIsModalVisible] = useState(false);
      const [isPlaylistaddVisible, setisPlaylistaddVisible] = useState(false);
      const [isPrivate,setIsPrivate] = useState(false);
      const { colors } = useTheme();
+     const {data} = useSelector((state)=>state.playlist);
      const toggleModal = () => {
         setIsModalVisible((prev) => !prev);
       };
@@ -47,7 +49,13 @@ const Library = () => {
             ,
             body:{
                 width:"100%",
-                height:"auto"
+                height:"auto",
+                paddingTop:80,
+                flexDirection:"column",
+                
+                
+               
+                
             },
             modalOverlay: {
                 flex: 1,
@@ -64,9 +72,9 @@ const Library = () => {
                 gap: 15,
             },
             option: {
-            fontSize: 18,
-            marginVertical: 10,
-            color: colors.text,
+                fontSize: 18,
+                marginVertical: 10,
+                color: colors.text,
             },
             modal1:{
                 width:"100%",
@@ -140,6 +148,28 @@ const Library = () => {
                 borderRadius:20,
                 justifyContent:"center",
                 alignItems:"center"
+            },
+            Playinfo:{
+                width:"100%",
+                height:80,
+                //backgroundColor:"red",
+                alignItems:"center",
+                paddingHorizontal:20,
+                flexDirection:"row"
+            },
+            ImageContainer:{
+                width:60,
+                height:60,
+                //backgroundColor:"white",
+                justifyContent:"center",
+                alignItems:"center"
+            },
+            Name:{
+                width:"100%"-60,
+                height:"100%",
+                justifyContent:"center",
+                paddingLeft:25
+                
             }
 
 
@@ -184,21 +214,29 @@ const Library = () => {
     <View
         style={styles.body}
     >
+        <FlatList
+            data={data}
+            renderItem={({ item }) => <DisplayPlaylist item={item} styles={styles}/>}
+            keyExtractor={(item, index) => index.toString()}
+            scrollEnabled={false}
+        />
         <Custom_modal
-        isModalVisible={isModalVisible}
-        styles={styles}
-        toggleModal={toggleModal}
-        handlePress={handlePress}
-      />
-      <Playlistadd 
-      isPlaylistaddVisible={isPlaylistaddVisible} 
-      togglePlaylistadd={togglePlaylistadd}
-      styles={styles}
-      isPrivate={isPrivate}
-      setIsPrivate={setIsPrivate}
-      handlePlaylist={handlePlaylist}
-      />
+            isModalVisible={isModalVisible}
+            styles={styles}
+            toggleModal={toggleModal}
+            handlePress={handlePress}
+        />
+        <Playlistadd 
+            isPlaylistaddVisible={isPlaylistaddVisible} 
+            togglePlaylistadd={togglePlaylistadd}
+            styles={styles}
+            isPrivate={isPrivate}
+            setIsPrivate={setIsPrivate}
+            handlePlaylist={handlePlaylist}
+        />
+    
     </View>
+
    </ScrollView>
 
   )
@@ -301,7 +339,7 @@ const Custom_modal = ({ isModalVisible,styles, toggleModal,handlePress }) => {
     </Modal>
   )};
       
-    const Playlistadd = ({isPlaylistaddVisible,togglePlaylistadd,styles,isPrivate,setIsPrivate,handlePlaylist}) => {
+const Playlistadd = ({isPlaylistaddVisible,togglePlaylistadd,styles,isPrivate,setIsPrivate,handlePlaylist}) => {
     return (
         <Modal
         transparent
@@ -359,4 +397,43 @@ const Custom_modal = ({ isModalVisible,styles, toggleModal,handlePress }) => {
            </View>
         </Modal>
     )
+}
+const DisplayPlaylist = ({item,styles}) => {
+    return (
+        <TouchableHighlight
+            onPress={()=>console.log(item)}
+            style={{
+                borderRadius:3
+            }}
+            underlayColor="rgba(245,222,179,0.2)"
+            activeOpacity={0.7}
+        >
+            <View
+            style={styles.Playinfo}
+            onPress={()=>console.log(item)}
+            key={item}
+            >
+                <View
+                style={styles.ImageContainer}
+                >
+                    <Image source={icon} style={{width:50,height:50}}/>
+                </View>
+                <View
+                style={styles.Name}
+                >
+                    <Text
+                        style={{fontSize:20,color:"white"}}
+                    >
+                        {item.name}
+                    </Text>
+                    <Text
+                        style={{fontSize:15,color:"white"}}
+                    >
+                        Playlist . Noctune
+                    </Text>
+                </View>
+            </View>
+
+        </TouchableHighlight>
+    );
 }
