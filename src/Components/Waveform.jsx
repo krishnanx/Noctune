@@ -1,6 +1,8 @@
 import React, { useRef, useEffect } from "react";
 import { Text, Animated } from "react-native";
-import { StyleSheet, View, Image } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import MaskedView from "@react-native-masked-view/masked-view";
 
 
 const WaveformLoader = () => {
@@ -40,28 +42,49 @@ const WaveformLoader = () => {
     bar: {
       width: 6,
       marginHorizontal: 3,
-      backgroundColor: "beige", // wave color
       borderRadius: 3,
+      backgroundColor: "transparent", // no solid color
     },
   });
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        { transform: [{ rotate: "180deg" }, { scaleX: -1 }] },
+      ]}
+    >
       {animations.map((anim, index) => (
-        <Animated.View
+        <MaskedView
           key={index}
-          style={[
-            styles.bar,
-            {
-              height: anim,
-            },
-          ]}
-        />
+          maskElement={
+            <Animated.View
+              style={[
+                styles.bar,
+                {
+                  height: anim,
+                  backgroundColor: "black", // mask color (any solid)
+                },
+              ]}
+            />
+          }
+        >
+          <LinearGradient
+            colors={["purple", "beige", "wheat"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={{
+              height: 100,
+              width: 6,
+              marginHorizontal: 3,
+              borderRadius: 3,
+            }}
+          />
+        </MaskedView>
       ))}
     </View>
   );
 };
-
 const Waveform = () => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -75,19 +98,34 @@ const Waveform = () => {
 
   return (
     <Animated.View style={{ opacity: fadeAnim }}>
+      <MaskedView
+        maskElement={
+          <Text
+            style={{
+              fontSize: 50,
+              fontWeight: "bold",
+              textAlign: "center",
+              color: "black", // This color won't show; it's just for masking
+            }}
+          >
+            𝙉𝙤𝙘𝙩𝙪𝙣𝙚
+          </Text>
+        }
+      >
+        <LinearGradient
+          colors={["wheat", "white", "purple"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={{
+            height: 60, // make sure it's tall enough to fully cover the text
+            alignItems: "center",
+            marginBottom: 30,
+          }}
+        />
+      </MaskedView>
       <Text
         style={{
           color: "wheat",
-          paddingBottom: 30,
-          fontSize: 50,
-          textAlign: "center",
-        }}
-      >
-        𝙉𝙤𝙘𝙩𝙪𝙣𝙚
-      </Text>
-      <Text
-        style={{
-          color: "beige",
           paddingHorizontal: 20,
           fontSize: 28,
           textAlign: "center",

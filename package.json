@@ -44,10 +44,13 @@
     "react-native-ytdl": "^4.8.3",
     "react-redux": "^9.2.0",
     "youtube-music-api": "^1.0.6",
-    "youtube-search-api": "^1.2.2"
+    "youtube-search-api": "^1.2.2",
+    "@react-native-masked-view/masked-view": "0.3.2",
+    "expo-linear-gradient": "~14.0.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0"
+    "@babel/core": "^7.20.0",
+    "babel-plugin-transform-remove-console": "^6.9.4"
   },
   "private": true
 }

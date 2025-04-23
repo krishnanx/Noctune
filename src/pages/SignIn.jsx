@@ -9,14 +9,16 @@ import {
   Platform,
 } from "react-native";
 import { useTheme } from "@react-navigation/native";
+import { ScrollView } from "react-native-gesture-handler";
+import { useNavigation } from "@react-navigation/native";
 
 const SignIn = () => {
   const { colors } = useTheme();
-  //console.log("Theme colors:", colors);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const navigation = useNavigation();
 
   const handleSignIn = async () => {
     console.log("Sign in with:", email, password);
@@ -28,14 +30,21 @@ const SignIn = () => {
       backgroundColor: colors.background,
       padding: 20,
       marginTop: 60,
+      paddingBottom: 100,
     },
-
-    title: {
-      fontSize: 28,
+    appName: {
+      color: "wheat",
       fontWeight: "bold",
-      color: colors.text,
-      marginBottom: 50,
+      fontSize: 40,
       textAlign: "center",
+      padding: 20,
+    },
+    line: {
+      marginTop: 15,
+      height: 1,
+      backgroundColor: "#aaa",
+      opacity: 0.4,
+      marginBottom: 15,
     },
     input: {
       backgroundColor: "rgba(255,255,255,0.1)",
@@ -68,19 +77,14 @@ const SignIn = () => {
       marginTop: 30,
     },
     footerText: {
-      color: colors.text,
+      color: "wheat",
       fontSize: 14,
     },
     signUpText: {
-      color: "#1DB954",
+      color: "wheat",
       fontSize: 14,
       fontWeight: "bold",
       marginLeft: 5,
-    },
-    errorText: {
-      color: "red",
-      marginBottom: 10,
-      textAlign: "center",
     },
   });
 
@@ -89,50 +93,53 @@ const SignIn = () => {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={{ flex: 1 }}
     >
-      <View style={styles.container}>
-        <Text style={styles.title}>Sign In</Text>
-        {error && <Text style={styles.errorText}>{error}</Text>}
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          placeholderTextColor="rgba(255,255,255,0.5)"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
+      <ScrollView>
+        <View style={styles.container}>
+          <Text style={styles.appName}>𝙉𝙤𝙘𝙩𝙪𝙣𝙚</Text>
+          <View style={styles.line}></View>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          placeholderTextColor="rgba(255,255,255,0.5)"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            placeholderTextColor="rgba(255,255,255,0.5)"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
 
-        <Text style={styles.forgotPassword}>Forgot Password?</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            placeholderTextColor="rgba(255,255,255,0.5)"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
 
-        <TouchableOpacity
-          style={styles.button}
-          onPress={handleSignIn}
-          disabled={loading}
-        >
-          <Text style={styles.buttonText}>
-            {loading ? "Signing In..." : "Sign In"}
-          </Text>
-        </TouchableOpacity>
+          <Text style={styles.forgotPassword}>Forgot Password?</Text>
 
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Don't have an account?</Text>
-          <Text
-            style={styles.signUpText}
-            //onPress={() => navigation.navigate("SignUp")}
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleSignIn}
+            disabled={loading}
           >
-            Sign Up
-          </Text>
+            <Text style={styles.buttonText}>
+              {loading ? "Signing In..." : "Sign In"}
+            </Text>
+          </TouchableOpacity>
+
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>Don't have an account?</Text>
+            <Text
+              style={styles.signUpText}
+              onPress={() => navigation.navigate("signup")}
+            >
+              Sign Up
+            </Text>
+          </View>
         </View>
-      </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 };

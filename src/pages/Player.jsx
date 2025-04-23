@@ -17,9 +17,9 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
-import { changePos ,progress,setIsPlaying,load} from "../../Store/MusicSlice";
+import { changePos, progress, setIsPlaying, load } from "../../Store/MusicSlice";
 import { loadAudio, soundRef } from "../functions/music";
-
+import { addMusicinPlaylist } from "../../Store/PlaylistSlice"
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
 
@@ -182,6 +182,7 @@ const Player = () => {
     miniPlayerInfo: {
       flexDirection: "row",
       alignItems: "center",
+
     },
     miniPlayerThumbnail: {
       width: 43,
@@ -383,6 +384,10 @@ const Player = () => {
       marginVertical: 10,
       color: colors.text,
     },
+    optionTouch: {
+      width: "100%",
+
+    },
     button: {
       padding: 6,
       position: "absolute",
@@ -445,9 +450,8 @@ const Player = () => {
                   style={[
                     styles.miniProgressBarFill,
                     {
-                      width: `${
-                        TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0
-                      }%`,
+                      width: `${TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0
+                        }%`,
                     },
                   ]}
                 />
@@ -509,6 +513,7 @@ const Player = () => {
         isModalVisible={isModalVisible}
         styles={styles}
         toggleModal={toggleModal}
+        dispatch={dispatch}
       />
     </View>
   );
@@ -537,7 +542,7 @@ const Metadata = ({
         {data?.uploader || "Unknown Artist"}
       </Text>
     </View>
-    
+
     <TouchableOpacity onPress={() => setLiked(!liked)}>
       <Icon
         name={liked ? "heart" : "heart-o"}
@@ -564,16 +569,16 @@ const Metadata = ({
   </>
 );
 
-const Controls = ({ togglePlayPause, isPlaying, styles, colors,dispatch,changePos,handlePress }) => {
+const Controls = ({ togglePlayPause, isPlaying, styles, colors, dispatch, changePos, handlePress }) => {
   return (
     <View style={styles.controlsContainer}>
-      <TouchableOpacity style={styles.skipButton}  onPress={()=>{handlePress(-1)}}>
+      <TouchableOpacity style={styles.skipButton} onPress={() => { handlePress(-1) }}>
         <SkipBack width={35} height={35} stroke={colors.text} />
       </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.playPauseButton}
-        onPress={()=>togglePlayPause()}
+        onPress={() => togglePlayPause()}
       >
         {isPlaying ? (
           <View style={styles.pauseLinesContainer}>
@@ -585,20 +590,20 @@ const Controls = ({ togglePlayPause, isPlaying, styles, colors,dispatch,changePo
         )}
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.skipButton} onPress={()=>{
+      <TouchableOpacity style={styles.skipButton} onPress={() => {
         handlePress(+1)
-        }
-        
-        }>
+      }
+
+      }>
         <SkipForward width={35} height={35} stroke={colors.text} />
       </TouchableOpacity>
     </View>
   );
 };
 
-const Custom_modal = ({ isModalVisible,styles, toggleModal }) => {
-    const { data, pos} = useSelector((state) => state.data);
-    
+const Custom_modal = ({ isModalVisible, styles, toggleModal, dispatch }) => {
+  const { data, pos } = useSelector((state) => state.data);
+
   return (
     <Modal
       transparent
@@ -612,7 +617,7 @@ const Custom_modal = ({ isModalVisible,styles, toggleModal }) => {
         onPressOut={() => toggleModal()}
       >
         <View style={styles.modalContent}>
-          <View style={styles.miniPlayerInfo}>
+          <View style={[styles.miniPlayerInfo, { marginBottom: 30 }]}>
             <Image
               source={{ uri: data ? data[pos]?.image : null }}
               style={styles.miniPlayerThumbnail}
@@ -627,10 +632,38 @@ const Custom_modal = ({ isModalVisible,styles, toggleModal }) => {
             </View>
           </View>
 
-          <Text style={styles.option}>Add to Liked Songs</Text>
-          <Text style={styles.option}>Add to playlist</Text>
-          <Text style={styles.option}>Media Quality</Text>
-          <Text style={styles.option}>Share</Text>
+          <TouchableOpacity style={styles.optionTouch}>
+            <Text
+              style={styles.option}
+            >
+              Add to Liked Songs
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.optionTouch}
+            onPress={() => {
+              dispatch(addMusicinPlaylist({ id: 0, music: data[pos] }))
+            }}
+          >
+            <Text
+              style={styles.option}
+            >
+              Add to playlist
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.optionTouch}>
+            <Text
+              style={styles.option}
+            >
+              Media Quality
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.optionTouch}>
+            <Text
+              style={styles.option}
+            >
+              Share
+            </Text>
+          </TouchableOpacity>
         </View>
       </TouchableOpacity>
     </Modal>
