@@ -25,7 +25,7 @@ import {
   toggleMinimized,
 } from "../../Store/MusicSlice";
 import { loadAudio, soundRef } from "../functions/music";
-//import { addMusicinPlaylist } from "../../Store/PlaylistSlice";
+import { addMusicinPlaylist } from "../../Store/PlaylistSlice"
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
 
@@ -186,6 +186,7 @@ const Player = () => {
     miniPlayerInfo: {
       flexDirection: "row",
       alignItems: "center",
+
     },
     miniPlayerThumbnail: {
       width: 43,
@@ -389,6 +390,10 @@ const Player = () => {
     },
     optionTouch: {
       width: "100%",
+
+    },
+    optionTouch: {
+      width: "100%",
     },
     button: {
       padding: 6,
@@ -452,9 +457,8 @@ const Player = () => {
                   style={[
                     styles.miniProgressBarFill,
                     {
-                      width: `${
-                        TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0
-                      }%`,
+                      width: `${TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0
+                        }%`,
                     },
                   ]}
                 />
@@ -513,7 +517,7 @@ const Player = () => {
         changePos={changePos}
         handlePress={handlePress}
       />
-  
+
       <Custom_modal
         isModalVisible={isModalVisible}
         styles={styles}
@@ -548,6 +552,7 @@ const Metadata = ({
         {data?.uploader || "Unknown Artist"}
       </Text>
     </View>
+
 
     <TouchableOpacity onPress={() => setLiked(!liked)}>
       <Icon
