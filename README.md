@@ -28,6 +28,6 @@ Noctune is licensed under the **Creative Commons Attribution-NonCommercial 4.0 I
 - Must give credit
 - **Not allowed for commercial use**
 
-© 2025 [Your Name or GitHub Handle]
+© 2025 krishnanx
 
 
