@@ -17,7 +17,13 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
-import { changePos, progress, setIsPlaying, load } from "../../Store/MusicSlice";
+import {
+  changePos,
+  progress,
+  setIsPlaying,
+  load,
+  toggleMinimized,
+} from "../../Store/MusicSlice";
 import { loadAudio, soundRef } from "../functions/music";
 import { addMusicinPlaylist } from "../../Store/PlaylistSlice"
 const windowHeight = Dimensions.get("window").height;
@@ -36,7 +42,7 @@ const Player = () => {
 
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const [isMinimized, setIsMinimized] = useState(true);
+ const isMinimized = useSelector((state) => state.data.isMinimized);
   const animatedHeight = useRef(new Animated.Value(windowHeight)).current;
   const animatedWidth = useRef(new Animated.Value(windowWidth)).current;
   const { data, pos, seek, isplaying } = useSelector((state) => state.data);
@@ -106,9 +112,6 @@ const Player = () => {
   };
 
   const togglePlayerSize = () => {
-    // Toggle the minimized state
-    setIsMinimized(!isMinimized);
-
     // Animate the height and width change
     Animated.parallel([
       Animated.timing(animatedHeight, {
@@ -123,9 +126,10 @@ const Player = () => {
       }),
     ]).start(() => {
       // Animation completed
-      setIsMinimized(!isMinimized);
+         dispatch(toggleMinimized());
     });
   };
+
   const handlePress = async (value) => {
     const timeNow = Date.now();
     if (timeNow - lastPress < DOUBLE_PRESS_DELAY) {
@@ -388,6 +392,9 @@ const Player = () => {
       width: "100%",
 
     },
+    optionTouch: {
+      width: "100%",
+    },
     button: {
       padding: 6,
       position: "absolute",
@@ -485,6 +492,7 @@ const Player = () => {
             ? data[pos]
             : { title: "Unknown Song", uploader: "Unknown Artist" }
         }
+        colors={colors}
         liked={liked}
         setLiked={setLiked}
         progressPercent={TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0}
@@ -509,6 +517,7 @@ const Player = () => {
         changePos={changePos}
         handlePress={handlePress}
       />
+
       <Custom_modal
         isModalVisible={isModalVisible}
         styles={styles}
@@ -523,6 +532,7 @@ export default Player;
 
 const Metadata = ({
   data,
+  colors,
   liked,
   setLiked,
   progressPercent,
@@ -542,6 +552,7 @@ const Metadata = ({
         {data?.uploader || "Unknown Artist"}
       </Text>
     </View>
+
 
     <TouchableOpacity onPress={() => setLiked(!liked)}>
       <Icon
@@ -569,10 +580,23 @@ const Metadata = ({
   </>
 );
 
-const Controls = ({ togglePlayPause, isPlaying, styles, colors, dispatch, changePos, handlePress }) => {
+const Controls = ({
+  togglePlayPause,
+  isPlaying,
+  styles,
+  colors,
+  dispatch,
+  changePos,
+  handlePress,
+}) => {
   return (
     <View style={styles.controlsContainer}>
-      <TouchableOpacity style={styles.skipButton} onPress={() => { handlePress(-1) }}>
+      <TouchableOpacity
+        style={styles.skipButton}
+        onPress={() => {
+          handlePress(-1);
+        }}
+      >
         <SkipBack width={35} height={35} stroke={colors.text} />
       </TouchableOpacity>
 
@@ -590,11 +614,12 @@ const Controls = ({ togglePlayPause, isPlaying, styles, colors, dispatch, change
         )}
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.skipButton} onPress={() => {
-        handlePress(+1)
-      }
-
-      }>
+      <TouchableOpacity
+        style={styles.skipButton}
+        onPress={() => {
+          handlePress(+1);
+        }}
+      >
         <SkipForward width={35} height={35} stroke={colors.text} />
       </TouchableOpacity>
     </View>
@@ -633,36 +658,21 @@ const Custom_modal = ({ isModalVisible, styles, toggleModal, dispatch }) => {
           </View>
 
           <TouchableOpacity style={styles.optionTouch}>
-            <Text
-              style={styles.option}
-            >
-              Add to Liked Songs
-            </Text>
+            <Text style={styles.option}>Add to Liked Songs</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.optionTouch}
+          <TouchableOpacity
+            style={styles.optionTouch}
             onPress={() => {
-              dispatch(addMusicinPlaylist({ id: 0, music: data[pos] }))
+              dispatch(addMusicinPlaylist({ id: 0, music: data[pos] }));
             }}
           >
-            <Text
-              style={styles.option}
-            >
-              Add to playlist
-            </Text>
+            <Text style={styles.option}>Add to playlist</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.optionTouch}>
-            <Text
-              style={styles.option}
-            >
-              Media Quality
-            </Text>
+            <Text style={styles.option}>Media Quality</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.optionTouch}>
-            <Text
-              style={styles.option}
-            >
-              Share
-            </Text>
+            <Text style={styles.option}>Share</Text>
           </TouchableOpacity>
         </View>
       </TouchableOpacity>

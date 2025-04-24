@@ -4,7 +4,6 @@ import { StyleSheet, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import MaskedView from "@react-native-masked-view/masked-view";
 
-
 const WaveformLoader = () => {
   const NUMBER_OF_BARS = 20;
   const animations = useRef(

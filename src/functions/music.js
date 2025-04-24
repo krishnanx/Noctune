@@ -11,6 +11,7 @@ export const soundRef = {
 
 export const loadAudio = async (data,pos,dispatch,getSeek) => {
   console.log(data[pos].url);
+ 
   try {
     if (!data[pos]) {
       throw new Error("Data at the given position is undefined or invalid.");
@@ -48,8 +49,13 @@ export const loadAudio = async (data,pos,dispatch,getSeek) => {
     soundRef.current = sound;
     sound.setOnPlaybackStatusUpdate((status) => {
       onPlaybackStatusUpdate(status, dispatch, getSeek);
+          
     });
+
     console.log("Audio Loaded", soundRef.current);
+     await soundRef.current.playAsync(); // ✅ Automatically starts playing
+     dispatch(setIsPlaying(true));
+        
   } catch (error) {
     console.error("Error loading audio:", error);
     // console.error("Stack trace:", error.stack);  // Log stack trace for more details
