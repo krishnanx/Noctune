@@ -20,5 +20,14 @@ Stay tuned to know more!
 - Cloud Services: CloudFlare
 - Realtime communication: websocket 
   
+## License and Usage
+
+Noctune is licensed under the **Creative Commons Attribution-NonCommercial 4.0 International License**.
+
+- Free to use, modify, and contribute
+- Must give credit
+- **Not allowed for commercial use**
+
+© 2025 [Your Name or GitHub Handle]
 
 
