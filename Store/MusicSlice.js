@@ -11,6 +11,7 @@ const MusicSlice = createSlice({
     seek: 0,
     isplaying: false,
     canLoad: false,
+    isMinimized: true,
   },
   reducers: {
     addMusic(state, action) {
@@ -78,7 +79,11 @@ const MusicSlice = createSlice({
       state.canLoad = action.payload;
       console.log("canLoad:", state.canLoad);
     },
+    toggleMinimized(state) {
+      state.isMinimized = !state.isMinimized;
+    },
   },
+
   // extraReducers: (builder) => {
   //   builder
   //     .addCase(FetchMetadata.pending, (state) => {
@@ -104,9 +109,11 @@ const MusicSlice = createSlice({
   //     });
   // },
 });
-export const { addMusic, changePos, progress, setIsPlaying, load,  } =
+export const { addMusic, changePos, progress, setIsPlaying, load, toggleMinimized } =
   MusicSlice.actions;
 export default MusicSlice.reducer;
+
+
 // export const FetchMetadata = createAsyncThunk(
 //   "/FetchMetadata",
 //   async ({ text }, { rejectWithValue }) => {

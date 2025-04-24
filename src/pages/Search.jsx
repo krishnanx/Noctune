@@ -21,7 +21,7 @@ import YoutubeMusicApi from "youtube-music-api";
 import { DownloadMusic } from "../../Store/MusicSlice";
 import { ScrollView } from "react-native";
 import { FetchMetadata } from "../../Store/MusicSlice";
-import { addMusic, load } from "../../Store/MusicSlice";
+import { addMusic, load, toggleMinimized } from "../../Store/MusicSlice";
 import { loadAudio, unloadAudio } from "../functions/music.js";
 import Audioloader from "../functions/Audioloader.jsx";
 import { useFocusEffect } from "@react-navigation/native";
@@ -41,6 +41,7 @@ const Search = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { data, pos } = useSelector((state) => state.data);
+  
   const [shouldLoad, setShouldLoad] = useState(false);
 
   useEffect(() => {
@@ -169,6 +170,7 @@ const Search = () => {
 
     // Add this line to save the song metadata to AsyncStorage
     saveLastPlayedSong(song);
+    dispatch(toggleMinimized());
   };
 
   const saveLastPlayedSong = async (song) => {
@@ -341,7 +343,6 @@ const Search = () => {
           <Text style={{ color: "white" }}></Text>
         </KeyboardAvoidingView>
       </View>
-    
     </View>
   );
 };

@@ -15,8 +15,7 @@ const Tab = createBottomTabNavigator();
 
 const MainTab = () => {
   const { status } = useSelector((state) => state.key);
-  const isMinimized = useSelector((state) => state.data.isMinimized);
-
+ 
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   useEffect(() => {
     const keybaordDidShow = Keyboard.addListener("keyboardWillShow", () =>
