@@ -28,6 +28,10 @@ Noctune is licensed under the **Creative Commons Attribution-NonCommercial 4.0 I
 - Must give credit
 - **Not allowed for commercial use**
 
+## Contributing
+
+Want to help improve Noctune? Check out our [Contributing Guidelines](CONTRIBUTING.md).
+
 © 2025 krishnanx, Pallavi-Madhu, 3-stardust-7, Malavika-Ranjit, Sree-Lakshmi-Dileep, Sreyavenkat
 
 
