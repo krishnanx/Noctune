@@ -12,6 +12,7 @@ const MusicSlice = createSlice({
     isplaying: false,
     canLoad: false,
     isMinimized: true,
+    isLoadedFromAsyncStorage: true, //NOTE: true | false will always evaluate to true in JavaScript (because of bitwise OR). isLoadedFromAsyncStorage: true | false,
   },
   reducers: {
     addMusic(state, action) {
@@ -82,6 +83,9 @@ const MusicSlice = createSlice({
     toggleMinimized(state) {
       state.isMinimized = !state.isMinimized;
     },
+    setIsLoadedFromAsyncStorage(state, action) {
+      state.isLoadedFromAsyncStorage = action.payload;
+    },
   },
 
   // extraReducers: (builder) => {
@@ -109,10 +113,16 @@ const MusicSlice = createSlice({
   //     });
   // },
 });
-export const { addMusic, changePos, progress, setIsPlaying, load, toggleMinimized } =
-  MusicSlice.actions;
+export const {
+  addMusic,
+  changePos,
+  progress,
+  setIsPlaying,
+  load,
+  toggleMinimized,
+  setIsLoadedFromAsyncStorage,
+} = MusicSlice.actions;
 export default MusicSlice.reducer;
-
 
 // export const FetchMetadata = createAsyncThunk(
 //   "/FetchMetadata",
@@ -133,7 +143,7 @@ export default MusicSlice.reducer;
 //         thumbnail: response.headers.get("X-Thumbnail"),
 //         duration: Number(response.headers.get("X-Duration")),
 //       };
-     
+
 //       console.log("META DATA");
 //       console.log(metadata);
 //       return metadata; // Metadata (title, duration, etc.)

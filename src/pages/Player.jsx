@@ -25,7 +25,7 @@ import {
   toggleMinimized,
 } from "../../Store/MusicSlice";
 import { loadAudio, soundRef } from "../functions/music";
-import { addMusicinPlaylist } from "../../Store/PlaylistSlice"
+import { addMusicinPlaylist } from "../../Store/PlaylistSlice";
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
 
@@ -42,7 +42,7 @@ const Player = () => {
 
   const dispatch = useDispatch();
   const navigation = useNavigation();
- const isMinimized = useSelector((state) => state.data.isMinimized);
+  const isMinimized = useSelector((state) => state.data.isMinimized);
   const animatedHeight = useRef(new Animated.Value(windowHeight)).current;
   const animatedWidth = useRef(new Animated.Value(windowWidth)).current;
   const { data, pos, seek, isplaying } = useSelector((state) => state.data);
@@ -73,6 +73,33 @@ const Player = () => {
   //     unloadAudio()
   //   };
   // }, [pos]);
+
+  
+  useEffect(() => {
+    const autoPlayIfUserSearched = async () => {
+      if (!soundRef.current) return;
+
+      if (!isLoadedFromAsyncStorage && data[pos]) {
+        try {
+          await soundRef.current.playAsync();
+          dispatch(setIsPlaying(true));
+        } catch (error) {
+          console.error("Error auto-playing after search", error);
+        }
+      } else {
+        console.log(
+          "Song loaded from AsyncStorage or no valid song, skipping auto-play"
+        );
+      }
+    };
+
+    autoPlayIfUserSearched();
+    {
+      /**If you ever want it even safer (rare), you can do [pos, data[pos]?.url]
+      (so it depends on the exact song url changing).
+      But in 99% cases, [pos, data.length] is enough for you. */
+    }
+  }, [(pos, data.length)]);
 
   useEffect(() => {
     console.log("sec:", seek);
@@ -126,7 +153,7 @@ const Player = () => {
       }),
     ]).start(() => {
       // Animation completed
-         dispatch(toggleMinimized());
+      dispatch(toggleMinimized());
     });
   };
 
@@ -186,7 +213,6 @@ const Player = () => {
     miniPlayerInfo: {
       flexDirection: "row",
       alignItems: "center",
-
     },
     miniPlayerThumbnail: {
       width: 43,
@@ -390,7 +416,6 @@ const Player = () => {
     },
     optionTouch: {
       width: "100%",
-
     },
     optionTouch: {
       width: "100%",
@@ -457,8 +482,9 @@ const Player = () => {
                   style={[
                     styles.miniProgressBarFill,
                     {
-                      width: `${TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0
-                        }%`,
+                      width: `${
+                        TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0
+                      }%`,
                     },
                   ]}
                 />
@@ -552,7 +578,6 @@ const Metadata = ({
         {data?.uploader || "Unknown Artist"}
       </Text>
     </View>
-
 
     <TouchableOpacity onPress={() => setLiked(!liked)}>
       <Icon
