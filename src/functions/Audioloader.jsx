@@ -3,7 +3,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import { loadAudio } from './music';
 
 const Audioloader = () => {
-  const { data, pos, seek } = useSelector((state) => state.data);
+  const { data, pos, seek, isLoadedFromAsyncStorage } = useSelector(
+    (state) => state.data
+  );
   const seekRef = useRef(seek);
   const prevPosRef = useRef(null);
   const hasLoadedOnce = useRef(false);
@@ -15,15 +17,20 @@ const Audioloader = () => {
   }, [seek]);
 
   useEffect(() => {
-    console.log("pos:",pos);
-    console.log("prev pos:",prevPosRef.current )
+    console.log("pos:", pos);
+    console.log("prev pos:", prevPosRef.current);
     if (prevPosRef.current !== pos) {
       console.log("Loading audio");
-      loadAudio(data, pos, dispatch, () => seekRef.current);
+      loadAudio(
+        data,
+        pos,
+        dispatch,
+        () => seekRef.current,
+        isLoadedFromAsyncStorage
+      );
       prevPosRef.current = pos;
-      
     }
-  }, [pos, data, dispatch]);
+  }, [pos, data, dispatch, isLoadedFromAsyncStorage]);
 
   return null;
 };

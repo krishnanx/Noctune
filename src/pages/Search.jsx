@@ -21,7 +21,12 @@ import YoutubeMusicApi from "youtube-music-api";
 import { DownloadMusic } from "../../Store/MusicSlice";
 import { ScrollView } from "react-native";
 import { FetchMetadata } from "../../Store/MusicSlice";
-import { addMusic, load, toggleMinimized } from "../../Store/MusicSlice";
+import {
+  addMusic,
+  load,
+  toggleMinimized,
+  setIsLoadedFromAsyncStorage,
+} from "../../Store/MusicSlice";
 import { loadAudio, unloadAudio } from "../functions/music.js";
 import Audioloader from "../functions/Audioloader.jsx";
 import { useFocusEffect } from "@react-navigation/native";
@@ -41,7 +46,7 @@ const Search = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { data, pos } = useSelector((state) => state.data);
-  
+
   const [shouldLoad, setShouldLoad] = useState(false);
 
   useEffect(() => {
@@ -55,6 +60,7 @@ const Search = () => {
           if (lastSong && lastSong.url) {
             // First, dispatch action to add song to store
             dispatch(addMusic(lastSong));
+            dispatch(setIsLoadedFromAsyncStorage(true));
 
             // Then wait for state update
             setTimeout(() => {
@@ -165,6 +171,7 @@ const Search = () => {
     // dispatch(FetchMetadata({ text: song.url }));
     console.log(song);
     dispatch(addMusic(song));
+    dispatch(setIsLoadedFromAsyncStorage(false));
     dispatch(load(true));
     console.log("Dispatches complete");
 
