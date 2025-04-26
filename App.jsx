@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
-import { SafeAreaProvider,SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import UniversalNavi from "./Navigation/Universal";
 import { darkTheme } from "./Theme/darkTheme";
 import { lightTheme } from "./Theme/lightTheme";
@@ -20,16 +20,16 @@ import Websocket from "./src/Websocket/Websocket";
 import { FetchMetadata } from "./Store/MusicSlice";
 import { useEffect, useRef } from "react";
 import { Text, Animated } from "react-native";
-import Waveform from "./src/components/Waveform";
+import Waveform from "./src/Components/Waveform";
 import Audioloader from "./src/functions/Audioloader";
-import { loadUser } from "./Store/AuthThunk"; 
+import { loadUser } from "./Store/AuthThunk";
 
 
 
 
 export default function App() {
   const { Mode } = useSelector((state) => state.theme);
-  const dispatch = useDispatch(); 
+  const dispatch = useDispatch();
 
   const { data, pos, seek, isplaying, canLoad } = useSelector(
     (state) => state.data
