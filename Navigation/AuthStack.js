@@ -8,13 +8,13 @@ const AuthStack = () => {
     return (
       <Stack.Navigator>
         <Stack.Screen
-          name="signup"
-          component={SignUp}
+          name="signin"
+          component={SignIn}
           options={{ headerShown: false }}
         />
         <Stack.Screen
-          name="signin"
-          component={SignIn}
+          name="signup"
+          component={SignUp}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
