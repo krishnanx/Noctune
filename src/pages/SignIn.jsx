@@ -7,21 +7,51 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { ScrollView } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
+import { useDispatch, useSelector } from "react-redux";
+import { signIn } from "../../Store/AuthThunk";
+import {setUser} from "../../Store/UserSlice"
 
 const SignIn = () => {
   const { colors } = useTheme();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  //const [loading, setLoading] = useState(false);
+  //const [error, setError] = useState(null);
   const navigation = useNavigation();
 
+  const dispatch = useDispatch();
+  
   const handleSignIn = async () => {
-    console.log("Sign in with:", email, password);
+    try {
+      if (!email || !password) {
+       dispatch(setError(null));
+        return;
+      }
+      
+      const result = await dispatch(signIn({ email, password }));
+      
+      if (result.payload?.success) {
+        dispatch(setUser(user));
+      } 
+      else {
+        const errorMessage = result.payload?.error || "Failed to sign in";
+        dispatch({
+          type: "user/setError",
+          payload: errorMessage,
+        });
+      }
+    } catch (error) {
+      console.error("Sign-in error:", error);
+      dispatch({
+        type: "user/setError",
+        payload: error.message || "An unexpected error occurred",
+      });
+    }
   };
 
   const styles = StyleSheet.create({
@@ -87,7 +117,7 @@ const SignIn = () => {
       marginLeft: 5,
     },
   });
-
+  const { loading } = useSelector((state) => state.user);
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -107,7 +137,9 @@ const SignIn = () => {
             keyboardType="email-address"
             autoCapitalize="none"
           />
-
+          {/*{error && (
+            <Text style={{ color: "red", marginBottom: 10 }}>{error}</Text>
+          )}*/}
           <TextInput
             style={styles.input}
             placeholder="Password"
@@ -122,11 +154,13 @@ const SignIn = () => {
           <TouchableOpacity
             style={styles.button}
             onPress={handleSignIn}
-            disabled={loading}
+            
           >
-            <Text style={styles.buttonText}>
-              {loading ? "Signing In..." : "Sign In"}
-            </Text>
+            {loading ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <Text style={styles.buttonText}>Sign In</Text>
+            )}
           </TouchableOpacity>
 
           <View style={styles.footer}>

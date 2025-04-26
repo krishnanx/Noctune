@@ -20,11 +20,17 @@ import Websocket from "./src/Websocket/Websocket";
 import { FetchMetadata } from "./Store/MusicSlice";
 import { useEffect, useRef } from "react";
 import { Text, Animated } from "react-native";
-import Waveform from "./src/Components/Waveform";
+import Waveform from "./src/components/Waveform";
 import Audioloader from "./src/functions/Audioloader";
+import { loadUser } from "./Store/AuthThunk"; 
+
+
+
 
 export default function App() {
   const { Mode } = useSelector((state) => state.theme);
+  const dispatch = useDispatch(); 
+
   const { data, pos, seek, isplaying, canLoad } = useSelector(
     (state) => state.data
   );
@@ -32,6 +38,7 @@ export default function App() {
 
   useEffect(() => {
     const fetchData = async () => {
+      dispatch(loadUser()); //added this
       setInterval(() => {
         setStatus("idle");
       }, 2000);
@@ -43,7 +50,6 @@ export default function App() {
   if (status === "loading") {
     return (
       <>
-      
         <View
           style={{
             backgroundColor: "#141414",
@@ -64,27 +70,31 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={{ flex: 1, backgroundColor: Mode === "light" ? "#ffffff" : "#141414" }}>
-       
-          <View style={styles.container}>
-            <StatusBar
-              barStyle={Mode === "light" ? "dark-content" : "light-content"}
-              backgroundColor={Mode === "light" ? "#ffffff" : "#141414"}
-              translucent={false}
-            />
+      <SafeAreaView
+        style={{
+          flex: 1,
+          backgroundColor: Mode === "light" ? "#ffffff" : "#141414",
+        }}
+      >
+        <View style={styles.container}>
+          <StatusBar
+            barStyle={Mode === "light" ? "dark-content" : "light-content"}
+            backgroundColor={Mode === "light" ? "#ffffff" : "#141414"}
+            translucent={false}
+          />
 
-            <KeyboardAvoidingView
-              behavior={Platform.OS === "ios" ? "padding" : undefined}
-              style={{ flex: 1 }}
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : undefined}
+            style={{ flex: 1 }}
+          >
+            <NavigationContainer
+              theme={Mode === "light" ? lightTheme : darkTheme}
             >
-              <NavigationContainer
-                theme={Mode === "light" ? lightTheme : darkTheme}
-              >
-                <UniversalNavi />
-              </NavigationContainer>
-            </KeyboardAvoidingView>
-          </View>
-       
+              <UniversalNavi />
+            </NavigationContainer>
+          </KeyboardAvoidingView>
+        </View>
+
         <Websocket />
         {canLoad && <Audioloader />}
       </SafeAreaView>

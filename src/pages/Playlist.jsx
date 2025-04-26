@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { View, StyleSheet, Image, Text, TouchableOpacity, ScrollView, FlatList } from "react-native";
-import BackArrow from '../Components/BackArrow';
-import Download from '../Components/Download';
-import AddFriend from '../Components/addFriend';
-import ThreeDots from '../Components/ThreeDots';
+import BackArrow from '../components/BackArrow';
+import Download from '../components/Download';
+import AddFriend from '../components/addFriend';
+import ThreeDots from '../components/ThreeDots';
 import { useSelector } from 'react-redux';
 import { useRoute } from '@react-navigation/native';
 import icon from "../../assets/favicon.png"

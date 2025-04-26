@@ -7,10 +7,13 @@ import {
   TouchableOpacity,
   StyleSheet,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { useTheme } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
+import { useDispatch, useSelector } from "react-redux";
+import { signUp } from "../../Store/AuthThunk"; 
 
 const SignUp = () => {
   const { colors } = useTheme();
@@ -18,17 +21,54 @@ const SignUp = () => {
   const [password, setPassword] = useState();
   const [confirmpass, setConfirmPass] = useState();
   const [username, setUserName] = useState();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  //const [loading, setLoading] = useState(false);
+  //const [error, setError] = useState(null);
   const navigation = useNavigation();
 
+  const dispatch = useDispatch();
+  const { loading = false, error = null } = useSelector(
+    (state) => state.user || {}
+  );
+
   const handleSignUp = async () => {
-    if (password != confirmpass) {
-      setError("Password doesnt match");
+    try{
+    if (!username || !email || !password || !confirmpass) {
+      dispatch({
+        type: "user/setError",
+        payload: "Please fill in all the fields",
+      });
       return;
     }
-    console.log("sign up:", email, password, username);
+
+    if (password !== confirmpass) {
+      dispatch({ type: "user/setError", payload: "Password doesnt match" });
+      return;
+    }
+
+    
+    const result = await dispatch(signUp({ email, password, username }));
+    
+
+    if (result.payload?.success) {
+      alert("Account created successfully! Please sign in");
+      navigation.navigate("signin");
+    }
+    else {
+      
+      dispatch({ 
+        type: "user/setError", 
+        payload: result.payload?.message || "Failed to create account" 
+      });
+    }
+  } catch (error) {
+    console.error("Sign-up error:", error);
+    dispatch({ 
+      type: "user/setError", 
+      payload: error.message || "An unexpected error occurred" 
+    });
+  }
   };
+
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -148,11 +188,16 @@ const SignUp = () => {
           <TouchableOpacity
             style={styles.button}
             onPress={handleSignUp}
-            disabled={loading}
+            //disabled={loading}
           >
-            <Text style={styles.buttonText}>
-              {loading ? "Creating Account" : "Sign Up"}
-            </Text>
+            {error && (
+              <Text style={{ color: "red", marginBottom: 10 }}>{error}</Text>
+            )}
+            {loading ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <Text style={styles.buttonText}>Sign Up</Text>
+            )}
           </TouchableOpacity>
           <View style={styles.footer}>
             <Text style={styles.footerText}>Already have an account?</Text>
