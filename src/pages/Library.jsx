@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { ScrollView, View, StyleSheet, Text, ViewBase, TouchableOpacity, Modal, Image, TextInput, Switch, FlatList, TouchableHighlight } from 'react-native'
 import { Download } from 'react-native-feather';
-import ThreeDots from '../Components/ThreeDots';
+import ThreeDots from "../Components/ThreeDots"
 import SearchIcon from '../Components/Search';
 import AddIcon from '../Components/AddIcon';
 import { useDispatch, useSelector } from 'react-redux';

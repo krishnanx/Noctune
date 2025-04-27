@@ -14,6 +14,7 @@ import { useTheme } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import { signUp } from "../../Store/AuthThunk"; 
+import Icon from "react-native-vector-icons/Ionicons"; 
 
 const SignUp = () => {
   const { colors } = useTheme();
@@ -21,6 +22,9 @@ const SignUp = () => {
   const [password, setPassword] = useState();
   const [confirmpass, setConfirmPass] = useState();
   const [username, setUserName] = useState();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   //const [loading, setLoading] = useState(false);
   //const [error, setError] = useState(null);
   const navigation = useNavigation();
@@ -29,6 +33,14 @@ const SignUp = () => {
   const { loading = false, error = null } = useSelector(
     (state) => state.user || {}
   );
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
 
   const handleSignUp = async () => {
     try{
@@ -67,6 +79,7 @@ const SignUp = () => {
       payload: error.message || "An unexpected error occurred" 
     });
   }
+   
   };
 
   const styles = StyleSheet.create({
@@ -132,6 +145,23 @@ const SignUp = () => {
       fontWeight: "bold",
       marginLeft: 5,
     },
+    passwordContainer: {
+      flexDirection: "row",
+      backgroundColor: "rgba(255,255,255,0.1)",
+      borderRadius: 10,
+      marginBottom: 15,
+      alignItems: "center",
+      paddingHorizontal: 10,
+    },
+    inputPassword: {
+      flex: 1,
+      fontSize: 16,
+      paddingVertical: 15,
+      color: colors.text,
+    },
+    eyeIcon: {
+      padding: 10,
+    },
   });
 
   return (
@@ -157,26 +187,47 @@ const SignUp = () => {
             keyboardType="email-address"
             autoCapitalize="none"
           />
-
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            placeholderTextColor="rgba(255,255,255,0.5)"
-            value={password}
-            onChangeText={setPassword}
-            keyboardType="password"
-            secureTextEntry
-          />
-
-          <TextInput
-            style={styles.input}
-            placeholder=" Confirm Password"
-            placeholderTextColor="rgba(255,255,255,0.5)"
-            value={confirmpass}
-            onChangeText={setConfirmPass}
-            secureTextEntry
-          />
-
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={styles.inputPassword}
+              placeholder="Password"
+              placeholderTextColor="rgba(255,255,255,0.5)"
+              value={password}
+              onChangeText={setPassword}
+              keyboardType="password"
+              secureTextEntry={!showPassword}
+            />
+            <TouchableOpacity
+              style={styles.eyeIcon}
+              onPress={togglePasswordVisibility}
+            >
+              <Icon
+                name={showPassword ? "eye-off" : "eye"}
+                size={22}
+                color="rgba(255,255,255,0.7)"
+              />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={styles.inputPassword}
+              placeholder=" Confirm Password"
+              placeholderTextColor="rgba(255,255,255,0.5)"
+              value={confirmpass}
+              onChangeText={setConfirmPass}
+              secureTextEntry={!showConfirmPassword}
+            />
+            <TouchableOpacity
+              style={styles.eyeIcon}
+              onPress={toggleConfirmPasswordVisibility}
+            >
+              <Icon
+                name={showConfirmPassword ? "eye-off" : "eye"}
+                size={22}
+                color="rgba(255,255,255,0.7)"
+              />
+            </TouchableOpacity>
+          </View>
           <TextInput
             style={styles.input}
             placeholder="What should we call you?"

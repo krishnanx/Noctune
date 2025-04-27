@@ -14,31 +14,36 @@ import { ScrollView } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import { signIn } from "../../Store/AuthThunk";
-import {setUser} from "../../Store/UserSlice"
+import { setUser } from "../../Store/UserSlice";
+import Icon from "react-native-vector-icons/Ionicons";
 
 const SignIn = () => {
   const { colors } = useTheme();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   //const [loading, setLoading] = useState(false);
   //const [error, setError] = useState(null);
   const navigation = useNavigation();
 
   const dispatch = useDispatch();
-  
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   const handleSignIn = async () => {
     try {
       if (!email || !password) {
-       dispatch(setError(null));
+        dispatch(setError(null));
         return;
       }
-      
+
       const result = await dispatch(signIn({ email, password }));
-      
+
       if (result.payload?.success) {
         dispatch(setUser(user));
-      } 
-      else {
+      } else {
         const errorMessage = result.payload?.error || "Failed to sign in";
         dispatch({
           type: "user/setError",
@@ -116,6 +121,23 @@ const SignIn = () => {
       fontWeight: "bold",
       marginLeft: 5,
     },
+    passwordContainer: {
+      flexDirection: "row",
+      backgroundColor: "rgba(255,255,255,0.1)",
+      borderRadius: 10,
+      marginBottom: 15,
+      alignItems: "center",
+      paddingHorizontal: 10,
+    },
+    inputPassword: {
+      flex: 1,
+      fontSize: 16,
+      paddingVertical: 15,
+      color: colors.text,
+    },
+    eyeIcon: {
+      padding: 10,
+    },
   });
   const { loading } = useSelector((state) => state.user);
   return (
@@ -140,22 +162,29 @@ const SignIn = () => {
           {/*{error && (
             <Text style={{ color: "red", marginBottom: 10 }}>{error}</Text>
           )}*/}
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            placeholderTextColor="rgba(255,255,255,0.5)"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
-
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={styles.inputPassword}
+              placeholder="Password"
+              placeholderTextColor="rgba(255,255,255,0.5)"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+            />
+            <TouchableOpacity
+              style={styles.eyeIcon}
+              onPress={togglePasswordVisibility}
+            >
+              <Icon
+                name={showPassword ? "eye-off" : "eye"}
+                size={22}
+                color="rgba(255,255,255,0.7)"
+              />
+            </TouchableOpacity>
+          </View>
           <Text style={styles.forgotPassword}>Forgot Password?</Text>
 
-          <TouchableOpacity
-            style={styles.button}
-            onPress={handleSignIn}
-            
-          >
+          <TouchableOpacity style={styles.button} onPress={handleSignIn}>
             {loading ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
