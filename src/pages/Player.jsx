@@ -26,6 +26,10 @@ import {
 } from "../../Store/MusicSlice";
 import { loadAudio, soundRef } from "../functions/music";
 import { addMusicinPlaylist } from "../../Store/PlaylistSlice";
+import MarqueeText from 'react-native-marquee';
+import TextTicker from "react-native-text-ticker";
+import Marquee from "../Components/Marquee";
+
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
 
@@ -74,7 +78,6 @@ const Player = () => {
   //   };
   // }, [pos]);
 
-  
   useEffect(() => {
     const autoPlayIfUserSearched = async () => {
       if (!soundRef.current) return;
@@ -230,6 +233,7 @@ const Player = () => {
       fontSize: 14,
       fontWeight: "bold",
       marginBottom: 2,
+      width: 180,
     },
     miniPlayerArtist: {
       color: colors.text,
@@ -451,9 +455,7 @@ const Player = () => {
                   style={styles.miniPlayerThumbnail}
                 />
                 <View style={styles.miniPlayerTextContainer}>
-                  <Text style={styles.miniPlayerTitle} numberOfLines={1}>
-                    {data ? data[pos]?.title : "Unknown Title"}
-                  </Text>
+                  <Marquee text={data ? data[pos]?.title : "Unknown Title"} />
                   <Text style={styles.miniPlayerArtist} numberOfLines={1}>
                     {data ? data[pos]?.uploader : "Unknown Artist"}
                   </Text>
