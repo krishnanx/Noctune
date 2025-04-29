@@ -455,7 +455,7 @@ const Player = () => {
                   style={styles.miniPlayerThumbnail}
                 />
                 <View style={styles.miniPlayerTextContainer}>
-                  <Marquee text={data ? data[pos]?.title : "Unknown Title"} />
+                  <Marquee text={data ? data[pos]?.title +"             ": "Unknown Title"} />
                   <Text style={styles.miniPlayerArtist} numberOfLines={1}>
                     {data ? data[pos]?.uploader : "Unknown Artist"}
                   </Text>
