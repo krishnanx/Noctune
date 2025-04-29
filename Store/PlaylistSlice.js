@@ -19,7 +19,15 @@ const PlaylistSlice = createSlice({
             state.data = [...state.data, playlist];
         },
         addMusicinPlaylist(state, action) {
-            state.data[action.payload.id].songs = [...state.data[action.payload.id].songs, action.payload.music]
+            let bool = true;
+            state.data[action.payload.id].songs.forEach(element => {
+                if (element.id === action.payload.music.id) {
+                    bool = false
+                }
+            });
+            if (bool) {
+                state.data[action.payload.id].songs = [...state.data[action.payload.id].songs, action.payload.music]
+            }
             state.data[action.payload.id].Time += action.payload.music.duration
             // state.data[action.payload.id].songs.forEach(element => {
             //     state.data[action.payload.id].Time += element.duration

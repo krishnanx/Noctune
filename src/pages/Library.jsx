@@ -160,7 +160,7 @@ const Library = () => {
             height: 80,
             //backgroundColor:"red",
             alignItems: "center",
-            paddingHorizontal: 20,
+
             flexDirection: "row"
         },
         ImageContainer: {

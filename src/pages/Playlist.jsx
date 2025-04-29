@@ -5,11 +5,12 @@ import Download from '../Components/Download';
 import AddFriend from '../Components/addFriend';
 import ThreeDots from '../Components/ThreeDots';
 import { useSelector } from 'react-redux';
-import { useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import icon from "../../assets/favicon.png"
 const Playlist = () => {
   const { data } = useSelector((state) => state.playlist)
   const { index } = useRoute().params;
+  const navigation = useNavigation();
   const styles = StyleSheet.create({
     Main: {
       flex: 1,
@@ -195,7 +196,7 @@ const Playlist = () => {
 
     >
 
-      <Information styles={styles} Pname={Pname} Uname={Uname} data={data[index]} />
+      <Information styles={styles} Pname={Pname} Uname={Uname} data={data[index]} navigation={navigation} />
       <Flatlist data={data[index].songs || []} styles={styles} />
 
 
@@ -204,7 +205,7 @@ const Playlist = () => {
 }
 
 export default Playlist
-const Information = ({ styles, Pname, Uname, data }) => {
+const Information = ({ styles, Pname, Uname, data, navigation }) => {
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -212,11 +213,12 @@ const Information = ({ styles, Pname, Uname, data }) => {
   };
   return (
     <View style={{ width: "100%" }} >
-      <View
+      <TouchableOpacity
+        onPress={() => navigation.goBack()}
         style={styles.top}
       >
         <BackArrow />
-      </View>
+      </TouchableOpacity>
       {/* <View
             style={styles.search}
         >

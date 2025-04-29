@@ -484,9 +484,8 @@ const Player = () => {
                   style={[
                     styles.miniProgressBarFill,
                     {
-                      width: `${
-                        TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0
-                      }%`,
+                      width: `${TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0
+                        }%`,
                     },
                   ]}
                 />
@@ -551,6 +550,7 @@ const Player = () => {
         styles={styles}
         toggleModal={toggleModal}
         dispatch={dispatch}
+        navigation={navigation}
       />
     </View>
   );
@@ -653,7 +653,7 @@ const Controls = ({
   );
 };
 
-const Custom_modal = ({ isModalVisible, styles, toggleModal, dispatch }) => {
+const Custom_modal = ({ isModalVisible, styles, toggleModal, dispatch, navigation }) => {
   const { data, pos } = useSelector((state) => state.data);
 
   return (
@@ -690,7 +690,9 @@ const Custom_modal = ({ isModalVisible, styles, toggleModal, dispatch }) => {
           <TouchableOpacity
             style={styles.optionTouch}
             onPress={() => {
-              dispatch(addMusicinPlaylist({ id: 0, music: data[pos] }));
+              toggleModal()
+              navigation.navigate("Playchoose", { index: pos })
+              // dispatch(addMusicinPlaylist({ id: 0, music: data[pos] }));
             }}
           >
             <Text style={styles.option}>Add to playlist</Text>
