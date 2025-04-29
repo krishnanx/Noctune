@@ -1,18 +1,41 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Animated, Text, View, StyleSheet } from "react-native";
-import { useTheme } from "react-native-paper";
 
 const Marquee = ({ text }) => {
   const animatedValue = useRef(new Animated.Value(0)).current;
   const [textWidth, setTextWidth] = useState(0);
-  const [containerWidth, setContainerWidth] = useState(0);
+  const [shouldAnimate, setShouldAnimate] = useState(false);
 
+  const range = textWidth * 6.2;
 
   useEffect(() => {
-    if (textWidth && containerWidth) {
-      startAnimation();
+    if (text) {
+      // Method 1: Include all characters including trailing spaces
+      const fullLength = text.length;
+
+      // Method 2: Trim trailing spaces only
+      const trimmedTrailing = text.replace(/\s+$/, "").length;
+
+      // Method 3: Add extra space at the end (for better visual appearance)
+      const withExtraTrailing = text.length + 10; // Add 10 character spaces
+
+      // Choose which method you want to use
+      setTextWidth(fullLength); // Using Method 1
+
+      // Uncomment one of these if you prefer a different method:
+      // setTextWidth(trimmedTrailing); // Using Method 2
+      // setTextWidth(withExtraTrailing); // Using Method 3
     }
-  }, [textWidth, containerWidth, text]);
+  }, [text]);
+
+  useEffect(() => {
+    if (range > 300) {
+      setShouldAnimate(true);
+      startAnimation();
+    } else {
+      setShouldAnimate(false);
+    }
+  }, [range]);
 
   const startAnimation = () => {
     animatedValue.setValue(0);
@@ -21,41 +44,38 @@ const Marquee = ({ text }) => {
       Animated.sequence([
         Animated.timing(animatedValue, {
           toValue: 1,
-          duration: 8000, // How fast it scrolls across
+          duration: 5000,
           useNativeDriver: true,
         }),
-        Animated.delay(3000), // <-- How long to halt (2000ms = 2 seconds)
+        Animated.delay(2500),
       ])
     ).start();
   };
 
   const translateX = animatedValue.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, -textWidth], // move whole text width
+    outputRange: [0, -range], // scrolls from right to far left
   });
 
   return (
-    <View
-      style={styles.container}
-      onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}
-    >
+    <View style={styles.container}>
       <Animated.View
         style={{
-          flexDirection: "row",
-          transform: [{ translateX }],
-          alignItems: "center", // (optional for perfect vertical alignment)
+          transform: shouldAnimate ? [{ translateX }] : [],
         }}
       >
         <Text
           style={styles.text}
-          onLayout={(e) => setTextWidth(e.nativeEvent.layout.width)}
           numberOfLines={1}
+          onLayout={(e) => {
+            // You can also use the actual measured width if you prefer
+            // const measuredWidth = e.nativeEvent.layout.width;
+            // setTextWidth(measuredWidth);
+          }}
         >
-          {text}
-        </Text>
-
-        <Text style={styles.text} numberOfLines={1}>
-          {text}
+          {shouldAnimate
+            ? text + (text.endsWith(" ") ? text + "   " : text)
+            : text}
         </Text>
       </Animated.View>
     </View>
@@ -63,15 +83,16 @@ const Marquee = ({ text }) => {
 };
 
 const styles = StyleSheet.create({
-    
   container: {
     overflow: "hidden",
-    width: "90%", // or fixed width if you prefer
+    flexDirection: "row",
+    width: "100%",
   },
   text: {
     fontSize: 16,
     fontWeight: "bold",
     color: "white",
+    width: 1000, // Force a long width manually
   },
 });
 
