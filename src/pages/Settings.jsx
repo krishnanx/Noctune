@@ -7,7 +7,12 @@ const Settings = () => {
   const [notifications, setNotifications] = useState(true);
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={{ minHeight: 900 }}
+    >
+
+
       <Text style={styles.header}>Settings</Text>
 
       <Section title="Playback">
@@ -60,8 +65,11 @@ const NavItem = ({ label, onPress }) => (
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212',
-    padding: 20,
+    //backgroundColor: '#121212',
+    paddingHorizontal: 20,
+    paddingTop: 20,
+
+
   },
   header: {
     color: '#fff',
