@@ -1,10 +1,12 @@
 import React, { useRef, useEffect } from "react";
-import { Text, Animated } from "react-native";
+import { Text, Animated, StatusBar } from "react-native";
 import { StyleSheet, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import MaskedView from "@react-native-masked-view/masked-view";
+import { useSelector } from "react-redux";
 
 const WaveformLoader = () => {
+
   const NUMBER_OF_BARS = 20;
   const animations = useRef(
     [...Array(NUMBER_OF_BARS)].map(() => new Animated.Value(20))
@@ -85,6 +87,7 @@ const WaveformLoader = () => {
   );
 };
 const Waveform = () => {
+  const { Mode } = useSelector((state) => state.theme)
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -97,6 +100,11 @@ const Waveform = () => {
 
   return (
     <Animated.View style={{ opacity: fadeAnim }}>
+      <StatusBar
+        barStyle={Mode === "light" ? "dark-content" : "light-content"}
+        backgroundColor={Mode === "light" ? "#ffffff" : "#141414"}
+        translucent={false}
+      />
       <MaskedView
         maskElement={
           <Text

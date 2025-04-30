@@ -194,7 +194,7 @@ const Library = () => {
     return (
         <ScrollView
             style={styles.Main}
-            contentContainerStyle={{ alignItems: 'center', paddingBottom: 100, paddingHorizontal: 20, paddingTop: 30, height: 2000 }}
+            contentContainerStyle={{ alignItems: 'center', paddingBottom: 100, paddingHorizontal: 20, paddingTop: 30, height: 1000 }}
             keyboardShouldPersistTaps="handled"
         >
             <View
