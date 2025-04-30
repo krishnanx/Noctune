@@ -192,7 +192,7 @@ const Playlist = () => {
   return (
     <ScrollView
       style={styles.Main}
-      contentContainerStyle={{ alignItems: 'center', paddingBottom: 100, paddingHorizontal: 20, paddingTop: 20, height: 2000 }}
+      contentContainerStyle={{ alignItems: 'center', paddingBottom: 100, paddingHorizontal: 20, paddingTop: 20, height: 1000 }}
 
     >
 
