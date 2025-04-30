@@ -1,10 +1,97 @@
-import React from 'react'
-import { View } from 'react-native'
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Switch, ScrollView, TouchableOpacity } from 'react-native';
 
 const Settings = () => {
-    return (
-        <View></View>
-    )
-}
+  const [darkMode, setDarkMode] = useState(true);
+  const [offlineMode, setOfflineMode] = useState(false);
+  const [notifications, setNotifications] = useState(true);
 
-export default Settings
+  return (
+    <ScrollView style={styles.container}>
+      <Text style={styles.header}>Settings</Text>
+
+      <Section title="Playback">
+        <SettingItem label="Offline mode" value={offlineMode} onToggle={setOfflineMode} />
+      </Section>
+
+      <Section title="Preferences">
+        <SettingItem label="Dark Mode" value={darkMode} onToggle={setDarkMode} />
+        <SettingItem label="Notifications" value={notifications} onToggle={setNotifications} />
+      </Section>
+
+      <Section title="Account">
+        <NavItem label="Account Info" />
+        <NavItem label="Change Password" />
+      </Section>
+
+      <Section title="Support">
+        <NavItem label="Help Center" />
+        <NavItem label="Privacy Policy" />
+        <NavItem label="Log Out" onPress={() => console.log("Logged Out")} />
+      </Section>
+    </ScrollView>
+  );
+};
+
+const Section = ({ title, children }) => (
+  <View style={styles.section}>
+    <Text style={styles.sectionTitle}>{title}</Text>
+    {children}
+  </View>
+);
+
+const SettingItem = ({ label, value, onToggle }) => (
+  <View style={styles.item}>
+    <Text style={styles.itemText}>{label}</Text>
+    <Switch
+      value={value}
+      onValueChange={onToggle}
+      thumbColor="#1DB954"
+    />
+  </View>
+);
+
+const NavItem = ({ label, onPress }) => (
+  <TouchableOpacity style={styles.item} onPress={onPress}>
+    <Text style={styles.itemText}>{label}</Text>
+  </TouchableOpacity>
+);
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#121212',
+    padding: 20,
+  },
+  header: {
+    color: '#fff',
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 30,
+  },
+  section: {
+    marginBottom: 30,
+  },
+  sectionTitle: {
+    color: '#888',
+    fontSize: 14,
+    marginBottom: 10,
+    textTransform: 'uppercase',
+  },
+  item: {
+    backgroundColor: '#1e1e1e',
+    paddingVertical: 15,
+    paddingHorizontal: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  itemText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+});
+
+export default Settings;
