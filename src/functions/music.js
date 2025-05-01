@@ -21,10 +21,9 @@ export const loadAudio = async (
     if (!data[pos]) {
       throw new Error("Data at the given position is undefined or invalid.");
     }
-
-    const audioUri = `${
-      Constants.expoConfig.extra.SERVER
-    }/api/stream?url=${encodeURIComponent(data[pos].url)}`;
+    //192.168.1.43
+    //Constants.expoConfig.extra.SERVER
+    const audioUri = `http://192.168.1.43:80/api/stream?url=${encodeURIComponent(data[pos].url)}`;
     console.log("Audio URI:", audioUri); // Check if the URL is correct
 
     if (soundRef.current) {
@@ -60,9 +59,9 @@ export const loadAudio = async (
 
     console.log("Audio Loaded", soundRef.current);
     if (!isLoadedFromAsyncStorage) {
-       await soundRef.current.playAsync(); // ✅ Automatically starts playing
-        dispatch(setIsPlaying(true));
-    } 
+      await soundRef.current.playAsync(); // ✅ Automatically starts playing
+      dispatch(setIsPlaying(true));
+    }
   } catch (error) {
     console.error("Error loading audio:", error);
     // console.error("Stack trace:", error.stack);  // Log stack trace for more details

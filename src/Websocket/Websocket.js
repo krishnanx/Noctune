@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import Constants from "expo-constants";
 import * as Device from "expo-device";
-
+import { LogBox } from 'react-native';
 const Websocket = () => {
     const [deviceName, setDeviceName] = useState(null);
     const dispatch = useDispatch();
@@ -20,7 +20,7 @@ const Websocket = () => {
                     name || `${Device.manufacturer ?? "Unknown"} ${Device.modelName ?? "Device"}`
                 );
             } catch (err) {
-                console.log("Error fetching device name:", err);
+                console.error("Error fetching device name:", err);
                 setDeviceName(`${Device.manufacturer ?? "Unknown"} ${Device.modelName ?? "Device"}`);
             }
         };
@@ -38,30 +38,38 @@ const Websocket = () => {
         const id = Math.random().toString(36).slice(2, 8);
 
         const connectWebSocket = () => {
-            console.log(`[${id}] Connecting WebSocket...`);
+            console.error(`[${id}] Connecting WebSocket...`);
             //Constants.expoConfig.extra.WEBSOC
             //ws://192.168.1.48:80
-            ws = new WebSocket(Constants.expoConfig.extra.WEBSOC);
+            const ws = new WebSocket("ws://192.168.1.43:80/download-progress");
 
             ws.onopen = () => {
-                console.log("Connected to WebSocket server");
-                ws.send(`Hello from React Native ${id}!`);
+                console.error("Connected to WebSocket server");
 
+                ws.send(JSON.stringify({
+                    type: "register",
+                    clientId: id,
+                    value: "hi"
+                }));
                 pingInterval = setInterval(() => {
                     if (ws.readyState === WebSocket.OPEN) {
-                        ws.send(JSON.stringify({ type: "ping", device: deviceName, id }));
-                        console.log("pinged");
+                        ws.send(JSON.stringify({
+                            type: "ping",
+                            clientId: id,
+                            value: "hi"
+                        }));
+                        console.error("pinged");
                     }
                 }, 25000);
             };
 
             ws.onmessage = (event) => {
                 try {
-                    const parsed = typeof event.data === "string" ? JSON.parse(event.data) : {};
-                    console.log("Parsed data:", parsed);
+                    const parsed = JSON.parse(event.data);
+                    console.error(parsed)
                     // dispatch(addData(parsed));
                 } catch (e) {
-                    console.log("Non-JSON message received:", event.data);
+                    console.error("Non-JSON message received:", event.data);
                 }
             };
 
@@ -71,7 +79,7 @@ const Websocket = () => {
             };
 
             ws.onclose = () => {
-                console.log("WebSocket disconnected");
+                console.error("WebSocket disconnected");
                 clearInterval(pingInterval);
                 attemptReconnect();
             };
@@ -82,7 +90,7 @@ const Websocket = () => {
         const attemptReconnect = () => {
             if (reconnectAttempts < 5) {
                 reconnectAttempts++;
-                console.log(`Reconnect attempt ${reconnectAttempts}...`);
+                console.error(`Reconnect attempt ${reconnectAttempts}...`);
 
                 reconnectTimeout = setTimeout(connectWebSocket, 2000 * reconnectAttempts);
             } else {
