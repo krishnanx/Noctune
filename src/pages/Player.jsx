@@ -194,7 +194,7 @@ const Player = () => {
     miniPlayer: {
       flex: 1,
       position: "absolute",
-      top: "695",
+      // bottom: 100,
       width: "95%",
       height: "7%",
       backgroundColor: "gray",
@@ -437,11 +437,13 @@ const Player = () => {
   if (isMinimized) {
     return (
       // Remove the TouchableWithoutFeedback wrapping the entire view
-      <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+      <View style={[StyleSheet.absoluteFill, { justifyContent: "flex-end", marginBottom: 55, alignItems: "center" }]} pointerEvents="box-none">
         <View
           style={{
             position: "static",
-            bottom: "10%",
+            // /top: "10%",
+            justifyContent: "flex-end",
+            backgroundColor: "pink",
             width: "100%",
             zIndex: 0,
           }}
@@ -455,7 +457,7 @@ const Player = () => {
                   style={styles.miniPlayerThumbnail}
                 />
                 <View style={styles.miniPlayerTextContainer}>
-                  <Marquee text={data ? data[pos]?.title +"             ": "Unknown Title"} />
+                  <Marquee text={data ? data[pos]?.title + "             " : "Unknown Title"} />
                   <Text style={styles.miniPlayerArtist} numberOfLines={1}>
                     {data ? data[pos]?.uploader : "Unknown Artist"}
                   </Text>
