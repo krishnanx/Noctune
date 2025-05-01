@@ -24,9 +24,6 @@ import Waveform from "./src/Components/Waveform";
 import Audioloader from "./src/functions/Audioloader";
 import { loadUser } from "./Store/AuthThunk";
 
-
-
-
 export default function App() {
   const { Mode } = useSelector((state) => state.theme);
   const dispatch = useDispatch();
@@ -58,6 +55,7 @@ export default function App() {
             alignItems: "center",
           }}
         >
+
           <Waveform />
         </View>
       </>

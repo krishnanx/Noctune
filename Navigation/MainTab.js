@@ -15,7 +15,7 @@ const Tab = createBottomTabNavigator();
 
 const MainTab = () => {
   const { status } = useSelector((state) => state.key);
- 
+
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   useEffect(() => {
     const keybaordDidShow = Keyboard.addListener("keyboardWillShow", () =>
@@ -38,7 +38,7 @@ const MainTab = () => {
           else if (route.name === "Search") iconName = "magnify";
           else if (route.name === "Library") iconName = "music-box-multiple-outline"
           else if (route.name === "Settings") iconName = "cog-outline";
-          
+
 
           return {
             tabBarIcon: ({ color, size }) => (
@@ -47,7 +47,7 @@ const MainTab = () => {
             headerShown: false,
             tabBarHideOnKeyboard: true,
             tabBarStyle: {
-              height: "7%", // <== custom height in pixels
+              height: 55, // <== custom height in pixels
               padding: "auto",
             },
           };
@@ -56,9 +56,9 @@ const MainTab = () => {
       >
         <Tab.Screen name="Home" component={Home} />
         <Tab.Screen name="Search" component={Search} />
-        <Tab.Screen name="Library" component={Library}/>
+        <Tab.Screen name="Library" component={Library} />
         <Tab.Screen name="Settings" component={Settings} />
-       
+
       </Tab.Navigator>
       <Player />
     </>
