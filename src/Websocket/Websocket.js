@@ -41,7 +41,7 @@ const Websocket = () => {
             console.error(`[${id}] Connecting WebSocket...`);
             //Constants.expoConfig.extra.WEBSOC
             //ws://192.168.1.48:80
-            const ws = new WebSocket("ws://192.168.1.43:80/download-progress");
+            const ws = new WebSocket(`${Constants.expoConfig.extra.WEBSOC}/download-progress`);
 
             ws.onopen = () => {
                 console.error("Connected to WebSocket server");
