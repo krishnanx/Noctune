@@ -142,18 +142,33 @@ const Player = () => {
   const toggleModal = () => {
     setIsModalVisible((prev) => !prev);
   };
+
 const togglePlayerSize = () => {
-  const toValue = isMinimized ? 0 : windowHeight; // slide up to show, down to hide
-
-  Animated.timing(slideY, {
-    toValue,
-    duration: 300,
-    useNativeDriver: true,
-  }).start(() => {
+  // If currently minimized and about to maximize
+  if (isMinimized) {
+    // First toggle the state so the component renders the full player
     dispatch(toggleMinimized());
-  });
-};
 
+    // Then animate from bottom (hidden) to visible (0)
+    Animated.timing(slideY, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }
+  // If currently maximized and about to minimize
+  else {
+    // Animate to hidden first
+    Animated.timing(slideY, {
+      toValue: windowHeight,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {
+      // Then toggle the state after animation completes
+      dispatch(toggleMinimized());
+    });
+  }
+};
 
   const handlePress = async (value) => {
     const timeNow = Date.now();
@@ -430,7 +445,7 @@ const togglePlayerSize = () => {
 
   // Render the mini player if minimized
   if (isMinimized) {
-    return (  
+    return (
       // Remove the TouchableWithoutFeedback wrapping the entire view
       <View
         style={[
