@@ -26,9 +26,11 @@ import {
 } from "../../Store/MusicSlice";
 import { loadAudio, soundRef } from "../functions/music";
 import { addMusicinPlaylist } from "../../Store/PlaylistSlice";
-import MarqueeText from 'react-native-marquee';
+import MarqueeText from "react-native-marquee";
 import TextTicker from "react-native-text-ticker";
 import Marquee from "../Components/Marquee";
+import SleepTimerModal from "../Components/SleepTimerModal";
+import TimerIcon from "../Components/TimerIcon";
 
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
@@ -45,6 +47,8 @@ const Player = () => {
   // const [audioUrl, setAudioUrl] = useState("");
 
   const slideY = useRef(new Animated.Value(windowHeight)).current; // initially hidden (off-screen)
+  const [sleepTimerVisible, setSleepTimerVisible] = useState(false);
+  const { isTimerActive } = useSelector((state) => state.sleepTimer);
 
   const dispatch = useDispatch();
   const navigation = useNavigation();
@@ -80,6 +84,26 @@ const Player = () => {
   //   };
   // }, [pos]);
 
+  //-------------------------------
+  //added
+  // useEffect(() => {
+  //   // Set up music control when component mounts
+  //   try {
+  //     setupMusicControl();
+  //   } catch (error) {
+  //     console.error("Error setting up music control:", error);
+  //   }
+
+  //   return () => {
+  //     try {
+  //       // Clean up on unmount
+  //       MusicControl.stopControl();
+  //     } catch (error) {
+  //       console.error("Error stopping music control:", error);
+  //     }
+  //   };
+  // }, []);
+  //----------------------------------------
   useEffect(() => {
     const autoPlayIfUserSearched = async () => {
       if (!soundRef.current) return;
@@ -111,17 +135,35 @@ const Player = () => {
     console.log("isPlaying?...:", isplaying);
   }, [seek, isplaying]);
 
+  //---------------------------------------------------------
+  // useEffect to update notification metadata when track changes
+  // useEffect(() => {
+  //   if (data && data[pos]) {
+  //     updateNotificationMetaData(data[pos]);
+  //   }
+  // }, [data, pos]);
+
+  // //useEffect to update playback state
+  // useEffect(() => {
+  //   if (data && data[pos]) {
+  //     updatePlaybackState(isplaying, seek);
+  //   }
+  // }, [isplaying, seek]);
+
+  //------------------------------------------------------
+
   const togglePlayPause = async () => {
     if (!soundRef.current) return;
 
     if (isplaying) {
       await soundRef.current.pauseAsync();
       dispatch(progress(-1));
+      //updatePlaybackState(false, seek); //added
     } else {
       await soundRef.current.playAsync(); // resumes from last position
       dispatch(progress(-1));
+      //updatePlaybackState(true, seek); //added
     }
-
     dispatch(setIsPlaying("toggle"));
   };
 
@@ -143,32 +185,32 @@ const Player = () => {
     setIsModalVisible((prev) => !prev);
   };
 
-const togglePlayerSize = () => {
-  // If currently minimized and about to maximize
-  if (isMinimized) {
-    // First toggle the state so the component renders the full player
-    dispatch(toggleMinimized());
-
-    // Then animate from bottom (hidden) to visible (0)
-    Animated.timing(slideY, {
-      toValue: 0,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-  }
-  // If currently maximized and about to minimize
-  else {
-    // Animate to hidden first
-    Animated.timing(slideY, {
-      toValue: windowHeight,
-      duration: 300,
-      useNativeDriver: true,
-    }).start(() => {
-      // Then toggle the state after animation completes
+  const togglePlayerSize = () => {
+    // If currently minimized and about to maximize
+    if (isMinimized) {
+      // First toggle the state so the component renders the full player
       dispatch(toggleMinimized());
-    });
-  }
-};
+
+      // Then animate from bottom (hidden) to visible (0)
+      Animated.timing(slideY, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }
+    // If currently maximized and about to minimize
+    else {
+      // Animate to hidden first
+      Animated.timing(slideY, {
+        toValue: windowHeight,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => {
+        // Then toggle the state after animation completes
+        dispatch(toggleMinimized());
+      });
+    }
+  };
 
   const handlePress = async (value) => {
     const timeNow = Date.now();
@@ -440,6 +482,20 @@ const togglePlayerSize = () => {
       top: 35,
       left: 30,
       zIndex: 10,
+    }, //added
+    sleepTimerButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      padding: 10,
+    },
+    sleepTimerText: {
+      marginLeft: 8,
+      fontSize: 16,
+      color: "#888",
+    },
+    activeTimerText: {
+      color: "#4f8ef7",
+      fontWeight: "500",
     },
   });
 
@@ -570,12 +626,33 @@ const togglePlayerSize = () => {
           formatTime={formatTime}
           styles={styles}
         />
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+            bottom: 50,
+            width: "100%",
+            gap: 300,
+          }}
+        >
+          <TouchableOpacity onPress={() => setSleepTimerVisible(true)}>
+            <TimerIcon
+              name="timer"
+              color={isTimerActive ? "#4f8ef7" : colors.text}
+            />
+          </TouchableOpacity>
 
-        <TouchableOpacity onPress={replaySound}>
-          <View style={[{ left: 150 }, { bottom: 50 }]}>
+          <TouchableOpacity onPress={replaySound}>
             <Ionicons name="refresh" size={24} color={colors.text} />
-          </View>
-        </TouchableOpacity>
+          </TouchableOpacity>
+        </View>
+
+        <SleepTimerModal
+          visible={sleepTimerVisible}
+          onClose={() => setSleepTimerVisible(false)}
+          soundRef={soundRef}
+        />
 
         <Controls
           togglePlayPause={togglePlayPause}
@@ -695,7 +772,13 @@ const Controls = ({
   );
 };
 
-const Custom_modal = ({ isModalVisible, styles, toggleModal, navigation }) => {
+const Custom_modal = ({
+  isModalVisible,
+  styles,
+  toggleModal,
+  dispatch,
+  navigation,
+}) => {
   const { data, pos } = useSelector((state) => state.data);
 
   return (
@@ -732,8 +815,8 @@ const Custom_modal = ({ isModalVisible, styles, toggleModal, navigation }) => {
           <TouchableOpacity
             style={styles.optionTouch}
             onPress={() => {
-              toggleModal()
-              navigation.navigate("Playchoose", { index: pos })
+              toggleModal();
+              navigation.navigate("Playchoose", { index: pos });
               // dispatch(addMusicinPlaylist({ id: 0, music: data[pos] }));
             }}
           >

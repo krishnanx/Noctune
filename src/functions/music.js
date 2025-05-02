@@ -51,6 +51,8 @@ export const loadAudio = async (
       { shouldPlay: false, progressUpdateIntervalMillis: 1060 },
       onPlaybackStatusUpdate
     );
+    
+
 
     soundRef.current = sound;
     sound.setOnPlaybackStatusUpdate((status) => {
@@ -74,7 +76,7 @@ export const unloadAudio = async () => {
     soundRef.current = null;
   }
 };
-const onPlaybackStatusUpdate = (status, dispatch, getSeek) => {
+const onPlaybackStatusUpdate = (status, dispatch, getSeek) => {     
   if (status.isLoaded) {
     console.log("hi?");
     console.log("positionMillis:", status.positionMillis / 1000);
@@ -86,7 +88,8 @@ const onPlaybackStatusUpdate = (status, dispatch, getSeek) => {
       const currentSeek = getSeek?.();
       if (currentSeek != data[pos]?.duration && currentSeek != 0) {
         console.log("finishing up!!");
-        tailFill(data[pos]?.duration);
+        tailFill(data[pos]?.duration);        
+        
       }
     }
   } else if (status.error) {

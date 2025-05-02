@@ -15,6 +15,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import { signUp } from "../../Store/AuthThunk"; 
 import Icon from "react-native-vector-icons/Ionicons"; 
+import Toast from "react-native-toast-message";
 
 const SignUp = () => {
   const { colors } = useTheme();
@@ -24,7 +25,7 @@ const SignUp = () => {
   const [username, setUserName] = useState();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
+  
   //const [loading, setLoading] = useState(false);
   //const [error, setError] = useState(null);
   const navigation = useNavigation();
