@@ -44,6 +44,8 @@ const Player = () => {
   const DOUBLE_PRESS_DELAY = 800;
   // const [audioUrl, setAudioUrl] = useState("");
 
+  const slideY = useRef(new Animated.Value(windowHeight)).current; // initially hidden (off-screen)
+
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const isMinimized = useSelector((state) => state.data.isMinimized);
@@ -141,24 +143,32 @@ const Player = () => {
     setIsModalVisible((prev) => !prev);
   };
 
-  const togglePlayerSize = () => {
-    // Animate the height and width change
-    Animated.parallel([
-      Animated.timing(animatedHeight, {
-        toValue: isMinimized ? windowHeight : 70,
-        duration: 300,
-        useNativeDriver: false,
-      }),
-      Animated.timing(animatedWidth, {
-        toValue: isMinimized ? windowWidth : windowWidth,
-        duration: 300,
-        useNativeDriver: false,
-      }),
-    ]).start(() => {
-      // Animation completed
+const togglePlayerSize = () => {
+  // If currently minimized and about to maximize
+  if (isMinimized) {
+    // First toggle the state so the component renders the full player
+    dispatch(toggleMinimized());
+
+    // Then animate from bottom (hidden) to visible (0)
+    Animated.timing(slideY, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }
+  // If currently maximized and about to minimize
+  else {
+    // Animate to hidden first
+    Animated.timing(slideY, {
+      toValue: windowHeight,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {
+      // Then toggle the state after animation completes
       dispatch(toggleMinimized());
     });
-  };
+  }
+};
 
   const handlePress = async (value) => {
     const timeNow = Date.now();
@@ -437,7 +447,17 @@ const Player = () => {
   if (isMinimized) {
     return (
       // Remove the TouchableWithoutFeedback wrapping the entire view
-      <View style={[StyleSheet.absoluteFill, { justifyContent: "flex-end", marginBottom: 55, alignItems: "center" }]} pointerEvents="box-none">
+      <View
+        style={[
+          StyleSheet.absoluteFill,
+          {
+            justifyContent: "flex-end",
+            marginBottom: 55,
+            alignItems: "center",
+          },
+        ]}
+        pointerEvents="box-none"
+      >
         <View
           style={{
             position: "static",
@@ -457,7 +477,13 @@ const Player = () => {
                   style={styles.miniPlayerThumbnail}
                 />
                 <View style={styles.miniPlayerTextContainer}>
-                  <Marquee text={data ? data[pos]?.title + "             " : "Unknown Title"} />
+                  <Marquee
+                    text={
+                      data
+                        ? data[pos]?.title + "             "
+                        : "Unknown Title"
+                    }
+                  />
                   <Text style={styles.miniPlayerArtist} numberOfLines={1}>
                     {data ? data[pos]?.uploader : "Unknown Artist"}
                   </Text>
@@ -486,8 +512,9 @@ const Player = () => {
                   style={[
                     styles.miniProgressBarFill,
                     {
-                      width: `${TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0
-                        }%`,
+                      width: `${
+                        TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0
+                      }%`,
                     },
                   ]}
                 />
@@ -501,60 +528,73 @@ const Player = () => {
 
   // Render the full player
   return (
-    <View style={styles.Main}>
-      <TouchableOpacity style={styles.button} onPress={togglePlayerSize}>
-        <View style={{ transform: [{ rotate: "90deg" }] }}>
-          <Ionicons name="chevron-forward" size={24} color={colors.text} />
-        </View>
-      </TouchableOpacity>
-      <TouchableWithoutFeedback>
-        <View style={{ position: "absolute", top: 30, right: 30 }}>
-          <TouchableWithoutFeedback onPress={toggleModal}>
-            <MaterialIcons name="more-vert" size={28} color={colors.text} />
-          </TouchableWithoutFeedback>
-        </View>
-      </TouchableWithoutFeedback>
+    <Animated.View
+      style={{
+        position: "absolute",
+        bottom: 0,
+        width: "100%",
+        height: windowHeight,
+        transform: [{ translateY: slideY }],
+        backgroundColor: "white", // or your styling
+        borderTopLeftRadius: 16,
+        borderTopRightRadius: 16,
+        overflow: "hidden",
+      }}
+    >
+      <View style={styles.Main}>
+        <TouchableOpacity style={styles.button} onPress={togglePlayerSize}>
+          <View style={{ transform: [{ rotate: "90deg" }] }}>
+            <Ionicons name="chevron-forward" size={24} color={colors.text} />
+          </View>
+        </TouchableOpacity>
+        <TouchableWithoutFeedback>
+          <View style={{ position: "absolute", top: 30, right: 30 }}>
+            <TouchableWithoutFeedback onPress={toggleModal}>
+              <MaterialIcons name="more-vert" size={28} color={colors.text} />
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
 
-      <Metadata
-        data={
-          data && data[pos]
-            ? data[pos]
-            : { title: "Unknown Song", uploader: "Unknown Artist" }
-        }
-        colors={colors}
-        liked={liked}
-        setLiked={setLiked}
-        progressPercent={TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0}
-        seek={seek}
-        TOTAL_DURATION={TOTAL_DURATION}
-        formatTime={formatTime}
-        styles={styles}
-      />
+        <Metadata
+          data={
+            data && data[pos]
+              ? data[pos]
+              : { title: "Unknown Song", uploader: "Unknown Artist" }
+          }
+          colors={colors}
+          liked={liked}
+          setLiked={setLiked}
+          progressPercent={TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0}
+          seek={seek}
+          TOTAL_DURATION={TOTAL_DURATION}
+          formatTime={formatTime}
+          styles={styles}
+        />
 
-      <TouchableOpacity onPress={replaySound}>
-        <View style={[{ left: 150 }, { bottom: 50 }]}>
-          <Ionicons name="refresh" size={24} color={colors.text} />
-        </View>
-      </TouchableOpacity>
+        <TouchableOpacity onPress={replaySound}>
+          <View style={[{ left: 150 }, { bottom: 50 }]}>
+            <Ionicons name="refresh" size={24} color={colors.text} />
+          </View>
+        </TouchableOpacity>
 
-      <Controls
-        togglePlayPause={togglePlayPause}
-        isPlaying={isplaying}
-        styles={styles}
-        colors={colors}
-        dispatch={dispatch}
-        changePos={changePos}
-        handlePress={handlePress}
-      />
+        <Controls
+          togglePlayPause={togglePlayPause}
+          isPlaying={isplaying}
+          styles={styles}
+          colors={colors}
+          dispatch={dispatch}
+          changePos={changePos}
+          handlePress={handlePress}
+        />
 
-      <Custom_modal
-        isModalVisible={isModalVisible}
-        styles={styles}
-        toggleModal={toggleModal}
-        dispatch={dispatch}
-        navigation={navigation}
-      />
-    </View>
+        <Custom_modal
+          isModalVisible={isModalVisible}
+          styles={styles}
+          toggleModal={toggleModal}
+          navigation={navigation}
+        />
+      </View>
+    </Animated.View>
   );
 };
 
@@ -655,7 +695,7 @@ const Controls = ({
   );
 };
 
-const Custom_modal = ({ isModalVisible, styles, toggleModal, dispatch, navigation }) => {
+const Custom_modal = ({ isModalVisible, styles, toggleModal, navigation }) => {
   const { data, pos } = useSelector((state) => state.data);
 
   return (
