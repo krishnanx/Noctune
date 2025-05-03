@@ -151,6 +151,7 @@ const Player = () => {
   // }, [isplaying, seek]);
 
   //------------------------------------------------------
+  
 
   const togglePlayPause = async () => {
     if (!soundRef.current) return;
@@ -636,12 +637,14 @@ const Player = () => {
             gap: 300,
           }}
         >
-          <TouchableOpacity onPress={() => setSleepTimerVisible(true)}>
+          <TouchableOpacity onPress={() => setSleepTimerVisible(true)}
+            >
             <TimerIcon
               name="timer"
-              color={isTimerActive ? "#4f8ef7" : colors.text}
+              color={isTimerActive ? "#F5DEB3" : colors.text}
             />
           </TouchableOpacity>
+          
 
           <TouchableOpacity onPress={replaySound}>
             <Ionicons name="refresh" size={24} color={colors.text} />
