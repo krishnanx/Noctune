@@ -6,16 +6,17 @@ import Home from "../src/pages/Home";
 import Player from "../src/pages/Player";
 import Settings from "../src/pages/Settings";
 import Search from "../src/pages/Search";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Keyboard } from "react-native";
 import Playlist from '../src/pages/Playlist';
 import Library from "../src/pages/Library";
+import {setAnimationTargetY} from ".././Store/MusicSlice"
 
 const Tab = createBottomTabNavigator();
 
 const MainTab = () => {
   const { status } = useSelector((state) => state.key);
-
+  const dispatch = useDispatch();
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   useEffect(() => {
     const keybaordDidShow = Keyboard.addListener("keyboardDidShow", () => {
@@ -26,6 +27,7 @@ const MainTab = () => {
     const keyboardDidHide = Keyboard.addListener("keyboardDidHide", () => {
       console.warn("keyboard is inactive")
       setKeyboardVisible(false)
+      dispatch(setAnimationTargetY(0));
     }
     );
     return () => {
