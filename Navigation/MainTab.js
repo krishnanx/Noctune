@@ -18,11 +18,15 @@ const MainTab = () => {
 
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   useEffect(() => {
-    const keybaordDidShow = Keyboard.addListener("keyboardWillShow", () =>
+    const keybaordDidShow = Keyboard.addListener("keyboardDidShow", () => {
+      console.warn("keyboard is active")
       setKeyboardVisible(true)
+    }
     );
-    const keyboardDidHide = Keyboard.addListener("keyboardDidHide", () =>
+    const keyboardDidHide = Keyboard.addListener("keyboardDidHide", () => {
+      console.warn("keyboard is inactive")
       setKeyboardVisible(false)
+    }
     );
     return () => {
       keybaordDidShow.remove();
@@ -60,7 +64,9 @@ const MainTab = () => {
         <Tab.Screen name="Settings" component={Settings} />
 
       </Tab.Navigator>
-      <Player />
+      {!isKeyboardVisible && <Player />}
+      {/* <Player /> */}
+
     </>
   );
 };

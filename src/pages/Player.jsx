@@ -26,9 +26,11 @@ import {
 } from "../../Store/MusicSlice";
 import { loadAudio, soundRef } from "../functions/music";
 import { addMusicinPlaylist } from "../../Store/PlaylistSlice";
-import MarqueeText from 'react-native-marquee';
+import MarqueeText from "react-native-marquee";
 import TextTicker from "react-native-text-ticker";
 import Marquee from "../Components/Marquee";
+import SleepTimerModal from "../Components/SleepTimerModal";
+import TimerIcon from "../Components/TimerIcon";
 
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
@@ -43,6 +45,10 @@ const Player = () => {
   const [lastPress, setLastPress] = useState(0);
   const DOUBLE_PRESS_DELAY = 800;
   // const [audioUrl, setAudioUrl] = useState("");
+
+  const slideY = useRef(new Animated.Value(windowHeight)).current; // initially hidden (off-screen)
+  const [sleepTimerVisible, setSleepTimerVisible] = useState(false);
+  const { isTimerActive } = useSelector((state) => state.sleepTimer);
 
   const dispatch = useDispatch();
   const navigation = useNavigation();
@@ -78,6 +84,26 @@ const Player = () => {
   //   };
   // }, [pos]);
 
+  //-------------------------------
+  //added
+  // useEffect(() => {
+  //   // Set up music control when component mounts
+  //   try {
+  //     setupMusicControl();
+  //   } catch (error) {
+  //     console.error("Error setting up music control:", error);
+  //   }
+
+  //   return () => {
+  //     try {
+  //       // Clean up on unmount
+  //       MusicControl.stopControl();
+  //     } catch (error) {
+  //       console.error("Error stopping music control:", error);
+  //     }
+  //   };
+  // }, []);
+  //----------------------------------------
   useEffect(() => {
     const autoPlayIfUserSearched = async () => {
       if (!soundRef.current) return;
@@ -109,17 +135,36 @@ const Player = () => {
     console.log("isPlaying?...:", isplaying);
   }, [seek, isplaying]);
 
+  //---------------------------------------------------------
+  // useEffect to update notification metadata when track changes
+  // useEffect(() => {
+  //   if (data && data[pos]) {
+  //     updateNotificationMetaData(data[pos]);
+  //   }
+  // }, [data, pos]);
+
+  // //useEffect to update playback state
+  // useEffect(() => {
+  //   if (data && data[pos]) {
+  //     updatePlaybackState(isplaying, seek);
+  //   }
+  // }, [isplaying, seek]);
+
+  //------------------------------------------------------
+  
+
   const togglePlayPause = async () => {
     if (!soundRef.current) return;
 
     if (isplaying) {
       await soundRef.current.pauseAsync();
       dispatch(progress(-1));
+      //updatePlaybackState(false, seek); //added
     } else {
       await soundRef.current.playAsync(); // resumes from last position
       dispatch(progress(-1));
+      //updatePlaybackState(true, seek); //added
     }
-
     dispatch(setIsPlaying("toggle"));
   };
 
@@ -142,22 +187,30 @@ const Player = () => {
   };
 
   const togglePlayerSize = () => {
-    // Animate the height and width change
-    Animated.parallel([
-      Animated.timing(animatedHeight, {
-        toValue: isMinimized ? windowHeight : 70,
-        duration: 300,
-        useNativeDriver: false,
-      }),
-      Animated.timing(animatedWidth, {
-        toValue: isMinimized ? windowWidth : windowWidth,
-        duration: 300,
-        useNativeDriver: false,
-      }),
-    ]).start(() => {
-      // Animation completed
+    // If currently minimized and about to maximize
+    if (isMinimized) {
+      // First toggle the state so the component renders the full player
       dispatch(toggleMinimized());
-    });
+
+      // Then animate from bottom (hidden) to visible (0)
+      Animated.timing(slideY, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }
+    // If currently maximized and about to minimize
+    else {
+      // Animate to hidden first
+      Animated.timing(slideY, {
+        toValue: windowHeight,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => {
+        // Then toggle the state after animation completes
+        dispatch(toggleMinimized());
+      });
+    }
   };
 
   const handlePress = async (value) => {
@@ -430,6 +483,20 @@ const Player = () => {
       top: 35,
       left: 30,
       zIndex: 10,
+    }, //added
+    sleepTimerButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      padding: 10,
+    },
+    sleepTimerText: {
+      marginLeft: 8,
+      fontSize: 16,
+      color: "#888",
+    },
+    activeTimerText: {
+      color: "#4f8ef7",
+      fontWeight: "500",
     },
   });
 
@@ -437,7 +504,17 @@ const Player = () => {
   if (isMinimized) {
     return (
       // Remove the TouchableWithoutFeedback wrapping the entire view
-      <View style={[StyleSheet.absoluteFill, { justifyContent: "flex-end", marginBottom: 55, alignItems: "center" }]} pointerEvents="box-none">
+      <View
+        style={[
+          StyleSheet.absoluteFill,
+          {
+            justifyContent: "flex-end",
+            marginBottom: 55,
+            alignItems: "center",
+          },
+        ]}
+        pointerEvents="box-none"
+      >
         <View
           style={{
             position: "static",
@@ -457,7 +534,13 @@ const Player = () => {
                   style={styles.miniPlayerThumbnail}
                 />
                 <View style={styles.miniPlayerTextContainer}>
-                  <Marquee text={data ? data[pos]?.title + "             " : "Unknown Title"} />
+                  <Marquee
+                    text={
+                      data
+                        ? data[pos]?.title + "             "
+                        : "Unknown Title"
+                    }
+                  />
                   <Text style={styles.miniPlayerArtist} numberOfLines={1}>
                     {data ? data[pos]?.uploader : "Unknown Artist"}
                   </Text>
@@ -486,8 +569,9 @@ const Player = () => {
                   style={[
                     styles.miniProgressBarFill,
                     {
-                      width: `${TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0
-                        }%`,
+                      width: `${
+                        TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0
+                      }%`,
                     },
                   ]}
                 />
@@ -501,60 +585,96 @@ const Player = () => {
 
   // Render the full player
   return (
-    <View style={styles.Main}>
-      <TouchableOpacity style={styles.button} onPress={togglePlayerSize}>
-        <View style={{ transform: [{ rotate: "90deg" }] }}>
-          <Ionicons name="chevron-forward" size={24} color={colors.text} />
+    <Animated.View
+      style={{
+        position: "absolute",
+        bottom: 0,
+        width: "100%",
+        height: windowHeight,
+        transform: [{ translateY: slideY }],
+        backgroundColor: "white", // or your styling
+        borderTopLeftRadius: 16,
+        borderTopRightRadius: 16,
+        overflow: "hidden",
+      }}
+    >
+      <View style={styles.Main}>
+        <TouchableOpacity style={styles.button} onPress={togglePlayerSize}>
+          <View style={{ transform: [{ rotate: "90deg" }] }}>
+            <Ionicons name="chevron-forward" size={24} color={colors.text} />
+          </View>
+        </TouchableOpacity>
+        <TouchableWithoutFeedback>
+          <View style={{ position: "absolute", top: 30, right: 30 }}>
+            <TouchableWithoutFeedback onPress={toggleModal}>
+              <MaterialIcons name="more-vert" size={28} color={colors.text} />
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+
+        <Metadata
+          data={
+            data && data[pos]
+              ? data[pos]
+              : { title: "Unknown Song", uploader: "Unknown Artist" }
+          }
+          colors={colors}
+          liked={liked}
+          setLiked={setLiked}
+          progressPercent={TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0}
+          seek={seek}
+          TOTAL_DURATION={TOTAL_DURATION}
+          formatTime={formatTime}
+          styles={styles}
+        />
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+            bottom: 50,
+            width: "100%",
+            gap: 300,
+          }}
+        >
+          <TouchableOpacity onPress={() => setSleepTimerVisible(true)}
+            >
+            <TimerIcon
+              name="timer"
+              color={isTimerActive ? "#F5DEB3" : colors.text}
+            />
+          </TouchableOpacity>
+          
+
+          <TouchableOpacity onPress={replaySound}>
+            <Ionicons name="refresh" size={24} color={colors.text} />
+          </TouchableOpacity>
         </View>
-      </TouchableOpacity>
-      <TouchableWithoutFeedback>
-        <View style={{ position: "absolute", top: 30, right: 30 }}>
-          <TouchableWithoutFeedback onPress={toggleModal}>
-            <MaterialIcons name="more-vert" size={28} color={colors.text} />
-          </TouchableWithoutFeedback>
-        </View>
-      </TouchableWithoutFeedback>
 
-      <Metadata
-        data={
-          data && data[pos]
-            ? data[pos]
-            : { title: "Unknown Song", uploader: "Unknown Artist" }
-        }
-        colors={colors}
-        liked={liked}
-        setLiked={setLiked}
-        progressPercent={TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0}
-        seek={seek}
-        TOTAL_DURATION={TOTAL_DURATION}
-        formatTime={formatTime}
-        styles={styles}
-      />
+        <SleepTimerModal
+          visible={sleepTimerVisible}
+          onClose={() => setSleepTimerVisible(false)}
+          soundRef={soundRef}
+        />
 
-      <TouchableOpacity onPress={replaySound}>
-        <View style={[{ left: 150 }, { bottom: 50 }]}>
-          <Ionicons name="refresh" size={24} color={colors.text} />
-        </View>
-      </TouchableOpacity>
+        <Controls
+          togglePlayPause={togglePlayPause}
+          isPlaying={isplaying}
+          styles={styles}
+          colors={colors}
+          dispatch={dispatch}
+          changePos={changePos}
+          handlePress={handlePress}
+        />
 
-      <Controls
-        togglePlayPause={togglePlayPause}
-        isPlaying={isplaying}
-        styles={styles}
-        colors={colors}
-        dispatch={dispatch}
-        changePos={changePos}
-        handlePress={handlePress}
-      />
-
-      <Custom_modal
-        isModalVisible={isModalVisible}
-        styles={styles}
-        toggleModal={toggleModal}
-        dispatch={dispatch}
-        navigation={navigation}
-      />
-    </View>
+        <Custom_modal
+          isModalVisible={isModalVisible}
+          styles={styles}
+          toggleModal={toggleModal}
+          navigation={navigation}
+        />
+      </View>
+    </Animated.View>
   );
 };
 
@@ -655,7 +775,13 @@ const Controls = ({
   );
 };
 
-const Custom_modal = ({ isModalVisible, styles, toggleModal, dispatch, navigation }) => {
+const Custom_modal = ({
+  isModalVisible,
+  styles,
+  toggleModal,
+  dispatch,
+  navigation,
+}) => {
   const { data, pos } = useSelector((state) => state.data);
 
   return (
@@ -692,8 +818,8 @@ const Custom_modal = ({ isModalVisible, styles, toggleModal, dispatch, navigatio
           <TouchableOpacity
             style={styles.optionTouch}
             onPress={() => {
-              toggleModal()
-              navigation.navigate("Playchoose", { index: pos })
+              toggleModal();
+              navigation.navigate("Playchoose", { index: pos });
               // dispatch(addMusicinPlaylist({ id: 0, music: data[pos] }));
             }}
           >

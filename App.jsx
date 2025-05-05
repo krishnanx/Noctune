@@ -43,7 +43,8 @@ export default function App() {
 
     fetchData();
   }, []);
-
+   
+ 
   if (status === "loading") {
     return (
       <>
@@ -90,6 +91,7 @@ export default function App() {
             >
               <UniversalNavi />
             </NavigationContainer>
+            
           </KeyboardAvoidingView>
         </View>
 
