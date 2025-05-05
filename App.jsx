@@ -35,14 +35,15 @@ export default function App() {
 
   useEffect(() => {
     const fetchData = async () => {
-      dispatch(loadUser()); //added this
-      setInterval(() => {
+      dispatch(loadUser());
+      setTimeout(() => {
         setStatus("idle");
-      }, 0);
+      }, 1000); // Wait 1 second then go idle
     };
 
     fetchData();
   }, []);
+
 
 
   if (status === "loading") {
