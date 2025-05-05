@@ -38,13 +38,13 @@ export default function App() {
       dispatch(loadUser()); //added this
       setInterval(() => {
         setStatus("idle");
-      }, 2000);
+      }, 0);
     };
 
     fetchData();
   }, []);
-   
- 
+
+
   if (status === "loading") {
     return (
       <>
@@ -75,28 +75,30 @@ export default function App() {
           backgroundColor: Mode === "light" ? "#ffffff" : "#141414",
         }}
       >
-        <View style={styles.container}>
-          <StatusBar
-            barStyle={Mode === "light" ? "dark-content" : "light-content"}
-            backgroundColor={Mode === "light" ? "#ffffff" : "#141414"}
-            translucent={false}
-          />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          style={{ flex: 1 }}
+        >
+          <View style={styles.container}>
+            <StatusBar
+              barStyle={Mode === "light" ? "dark-content" : "light-content"}
+              backgroundColor={Mode === "light" ? "#ffffff" : "#141414"}
+              translucent={false}
+            />
 
-          <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : undefined}
-            style={{ flex: 1 }}
-          >
+
             <NavigationContainer
               theme={Mode === "light" ? lightTheme : darkTheme}
             >
               <UniversalNavi />
             </NavigationContainer>
-            
-          </KeyboardAvoidingView>
-        </View>
 
-        <Websocket />
-        {canLoad && <Audioloader />}
+
+          </View>
+
+          <Websocket />
+          {canLoad && <Audioloader />}
+        </KeyboardAvoidingView>
       </SafeAreaView>
     </SafeAreaProvider>
   );
@@ -105,7 +107,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor: "#141414",
+    backgroundColor: "#141414",
     width: "100%",
   },
 });

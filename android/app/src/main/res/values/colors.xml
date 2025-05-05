@@ -1,6 +1,8 @@
 <resources>
-  <color name="splashscreen_background">#ffffff</color>
-  <color name="iconBackground">#ffffff</color>
+  <color name="splashscreen_background">#141414</color>
+  <color name="iconBackground">#141414</color>
   <color name="colorPrimary">#023c69</color>
-  <color name="colorPrimaryDark">#ffffff</color>
+  <color name="colorPrimaryDark">#141414</color>
+  <color name="app_background">#141414</color>
+
 </resources>
