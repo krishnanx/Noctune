@@ -26,6 +26,7 @@ import {
   load,
   toggleMinimized,
   setIsLoadedFromAsyncStorage,
+  setAnimationTargetY,
 } from "../../Store/MusicSlice";
 import { loadAudio, unloadAudio } from "../functions/music.js";
 import Audioloader from "../functions/Audioloader.jsx";
@@ -174,10 +175,16 @@ const Search = () => {
     dispatch(setIsLoadedFromAsyncStorage(false));
     dispatch(load(true));
     console.log("Dispatches complete");
-
+    //dispatch(toggleMinimized());
     // Add this line to save the song metadata to AsyncStorage
     saveLastPlayedSong(song);
-    dispatch(toggleMinimized());
+     const currentIsMinimized = store.getState().data.isMinimized; // OR pass it as prop/context if this line throws
+     if (currentIsMinimized) {
+       dispatch(toggleMinimized()); // Make sure the component renders full player
+     }
+
+     dispatch(setAnimationTargetY(0));
+
   };
 
   const saveLastPlayedSong = async (song) => {

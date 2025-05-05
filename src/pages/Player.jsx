@@ -21,7 +21,7 @@ import {
   changePos,
   progress,
   setIsPlaying,
-  load,
+  load,setAnimationTargetY,
   toggleMinimized,
 } from "../../Store/MusicSlice";
 import { loadAudio, soundRef } from "../functions/music";
@@ -52,10 +52,10 @@ const Player = () => {
 
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const isMinimized = useSelector((state) => state.data.isMinimized);
   const animatedHeight = useRef(new Animated.Value(windowHeight)).current;
   const animatedWidth = useRef(new Animated.Value(windowWidth)).current;
-  const { data, pos, seek, isplaying } = useSelector((state) => state.data);
+  const { data, pos, seek, isplaying, isMinimized, animationTargetY } =
+    useSelector((state) => state.data);
   // const audioUrl = useSelector((state) => state.data.Url);
   // console.log("Current URL state:", audioUrl);
 
@@ -151,7 +151,6 @@ const Player = () => {
   // }, [isplaying, seek]);
 
   //------------------------------------------------------
-  
 
   const togglePlayPause = async () => {
     if (!soundRef.current) return;
@@ -186,30 +185,26 @@ const Player = () => {
     setIsModalVisible((prev) => !prev);
   };
 
-  const togglePlayerSize = () => {
-    // If currently minimized and about to maximize
-    if (isMinimized) {
-      // First toggle the state so the component renders the full player
-      dispatch(toggleMinimized());
+  // Respond to changes in animationTargetY
+  useEffect(() => {
+    Animated.timing(slideY, {
+      toValue: animationTargetY,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {
+      // Optionally dispatch after animation
+      if (animationTargetY === windowHeight) {
+        dispatch(toggleMinimized()); // Set state to minimized after hiding
+      }
+    });
+  }, [animationTargetY]);
 
-      // Then animate from bottom (hidden) to visible (0)
-      Animated.timing(slideY, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
-    }
-    // If currently maximized and about to minimize
-    else {
-      // Animate to hidden first
-      Animated.timing(slideY, {
-        toValue: windowHeight,
-        duration: 300,
-        useNativeDriver: true,
-      }).start(() => {
-        // Then toggle the state after animation completes
-        dispatch(toggleMinimized());
-      });
+  const togglePlayerSize = () => {
+    if (isMinimized) {
+      dispatch(toggleMinimized()); // First expand the component
+      dispatch(setAnimationTargetY(0)); // Animate to visible
+    } else {
+      dispatch(setAnimationTargetY(windowHeight)); // Animate to bottom
     }
   };
 
@@ -637,14 +632,12 @@ const Player = () => {
             gap: 300,
           }}
         >
-          <TouchableOpacity onPress={() => setSleepTimerVisible(true)}
-            >
+          <TouchableOpacity onPress={() => setSleepTimerVisible(true)}>
             <TimerIcon
               name="timer"
               color={isTimerActive ? "#F5DEB3" : colors.text}
             />
           </TouchableOpacity>
-          
 
           <TouchableOpacity onPress={replaySound}>
             <Ionicons name="refresh" size={24} color={colors.text} />
