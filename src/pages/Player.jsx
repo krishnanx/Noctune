@@ -21,7 +21,7 @@ import {
   changePos,
   progress,
   setIsPlaying,
-  load,setAnimationTargetY,
+  load, setAnimationTargetY,
   toggleMinimized,
 } from "../../Store/MusicSlice";
 import { loadAudio, soundRef } from "../functions/music";
@@ -31,7 +31,9 @@ import TextTicker from "react-native-text-ticker";
 import Marquee from "../Components/Marquee";
 import SleepTimerModal from "../Components/SleepTimerModal";
 import TimerIcon from "../Components/TimerIcon";
-
+import ThreeDots from "../Components/ThreeDots";
+import ChevronForward from "../Components/Icons/ChevronForward";
+import Replay from "../Components/Icons/Replay";
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
 
@@ -331,17 +333,25 @@ const Player = () => {
       color: colors.text,
     },
     controlsContainer: {
-      position: "absolute",
-      top: 600,
+
+      width: "100%",
+      height: 100,
       flexDirection: "row",
       alignItems: "center",
-      justifyContent: "center",
+
+    },
+    controls: {
+      width: "100%",
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-around",
+      paddingHorizontal: 10
     },
     playPauseButton: {
       width: 70,
-      position: "absolute",
+      // position: "absolute",
       height: 70,
-      top: 50,
+      // top: 50,
       borderRadius: 35,
       backgroundColor: colors.text,
       justifyContent: "center",
@@ -351,6 +361,10 @@ const Player = () => {
       shadowOpacity: 0.3,
       shadowRadius: 4.65,
       elevation: 8,
+    },
+    playpause: {
+      flexDirection: "row",
+      alignItems: "center"
     },
     miniPlayPauseButton: {
       width: 36,
@@ -413,12 +427,15 @@ const Player = () => {
       marginHorizontal: 2,
       borderRadius: 1,
     },
-    skipButton: { top: 65, marginHorizontal: 65 },
+    skipButton: { /*top: 65,*/ marginHorizontal: 20 },
     container: {
       position: "absolute",
       top: 490,
       left: 25,
       alignItems: "left",
+      flexDirection: "row",
+      height: 90,
+      alignItems: "center"
     },
     songName: {
       fontSize: 18,
@@ -474,10 +491,10 @@ const Player = () => {
     },
     button: {
       padding: 6,
-      position: "absolute",
-      top: 35,
-      left: 30,
-      zIndex: 10,
+      // position: "absolute",
+      // top: 35,
+      // left: 30,
+      // zIndex: 10,
     }, //added
     sleepTimerButton: {
       flexDirection: "row",
@@ -564,9 +581,8 @@ const Player = () => {
                   style={[
                     styles.miniProgressBarFill,
                     {
-                      width: `${
-                        TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0
-                      }%`,
+                      width: `${TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0
+                        }%`,
                     },
                   ]}
                 />
@@ -594,18 +610,18 @@ const Player = () => {
       }}
     >
       <View style={styles.Main}>
-        <TouchableOpacity style={styles.button} onPress={togglePlayerSize}>
-          <View style={{ transform: [{ rotate: "90deg" }] }}>
-            <Ionicons name="chevron-forward" size={24} color={colors.text} />
-          </View>
-        </TouchableOpacity>
-        <TouchableWithoutFeedback>
-          <View style={{ position: "absolute", top: 30, right: 30 }}>
-            <TouchableWithoutFeedback onPress={toggleModal}>
-              <MaterialIcons name="more-vert" size={28} color={colors.text} />
-            </TouchableWithoutFeedback>
-          </View>
-        </TouchableWithoutFeedback>
+        <View
+          style={{ paddingHorizontal: 20, paddingTop: 20, width: "100%", flexDirection: "row", height: 60, justifyContent: "space-between", alignItems: "center" }}
+        >
+          <TouchableOpacity style={[styles.button, { transform: [{ rotate: "90deg" }], justifyContent: "center", alignItems: "center" }]} onPress={togglePlayerSize}>
+            <ChevronForward width={28} height={28} />
+          </TouchableOpacity>
+          <TouchableWithoutFeedback onPress={toggleModal}>
+            <ThreeDots height={28} width={28} />
+          </TouchableWithoutFeedback>
+        </View>
+
+
 
         <Metadata
           data={
@@ -622,7 +638,7 @@ const Player = () => {
           formatTime={formatTime}
           styles={styles}
         />
-        <View
+        {/* <View
           style={{
             flexDirection: "row",
             justifyContent: "center",
@@ -640,9 +656,9 @@ const Player = () => {
           </TouchableOpacity>
 
           <TouchableOpacity onPress={replaySound}>
-            <Ionicons name="refresh" size={24} color={colors.text} />
+            <Replay height={24} width={24} />
           </TouchableOpacity>
-        </View>
+        </View> */}
 
         <SleepTimerModal
           visible={sleepTimerVisible}
@@ -658,6 +674,12 @@ const Player = () => {
           dispatch={dispatch}
           changePos={changePos}
           handlePress={handlePress}
+          Replay={Replay}
+          TimerIcon={TimerIcon}
+          replaySound={replaySound}
+          setSleepTimerVisible={setSleepTimerVisible}
+          isTimerActive={isTimerActive}
+
         />
 
         <Custom_modal
@@ -688,22 +710,27 @@ const Metadata = ({
     <Image source={{ uri: data?.image }} style={styles.albumArt} />
 
     <View style={styles.container}>
-      <View style={{ width: 300 }}>
-        <Text style={styles.songName}>{data?.title || "Unknown Song"}</Text>
+      <View
+        style={{ height: "100%" }}
+      >
+        <View style={{ width: 300 }}>
+          <Text style={styles.songName}>{data?.title || "Unknown Song"}</Text>
+        </View>
+        <Text style={styles.singerName}>
+          {data?.uploader || "Unknown Artist"}
+        </Text>
       </View>
-      <Text style={styles.singerName}>
-        {data?.uploader || "Unknown Artist"}
-      </Text>
+      <TouchableOpacity onPress={() => setLiked(!liked)}>
+        <Icon
+          name={liked ? "heart" : "heart-o"}
+          size={28}
+          color={liked ? colors.text : "gray"}
+        //style={styles.heartIcon}
+        />
+      </TouchableOpacity>
     </View>
 
-    <TouchableOpacity onPress={() => setLiked(!liked)}>
-      <Icon
-        name={liked ? "heart" : "heart-o"}
-        size={28}
-        color={liked ? colors.text : "gray"}
-        style={styles.heartIcon}
-      />
-    </TouchableOpacity>
+
 
     <View style={styles.progressBarContainer}>
       <View style={styles.progressBarBackground}>
@@ -730,40 +757,66 @@ const Controls = ({
   dispatch,
   changePos,
   handlePress,
+  replaySound,
+  TimerIcon,
+  Replay,
+  setSleepTimerVisible,
+  isTimerActive
 }) => {
   return (
     <View style={styles.controlsContainer}>
-      <TouchableOpacity
-        style={styles.skipButton}
-        onPress={() => {
-          handlePress(-1);
-        }}
+      <View
+        style={styles.controls}
       >
-        <SkipBack width={35} height={35} stroke={colors.text} />
-      </TouchableOpacity>
+        <View>
+          <TouchableOpacity onPress={() => setSleepTimerVisible(true)}>
+            <TimerIcon
+              name="timer"
+              color={isTimerActive ? "#F5DEB3" : colors.text}
+            />
+          </TouchableOpacity>
+        </View>
+        <View
+          style={styles.playpause}
+        >
+          <TouchableOpacity
+            style={styles.skipButton}
+            onPress={() => {
+              handlePress(-1);
+            }}
+          >
+            <SkipBack width={35} height={35} stroke={colors.text} />
+          </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.playPauseButton}
-        onPress={() => togglePlayPause()}
-      >
-        {isPlaying ? (
-          <View style={styles.pauseLinesContainer}>
-            <View style={styles.pauseLine} />
-            <View style={styles.pauseLine} />
-          </View>
-        ) : (
-          <View style={styles.triangle} />
-        )}
-      </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.playPauseButton}
+            onPress={() => togglePlayPause()}
+          >
+            {isPlaying ? (
+              <View style={styles.pauseLinesContainer}>
+                <View style={styles.pauseLine} />
+                <View style={styles.pauseLine} />
+              </View>
+            ) : (
+              <View style={styles.triangle} />
+            )}
+          </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.skipButton}
-        onPress={() => {
-          handlePress(+1);
-        }}
-      >
-        <SkipForward width={35} height={35} stroke={colors.text} />
-      </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.skipButton}
+            onPress={() => {
+              handlePress(+1);
+            }}
+          >
+            <SkipForward width={35} height={35} stroke={colors.text} />
+          </TouchableOpacity>
+        </View>
+        <View>
+          <TouchableOpacity onPress={() => replaySound()}>
+            <Replay height={24} width={24} fill={colors.text} />
+          </TouchableOpacity>
+        </View>
+      </View>
     </View>
   );
 };
