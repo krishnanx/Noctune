@@ -8,7 +8,7 @@ Noctune gives you access to everything you could dream of—without the cost.
 
 Stay tuned to know more!
 
-## Features
+## Features(more features coming soon!)
 -  Free Music Streaming — Listen to your favorite tracks anytime, without paying a penny.
 -  Search — Search for songs, artists, or albums across global libraries. 
 -  Custom Playlists — Create, edit, and share your own playlists.
