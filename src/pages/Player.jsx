@@ -13,9 +13,7 @@ import {
 import { useTheme } from "@react-navigation/native";
 import { SkipBack, SkipForward } from "react-native-feather";
 import Icon from "react-native-vector-icons/FontAwesome";
-import { MaterialIcons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
-import Ionicons from "react-native-vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
 import {
   changePos,
@@ -25,9 +23,9 @@ import {
   toggleMinimized,
 } from "../../Store/MusicSlice";
 import { loadAudio, soundRef } from "../functions/music";
-import { addMusicinPlaylist } from "../../Store/PlaylistSlice";
-import MarqueeText from "react-native-marquee";
-import TextTicker from "react-native-text-ticker";
+// import { addMusicinPlaylist } from "../../Store/PlaylistSlice";
+// import MarqueeText from "react-native-marquee";
+// import TextTicker from "react-native-text-ticker";
 import Marquee from "../Components/Marquee";
 import SleepTimerModal from "../Components/SleepTimerModal";
 import TimerIcon from "../Components/TimerIcon";
@@ -39,73 +37,20 @@ const windowWidth = Dimensions.get("window").width;
 
 const Player = () => {
   const { colors } = useTheme();
-
-  //const [isPlaying, setIsPlaying] = useState(false);
-  const [progressSeconds, setProgressSeconds] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [liked, setLiked] = useState(false);
   const [lastPress, setLastPress] = useState(0);
   const DOUBLE_PRESS_DELAY = 800;
-  // const [audioUrl, setAudioUrl] = useState("");
-
   const slideY = useRef(new Animated.Value(windowHeight)).current; // initially hidden (off-screen)
   const [sleepTimerVisible, setSleepTimerVisible] = useState(false);
   const { isTimerActive } = useSelector((state) => state.sleepTimer);
 
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const animatedHeight = useRef(new Animated.Value(windowHeight)).current;
-  const animatedWidth = useRef(new Animated.Value(windowWidth)).current;
+
   const { data, pos, seek, isplaying, isMinimized, animationTargetY } =
     useSelector((state) => state.data);
-  // const audioUrl = useSelector((state) => state.data.Url);
-  // console.log("Current URL state:", audioUrl);
 
-  // useEffect(() => {
-  //   if (data) {
-  //     setAudioUrl(data.url); // Assuming the data object contains a field `url` with the audio URL
-  //   }
-  // }, [data]);
-
-  // const streamUrl =
-  //   typeof Constants.expoConfig.extra.SERVER !== "undefined"
-  //     ? `${
-  //         Constants.expoConfig.extra.SERVER
-  //       }/api/stream?url=${encodeURIComponent(audioUrl)}`
-  //     : audioUrl; // fallback to direct URL if SERVER is undefined
-
-  // useEffect(() => {
-  //   if (data[pos]) {
-  //     console.log("data:", data[pos]);
-  //     loadAudio();
-  //   }
-
-  //   return () => {
-  //     console.log("Cleanup");
-  //     unloadAudio()
-  //   };
-  // }, [pos]);
-
-  //-------------------------------
-  //added
-  // useEffect(() => {
-  //   // Set up music control when component mounts
-  //   try {
-  //     setupMusicControl();
-  //   } catch (error) {
-  //     console.error("Error setting up music control:", error);
-  //   }
-
-  //   return () => {
-  //     try {
-  //       // Clean up on unmount
-  //       MusicControl.stopControl();
-  //     } catch (error) {
-  //       console.error("Error stopping music control:", error);
-  //     }
-  //   };
-  // }, []);
-  //----------------------------------------
   useEffect(() => {
     const autoPlayIfUserSearched = async () => {
       if (!soundRef.current) return;
@@ -638,27 +583,6 @@ const Player = () => {
           formatTime={formatTime}
           styles={styles}
         />
-        {/* <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "center",
-            alignItems: "center",
-            bottom: 50,
-            width: "100%",
-            gap: 300,
-          }}
-        >
-          <TouchableOpacity onPress={() => setSleepTimerVisible(true)}>
-            <TimerIcon
-              name="timer"
-              color={isTimerActive ? "#F5DEB3" : colors.text}
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={replaySound}>
-            <Replay height={24} width={24} />
-          </TouchableOpacity>
-        </View> */}
 
         <SleepTimerModal
           visible={sleepTimerVisible}
@@ -866,7 +790,6 @@ const Custom_modal = ({
             onPress={() => {
               toggleModal();
               navigation.navigate("Playchoose", { index: pos });
-              // dispatch(addMusicinPlaylist({ id: 0, music: data[pos] }));
             }}
           >
             <Text style={styles.option}>Add to playlist</Text>
