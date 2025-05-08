@@ -15,7 +15,7 @@ export const loadAudio = async (
   getSeek,
   isLoadedFromAsyncStorage
 ) => {
-  console.log(data[pos].url);
+  console.warn(data[pos].url);
 
   try {
     if (!data[pos]) {
@@ -24,15 +24,15 @@ export const loadAudio = async (
     //192.168.1.43
     //Constants.expoConfig.extra.SERVER
     const audioUri = `${Constants.expoConfig.extra.SERVER}/api/stream?url=${encodeURIComponent(data[pos].url)}`;
-    console.log("Audio URI:", audioUri); // Check if the URL is correct
+    console.warn("Audio URI:", audioUri); // Check if the URL is correct
 
     if (soundRef.current) {
       await soundRef.current.unloadAsync();
       soundRef.current = null;
     }
-    console.log("i am here before dispatch");
+    console.warn("i am here before dispatch");
     dispatch(progress(0));
-    console.log("i am here after dispatch");
+    console.warn("i am here after dispatch");
     try {
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: false,
@@ -51,22 +51,22 @@ export const loadAudio = async (
       { shouldPlay: false, progressUpdateIntervalMillis: 1060 },
       onPlaybackStatusUpdate
     );
-    
+
 
 
     soundRef.current = sound;
     sound.setOnPlaybackStatusUpdate((status) => {
-      onPlaybackStatusUpdate(status, dispatch, getSeek);
+      onPlaybackStatusUpdate(status, dispatch, getSeek, data, pos);
     });
 
-    console.log("Audio Loaded", soundRef.current);
+    console.warn("Audio Loaded", soundRef.current);
     if (!isLoadedFromAsyncStorage) {
-      await soundRef.current.playAsync(); // ✅ Automatically starts playing
+      await soundRef.current.playAsync();
       dispatch(setIsPlaying(true));
     }
   } catch (error) {
     console.error("Error loading audio:", error);
-    // console.error("Stack trace:", error.stack);  // Log stack trace for more details
+
   }
 };
 
@@ -76,10 +76,10 @@ export const unloadAudio = async () => {
     soundRef.current = null;
   }
 };
-const onPlaybackStatusUpdate = (status, dispatch, getSeek) => {     
+const onPlaybackStatusUpdate = (status, dispatch, getSeek, data, pos) => {
   if (status.isLoaded) {
-    console.log("hi?");
-    console.log("positionMillis:", status.positionMillis / 1000);
+    console.warn("hi?");
+    console.warn("positionMillis:", status.positionMillis / 1000);
     if (status.isPlaying) {
       dispatch(progress(+1));
     }
@@ -87,13 +87,13 @@ const onPlaybackStatusUpdate = (status, dispatch, getSeek) => {
     if (status.didJustFinish) {
       const currentSeek = getSeek?.();
       if (currentSeek != data[pos]?.duration && currentSeek != 0) {
-        console.log("finishing up!!");
-        tailFill(data[pos]?.duration);        
-        
+        console.warn("finishing up!!");
+        tailFill(data[pos]?.duration, dispatch);
+
       }
     }
   } else if (status.error) {
-    console.log(`Playback error: ${status.error}`);
+    console.warn(`Playback error: ${status.error}`);
   }
 };
 const tailFill = async (currentSec, dispatch) => {
