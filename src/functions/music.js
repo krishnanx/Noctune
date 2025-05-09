@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import Constants from "expo-constants";
 import { progress } from "../../Store/MusicSlice.js";
 import { useDispatch } from "react-redux";
-import { setIsPlaying } from "../../Store/MusicSlice.js";
+import { setIsPlaying, load, changePos } from "../../Store/MusicSlice.js";
 export const soundRef = {
   current: null,
 };
@@ -104,7 +104,10 @@ const tailFill = async (currentSec, dispatch) => {
   // }
   // once done:
   dispatch(progress(currentSec));
-  dispatch(setIsPlaying(false));
+  //dispatch(setIsPlaying(false));
+  dispatch(changePos(1));
+  dispatch(load(false));
+  dispatch(load(true));
   unloadAudio();
   return; // if you want to free the sound
 };

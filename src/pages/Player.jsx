@@ -160,7 +160,7 @@ const Player = () => {
     if (timeNow - lastPress < DOUBLE_PRESS_DELAY) {
       // Double press detected
       console.warn("Double press detected!");
-      dispatch(setIsPlaying(false));
+      //dispatch(setIsPlaying(false));
       dispatch(changePos(value));
       dispatch(load(false));
       dispatch(load(true));
