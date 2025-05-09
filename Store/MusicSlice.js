@@ -47,6 +47,15 @@ const MusicSlice = createSlice({
       state.data = newArray;
       state.pos = insertPos;
     },
+    changeDATA(state, action) {
+      state.data = action.payload;
+      state.pos = 0;
+      state.seek = 0;
+      state.isplaying = true;
+      state.canLoad = true;
+      state.isLoadedFromAsyncStorage = false;
+    },
+
     changePos(state, action) {
       console.log(state.pos);
       console.log(state.data.length - 1);
@@ -127,6 +136,7 @@ export const {
   toggleMinimized,
   setAnimationTargetY,
   setIsLoadedFromAsyncStorage,
+  changeDATA
 } = MusicSlice.actions;
 export default MusicSlice.reducer;
 

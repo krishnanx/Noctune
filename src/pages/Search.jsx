@@ -178,12 +178,12 @@ const Search = () => {
     //dispatch(toggleMinimized());
     // Add this line to save the song metadata to AsyncStorage
     saveLastPlayedSong(song);
-     const currentIsMinimized = store.getState().data.isMinimized; // OR pass it as prop/context if this line throws
-     if (currentIsMinimized) {
-       dispatch(toggleMinimized()); // Make sure the component renders full player
-     }
+    const currentIsMinimized = store.getState().data.isMinimized; // OR pass it as prop/context if this line throws
+    if (currentIsMinimized) {
+      dispatch(toggleMinimized()); // Make sure the component renders full player
+    }
 
-     dispatch(setAnimationTargetY(0));
+    dispatch(setAnimationTargetY(0));
 
   };
 

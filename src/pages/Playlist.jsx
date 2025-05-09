@@ -4,13 +4,19 @@ import BackArrow from '../Components/BackArrow';
 import Download from '../Components/Download';
 import AddFriend from '../Components/addFriend';
 import ThreeDots from '../Components/ThreeDots';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import icon from "../../assets/favicon.png"
+import { soundRef } from '../functions/music';
+import { progress, setIsPlaying } from '../../Store/MusicSlice';
+import { changePlaylist, setPlaylistplaying } from '../../Store/PlaylistSlice';
 const Playlist = () => {
-  const { data } = useSelector((state) => state.playlist)
+  const { data, id, playlistNo } = useSelector((state) => state.playlist)
   const { index } = useRoute().params;
-  const navigation = useNavigation();
+  const { data: value, pos, seek, isplaying, isMinimized, animationTargetY } =
+    useSelector((state) => state.data);
+  const navigation = useNavigation()
+  const dispatch = useDispatch();
   const styles = StyleSheet.create({
     Main: {
       flex: 1,
@@ -188,7 +194,25 @@ const Playlist = () => {
   const Pname = data[index].name
   const Uname = "Krishnan E"
 
-
+  const togglePlayPause = async () => {
+    if (!soundRef.current) return;
+    console.warn("reached playlist toggle")
+    console.warn(playlistNo, index)
+    if (playlistNo != index) {
+      dispatch(changePlaylist(index))
+    }
+    // if (isplaying) {
+    //   await soundRef.current.pauseAsync();
+    //   dispatch(progress(-1));
+    //   //updatePlaybackState(false, seek); //added
+    // } else {
+    //   await soundRef.current.playAsync(); // resumes from last position
+    //   dispatch(progress(-1));
+    //   //updatePlaybackState(true, seek); //added
+    // }
+    dispatch(setPlaylistplaying({ action: "toggle", id: index }))
+    dispatch(setIsPlaying("toggle"));
+  };
   return (
     <ScrollView
       style={styles.Main}
@@ -196,7 +220,7 @@ const Playlist = () => {
 
     >
 
-      <Information styles={styles} Pname={Pname} Uname={Uname} data={data[index]} navigation={navigation} />
+      <Information styles={styles} Pname={Pname} Uname={Uname} data={data[index]} navigation={navigation} togglePlayPause={togglePlayPause} />
       <Flatlist data={data[index].songs || []} styles={styles} />
 
 
@@ -205,7 +229,7 @@ const Playlist = () => {
 }
 
 export default Playlist
-const Information = ({ styles, Pname, Uname, data, navigation }) => {
+const Information = ({ styles, Pname, Uname, data, navigation, togglePlayPause }) => {
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -290,10 +314,10 @@ const Information = ({ styles, Pname, Uname, data, navigation }) => {
               style={styles.topFuncRight}
             >
               <TouchableOpacity
-                //onPress={togglePlayPause}
+                onPress={() => togglePlayPause()}
                 style={styles.miniPlayPauseButton}
               >
-                {false ? (
+                {data.isPlaying ? (
                   <View style={styles.pauseLinesContainer}>
                     <View style={styles.miniPauseLine} />
                     <View style={styles.miniPauseLine} />
