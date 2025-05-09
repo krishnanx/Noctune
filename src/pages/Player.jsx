@@ -159,7 +159,7 @@ const Player = () => {
     const timeNow = Date.now();
     if (timeNow - lastPress < DOUBLE_PRESS_DELAY) {
       // Double press detected
-      console.log("Double press detected!");
+      console.warn("Double press detected!");
       dispatch(setIsPlaying(false));
       dispatch(changePos(value));
       dispatch(load(false));
@@ -167,8 +167,8 @@ const Player = () => {
       // Action for double press
     } else {
       // Regular single press action
-      console.log("Single press detected");
-      console.log("hi");
+      console.warn("Single press detected");
+      console.warn("hi");
       dispatch(progress(0));
       await soundRef.current.playFromPositionAsync(0);
       // Action for single press
@@ -561,9 +561,9 @@ const Player = () => {
           <TouchableOpacity style={[styles.button, { transform: [{ rotate: "90deg" }], justifyContent: "center", alignItems: "center" }]} onPress={togglePlayerSize}>
             <ChevronForward width={28} height={28} />
           </TouchableOpacity>
-          <TouchableWithoutFeedback onPress={toggleModal}>
+          <TouchableOpacity onPress={() => toggleModal()}>
             <ThreeDots height={28} width={28} />
-          </TouchableWithoutFeedback>
+          </TouchableOpacity>
         </View>
 
 
