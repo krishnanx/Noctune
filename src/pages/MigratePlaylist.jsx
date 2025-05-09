@@ -44,8 +44,8 @@ const MigratePlaylist = () => {
                     >
                         <View style={styles.header}>
                             <Text style={styles.smallHeader}>SPOTIFY PLAYLIST</Text>
-                            <Text style={styles.mainHeader}>Migrate Migrate Playlists</Text>
-                            <Text style={styles.mainHeader}>Spotify UI to the NocTune App</Text>
+                            <Text style={styles.mainHeader}>Migrate Playlists</Text>
+                            <Text style={styles.mainHeader}>Spotify to the Noctune App</Text>
                         </View>
 
                         <View style={styles.infoBox}>
