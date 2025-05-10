@@ -278,19 +278,17 @@ const Player = () => {
       color: colors.text,
     },
     controlsContainer: {
-
       width: "100%",
       height: 100,
       flexDirection: "row",
       alignItems: "center",
-
     },
     controls: {
       width: "100%",
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-around",
-      paddingHorizontal: 10
+      paddingHorizontal: 10,
     },
     playPauseButton: {
       width: 70,
@@ -309,7 +307,7 @@ const Player = () => {
     },
     playpause: {
       flexDirection: "row",
-      alignItems: "center"
+      alignItems: "center",
     },
     miniPlayPauseButton: {
       width: 36,
@@ -380,7 +378,7 @@ const Player = () => {
       alignItems: "left",
       flexDirection: "row",
       height: 90,
-      alignItems: "center"
+      alignItems: "center",
     },
     songName: {
       fontSize: 18,
@@ -454,6 +452,11 @@ const Player = () => {
     activeTimerText: {
       color: "#4f8ef7",
       fontWeight: "500",
+    },
+    progressBarTouchArea: {
+      height: 20, // Increased height for better touch target
+      justifyContent: "center",
+      width: "100%",
     },
   });
 
@@ -577,11 +580,12 @@ const Player = () => {
           colors={colors}
           liked={liked}
           setLiked={setLiked}
-          progressPercent={TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0}
+         
           seek={seek}
           TOTAL_DURATION={TOTAL_DURATION}
           formatTime={formatTime}
           styles={styles}
+          dispatch={dispatch}
         />
 
         <SleepTimerModal
@@ -619,59 +623,150 @@ const Player = () => {
 
 export default Player;
 
+
+
 const Metadata = ({
   data,
   colors,
   liked,
   setLiked,
-  progressPercent,
   seek,
   TOTAL_DURATION,
   formatTime,
   styles,
-}) => (
-  <>
-    <Image source={{ uri: data?.image }} style={styles.albumArt} />
+  dispatch
+}) => {
+  // Add state for tracking drag operation
+  const [isDragging, setIsDragging] = useState(false);
+  const [userSeek, setUserSeek] = useState(seek);
+  // This needs to be properly declared
+  const [userSetPosition, setUserSetPosition] = useState(false);
 
-    <View style={styles.container}>
-      <View
-        style={{ height: "100%" }}
-      >
-        <View style={{ width: 300 }}>
-          <Text style={styles.songName}>{data?.title || "Unknown Song"}</Text>
+  // Reference to the progress bar for measuring
+  const progressBarRef = useRef(null);
+
+  // Update userSeek when seek changes, but only if:
+  // 1. We're not currently dragging, AND
+  // 2. Either userSetPosition is false OR the difference between seek and userSeek is significant
+  //    (which means the song has moved well beyond the user's set position)
+  useEffect(() => {
+    if (!isDragging && (!userSetPosition || Math.abs(seek - userSeek) > 5)) {
+      setUserSeek(seek);
+    }
+  }, [seek, isDragging, userSetPosition]);
+
+  // Function to handle the touch/drag on progress bar
+  const handleProgressTouch = (event) => {
+    if (!progressBarRef.current || !TOTAL_DURATION) return;
+
+    progressBarRef.current.measure((x, y, width, height, pageX, pageY) => {
+      // Calculate the touch position relative to the progress bar
+      const touchX = event.nativeEvent.pageX - pageX;
+      const percentage = Math.max(0, Math.min(1, touchX / width));
+      const newSeekValue = Math.round(percentage * TOTAL_DURATION);
+
+      // Update the visual drag position
+      setUserSeek(newSeekValue);
+      dispatch(progress(userSeek)); // Dispatch the exact seek value to Redux
+      console.log("Dispatched seek to:", userSeek);
+
+    });
+  };
+
+  // Calculate current progress percentage based on userSeek
+  const currentProgressPercent = (userSeek / TOTAL_DURATION) * 100;
+
+  // Calculate the knob position
+  const knobPosition = `${currentProgressPercent}%`;
+
+  return (
+    <>
+      <Image source={{ uri: data?.image }} style={styles.albumArt} />
+
+      <View style={styles.container}>
+        <View style={{ height: "100%" }}>
+          <View style={{ width: 300 }}>
+            <Text style={styles.songName}>{data?.title || "Unknown Song"}</Text>
+          </View>
+          <Text style={styles.singerName}>
+            {data?.uploader || "Unknown Artist"}
+          </Text>
         </View>
-        <Text style={styles.singerName}>
-          {data?.uploader || "Unknown Artist"}
-        </Text>
+        <TouchableOpacity onPress={() => setLiked(!liked)}>
+          <Icon
+            name={liked ? "heart" : "heart-o"}
+            size={28}
+            color={liked ? colors.text : "gray"}
+          />
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity onPress={() => setLiked(!liked)}>
-        <Icon
-          name={liked ? "heart" : "heart-o"}
-          size={28}
-          color={liked ? colors.text : "gray"}
-        //style={styles.heartIcon}
-        />
-      </TouchableOpacity>
-    </View>
 
-
-
-    <View style={styles.progressBarContainer}>
-      <View style={styles.progressBarBackground}>
+      <View style={styles.progressBarContainer}>
+        {/* Touchable area - made larger for easier interaction */}
         <View
-          style={[
-            styles.progressBarFill,
-            { width: `${progressPercent}%`, backgroundColor: "green" },
-          ]}
-        />
+          ref={progressBarRef}
+          style={[styles.progressBarTouchArea, { position: "relative" }]}
+          onStartShouldSetResponder={() => true}
+          onResponderGrant={(event) => {
+            setIsDragging(true);
+            handleProgressTouch(event);
+          }}
+          onResponderMove={handleProgressTouch}
+          onResponderRelease={(event) => {
+            handleProgressTouch(event);
+            setIsDragging(false);
+            setUserSetPosition(true); // Mark that user has manually set a position
+            // Here you would update the actual playback position
+            // if (soundRef.current) {
+            //   soundRef.current.setPositionAsync(userSeek * 1000);
+            // }
+            console.error("Released at second:", userSeek);
+          }}
+        >
+          {/* Actual progress bar background */}
+          <View style={styles.progressBarBackground}>
+            {/* Filled portion of progress bar */}
+            <View
+              style={[
+                styles.progressBarFill,
+                {
+                  width: `${currentProgressPercent}%`,
+                  backgroundColor: "green",
+                },
+              ]}
+            />
+
+            {/* Draggable knob */}
+            <View
+              style={{
+                position: "absolute",
+                left: knobPosition,
+                top: "50%",
+                width: 10,
+                height: 20,
+                borderRadius: 8,
+                backgroundColor: "white",
+                borderWidth: 2,
+                transform: [{ translateX: -8 }, { translateY: -8 }],
+                elevation: 3,
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.3,
+                shadowRadius: 2,
+                zIndex: 560,
+              }}
+            />
+          </View>
+        </View>
+
+        <View style={styles.timeContainer}>
+          <Text style={styles.timeText}>{formatTime(userSeek)}</Text>
+          <Text style={styles.timeText}>{formatTime(TOTAL_DURATION)}</Text>
+        </View>
       </View>
-      <View style={styles.timeContainer}>
-        <Text style={styles.timeText}>{formatTime(seek)}</Text>
-        <Text style={styles.timeText}>{formatTime(TOTAL_DURATION)}</Text>
-      </View>
-    </View>
-  </>
-);
+    </>
+  );
+};
 
 const Controls = ({
   togglePlayPause,
