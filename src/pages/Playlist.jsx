@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, Image, Text, TouchableOpacity, ScrollView, FlatList } from "react-native";
 import BackArrow from '../Components/BackArrow';
 import Download from '../Components/Download';
+import AnimatedDownloadIcon from "../Components/Icons/AnimatedDownloadIcon"
 import AddFriend from '../Components/addFriend';
 import ThreeDots from '../Components/ThreeDots';
 import { useDispatch, useSelector } from 'react-redux';
@@ -10,11 +11,15 @@ import icon from "../../assets/favicon.png"
 import { soundRef } from '../functions/music';
 import { progress, setIsPlaying } from '../../Store/MusicSlice';
 import { changePlaylist, setPlaylistplaying } from '../../Store/PlaylistSlice';
+import { download } from '../../Store/DownloadSlice';
+import DownloadButton from '../Components/DownloadButton';
 const Playlist = () => {
   const { data, id, playlistNo } = useSelector((state) => state.playlist)
+  const { user, session, loading, error, clientID } = useSelector((state) => state.user)
   const { index } = useRoute().params;
   const { data: value, pos, seek, isplaying, isMinimized, animationTargetY } =
     useSelector((state) => state.data);
+
   const navigation = useNavigation()
   const dispatch = useDispatch();
   const styles = StyleSheet.create({
@@ -33,7 +38,10 @@ const Playlist = () => {
     },
     top: {
       width: "100%",
-      marginBottom: 20
+      marginBottom: 20,
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center"
     },
     // search:{
     //     width:"100%",
@@ -212,7 +220,13 @@ const Playlist = () => {
     // }
     dispatch(setPlaylistplaying({ action: "toggle", id: index }))
     dispatch(setIsPlaying("toggle"));
+
   };
+  const handleDownload = () => {
+    console.warn("reached download function")
+    console.warn(data[index]?.songs, clientID);
+    dispatch(download({ data: data[index]?.songs, ClientId: clientID }))
+  }
   return (
     <ScrollView
       style={styles.Main}
@@ -220,7 +234,16 @@ const Playlist = () => {
 
     >
 
-      <Information styles={styles} Pname={Pname} Uname={Uname} data={data[index]} navigation={navigation} togglePlayPause={togglePlayPause} />
+      <Information
+        styles={styles}
+        Pname={Pname}
+        Uname={Uname}
+        data={data[index]}
+        navigation={navigation}
+        togglePlayPause={togglePlayPause}
+        handleDownload={handleDownload}
+        DownloadButton={DownloadButton}
+      />
       <Flatlist data={data[index].songs || []} styles={styles} />
 
 
@@ -229,7 +252,7 @@ const Playlist = () => {
 }
 
 export default Playlist
-const Information = ({ styles, Pname, Uname, data, navigation, togglePlayPause }) => {
+const Information = ({ styles, Pname, Uname, data, navigation, togglePlayPause, handleDownload, DownloadButton }) => {
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -237,12 +260,19 @@ const Information = ({ styles, Pname, Uname, data, navigation, togglePlayPause }
   };
   return (
     <View style={{ width: "100%" }} >
-      <TouchableOpacity
-        onPress={() => navigation.goBack()}
+      <View
         style={styles.top}
       >
-        <BackArrow />
-      </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+
+        >
+          <BackArrow />
+        </TouchableOpacity>
+
+        <DownloadButton />
+
+      </View>
       {/* <View
             style={styles.search}
         >
@@ -293,7 +323,7 @@ const Information = ({ styles, Pname, Uname, data, navigation, togglePlayPause }
             >
               <TouchableOpacity
                 style={[styles.funcbutton, { marginRight: 15 }]}
-
+                onPress={() => handleDownload()}
               >
                 <View >
                   <Download />

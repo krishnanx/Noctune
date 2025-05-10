@@ -8,6 +8,7 @@ const userSlice = createSlice({
     session: null,
     loading: false,
     error: null,
+    clientID: null
   },
   reducers: {
     setUser: (state, action) => {
@@ -27,6 +28,9 @@ const userSlice = createSlice({
     setError: (state, action) => {
       state.error = action.payload;
     },
+    setClientID(state, action) {
+      state.clientID = action.payload.id
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -52,5 +56,5 @@ const userSlice = createSlice({
   },
 });
 
-export const { setUser, setSession, clearUser, setLoading, setError } = userSlice.actions;
+export const { setUser, setSession, clearUser, setLoading, setError, setClientID } = userSlice.actions;
 export default userSlice.reducer;

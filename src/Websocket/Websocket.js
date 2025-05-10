@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 import Constants from "expo-constants";
 import * as Device from "expo-device";
 import { LogBox } from 'react-native';
+import { setClientID } from "../../Store/UserSlice";
 const Websocket = () => {
     const [deviceName, setDeviceName] = useState(null);
     const dispatch = useDispatch();
@@ -40,12 +41,12 @@ const Websocket = () => {
         const connectWebSocket = () => {
             console.error(`[${id}] Connecting WebSocket...`);
             //Constants.expoConfig.extra.WEBSOC
-            //ws://192.168.1.48:80
+            //ws://192.168.1.44:80
             const ws = new WebSocket(`${Constants.expoConfig.extra.WEBSOC}/download-progress`);
 
             ws.onopen = () => {
                 console.error("Connected to WebSocket server");
-
+                dispatch(setClientID({ id: id }))
                 ws.send(JSON.stringify({
                     type: "register",
                     clientId: id,
