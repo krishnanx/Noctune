@@ -4,6 +4,7 @@ import { Download } from 'react-native-feather';
 import ThreeDots from "../Components/ThreeDots"
 import SearchIcon from '../Components/Search';
 import AddIcon from '../Components/AddIcon';
+import Migrate from '../Components/Icons/Migrate';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTheme } from "@react-navigation/native";
 import MusicNote from "../Components/MusicNote"
@@ -69,13 +70,14 @@ const Library = () => {
             //backgroundColor: "rgba(98, 92, 92, 0.5)", // backdrop blur
         },
         modalContent: {
-            height: "20%",
-            backgroundColor: colors.text,
+
+            height: "30%",
             borderTopLeftRadius: 20,
             borderTopRightRadius: 20,
-            padding: 25,
+            paddingBottom: 90,
             backgroundColor: "rgba(0,0,0,1)",
-            gap: 15,
+            gap: 5,
+            paddingHorizontal: 25
         },
         option: {
             fontSize: 18,
@@ -238,6 +240,7 @@ const Library = () => {
                     styles={styles}
                     toggleModal={toggleModal}
                     handlePress={handlePress}
+                    navigation={navigation}
                 />
                 <Playlistadd
                     isPlaylistaddVisible={isPlaylistaddVisible}
@@ -262,7 +265,7 @@ const Library = () => {
 }
 
 export default Library
-const Custom_modal = ({ isModalVisible, styles, toggleModal, handlePress }) => {
+const Custom_modal = ({ isModalVisible, styles, toggleModal, handlePress, navigation }) => {
     const { data, pos } = useSelector((state) => state.data);
 
     return (
@@ -292,7 +295,7 @@ const Custom_modal = ({ isModalVisible, styles, toggleModal, handlePress }) => {
                             style={styles.modal1R}
                         >
                             <View
-                                style={{ width: "100%", height: "70%", alignItems: "center", flexDirection: "row" }}
+                                style={{ width: "100%", height: "50%", alignItems: "center", flexDirection: "row" }}
                             >
                                 <Text
                                     style={{ fontSize: 20, color: "white" }}
@@ -325,7 +328,7 @@ const Custom_modal = ({ isModalVisible, styles, toggleModal, handlePress }) => {
                             style={styles.modal1R}
                         >
                             <View
-                                style={{ width: "100%", height: "70%", alignItems: "center", flexDirection: "row" }}
+                                style={{ width: "100%", height: "50%", alignItems: "center", flexDirection: "row" }}
                             >
                                 <Text
                                     style={{ fontSize: 20, color: "white" }}
@@ -344,7 +347,42 @@ const Custom_modal = ({ isModalVisible, styles, toggleModal, handlePress }) => {
                             </View>
                         </View>
                     </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.modal1}
+                        onPress={() => {
+                            toggleModal();
+                            navigation.push("Migrate")
+                        }}
+                    >
+                        <View
+                            style={styles.modal1L}
+                        >
+                            <Migrate width={40} height={40} />
 
+                        </View>
+                        <View
+                            style={styles.modal1R}
+                        >
+                            <View
+                                style={{ width: "100%", height: "50%", alignItems: "center", flexDirection: "row" }}
+                            >
+                                <Text
+                                    style={{ fontSize: 20, color: "white" }}
+                                >
+                                    Noctune Sync
+                                </Text>
+                            </View>
+                            <View
+                                style={{ width: "100%", height: "30%", }}
+                            >
+                                <Text
+                                    style={{ fontSize: 10, color: "white" }}
+                                >
+                                    Transfer your Spotify playlists to Noctune in just a few taps
+                                </Text>
+                            </View>
+                        </View>
+                    </TouchableOpacity>
 
 
                 </View>
