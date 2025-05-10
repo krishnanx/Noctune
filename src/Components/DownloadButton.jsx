@@ -2,11 +2,12 @@ import React, { useEffect, useRef } from 'react';
 import { Animated, TouchableOpacity, View, Easing } from 'react-native';
 import { useSelector } from 'react-redux';  // to access the status from Redux
 import AnimatedDownloadIcon from "../Components/Icons/AnimatedDownloadIcon"; // Your animated download icon component
+import { useNavigation } from '@react-navigation/native';
 
 const DownloadButton = () => {
     // Accessing the download status from Redux store
     const status = useSelector((state) => state.download.status)
-
+    const navigation = useNavigation()
     // Animation ref to slide the button in and out
     const translateX = useRef(new Animated.Value(300)).current;  // Start off-screen (slide from right)
 
@@ -45,6 +46,7 @@ const DownloadButton = () => {
                     alignItems: 'center',
                 }}
                 disabled={status !== 'downloading'}  // Only enable if downloading
+                onPress={() => navigation.push("Download")}
             >
                 <AnimatedDownloadIcon fill="white" width={24} height={24} />
             </TouchableOpacity>

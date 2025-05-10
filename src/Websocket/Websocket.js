@@ -4,6 +4,7 @@ import Constants from "expo-constants";
 import * as Device from "expo-device";
 import { LogBox } from 'react-native';
 import { setClientID } from "../../Store/UserSlice";
+import { changeProgress, setCompleted } from "../../Store/DownloadSlice";
 const Websocket = () => {
     const [deviceName, setDeviceName] = useState(null);
     const dispatch = useDispatch();
@@ -42,7 +43,7 @@ const Websocket = () => {
             console.error(`[${id}] Connecting WebSocket...`);
             //Constants.expoConfig.extra.WEBSOC
             //ws://192.168.1.44:80
-            const ws = new WebSocket(`${Constants.expoConfig.extra.WEBSOC}/download-progress`);
+            const ws = new WebSocket(`ws://192.168.1.44:80/download-progress`);
 
             ws.onopen = () => {
                 console.error("Connected to WebSocket server");
@@ -67,7 +68,13 @@ const Websocket = () => {
             ws.onmessage = (event) => {
                 try {
                     const parsed = JSON.parse(event.data);
-                    console.error(parsed)
+                    if (parsed.type == "progress") {
+
+                        dispatch(changeProgress({ progress: parsed.value.percent, index: parsed.value.index }))
+                    }
+                    if (parsed.type == "file") {
+                        dispatch(setCompleted(1))
+                    }
                     // dispatch(addData(parsed));
                 } catch (e) {
                     console.error("Non-JSON message received:", event.data);

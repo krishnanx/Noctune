@@ -11,7 +11,7 @@ import icon from "../../assets/favicon.png"
 import { soundRef } from '../functions/music';
 import { progress, setIsPlaying } from '../../Store/MusicSlice';
 import { changePlaylist, setPlaylistplaying } from '../../Store/PlaylistSlice';
-import { download } from '../../Store/DownloadSlice';
+import { addSong, download } from '../../Store/DownloadSlice';
 import DownloadButton from '../Components/DownloadButton';
 const Playlist = () => {
   const { data, id, playlistNo } = useSelector((state) => state.playlist)
@@ -225,6 +225,7 @@ const Playlist = () => {
   const handleDownload = () => {
     console.warn("reached download function")
     console.warn(data[index]?.songs, clientID);
+    dispatch(addSong({ data: data[index]?.songs }))
     dispatch(download({ data: data[index]?.songs, ClientId: clientID }))
   }
   return (
