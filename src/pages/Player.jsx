@@ -19,7 +19,8 @@ import {
   changePos,
   progress,
   setIsPlaying,
-  load, setAnimationTargetY,
+  load,
+  setAnimationTargetY,
   toggleMinimized,
 } from "../../Store/MusicSlice";
 import { loadAudio, soundRef } from "../functions/music";
@@ -248,7 +249,7 @@ const Player = () => {
       width: "100%",
       height: 3,
       backgroundColor: colors.text,
-      borderRadius: 1.5,
+      borderRadius: 2.5,
       overflow: "hidden",
     },
     progressBarFill: {
@@ -454,8 +455,8 @@ const Player = () => {
       fontWeight: "500",
     },
     progressBarTouchArea: {
-      height: 20, // Increased height for better touch target
-      justifyContent: "center",
+      height: 30, // Increased height for better touch target
+      justifyContent: "flex-end",
       width: "100%",
     },
   });
@@ -529,8 +530,9 @@ const Player = () => {
                   style={[
                     styles.miniProgressBarFill,
                     {
-                      width: `${TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0
-                        }%`,
+                      width: `${
+                        TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0
+                      }%`,
                     },
                   ]}
                 />
@@ -559,17 +561,33 @@ const Player = () => {
     >
       <View style={styles.Main}>
         <View
-          style={{ paddingHorizontal: 20, paddingTop: 20, width: "100%", flexDirection: "row", height: 60, justifyContent: "space-between", alignItems: "center" }}
+          style={{
+            paddingHorizontal: 20,
+            paddingTop: 20,
+            width: "100%",
+            flexDirection: "row",
+            height: 60,
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
         >
-          <TouchableOpacity style={[styles.button, { transform: [{ rotate: "90deg" }], justifyContent: "center", alignItems: "center" }]} onPress={togglePlayerSize}>
+          <TouchableOpacity
+            style={[
+              styles.button,
+              {
+                transform: [{ rotate: "90deg" }],
+                justifyContent: "center",
+                alignItems: "center",
+              },
+            ]}
+            onPress={togglePlayerSize}
+          >
             <ChevronForward width={28} height={28} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => toggleModal()}>
             <ThreeDots height={28} width={28} />
           </TouchableOpacity>
         </View>
-
-
 
         <Metadata
           data={
@@ -580,7 +598,6 @@ const Player = () => {
           colors={colors}
           liked={liked}
           setLiked={setLiked}
-         
           seek={seek}
           TOTAL_DURATION={TOTAL_DURATION}
           formatTime={formatTime}
@@ -607,7 +624,6 @@ const Player = () => {
           replaySound={replaySound}
           setSleepTimerVisible={setSleepTimerVisible}
           isTimerActive={isTimerActive}
-
         />
 
         <Custom_modal
@@ -623,8 +639,6 @@ const Player = () => {
 
 export default Player;
 
-
-
 const Metadata = ({
   data,
   colors,
@@ -634,28 +648,22 @@ const Metadata = ({
   TOTAL_DURATION,
   formatTime,
   styles,
-  dispatch
+  dispatch,
 }) => {
   // Add state for tracking drag operation
   const [isDragging, setIsDragging] = useState(false);
   const [userSeek, setUserSeek] = useState(seek);
-  // This needs to be properly declared
   const [userSetPosition, setUserSetPosition] = useState(false);
 
   // Reference to the progress bar for measuring
   const progressBarRef = useRef(null);
 
-  // Update userSeek when seek changes, but only if:
-  // 1. We're not currently dragging, AND
-  // 2. Either userSetPosition is false OR the difference between seek and userSeek is significant
-  //    (which means the song has moved well beyond the user's set position)
   useEffect(() => {
     if (!isDragging && (!userSetPosition || Math.abs(seek - userSeek) > 5)) {
       setUserSeek(seek);
     }
   }, [seek, isDragging, userSetPosition]);
 
-  // Function to handle the touch/drag on progress bar
   const handleProgressTouch = (event) => {
     if (!progressBarRef.current || !TOTAL_DURATION) return;
 
@@ -665,18 +673,13 @@ const Metadata = ({
       const percentage = Math.max(0, Math.min(1, touchX / width));
       const newSeekValue = Math.round(percentage * TOTAL_DURATION);
 
-      // Update the visual drag position
       setUserSeek(newSeekValue);
-      dispatch(progress(userSeek)); // Dispatch the exact seek value to Redux
+      dispatch(progress(userSeek));
       console.log("Dispatched seek to:", userSeek);
-
     });
   };
 
-  // Calculate current progress percentage based on userSeek
   const currentProgressPercent = (userSeek / TOTAL_DURATION) * 100;
-
-  // Calculate the knob position
   const knobPosition = `${currentProgressPercent}%`;
 
   return (
@@ -715,7 +718,7 @@ const Metadata = ({
           onResponderRelease={(event) => {
             handleProgressTouch(event);
             setIsDragging(false);
-            setUserSetPosition(true); // Mark that user has manually set a position
+            setUserSetPosition(true);
             // Here you would update the actual playback position
             // if (soundRef.current) {
             //   soundRef.current.setPositionAsync(userSeek * 1000);
@@ -723,9 +726,7 @@ const Metadata = ({
             console.error("Released at second:", userSeek);
           }}
         >
-          {/* Actual progress bar background */}
           <View style={styles.progressBarBackground}>
-            {/* Filled portion of progress bar */}
             <View
               style={[
                 styles.progressBarFill,
@@ -739,21 +740,12 @@ const Metadata = ({
             {/* Draggable knob */}
             <View
               style={{
-                position: "absolute",
                 left: knobPosition,
-                top: "50%",
                 width: 10,
                 height: 20,
-                borderRadius: 8,
-                backgroundColor: "white",
+                backgroundColor: "purple",
                 borderWidth: 2,
                 transform: [{ translateX: -8 }, { translateY: -8 }],
-                elevation: 3,
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.3,
-                shadowRadius: 2,
-                zIndex: 560,
               }}
             />
           </View>
@@ -780,13 +772,11 @@ const Controls = ({
   TimerIcon,
   Replay,
   setSleepTimerVisible,
-  isTimerActive
+  isTimerActive,
 }) => {
   return (
     <View style={styles.controlsContainer}>
-      <View
-        style={styles.controls}
-      >
+      <View style={styles.controls}>
         <View>
           <TouchableOpacity onPress={() => setSleepTimerVisible(true)}>
             <TimerIcon
@@ -795,9 +785,7 @@ const Controls = ({
             />
           </TouchableOpacity>
         </View>
-        <View
-          style={styles.playpause}
-        >
+        <View style={styles.playpause}>
           <TouchableOpacity
             style={styles.skipButton}
             onPress={() => {
