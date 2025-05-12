@@ -360,7 +360,10 @@ const Search = () => {
                       song={selectedSong}
                     />
 
-                    <TouchableOpacity onPress={() => toggleModal(item)}>
+                    <TouchableOpacity
+                      onPress={() => toggleModal(item)}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
                       <Entypo
                         name="dots-three-vertical"
                         size={20}
