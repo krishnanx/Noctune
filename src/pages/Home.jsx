@@ -130,21 +130,7 @@ const Home = () => {
         </View>
       </ScrollView>
 
-      {/* Bottom Navigation */}
-      <View style={styles.bottomNavigation}>
-        <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="home" size={24} color="white" />
-          <Text style={styles.navItemText}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="search" size={24} color="white" />
-          <Text style={styles.navItemText}>Search</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="library" size={24} color="white" />
-          <Text style={styles.navItemText}>Library</Text>
-        </TouchableOpacity>
-      </View>
+    
     </SafeAreaView>
   );
 };
@@ -159,8 +145,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 15,
-    paddingTop: 20,
-    paddingBottom: 10,
+    paddingTop: 25,
+    paddingBottom: 20,
   },
   headerTitle: {
     color: 'white',
