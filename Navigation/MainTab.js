@@ -67,7 +67,6 @@ const MainTab = () => {
 
       </Tab.Navigator>
       {!isKeyboardVisible && <Player />}
-      {/* <Player /> */}
 
     </>
   );
