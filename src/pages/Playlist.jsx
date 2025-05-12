@@ -11,8 +11,9 @@ import icon from "../../assets/favicon.png"
 import { soundRef } from '../functions/music';
 import { progress, setIsPlaying } from '../../Store/MusicSlice';
 import { changePlaylist, setPlaylistplaying } from '../../Store/PlaylistSlice';
-import { addSong, download } from '../../Store/DownloadSlice';
+import { addPath, addSong, download } from '../../Store/DownloadSlice';
 import DownloadButton from '../Components/DownloadButton';
+import { folderPicker } from '../functions/StoragePicker';
 const Playlist = () => {
   const { data, id, playlistNo } = useSelector((state) => state.playlist)
   const { user, session, loading, error, clientID } = useSelector((state) => state.user)
@@ -222,9 +223,12 @@ const Playlist = () => {
     dispatch(setIsPlaying("toggle"));
 
   };
-  const handleDownload = () => {
+  const handleDownload = async () => {
     console.warn("reached download function")
     console.warn(data[index]?.songs, clientID);
+    const path = await folderPicker()
+    console.warn(path)
+    dispatch(addPath({ path: path }))
     dispatch(addSong({ data: data[index]?.songs }))
     dispatch(download({ data: data[index]?.songs, ClientId: clientID }))
   }
