@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   ScrollView,
@@ -13,21 +13,21 @@ import BackArrow from "../Components/BackArrow";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { addMusicinPlaylist } from "../../Store/PlaylistSlice";
-
+import { LinearGradient } from "expo-linear-gradient";
 import icon from "../../assets/icon.png";
+
 const PlaylistChoose = () => {
-  const naviagtion = useNavigation();
+  const navigation = useNavigation();
   const route = useRoute();
-
-  // Get both index and song parameters to support both navigation methods
   const { index, song } = route.params;
-
   const dispatch = useDispatch();
+  const { data } = useSelector((state) => state.playlist);
+  const { data: value, pos } = useSelector((state) => state.data);
+
+  const [selectedIndex, setSelectedIndex] = useState(null); // NEW STATE
+
   const styles = StyleSheet.create({
-    Main: {
-      flex: 1,
-      width: "100%",
-    },
+    Main: { flex: 1, width: "100%" },
     Header: {
       width: "100%",
       flexDirection: "row",
@@ -54,155 +54,253 @@ const PlaylistChoose = () => {
     Playinfo: {
       width: "100%",
       height: 80,
-      //backgroundColor:"red",
-      alignItems: "center",
       flexDirection: "row",
+      alignItems: "center",
+      paddingRight: 30,
     },
     ImageContainer: {
       width: 60,
       height: 60,
-      //backgroundColor:"white",
       justifyContent: "center",
       alignItems: "center",
     },
     Name: {
-      width: "100%" - 60,
+      flex: 1,
       height: "100%",
       justifyContent: "center",
       paddingLeft: 25,
     },
+    circle: {
+      width: 24,
+      height: 24,
+      borderRadius: 12,
+      borderWidth: 2,
+      borderColor: "#1DB954",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    tick: {
+      color: "white",
+      fontSize: 16,
+      fontWeight: "bold",
+    },
   });
-  const { data } = useSelector((state) => state.playlist);
-  const { data: value, pos } = useSelector((state) => state.data);
 
   return (
-    <ScrollView
-      style={styles.Main}
-      contentContainerStyle={{
-        alignItems: "center",
-        paddingBottom: 100,
-        paddingHorizontal: 20,
-        paddingTop: 30,
-        height: 2000,
-      }}
-      keyboardShouldPersistTaps="handled"
+    <LinearGradient
+      colors={["#141414", "#1c2c30"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={{ flex: 1 }}
     >
-      <View style={styles.Header}>
-        <View style={styles.HeaderInside}>
-          <TouchableOpacity
-            style={{ width: "32%" }}
-            onPress={() => naviagtion.goBack()}
-          >
-            <BackArrow />
-          </TouchableOpacity>
-          <View style={styles.HeaderInsideText}>
-            <Text style={{ fontSize: 20, color: "white" }}>
-              Add to playlist
-            </Text>
+      <ScrollView
+        style={styles.Main}
+        contentContainerStyle={{
+          alignItems: "center",
+          paddingBottom: 100,
+          paddingHorizontal: 20,
+          paddingTop: 30,
+        }}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* Header */}
+        <View style={styles.Header}>
+          <View style={styles.HeaderInside}>
+            <TouchableOpacity
+              style={{ width: "32%" }}
+              onPress={() => navigation.goBack()}
+            >
+              <BackArrow />
+            </TouchableOpacity>
+            <View style={styles.HeaderInsideText}>
+              <Text style={{ fontSize: 20, color: "white" }}>
+                Add to playlist
+              </Text>
+            </View>
           </View>
         </View>
-      </View>
 
-      {/* Optional: Show which song will be added */}
-      {song && (
-        <View
+        {/* Selected song info */}
+        {(song || index) && (
+          <View
+            style={{
+              width: "100%",
+              height: 60,
+              alignItems: "center",
+              flexDirection: "row",
+              marginTop: 20,
+              borderRadius: 10,
+              backgroundColor: "rgba(50,50,50,0.5)",
+              paddingHorizontal: 15,
+            }}
+          >
+            <Image
+              source={{ uri: song?.image || index?.image }}
+              style={{ width: 40, height: 40, borderRadius: 8 }}
+            />
+            <View style={{ flex: 1, paddingLeft: 15 }}>
+              <Text
+                style={{ fontSize: 16, color: "white", fontWeight: "bold" }}
+                numberOfLines={1}
+              >
+                {song?.title || index?.title}
+              </Text>
+              <Text style={{ fontSize: 12, color: "gray" }} numberOfLines={1}>
+                {song?.artist || index?.uploader}
+              </Text>
+            </View>
+          </View>
+        )}
+
+        {/* New Playlist Button */}
+        <TouchableOpacity
           style={{
-            width: "100%",
-            height: 60,
-            alignItems: "center",
-            flexDirection: "row",
             marginTop: 20,
+            backgroundColor: "#1DB954",
+            paddingVertical: 10,
+            paddingHorizontal: 25,
             borderRadius: 10,
-            backgroundColor: "rgba(50,50,50,0.3)",
-            paddingHorizontal: 15,
+            alignSelf: "center",
+          }}
+          onPress={() => {}}
+        >
+          <Text style={{ color: "white", fontSize: 16, fontWeight: "bold" }}>
+            + New Playlist
+          </Text>
+        </TouchableOpacity>
+
+        {/* Playlist List */}
+        <View style={styles.body}>
+          <FlatList
+            data={data}
+            renderItem={({ item, index }) => (
+              <DisplayPlaylist
+                item={item}
+                index={index}
+                styles={styles}
+                dispatch={dispatch}
+                navigation={navigation}
+                data={value}
+                pos={pos}
+                songToAdd={song}
+                selectedIndex={selectedIndex}
+                setSelectedIndex={setSelectedIndex}
+              />
+            )}
+            keyExtractor={(item, index) => index.toString()}
+            scrollEnabled={false}
+          />
+        </View>
+      </ScrollView>
+      <TouchableOpacity
+        style={{
+          margin: 20,
+          backgroundColor: "#2c3a2f",
+          paddingVertical: 10,
+          paddingHorizontal: 25,
+          borderRadius: 10,
+          alignSelf: "center",
+        }}
+        onPress={() => {}}
+      >
+        <Text
+          style={{
+            color: "white",
+            fontSize: 16,
+            fontWeight: "bold",
           }}
         >
-          <Image
-            source={{ uri: song.image }}
-            style={{ width: 40, height: 40, borderRadius: 8 }}
-          />
-          <View style={{ flex: 1, paddingLeft: 15 }}>
-            <Text
-              style={{ fontSize: 16, color: "white", fontWeight: "bold" }}
-              numberOfLines={1}
-            >
-              {song.title}
-            </Text>
-            <Text style={{ fontSize: 12, color: "gray" }} numberOfLines={1}>
-              {song.artist}
-            </Text>
-          </View>
-        </View>
-      )}
-
-      <View style={styles.body}>
-        <FlatList
-          data={data}
-          renderItem={({ item, index }) => (
-            <DisplayPlaylist
-              item={item}
-              index={index}
-              pos={pos}
-              styles={styles}
-              dispatch={dispatch}
-              naviagtion={naviagtion}
-              data={value}
-              songToAdd={song} // Pass the selected song
-            />
-          )}
-          keyExtractor={(item, index) => index.toString()}
-          scrollEnabled={false}
-        />
-      </View>
-    </ScrollView>
+          Done
+        </Text>
+      </TouchableOpacity>
+    </LinearGradient>
   );
 };
 
 export default PlaylistChoose;
 
+// Playlist item
 const DisplayPlaylist = ({
   item,
   index,
   styles,
   dispatch,
-  naviagtion,
+  navigation,
   data,
   pos,
   songToAdd,
+  selectedIndex,
+  setSelectedIndex,
 }) => {
+  const isSelected = selectedIndex === index;
+  const [selected, setSelected] = useState(false);
+  const handleSelect = () => {
+    setSelectedIndex(index);
+    const musicToAdd = songToAdd || data[pos];
+    dispatch(addMusicinPlaylist({ id: index, music: musicToAdd }));
+    navigation.goBack();
+  };
+
   return (
     <TouchableHighlight
-      onPress={() => {
-        // Use the selected song from search if available, otherwise use currently playing song
-        const musicToAdd = songToAdd || data[pos];
-        dispatch(addMusicinPlaylist({ id: index, music: musicToAdd }));
-        naviagtion.goBack();
-      }}
-      style={{
-        borderRadius: 3,
-      }}
+      onPress={handleSelect}
+      style={{ borderRadius: 3 }}
       underlayColor="rgba(245,222,179,0.2)"
       activeOpacity={0.7}
     >
       <View
-        style={styles.Playinfo}
-        onPress={() => console.log(item)}
-        key={item}
+        style={[
+          styles.Playinfo,
+          { justifyContent: "space-between", paddingHorizontal: 10 },
+        ]}
       >
-        <View style={styles.ImageContainer}>
-          <Image
-            source={item.image ? { uri: item.image } : icon}
-            style={{ width: 50, height: 50 }}
-            // fallback if user image fails to load
-          />
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <View style={styles.ImageContainer}>
+            <Image
+              source={item.image ? { uri: item.image } : icon}
+              style={{ width: 50, height: 50 }}
+            />
+          </View>
+          <View style={styles.Name}>
+            <Text style={{ fontSize: 20, color: "white" }}>{item.name}</Text>
+            <Text style={{ fontSize: 15, color: "white" }}>
+              Playlist . Noctune
+            </Text>
+          </View>
         </View>
-        <View style={styles.Name}>
-          <Text style={{ fontSize: 20, color: "white" }}>{item.name}</Text>
-          <Text style={{ fontSize: 15, color: "white" }}>
-            Playlist . Noctune
-          </Text>
-        </View>
+        <TouchableOpacity
+          onPress={() => setSelected(!selected)}
+          activeOpacity={0.7}
+          style={{
+            position: "absolute",
+            right: 10,
+            top: "40%",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: 10, // Increases the touchable area
+            borderRadius: 25, // Makes it easier to tap around the icon
+            backgroundColor: "rgba(255, 255, 255, 0.2)", // Optional background to make it more noticeable
+          }}
+          accessibilityLabel={
+            selected ? "Deselect playlist" : "Select playlist"
+          }
+          accessibilityHint="Double-tap to select or deselect this playlist"
+        >
+          <View
+            style={[
+              styles.circle,
+              {
+                backgroundColor: selected ? "#1DB954" : "transparent",
+                borderColor: selected ? "#1DB954" : "white",
+              },
+            ]}
+          >
+            {selected && <Text style={styles.tick}>✓</Text>}
+          </View>
+        </TouchableOpacity>
       </View>
+
+
     </TouchableHighlight>
   );
 };

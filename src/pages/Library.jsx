@@ -67,6 +67,7 @@ const Library = () => {
         modalOverlay: {
             flex: 1,
             justifyContent: "flex-end",
+            
             //backgroundColor: "rgba(98, 92, 92, 0.5)", // backdrop blur
         },
         modalContent: {
@@ -83,6 +84,7 @@ const Library = () => {
             fontSize: 18,
             marginVertical: 10,
             color: colors.text,
+    
         },
         modal1: {
             width: "100%",
@@ -146,6 +148,7 @@ const Library = () => {
             justifyContent: "flex-end",
             alignItems: "center",
             //backgroundColor:"white"
+            
 
         },
         Button: {
@@ -269,132 +272,103 @@ const Custom_modal = ({ isModalVisible, styles, toggleModal, handlePress, naviga
     const { data, pos } = useSelector((state) => state.data);
 
     return (
-        <Modal
-            transparent
-            visible={isModalVisible}
-            animationType="slide"
-            onRequestClose={() => toggleModal()}
-
+      <Modal
+        transparent
+        visible={isModalVisible}
+        animationType="slide"
+        onRequestClose={() => toggleModal()}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPressOut={() => toggleModal()}
         >
+          <View style={styles.modalContent}>
             <TouchableOpacity
-                style={styles.modalOverlay}
-                activeOpacity={1}
-                onPressOut={() => toggleModal()}
+              style={styles.modal1}
+              onPress={() => handlePress()}
             >
-                <View style={styles.modalContent}>
-                    <TouchableOpacity
-                        style={styles.modal1}
-                        onPress={() => handlePress()}
-                    >
-                        <View
-                            style={styles.modal1L}
-                        >
-                            <MusicNote width={40} height={40} />
-                        </View>
-                        <View
-                            style={styles.modal1R}
-                        >
-                            <View
-                                style={{ width: "100%", height: "50%", alignItems: "center", flexDirection: "row" }}
-                            >
-                                <Text
-                                    style={{ fontSize: 20, color: "white" }}
-                                >
-                                    Playlist
-                                </Text>
-                            </View>
-                            <View
-                                style={{ width: "100%", height: "30%", }}
-                            >
-                                <Text
-                                    style={{ fontSize: 10, color: "white" }}
-                                >
-                                    Build a playlist with songs or episodes
-                                </Text>
-                            </View>
-                        </View>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        style={styles.modal1}
-                    >
-                        <View
-                            style={styles.modal1L}
-                        >
-                            <Collab width={40} height={40} />
-
-                        </View>
-                        <View
-                            style={styles.modal1R}
-                        >
-                            <View
-                                style={{ width: "100%", height: "50%", alignItems: "center", flexDirection: "row" }}
-                            >
-                                <Text
-                                    style={{ fontSize: 20, color: "white" }}
-                                >
-                                    Collab
-                                </Text>
-                            </View>
-                            <View
-                                style={{ width: "100%", height: "30%", }}
-                            >
-                                <Text
-                                    style={{ fontSize: 10, color: "white" }}
-                                >
-                                    Join forces to make the ultimate playlist
-                                </Text>
-                            </View>
-                        </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.modal1}
-                        onPress={() => {
-                            toggleModal();
-                            navigation.push("Migrate")
-                        }}
-                    >
-                        <View
-                            style={styles.modal1L}
-                        >
-                            <Migrate width={40} height={40} />
-
-                        </View>
-                        <View
-                            style={styles.modal1R}
-                        >
-                            <View
-                                style={{ width: "100%", height: "50%", alignItems: "center", flexDirection: "row" }}
-                            >
-                                <Text
-                                    style={{ fontSize: 20, color: "white" }}
-                                >
-                                    Noctune Sync
-                                </Text>
-                            </View>
-                            <View
-                                style={{ width: "100%", height: "30%", }}
-                            >
-                                <Text
-                                    style={{ fontSize: 10, color: "white" }}
-                                >
-                                    Transfer your Spotify playlists to Noctune in just a few taps
-                                </Text>
-                            </View>
-                        </View>
-                    </TouchableOpacity>
-
-
+              <View style={styles.modal1L}>
+                <MusicNote width={40} height={40} fill="green" />
+              </View>
+              <View style={styles.modal1R}>
+                <View
+                  style={{
+                    width: "100%",
+                    height: "50%",
+                    alignItems: "center",
+                    flexDirection: "row",
+                  }}
+                >
+                  <Text style={{ fontSize: 20, color: "white" }}>Playlist</Text>
                 </View>
-
-
-
-
-
-
+                <View style={{ width: "100%", height: "30%" }}>
+                  <Text style={{ fontSize: 12, color: "white" }}>
+                    Build a playlist with songs or episodes
+                  </Text>
+                </View>
+              </View>
             </TouchableOpacity>
-        </Modal>
-    )
+
+            <TouchableOpacity style={styles.modal1}>
+              <View style={styles.modal1L}>
+                <Collab width={40} height={40} fill="green" />
+              </View>
+              <View style={styles.modal1R}>
+                <View
+                  style={{
+                    width: "100%",
+                    height: "50%",
+                    alignItems: "center",
+                    flexDirection: "row",
+                  }}
+                >
+                  <Text style={{ fontSize: 20, color: "white" }}>Collab</Text>
+                </View>
+                <View style={{ width: "100%", height: "30%" }}>
+                  <Text style={{ fontSize: 12, color: "white" }}>
+                    Join forces to make the ultimate playlist
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.modal1}
+              onPress={() => {
+                toggleModal();
+                navigation.push("Migrate");
+              }}
+            >
+              <View style={styles.modal1L}>
+                <Migrate width={40} height={40} fill="green" />
+              </View>
+              <View style={styles.modal1R}>
+                <View
+                  style={{
+                    width: "100%",
+                    height: "50%",
+                    alignItems: "center",
+                    flexDirection: "row",
+                  }}
+                >
+                  <Text style={{ fontSize: 20, color: "white" }}>
+                    Noctune Sync
+                  </Text>
+                </View>
+                <View style={{ width: "100%", height: "30%" }}>
+                  <Text
+                    style={{ fontSize: 12, color: "white", lineHeight: 11 }}
+                  >
+                    Transfer your Spotify playlists to Noctune in just a few
+                    taps
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    );
 };
 
 const Playlistadd = ({ isPlaylistaddVisible,
