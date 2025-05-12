@@ -11,63 +11,19 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import BackArrow from '../Components/BackArrow';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { setCompleted } from '../../Store/DownloadSlice';
 
 const DownloadPage = () => {
     // Static data for the download items
+    const dispatch = useDispatch()
     const { songs, status, completed } = useSelector((state) => state.download)
+    useEffect(() => {
+        if (completed == songs.length) {
+            dispatch(setCompleted(0))
+        }
+    }, [completed])
 
-
-    const downloadItems = [
-        {
-            id: 1,
-            title: 'Blinding Lights',
-            artist: 'The Weeknd',
-            progress: 100,
-            completed: true,
-            albumArt: 'https://upload.wikimedia.org/wikipedia/en/e/e6/The_Weeknd_-_Blinding_Lights.png',
-        },
-        {
-            id: 2,
-            title: 'Levitating',
-            artist: 'Dua Lipa ft. DaBaby',
-            progress: 78,
-            completed: false,
-            albumArt: '/api/placeholder/64/64',
-        },
-        {
-            id: 3,
-            title: 'Stay',
-            artist: 'The Kid LAROI, Justin Bieber',
-            progress: 45,
-            completed: false,
-            albumArt: '/api/placeholder/64/64',
-        },
-        {
-            id: 4,
-            title: 'Bad Habits',
-            artist: 'Ed Sheeran',
-            progress: 24,
-            completed: false,
-            albumArt: '/api/placeholder/64/64',
-        },
-        {
-            id: 5,
-            title: 'good 4 u',
-            artist: 'Olivia Rodrigo',
-            progress: 12,
-            completed: false,
-            albumArt: '/api/placeholder/64/64',
-        },
-        {
-            id: 6,
-            title: 'Save Your Tears',
-            artist: 'The Weeknd & Ariana Grande',
-            progress: 0,
-            completed: false,
-            albumArt: '/api/placeholder/64/64',
-        },
-    ];
 
     const renderDownloadItem = (item) => {
         return (

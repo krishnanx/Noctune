@@ -6,7 +6,9 @@ const DownloadSlice = createSlice({
     initialState: {
         songs: [],
         status: "idle",
-        completed: 0
+        completed: 0,
+        path: "",
+        finalData: [],
     },
     reducers: {
         addSong(state, action) {
@@ -19,7 +21,23 @@ const DownloadSlice = createSlice({
             state.songs[action.payload.index].progress = action.payload.progress
         },
         setCompleted(state, action) {
-            state.completed += action.payload
+            if (action.payload == 1) {
+                state.completed += action.payload
+            }
+            else if (action.payload == 0) {
+                state.completed = action.payload
+            }
+        },
+        addPath(state, action) {
+            state.path = action.payload.path
+        },
+        addData(state, action) {
+            const data = action.payload.final
+            const status = "idle"
+            state.finalData = [...state.finalData, { data: data, status: status }]
+        },
+        changeSongStatus(state, action) {
+            state.finalData[action.payload.index].status = action.payload.status
         }
     },
     extraReducers: (builder) => {
@@ -35,7 +53,7 @@ const DownloadSlice = createSlice({
             })
     }
 })
-export const { addSong, changeProgress, setCompleted } = DownloadSlice.actions;
+export const { addSong, changeProgress, setCompleted, addPath, addData, changeSongStatus } = DownloadSlice.actions;
 export default DownloadSlice.reducer;
 export const download = createAsyncThunk('download/music', async ({ data, ClientId }) => {
     console.warn("blahh")
