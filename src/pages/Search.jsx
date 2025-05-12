@@ -49,8 +49,11 @@ const Search = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { data, pos } = useSelector((state) => state.data);
-  const [isModalVisible, setModalVisible] = useState(false);
   const [shouldLoad, setShouldLoad] = useState(false);
+
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [selectedSong, setSelectedSong] = useState(null);
+
 
   useEffect(() => {
     const loadLastSong = async () => {
@@ -197,9 +200,12 @@ const Search = () => {
       console.error("Error saving song metadata", e);
     }
   };
-  const toggleModal = () => {
-    setModalVisible(!isModalVisible);
+ 
+  const toggleModal = (song) => {
+    setSelectedSong(song);
+    setModalVisible(true);
   };
+  
 
   const styles = StyleSheet.create({
     Main: {
@@ -326,9 +332,10 @@ const Search = () => {
               data={songs}
               keyExtractor={(item) => item.id.toString()}
               renderItem={({ item }) => (
-                <View
+                <TouchableOpacity
                   style={styles.card}
-                  onTouchEnd={() => handleCardPress(item)}
+                  activeOpacity={0.7}
+                  onPress={() => handleCardPress(item)}
                 >
                   <Image
                     source={{ uri: item.image }}
@@ -344,14 +351,16 @@ const Search = () => {
                     </Text>
                     <Text style={styles.artistName}>{item.artist}</Text>
                   </View>
-                  <SearchModal
-                    isModalVisible={isModalVisible}
-                    toggleModal={toggleModal}
-                    dispatch={dispatch}
-                    navigation={navigation}
-                  />
                   <View style={styles.dotsContainer}>
-                    <TouchableOpacity onPress={toggleModal}>
+                    <SearchModal
+                      isModalVisible={isModalVisible}
+                      toggleModal={() => setModalVisible(false)}
+                      dispatch={dispatch}
+                      navigation={navigation}
+                      song={selectedSong}
+                    />
+
+                    <TouchableOpacity onPress={() => toggleModal(item)}>
                       <Entypo
                         name="dots-three-vertical"
                         size={20}
@@ -359,11 +368,9 @@ const Search = () => {
                       />
                     </TouchableOpacity>
                   </View>
-                </View>
+                </TouchableOpacity>
               )}
-              contentContainerStyle={{
-                paddingBottom: 100,
-              }}
+              contentContainerStyle={{ paddingBottom: 100 }}
               keyboardShouldPersistTaps="handled"
             />
           )}

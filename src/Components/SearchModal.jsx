@@ -1,4 +1,3 @@
-// components/SearchModal.js
 import React from "react";
 import {
   View,
@@ -10,63 +9,71 @@ import {
 } from "react-native";
 import { useSelector } from "react-redux";
 
-const SearchModal = ({ isModalVisible, toggleModal, dispatch, navigation }) => {
+const SearchModal = ({
+  isModalVisible,
+  toggleModal,
+  dispatch,
+  navigation,
+  song,
+}) => {
   const { data, pos } = useSelector((state) => state.data);
 
   return (
     <Modal
-      transparent
+      animationType="fade"
+      transparent={true}
       visible={isModalVisible}
-     // animationType="slide"
       onRequestClose={() => toggleModal()}
     >
       <TouchableOpacity
         style={styles.modalOverlay}
         activeOpacity={1}
-        onPressOut={() => toggleModal()}
+        onPress={() => toggleModal()}
       >
         <View style={styles.modalContent}>
-          {/* Mini Player Info Section */}
-          <View style={[styles.miniPlayerInfo, { marginBottom: 30 }]}>
+          {/* Mini Player Info Section - now showing selected song */}
+          <View style={styles.miniPlayerInfo}>
             <Image
-              source={{ uri: data ? data[pos]?.image : null }}
+              source={{ uri: song?.image }} 
               style={styles.miniPlayerThumbnail}
             />
             <View style={styles.miniPlayerTextContainer}>
               <Text style={styles.miniPlayerTitle} numberOfLines={1}>
-                {data ? data[pos]?.title : "Unknown Title"}
+                {song?.title || "Unknown Title"}{" "}
               </Text>
               <Text style={styles.miniPlayerArtist} numberOfLines={1}>
-                {data ? data[pos]?.uploader : "Unknown Artist"}
+                {song?.artist || "Unknown Artist"}{" "}
               </Text>
             </View>
           </View>
+
+          <View style={styles.line} />
 
           {/* Option Buttons */}
           <TouchableOpacity style={styles.optionTouch}>
             <Text style={styles.option}>Add to Liked Songs</Text>
           </TouchableOpacity>
+
           <TouchableOpacity
             style={styles.optionTouch}
             onPress={() => {
               toggleModal();
-              navigation.navigate("Playchoose", { index: pos });
+              navigation.navigate("Playchoose", { song: song });
             }}
           >
             <Text style={styles.option}>Add to Playlist</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.optionTouch}>
-            <Text style={styles.option}>Media Quality</Text>
-          </TouchableOpacity>
+
           <TouchableOpacity style={styles.optionTouch}>
             <Text style={styles.option}>Share</Text>
           </TouchableOpacity>
+
           <TouchableOpacity
             style={styles.optionTouch}
-            onPress={() => {
-              toggleModal();
-              dispatch({ type: "ADD_TO_QUEUE", payload: data[pos] });
-            }}
+            // onPress={() => {
+            //   toggleModal();
+            //   dispatch({ type: "ADD_TO_QUEUE", payload: song });
+            // }}
           >
             <Text style={styles.option}>Add to Queue</Text>
           </TouchableOpacity>
@@ -93,6 +100,7 @@ const styles = StyleSheet.create({
   miniPlayerInfo: {
     flexDirection: "row",
     alignItems: "center",
+    paddingBottom:20
   },
   miniPlayerThumbnail: {
     width: 50,
@@ -115,12 +123,18 @@ const styles = StyleSheet.create({
   optionTouch: {
     marginTop: 15,
     paddingVertical: 12,
-
     alignItems: "center",
+    backgroundColor: "rgba(128,128,128,0.3)", // gray with 60% opacity
+    borderRadius: 10,
   },
   option: {
     color: "#f9fafb",
     fontSize: 16,
+  },
+  line: {
+    height: 1,
+    backgroundColor: "#aaa",
+    opacity: 0.4,
   },
 });
 
