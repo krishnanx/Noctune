@@ -7,6 +7,7 @@ import {
   KeyboardAvoidingView,
   FlatList,
   ActivityIndicator,
+  TouchableOpacity,
 } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { Entypo } from "@expo/vector-icons";
@@ -34,6 +35,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import store from "../../Store/store";
+import SearchModal from "../Components/SearchModal.jsx";
 
 const Search = () => {
   const { colors } = useTheme(); // Get theme colors
@@ -47,7 +49,7 @@ const Search = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { data, pos } = useSelector((state) => state.data);
-
+  const [isModalVisible, setModalVisible] = useState(false);
   const [shouldLoad, setShouldLoad] = useState(false);
 
   useEffect(() => {
@@ -195,6 +197,9 @@ const Search = () => {
       console.error("Error saving song metadata", e);
     }
   };
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
 
   const styles = StyleSheet.create({
     Main: {
@@ -339,12 +344,20 @@ const Search = () => {
                     </Text>
                     <Text style={styles.artistName}>{item.artist}</Text>
                   </View>
+                  <SearchModal
+                    isModalVisible={isModalVisible}
+                    toggleModal={toggleModal}
+                    dispatch={dispatch}
+                    navigation={navigation}
+                  />
                   <View style={styles.dotsContainer}>
-                    <Entypo
-                      name="dots-three-vertical"
-                      size={20}
-                      color="white"
-                    />
+                    <TouchableOpacity onPress={toggleModal}>
+                      <Entypo
+                        name="dots-three-vertical"
+                        size={20}
+                        color="white"
+                      />
+                    </TouchableOpacity>
                   </View>
                 </View>
               )}
