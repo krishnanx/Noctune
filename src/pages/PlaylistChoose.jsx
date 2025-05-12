@@ -104,7 +104,7 @@ const PlaylistChoose = () => {
       </View>
 
       {/* Optional: Show which song will be added */}
-      {song && (
+      {(song || index) && (
         <View
           style={{
             width: "100%",
@@ -113,12 +113,12 @@ const PlaylistChoose = () => {
             flexDirection: "row",
             marginTop: 20,
             borderRadius: 10,
-            backgroundColor: "rgba(50,50,50,0.3)",
+            backgroundColor: "rgba(50,50,50,0.5)",
             paddingHorizontal: 15,
           }}
         >
           <Image
-            source={{ uri: song.image }}
+            source={{ uri: song?.image || index?.image }}
             style={{ width: 40, height: 40, borderRadius: 8 }}
           />
           <View style={{ flex: 1, paddingLeft: 15 }}>
@@ -126,10 +126,10 @@ const PlaylistChoose = () => {
               style={{ fontSize: 16, color: "white", fontWeight: "bold" }}
               numberOfLines={1}
             >
-              {song.title}
+              {song?.title || index?.title}
             </Text>
             <Text style={{ fontSize: 12, color: "gray" }} numberOfLines={1}>
-              {song.artist}
+              {song?.artist || index?.uploader}
             </Text>
           </View>
         </View>

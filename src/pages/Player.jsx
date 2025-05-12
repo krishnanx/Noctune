@@ -873,7 +873,7 @@ const Custom_modal = ({
             style={styles.optionTouch}
             onPress={() => {
               toggleModal();
-              navigation.navigate("Playchoose", { index: pos });
+              navigation.navigate("Playchoose", { index: data[pos] });
             }}
           >
             <Text style={styles.option}>Add to playlist</Text>
