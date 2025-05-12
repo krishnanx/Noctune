@@ -868,6 +868,7 @@ const Custom_modal = ({
           <TouchableOpacity style={styles.optionTouch}>
             <Text style={styles.option}>Add to Liked Songs</Text>
           </TouchableOpacity>
+          
           <TouchableOpacity
             style={styles.optionTouch}
             onPress={() => {
@@ -877,11 +878,23 @@ const Custom_modal = ({
           >
             <Text style={styles.option}>Add to playlist</Text>
           </TouchableOpacity>
+
           <TouchableOpacity style={styles.optionTouch}>
             <Text style={styles.option}>Media Quality</Text>
           </TouchableOpacity>
+
           <TouchableOpacity style={styles.optionTouch}>
             <Text style={styles.option}>Share</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.optionTouch}
+            // onPress={() => {
+            //   toggleModal();
+            //   dispatch({ type: "ADD_TO_QUEUE", payload: song });
+            // }}
+          >
+            <Text style={styles.option}>Add to Queue</Text>
           </TouchableOpacity>
         </View>
       </TouchableOpacity>
