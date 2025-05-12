@@ -192,6 +192,27 @@ const PlaylistChoose = () => {
           />
         </View>
       </ScrollView>
+      <TouchableOpacity
+        style={{
+          margin: 20,
+          backgroundColor: "#2c3a2f",
+          paddingVertical: 10,
+          paddingHorizontal: 25,
+          borderRadius: 10,
+          alignSelf: "center",
+        }}
+        onPress={() => {}}
+      >
+        <Text
+          style={{
+            color: "white",
+            fontSize: 16,
+            fontWeight: "bold",
+          }}
+        >
+          Done
+        </Text>
+      </TouchableOpacity>
     </LinearGradient>
   );
 };
@@ -250,7 +271,20 @@ const DisplayPlaylist = ({
         <TouchableOpacity
           onPress={() => setSelected(!selected)}
           activeOpacity={0.7}
-          style={{ position: "absolute", right: 10, top: "40%" }}
+          style={{
+            position: "absolute",
+            right: 10,
+            top: "40%",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: 10, // Increases the touchable area
+            borderRadius: 25, // Makes it easier to tap around the icon
+            backgroundColor: "rgba(255, 255, 255, 0.2)", // Optional background to make it more noticeable
+          }}
+          accessibilityLabel={
+            selected ? "Deselect playlist" : "Select playlist"
+          }
+          accessibilityHint="Double-tap to select or deselect this playlist"
         >
           <View
             style={[
@@ -265,6 +299,8 @@ const DisplayPlaylist = ({
           </View>
         </TouchableOpacity>
       </View>
+
+
     </TouchableHighlight>
   );
 };
