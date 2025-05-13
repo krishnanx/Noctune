@@ -34,6 +34,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import android.os.Handler;
+import android.os.Looper;
 
 public class MediaNotificationModule extends ReactContextBaseJavaModule {
     private static final String MODULE_NAME = "MediaNotification";
@@ -122,7 +124,14 @@ public class MediaNotificationModule extends ReactContextBaseJavaModule {
             );
             
         mediaSession.setPlaybackState(stateBuilder.build());
-        mediaSession.setCallback(new MediaSessionCallback());
+        // Ensure this is being called on a background thread, if necessary:
+Handler mainHandler = new Handler(Looper.getMainLooper());
+mainHandler.post(() -> {
+    // This will run on the main thread
+    mediaSession.setCallback(new MediaSessionCallback());
+});
+
+       
         mediaSession.setActive(true);
     }
 

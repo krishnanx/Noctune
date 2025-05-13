@@ -9,6 +9,7 @@ import {
   Dimensions,
   Animated,
   TouchableWithoutFeedback,
+  Button
 } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { SkipBack, SkipForward } from "react-native-feather";
@@ -214,18 +215,18 @@ const Player = () => {
 
   // Update notification when playback state changes
   useEffect(() => {
-    MediaNotificationManager.updatePlaybackStatus(isPlaying);
-  }, [isPlaying]);
+    MediaNotificationManager.updatePlaybackStatus(isplaying);
+  }, [isplaying]);
 
   const handlePlay = () => {
     console.log("Play pressed");
-    setIsPlaying(true);
+    dispatch(setIsPlaying(true));
     // Start your audio playback here
   };
 
   const handlePause = () => {
     console.log("Pause pressed");
-    setIsPlaying(false);
+    dispatch(setIsPlaying(false));
     // Pause your audio playback here
   };
 
@@ -241,12 +242,12 @@ const Player = () => {
 
   const handleStop = () => {
     console.log("Stop pressed");
-    setIsPlaying(false);
+    dispatch(setIsPlaying(false));
     // Stop your audio playback here
   };
 
   const togglePlayback = () => {
-    setIsPlaying(!isPlaying);
+    dispatch(setIsPlaying("toggle"));
   };
   //-----------------------------------------------------
 
@@ -567,7 +568,7 @@ const Player = () => {
     <View style={styles.controls}>
       <Button title="Previous" onPress={handlePrevious} />
       <Button
-        title={isPlaying ? 'Pause' : 'Play'}
+        title={isplaying ? 'Pause' : 'Play'}
         onPress={togglePlayback}
       />
       <Button title="Next" onPress={handleNext} />
