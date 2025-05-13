@@ -1,34 +1,62 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Switch, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Switch, ScrollView, TouchableOpacity,Button } from 'react-native';
+
+import { useDispatch } from "react-redux";
+import { signOut } from "../../Store/AuthThunk";
 
 const Settings = () => {
   const [darkMode, setDarkMode] = useState(true);
   const [offlineMode, setOfflineMode] = useState(false);
   const [notifications, setNotifications] = useState(true);
+{
+  /*--------------------------*/
+}
+   const dispatch = useDispatch();
 
+   const handleSignOut = () => {
+     dispatch(signOut());
+   };
+{
+  /*--------------------------*/
+}
   return (
     <ScrollView
       style={styles.container}
       contentContainerStyle={{ minHeight: 900 }}
     >
-
-
+      ----------------
+      <View style={{ padding: 20 }}>
+        <TouchableOpacity onPress={handleSignOut}>
+          <Text style={{ color: "red", fontWeight: "bold", fontSize: 16 }}>
+            Sign Out
+          </Text>
+        </TouchableOpacity>
+      </View>
+      -----------------------------
       <Text style={styles.header}>Settings</Text>
-
       <Section title="Playback">
-        <SettingItem label="Offline mode" value={offlineMode} onToggle={setOfflineMode} />
+        <SettingItem
+          label="Offline mode"
+          value={offlineMode}
+          onToggle={setOfflineMode}
+        />
       </Section>
-
       <Section title="Preferences">
-        <SettingItem label="Dark Mode" value={darkMode} onToggle={setDarkMode} />
-        <SettingItem label="Notifications" value={notifications} onToggle={setNotifications} />
+        <SettingItem
+          label="Dark Mode"
+          value={darkMode}
+          onToggle={setDarkMode}
+        />
+        <SettingItem
+          label="Notifications"
+          value={notifications}
+          onToggle={setNotifications}
+        />
       </Section>
-
       <Section title="Account">
         <NavItem label="Account Info" />
         <NavItem label="Change Password" />
       </Section>
-
       <Section title="Support">
         <NavItem label="Help Center" />
         <NavItem label="Privacy Policy" />

@@ -46,12 +46,18 @@ export const signUp = createAsyncThunk(
 
       // Store in AsyncStorage
       await AsyncStorage.setItem("user", JSON.stringify(user));
-      //await AsyncStorage.setItem('session', JSON.stringify(session));
+      //--------------------------------------------------
+      await AsyncStorage.removeItem("user");
+      await AsyncStorage.removeItem("session");
+
+      // Then set new data
+      await AsyncStorage.setItem("user", JSON.stringify(user));
+      await AsyncStorage.setItem("session", JSON.stringify(session));
+      //-------------------------------------------
 
       // Update Redux state
       dispatch(setUser(user));
-      //dispatch(setSession(session));
-
+  
       return { success: true };
     } catch (error) {
       const errorMessage = error.response?.data?.error || "Failed to sign up";
@@ -114,7 +120,10 @@ export const signOut = createAsyncThunk(
   async (_, { dispatch }) => {
     try {
       await AsyncStorage.removeItem("user");
-      //await AsyncStorage.removeItem('session');
+      //-----------------------
+      await AsyncStorage.removeItem("session");
+      await AsyncStorage.removeItem("isFirstTime");
+      //----------------------
       dispatch(clearUser());
       return { success: true };
     } catch (error) {
