@@ -7,6 +7,7 @@ import {
   KeyboardAvoidingView,
   FlatList,
   ActivityIndicator,
+  TouchableOpacity,
 } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { Entypo } from "@expo/vector-icons";
@@ -34,6 +35,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import store from "../../Store/store";
+import SearchModal from "../Components/SearchModal.jsx";
 
 const Search = () => {
   const { colors } = useTheme(); // Get theme colors
@@ -47,8 +49,11 @@ const Search = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { data, pos } = useSelector((state) => state.data);
-
   const [shouldLoad, setShouldLoad] = useState(false);
+
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [selectedSong, setSelectedSong] = useState(null);
+
 
   useEffect(() => {
     const loadLastSong = async () => {
@@ -195,6 +200,12 @@ const Search = () => {
       console.error("Error saving song metadata", e);
     }
   };
+ 
+  const toggleModal = (song) => {
+    setSelectedSong(song);
+    setModalVisible(true);
+  };
+  
 
   const styles = StyleSheet.create({
     Main: {
@@ -321,9 +332,10 @@ const Search = () => {
               data={songs}
               keyExtractor={(item) => item.id.toString()}
               renderItem={({ item }) => (
-                <View
+                <TouchableOpacity
                   style={styles.card}
-                  onTouchEnd={() => handleCardPress(item)}
+                  activeOpacity={0.7}
+                  onPress={() => handleCardPress(item)}
                 >
                   <Image
                     source={{ uri: item.image }}
@@ -340,17 +352,28 @@ const Search = () => {
                     <Text style={styles.artistName}>{item.artist}</Text>
                   </View>
                   <View style={styles.dotsContainer}>
-                    <Entypo
-                      name="dots-three-vertical"
-                      size={20}
-                      color="white"
+                    <SearchModal
+                      isModalVisible={isModalVisible}
+                      toggleModal={() => setModalVisible(false)}
+                      dispatch={dispatch}
+                      navigation={navigation}
+                      song={selectedSong}
                     />
+
+                    <TouchableOpacity
+                      onPress={() => toggleModal(item)}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                      <Entypo
+                        name="dots-three-vertical"
+                        size={20}
+                        color="white"
+                      />
+                    </TouchableOpacity>
                   </View>
-                </View>
+                </TouchableOpacity>
               )}
-              contentContainerStyle={{
-                paddingBottom: 100,
-              }}
+              contentContainerStyle={{ paddingBottom: 100 }}
               keyboardShouldPersistTaps="handled"
             />
           )}
