@@ -1,4 +1,4 @@
-package com.krishnanx.noctune.medianotification;
+package com.krishnanx.Noctune.medianotification;
 
 import androidx.annotation.NonNull;
 

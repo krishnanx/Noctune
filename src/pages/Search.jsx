@@ -156,7 +156,7 @@ const Search = () => {
           artist: item.artist ? item.artist.name : "Unknown Artist",
           image: item.thumbnails ? item.thumbnails[0].url : null,
           url: `https://www.youtube.com/watch?v=${item.videoId}`,
-          duration: item.duration / 1000,
+          duration: item.duration / 1000
         }));
 
         setSongs(topResults);
@@ -200,12 +200,13 @@ const Search = () => {
       console.error("Error saving song metadata", e);
     }
   };
- 
+
   const toggleModal = (song) => {
     setSelectedSong(song);
     setModalVisible(true);
   };
-  
+
+
 
   const styles = StyleSheet.create({
     Main: {
