@@ -8,33 +8,41 @@ import Settings from "../src/pages/Settings";
 import Search from "../src/pages/Search";
 import { useSelector, useDispatch } from "react-redux";
 import { Keyboard } from "react-native";
-import Playlist from '../src/pages/Playlist';
+import Playlist from "../src/pages/Playlist";
 import Library from "../src/pages/Library";
-import {setAnimationTargetY} from ".././Store/MusicSlice"
+import { setAnimationTargetY } from ".././Store/MusicSlice";
 
 const Tab = createBottomTabNavigator();
 
 const MainTab = () => {
-  const { status } = useSelector((state) => state.key);
   const dispatch = useDispatch();
+  //----------------------------------------------------
+  const { status } = useSelector((state) => state.key);
+
+  const data = useSelector((state) => state.data.data);
+
+  const displayPlayer = data && data.length > 0;
+  //------------------------------------------------------------
+
+  //const {isFirst } = useSelector((state) => state.user.isFirstTime);
+
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   useEffect(() => {
     const keybaordDidShow = Keyboard.addListener("keyboardDidShow", () => {
-      console.warn("keyboard is active")
-      setKeyboardVisible(true)
-    }
-    );
+      console.warn("keyboard is active");
+      setKeyboardVisible(true);
+    });
     const keyboardDidHide = Keyboard.addListener("keyboardDidHide", () => {
-      console.warn("keyboard is inactive")
-      setKeyboardVisible(false)
+      console.warn("keyboard is inactive");
+      setKeyboardVisible(false);
       dispatch(setAnimationTargetY(0));
-    }
-    );
+    });
     return () => {
       keybaordDidShow.remove();
       keyboardDidHide.remove();
     };
   }, []);
+
   return (
     <>
       <Tab.Navigator
@@ -42,9 +50,9 @@ const MainTab = () => {
           let iconName;
           if (route.name === "Home") iconName = "home-outline";
           else if (route.name === "Search") iconName = "magnify";
-          else if (route.name === "Library") iconName = "music-box-multiple-outline"
+          else if (route.name === "Library")
+            iconName = "music-box-multiple-outline";
           else if (route.name === "Settings") iconName = "cog-outline";
-
 
           return {
             tabBarIcon: ({ color, size }) => (
@@ -64,10 +72,11 @@ const MainTab = () => {
         <Tab.Screen name="Search" component={Search} />
         <Tab.Screen name="Library" component={Library} />
         <Tab.Screen name="Settings" component={Settings} />
-
       </Tab.Navigator>
-      {!isKeyboardVisible && <Player />}
 
+      {displayPlayer && !isKeyboardVisible && <Player />}
+
+      {/* <Player /> */}
     </>
   );
 };

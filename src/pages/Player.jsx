@@ -36,6 +36,8 @@ import Replay from "../Components/Icons/Replay";
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
 
+import MediaNotificationManager from "./MediaNotificationManager";
+
 const Player = () => {
   const { colors } = useTheme();
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -51,6 +53,15 @@ const Player = () => {
 
   const { data, pos, seek, isplaying, isMinimized, animationTargetY } =
     useSelector((state) => state.data);
+
+    //------------------------------------------------------
+    const [currentTrack, setCurrentTrack] = useState({
+      title: "Sample Track",
+      artist: "Sample Artist",
+      album: "Sample Album",
+      artwork: "https://example.com/artwork.jpg",
+    });
+    //--------------------------------------------------
 
   useEffect(() => {
     const autoPlayIfUserSearched = async () => {
@@ -83,22 +94,7 @@ const Player = () => {
     console.log("isPlaying?...:", isplaying);
   }, [seek, isplaying]);
 
-  //---------------------------------------------------------
-  // useEffect to update notification metadata when track changes
-  // useEffect(() => {
-  //   if (data && data[pos]) {
-  //     updateNotificationMetaData(data[pos]);
-  //   }
-  // }, [data, pos]);
 
-  // //useEffect to update playback state
-  // useEffect(() => {
-  //   if (data && data[pos]) {
-  //     updatePlaybackState(isplaying, seek);
-  //   }
-  // }, [isplaying, seek]);
-
-  //------------------------------------------------------
 
   const togglePlayPause = async () => {
     if (!soundRef.current) return;
@@ -106,11 +102,11 @@ const Player = () => {
     if (isplaying) {
       await soundRef.current.pauseAsync();
       dispatch(progress(-1));
-      //updatePlaybackState(false, seek); //added
+   
     } else {
       await soundRef.current.playAsync(); // resumes from last position
       dispatch(progress(-1));
-      //updatePlaybackState(true, seek); //added
+    
     }
     dispatch(setIsPlaying("toggle"));
   };
@@ -177,6 +173,83 @@ const Player = () => {
     setLastPress(timeNow);
   };
   const TOTAL_DURATION = data ? data[pos]?.duration : 0;
+
+//-----------------------------------------------------
+useEffect(() => {
+  // Show notification when component mounts
+  MediaNotificationManager.showNotification(currentTrack);
+
+  // Set up event listeners for media controls
+  const playListener = MediaNotificationManager.addEventListener(
+    "play",
+    handlePlay
+  );
+  const pauseListener = MediaNotificationManager.addEventListener(
+    "pause",
+    handlePause
+  );
+  const nextListener = MediaNotificationManager.addEventListener(
+    "next",
+    handleNext
+  );
+  const prevListener = MediaNotificationManager.addEventListener(
+    "previous",
+    handlePrevious
+  );
+  const stopListener = MediaNotificationManager.addEventListener(
+    "stop",
+    handleStop
+  );
+
+  // Clean up on unmount
+  return () => {
+    playListener();
+    pauseListener();
+    nextListener();
+    prevListener();
+    stopListener();
+    MediaNotificationManager.hideNotification();
+  };
+}, []);
+
+// Update notification when playback state changes
+useEffect(() => {
+  MediaNotificationManager.updatePlaybackStatus(isPlaying);
+}, [isPlaying]);
+
+const handlePlay = () => {
+  console.log("Play pressed");
+  setIsPlaying(true);
+  // Start your audio playback here
+};
+
+const handlePause = () => {
+  console.log("Pause pressed");
+  setIsPlaying(false);
+  // Pause your audio playback here
+};
+
+const handleNext = () => {
+  console.log("Next pressed");
+  // Handle next track logic
+};
+
+const handlePrevious = () => {
+  console.log("Previous pressed");
+  // Handle previous track logic
+};
+
+const handleStop = () => {
+  console.log("Stop pressed");
+  setIsPlaying(false);
+  // Stop your audio playback here
+};
+
+const togglePlayback = () => {
+  setIsPlaying(!isPlaying);
+};
+//-----------------------------------------------------
+  
 
   const styles = StyleSheet.create({
     Main: {
@@ -454,12 +527,54 @@ const Player = () => {
       color: "#4f8ef7",
       fontWeight: "500",
     },
-    progressBarTouchArea: {
-      height: 30, // Increased height for better touch target
-      justifyContent: "flex-end",
-      width: "100%",
+
+    //----------------------------------------
+    container: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 20,
     },
+    title: {
+      fontSize: 22,
+      fontWeight: "bold",
+      marginBottom: 5,
+    },
+    artist: {
+      fontSize: 18,
+      marginBottom: 5,
+    },
+    album: {
+      fontSize: 16,
+      color: "#666",
+      marginBottom: 30,
+    },
+    controls: {
+      flexDirection: "row",
+      justifyContent: "space-around",
+      width: "100%",
+      marginTop: 20,
+    },
+    //-----------------------------------------
   });
+
+  //-----------------------------------------------
+  <View style={styles.container}>
+      <Text style={styles.title}>{currentTrack.title}</Text>
+      <Text style={styles.artist}>{currentTrack.artist}</Text>
+      <Text style={styles.album}>{currentTrack.album}</Text>
+      
+      <View style={styles.controls}>
+        <Button title="Previous" onPress={handlePrevious} />
+        <Button 
+          title={isPlaying ? 'Pause' : 'Play'} 
+          onPress={togglePlayback} 
+        />
+        <Button title="Next" onPress={handleNext} />
+        <Button title="Stop" onPress={handleStop} />
+      </View>
+    </View>
+  //------------------------------------------------
 
   // Render the mini player if minimized
   if (isMinimized) {
@@ -502,6 +617,7 @@ const Player = () => {
                         : "Unknown Title"
                     }
                   />
+                  
                   <Text style={styles.miniPlayerArtist} numberOfLines={1}>
                     {data ? data[pos]?.uploader : "Unknown Artist"}
                   </Text>
