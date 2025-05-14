@@ -36,11 +36,11 @@ const InfoModal = ({
         <View style={styles.modal}>
           <View style={styles.header}>
             <Text style={styles.title}>{playlistName}</Text>
-            <TouchableOpacity onPress={onEdit}>
-              <EditIcon />
-            </TouchableOpacity>
           </View>
-          <Text style={styles.description}>{playlistDescription}</Text>
+          <View style={styles.descriptionContainer}>
+            <Text style={styles.description}>{playlistDescription}</Text>
+           
+          </View>
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
             <Text style={styles.closeText}>Close</Text>
           </TouchableOpacity>
@@ -55,15 +55,18 @@ export default InfoModal;
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
     justifyContent: "center",
     alignItems: "center",
   },
   modal: {
     width: "85%",
-    backgroundColor: "#1c1c1e",
+    backgroundColor: "white",
     padding: 20,
     borderRadius: 12,
+    borderColor: "gray",
+    borderWidth: 5,
+    borderRadius: 8,
   },
   header: {
     flexDirection: "row",
@@ -72,15 +75,30 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   title: {
-    fontSize: 18,
-    color: "#fff",
-    fontWeight: "bold",
+    fontSize: 20,
+    color: "#1a1a1a",
+    fontWeight: "700",
     flex: 1,
+    textAlign: "start",
+    marginBottom: 8,
+    letterSpacing: 0.5,
+    textTransform: "capitalize",
+  },
+  descriptionContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 20,
   },
   description: {
     fontSize: 14,
-    color: "#ccc",
-    marginBottom: 20,
+    color: "black",
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 10,
+    flex: 1,
+    marginRight: 8,
   },
   closeButton: {
     alignSelf: "flex-end",
