@@ -1,4 +1,5 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import axios from "axios";
 
 const PlaylistSlice = createSlice({
     name: "playlist",
@@ -49,7 +50,54 @@ const PlaylistSlice = createSlice({
         changePlaylist(state, action) {
             state.playlistNo = action.payload;
         }
+    },
+    extraReducers: (builder) => {
+        builder
+
+            .addCase(migrate.fulfilled, (state, action) => {
+
+                const response = action.payload;
+                const id = state.id + 1;
+                const playlist = {
+                    id: id,
+                    image: response[0].cover_url || null,
+                    name: response[0].album_name,
+                    desc: "imported from spotify",
+                    songs: [],
+                    Time: 0,
+                    isPlaying: false
+                }
+                state.data = [...state.data, playlist];
+                const song = [];
+
+                response.forEach((item) => {
+                    song.push({
+                        id: item.song_id,
+                        title: item.name || null,
+                        uploader: item.artist || null,
+                        image: item.cover_url || null,
+                        url: item.url || null,
+                        duration: item.duration || 0,
+                    });
+                    state.data[id].Time += item.duration;
+                });
+
+                state.data[id].songs = song
+
+            })
+
     }
 })
 export const { addPlaylist, addMusicinPlaylist, setPlaylistplaying, changePlaylist } = PlaylistSlice.actions;
 export default PlaylistSlice.reducer;
+export const migrate = createAsyncThunk('/migratedata', async ({ Url: data }) => {
+    try {
+        console.warn(data)
+        const response = await axios.post("http://192.168.1.44/api/migrate", { playlist: data })
+        console.warn("reached back")
+        return response.data
+    }
+    catch (e) {
+        console.error("error migrating!!", e)
+    }
+})
