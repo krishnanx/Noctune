@@ -7,6 +7,10 @@
   <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
   <uses-permission android:name="android.permission.VIBRATE"/>
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+  
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
   <queries>
     <intent>
       <action android:name="android.intent.action.VIEW"/>
@@ -30,5 +34,27 @@
         <data android:scheme="com.krishnanx.Noctune"/>
       </intent-filter>
     </activity>
+
+
+  
+    <receiver
+        android:name=".medianotification.MediaNotificationReceiver"
+        android:enabled="true"
+        android:exported="false">
+        <intent-filter>
+            <action android:name="com.krishnanx.Noctune.medianotification.PLAY" />
+            <action android:name="com.krishnanx.Noctune.medianotification.PAUSE" />
+            <action android:name="com.krishnanx.Noctune.medianotification.NEXT" />
+            <action android:name="com.krishnanx.Noctune.medianotification.PREV" />
+            <action android:name="com.krishnanx.Noctune.medianotification.STOP" />
+        </intent-filter>
+    </receiver>
+
+    <service
+            android:name=".medianotification.MediaNotificationService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+
+
   </application>
 </manifest>
