@@ -21,6 +21,7 @@ const Library = () => {
     const { colors } = useTheme();
     const { data } = useSelector((state) => state.playlist);
     const navigation = useNavigation();
+
     const toggleModal = () => {
         setIsModalVisible((prev) => !prev);
     };
@@ -268,6 +269,7 @@ const Library = () => {
 }
 
 export default Library
+
 const Custom_modal = ({ isModalVisible, styles, toggleModal, handlePress, navigation }) => {
     const { data, pos } = useSelector((state) => state.data);
 
@@ -440,6 +442,7 @@ const Playlistadd = ({ isPlaylistaddVisible,
         </Modal>
     )
 }
+
 const DisplayPlaylist = ({ item, index, styles, navigation }) => {
     return (
         <TouchableHighlight

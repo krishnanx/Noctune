@@ -1,48 +1,68 @@
-import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Image, Text, TouchableOpacity, ScrollView, FlatList } from "react-native";
-import BackArrow from '../Components/BackArrow';
-import Download from '../Components/Download';
-import AnimatedDownloadIcon from "../Components/Icons/AnimatedDownloadIcon"
-import AddFriend from '../Components/addFriend';
-import ThreeDots from '../Components/ThreeDots';
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import icon from "../../assets/favicon.png"
-import { soundRef } from '../functions/music';
-import { progress, setIsPlaying } from '../../Store/MusicSlice';
-import { changePlaylist, setPlaylistplaying } from '../../Store/PlaylistSlice';
-import { addPath, addSong, download } from '../../Store/DownloadSlice';
-import DownloadButton from '../Components/DownloadButton';
-import { folderPicker } from '../functions/StoragePicker';
-const Playlist = () => {
-  const { data, id, playlistNo } = useSelector((state) => state.playlist)
-  const { user, session, loading, error, clientID } = useSelector((state) => state.user)
-  const { index } = useRoute().params;
-  const { data: value, pos, seek, isplaying, isMinimized, animationTargetY } =
-    useSelector((state) => state.data);
+import React, { useState, useRef } from "react";
+import {
+  View,
+  StyleSheet,
+  Image,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  FlatList,
+} from "react-native";
+import BackArrow from "../Components/BackArrow";
+import Download from "../Components/Download";
+import AnimatedDownloadIcon from "../Components/Icons/AnimatedDownloadIcon";
+import AddFriend from "../Components/addFriend";
+import ThreeDots from "../Components/ThreeDots";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import icon from "../../assets/favicon.png";
+import { soundRef } from "../functions/music";
+import { progress, setIsPlaying } from "../../Store/MusicSlice";
+import { changePlaylist, setPlaylistplaying } from "../../Store/PlaylistSlice";
+import { addPath, addSong, download } from "../../Store/DownloadSlice";
+import DownloadButton from "../Components/DownloadButton";
+import { folderPicker } from "../functions/StoragePicker";
+import Info from "../Components/Info";
+import InfoModal from "../Components/InfoModal";
 
-  const navigation = useNavigation()
+const Playlist = () => {
+ 
+
+  const { data, id, playlistNo } = useSelector((state) => state.playlist);
+  const { user, session, loading, error, clientID } = useSelector(
+    (state) => state.user
+  );
+  const { index } = useRoute().params;
+  const {
+    data: value,
+    pos,
+    seek,
+    isplaying,
+    isMinimized,
+    animationTargetY,
+  } = useSelector((state) => state.data);
+
+  const navigation = useNavigation();
   const dispatch = useDispatch();
+
   const styles = StyleSheet.create({
     Main: {
       flex: 1,
-      width: "100%"
-
+      width: "100%",
     },
     insideMain: {
       paddingHorizontal: 20,
       paddingTop: 20,
       flexDirection: "column",
       flex: 1,
-      flexGrow: 1
-
+      flexGrow: 1,
     },
     top: {
       width: "100%",
       marginBottom: 20,
       flexDirection: "row",
       justifyContent: "space-between",
-      alignItems: "center"
+      alignItems: "center",
     },
     // search:{
     //     width:"100%",
@@ -66,13 +86,12 @@ const Playlist = () => {
       //backgroundColor:"pink",
       position: "relative",
       justifyContent: "center",
-      alignItems: "center"
+      alignItems: "center",
     },
     metadata: {
-
       //backgroundColor:"white",
       paddingTop: 15,
-      width: "100%"
+      width: "100%",
     },
     Name: {
       width: "100%",
@@ -83,7 +102,7 @@ const Playlist = () => {
       width: "100%",
       height: 80,
       //backgroundColor:"white",
-      marginTop: 20
+      marginTop: 20,
     },
     topFunc: {
       //backgroundColor:"red",
@@ -91,29 +110,27 @@ const Playlist = () => {
       height: "50%",
       flexDirection: "row",
       alignItems: "center",
-      justifyContent: "space-between"
+      justifyContent: "space-between",
     },
     bottomFunc: {
       //backgroundColor:"pink",
       width: "100%",
       height: "50%",
-      flexDirection: "row"
+      flexDirection: "row",
     },
     topFuncLeft: {
       width: "50%",
       height: "100%",
       flexDirection: "row",
       alignItems: "center",
-      justifyContent: "flex-start"
-
+      justifyContent: "flex-start",
     },
     topFuncRight: {
       width: "50%",
       height: "100%",
       flexDirection: "row",
       alignItems: "center",
-      justifyContent: "flex-end"
-
+      justifyContent: "flex-end",
     },
     miniTriangle: {
       width: 0,
@@ -160,7 +177,6 @@ const Playlist = () => {
       borderRadius: 25,
       borderColor: "white",
       borderWidth: 1,
-
     },
     card: {
       width: "100%", //95
@@ -184,7 +200,7 @@ const Playlist = () => {
       color: "white",
       fontSize: 12,
       fontWeight: "300",
-      marginTop: 2
+      marginTop: 2,
     },
     songName: {
       color: "white",
@@ -198,17 +214,27 @@ const Playlist = () => {
     dotsContainer: {
       marginLeft: "auto",
     },
-
-  })
-  const Pname = data[index].name
-  const Uname = "Krishnan E"
+    container: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    info: {
+      width: "100%",
+      alignItems: "flex-end",
+      paddingRight: 25,
+    },
+  });
+  const Pname = data[index].name;
+  const Description=data[index].desc;
+  const Uname = "Krishnan E";
 
   const togglePlayPause = async () => {
     if (!soundRef.current) return;
-    console.warn("reached playlist toggle")
-    console.warn(playlistNo, index)
+    console.warn("reached playlist toggle");
+    console.warn(playlistNo, index);
     if (playlistNo != index) {
-      dispatch(changePlaylist(index))
+      dispatch(changePlaylist(index));
     }
     // if (isplaying) {
     //   await soundRef.current.pauseAsync();
@@ -219,26 +245,29 @@ const Playlist = () => {
     //   dispatch(progress(-1));
     //   //updatePlaybackState(true, seek); //added
     // }
-    dispatch(setPlaylistplaying({ action: "toggle", id: index }))
+    dispatch(setPlaylistplaying({ action: "toggle", id: index }));
     dispatch(setIsPlaying("toggle"));
-
   };
   const handleDownload = async () => {
-    console.warn("reached download function")
+    console.warn("reached download function");
     console.warn(data[index]?.songs, clientID);
-    const path = await folderPicker()
-    console.warn(path)
-    dispatch(addPath({ path: path }))
-    dispatch(addSong({ data: data[index]?.songs }))
-    dispatch(download({ data: data[index]?.songs, ClientId: clientID }))
-  }
+    const path = await folderPicker();
+    console.warn(path);
+    dispatch(addPath({ path: path }));
+    dispatch(addSong({ data: data[index]?.songs }));
+    dispatch(download({ data: data[index]?.songs, ClientId: clientID }));
+  };
   return (
     <ScrollView
       style={styles.Main}
-      contentContainerStyle={{ alignItems: 'center', paddingBottom: 100, paddingHorizontal: 20, paddingTop: 20, height: 1000 }}
-
+      contentContainerStyle={{
+        alignItems: "center",
+        paddingBottom: 100,
+        paddingHorizontal: 20,
+        paddingTop: 20,
+        height: 1000,
+      }}
     >
-
       <Information
         styles={styles}
         Pname={Pname}
@@ -248,89 +277,111 @@ const Playlist = () => {
         togglePlayPause={togglePlayPause}
         handleDownload={handleDownload}
         DownloadButton={DownloadButton}
+        Description={Description}
       />
       <Flatlist data={data[index].songs || []} styles={styles} />
-
-
     </ScrollView>
-  )
-}
+  );
+};
 
-export default Playlist
-const Information = ({ styles, Pname, Uname, data, navigation, togglePlayPause, handleDownload, DownloadButton }) => {
+export default Playlist;
+
+
+const Information = ({
+  styles,
+  Pname,
+  Uname,
+  data,
+  navigation,
+  togglePlayPause,
+  handleDownload,
+  DownloadButton,
+  Description,
+}) => {
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
   };
-  return (
-    <View style={{ width: "100%" }} >
-      <View
-        style={styles.top}
-      >
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
 
-        >
+  const [modalVisible, setModalVisible] = useState(false);
+  const openModal = () => {
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
+  return (
+    <View style={{ width: "100%" }}>
+      <View style={styles.top}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <BackArrow />
         </TouchableOpacity>
 
-        <DownloadButton />
+        <View style={styles.info}>
+          <TouchableOpacity onPress={openModal}>
+            <Info width={24} height={24} fill="#e3e3e3" />
+          </TouchableOpacity>
+        </View>
 
+        {/* Info Modal */}
+        <InfoModal
+          visible={modalVisible}
+          onClose={closeModal}
+          playlistName={Pname} // Replace with dynamic data if necessary
+          playlistDescription={Description} // Replace with dynamic data if necessary
+          onEdit={() => console.log("Edit pressed")}
+        />
+
+        <DownloadButton />
       </View>
       {/* <View
             style={styles.search}
         >
 
         </View> */}
-      <View
-        style={styles.metadata}
-
-      >
-        <View
-          style={styles.imageContainer}
-
-        >
+      <View style={styles.metadata}>
+        <View style={styles.imageContainer}>
           <Image
             source={data.image ? { uri: data.image } : icon}
             style={styles.albumArt}
-          // fallback if user image fails to load
+            // fallback if user image fails to load
           />
         </View>
-        <View
-          style={styles.Name}
-
-        >
+        <View style={styles.Name}>
           <Text
-            style={{ fontSize: 27, fontWeight: "600", color: "white", marginBottom: 8 }}
+            style={{
+              fontSize: 27,
+              fontWeight: "600",
+              color: "white",
+              marginBottom: 8,
+            }}
           >
             {Pname}
           </Text>
           <Text
-            style={{ fontSize: 15, fontWeight: "600", color: "white", marginBottom: 4 }}
+            style={{
+              fontSize: 15,
+              fontWeight: "600",
+              color: "white",
+              marginBottom: 4,
+            }}
           >
             {Uname}
           </Text>
-          <Text
-            style={{ fontSize: 10, fontWeight: "600", color: "white" }}
-          >
+          <Text style={{ fontSize: 10, fontWeight: "600", color: "white" }}>
             {formatTime(data.Time)} min
           </Text>
         </View>
-        <View
-          style={styles.function}
-        >
-          <View
-            style={styles.topFunc}
-          >
-            <View
-              style={styles.topFuncLeft}
-            >
+        <View style={styles.function}>
+          <View style={styles.topFunc}>
+            <View style={styles.topFuncLeft}>
               <TouchableOpacity
                 style={[styles.funcbutton, { marginRight: 15 }]}
                 onPress={() => handleDownload()}
               >
-                <View >
+                <View>
                   <Download />
                 </View>
               </TouchableOpacity>
@@ -345,9 +396,7 @@ const Information = ({ styles, Pname, Uname, data, navigation, togglePlayPause, 
                 <ThreeDots />
               </TouchableOpacity>
             </View>
-            <View
-              style={styles.topFuncRight}
-            >
+            <View style={styles.topFuncRight}>
               <TouchableOpacity
                 onPress={() => togglePlayPause()}
                 style={styles.miniPlayPauseButton}
@@ -363,35 +412,22 @@ const Information = ({ styles, Pname, Uname, data, navigation, togglePlayPause, 
               </TouchableOpacity>
             </View>
           </View>
-          <View
-            style={styles.bottomFunc}
-          >
-
-          </View>
+          <View style={styles.bottomFunc}></View>
         </View>
-
       </View>
     </View>
-  )
-}
+  );
+};
 const DataList = ({ styles, item }) => {
-  console.log("item", item)
+  console.log("item", item);
   return (
     <View
-
       style={styles.card}
-    // onTouchEnd={() => handleCardPress(item)}
+      // onTouchEnd={() => handleCardPress(item)}
     >
-      <Image
-        source={{ uri: item.image }}
-        style={styles.cardImage}
-      />
+      <Image source={{ uri: item.image }} style={styles.cardImage} />
       <View style={styles.textContainer}>
-        <Text
-          numberOfLines={1}
-          ellipsizeMode="tail"
-          style={styles.songName}
-        >
+        <Text numberOfLines={1} ellipsizeMode="tail" style={styles.songName}>
           {item.title}
         </Text>
         <Text style={styles.artistName}>{item.uploader}</Text>
@@ -400,8 +436,6 @@ const DataList = ({ styles, item }) => {
         <ThreeDots />
       </View>
     </View>
-
-
   );
 };
 const Flatlist = ({ data, styles }) => {
@@ -412,7 +446,5 @@ const Flatlist = ({ data, styles }) => {
       scrollEnabled={false}
       renderItem={(item) => <DataList styles={styles} item={item.item} />}
     />
-
-
-  )
-}
+  );
+};

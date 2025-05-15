@@ -13,10 +13,12 @@ import {
     Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useDispatch } from 'react-redux';
+import { migrate } from '../../Store/PlaylistSlice';
 
 const MigratePlaylist = () => {
     const [playlistUrl, setPlaylistUrl] = useState('');
-
+    const dispatch = useDispatch()
     const handleSubmit = () => {
         if (!playlistUrl.trim()) {
             Alert.alert('Error', 'Please enter a Spotify playlist URL');
@@ -24,7 +26,8 @@ const MigratePlaylist = () => {
         }
 
         // Here you would add your actual migration logic
-        console.log('Migrating playlist:', playlistUrl);
+        console.warn('Migrating playlist:', playlistUrl);
+        dispatch(migrate({ Url: playlistUrl }))
         Alert.alert('Success', 'Migration process started');
     };
 
@@ -77,7 +80,7 @@ const MigratePlaylist = () => {
 
                         <TouchableOpacity
                             style={styles.submitButton}
-                            onPress={handleSubmit}
+                            onPress={() => handleSubmit()}
                         >
                             <Text style={styles.submitButtonText}>Migrate Playlist</Text>
                         </TouchableOpacity>

@@ -1,32 +1,65 @@
-// metro.config.js
-const { getDefaultConfig } = require("expo/metro-config");
-const path = require("path");
+const { getDefaultConfig, mergeConfig } = require("@react-native/metro-config");
 
-const config = getDefaultConfig(__dirname);
-config.resolver.unstable_conditionNames = [ 'browser', 'require', 'react-native', ]
-// Custom resolver for missing assets
-config.resolver = {
-  ...config.resolver,
-  assetExts: [...config.resolver.assetExts, "png", "jpg", "jpeg", "gif"],
-  extraNodeModules: {
-    "missing-asset-registry-path": path.resolve(__dirname, "assets"),
-  },
- 
-};
+module.exports = mergeConfig(getDefaultConfig(__dirname), {});
 
-// Force Metro to resolve specific asset paths
-config.transformer = {
-  ...config.transformer,
-  getTransformOptions: async () => ({
-    transform: {
-      experimentalImportSupport: false,
-      inlineRequires: true,
-    },
-  }),
-  assetPlugins: ["expo-asset/tools/hashAssetFiles"],
-};
+// const { getDefaultConfig, mergeConfig } = require("@react-native/metro-config");
+// const path = require("path");
 
-module.exports = config;
+// const config = {
+//   resolver: {
+//     unstable_conditionNames: ["browser", "require", "react-native"],
+//     assetExts: [
+//       ...require("metro-config/src/defaults/defaults").assetExts,
+//       "png",
+//       "jpg",
+//       "jpeg",
+//       "gif",
+//     ],
+//     extraNodeModules: {
+//       "missing-asset-registry-path": path.resolve(__dirname, "assets"),
+//     },
+//   },
+//   transformer: {
+//     getTransformOptions: async () => ({
+//       transform: {
+//         experimentalImportSupport: false,
+//         inlineRequires: true,
+//       },
+//     }),
+//   },
+// };
+
+// module.exports = mergeConfig(getDefaultConfig(__dirname), config);
+
+// // metro.config.js
+// const { getDefaultConfig } = require("expo/metro-config");
+// const path = require("path");
+
+// const config = getDefaultConfig(__dirname);
+// config.resolver.unstable_conditionNames = [ 'browser', 'require', 'react-native', ]
+// // Custom resolver for missing assets
+// config.resolver = {
+//   ...config.resolver,
+//   assetExts: [...config.resolver.assetExts, "png", "jpg", "jpeg", "gif"],
+//   extraNodeModules: {
+//     "missing-asset-registry-path": path.resolve(__dirname, "assets"),
+//   },
+
+// };
+
+// // Force Metro to resolve specific asset paths
+// config.transformer = {
+//   ...config.transformer,
+//   getTransformOptions: async () => ({
+//     transform: {
+//       experimentalImportSupport: false,
+//       inlineRequires: true,
+//     },
+//   }),
+//   assetPlugins: ["expo-asset/tools/hashAssetFiles"],
+// };
+
+// module.exports = config;
 
 // const { getDefaultConfig } = require("metro-config");
 

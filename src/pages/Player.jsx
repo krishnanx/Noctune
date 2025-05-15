@@ -9,7 +9,7 @@ import {
   Dimensions,
   Animated,
   TouchableWithoutFeedback,
-  Button
+  Button,
 } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { SkipBack, SkipForward } from "react-native-feather";
@@ -95,19 +95,15 @@ const Player = () => {
     console.log("isPlaying?...:", isplaying);
   }, [seek, isplaying]);
 
-
-
   const togglePlayPause = async () => {
     if (!soundRef.current) return;
 
     if (isplaying) {
       await soundRef.current.pauseAsync();
       dispatch(progress(-1));
-
     } else {
       await soundRef.current.playAsync(); // resumes from last position
       dispatch(progress(-1));
-
     }
     dispatch(setIsPlaying("toggle"));
   };
@@ -248,9 +244,7 @@ const Player = () => {
 
   const togglePlayback = () => {
     dispatch(setIsPlaying("toggle"));
-  };
-  //-----------------------------------------------------
-
+  }
 
   const styles = StyleSheet.create({
     Main: {
@@ -461,12 +455,17 @@ const Player = () => {
       fontWeight: "bold",
       color: "white",
     },
+    progressBarTouchArea: {
+      height: 30, // Increased height for better touch target
+      justifyContent: "flex-end",
+    },
     singerName: {
+      position: "relative",
       top: 20,
       fontSize: 18,
       fontWeight: "300",
       color: "gray",
-      marginTop: 2,
+      marginTop:2,
     },
     albumArt: {
       position: "absolute",
@@ -513,7 +512,7 @@ const Player = () => {
       // top: 35,
       // left: 30,
       // zIndex: 10,
-    }, //added
+    },
     sleepTimerButton: {
       flexDirection: "row",
       alignItems: "center",
@@ -529,37 +528,9 @@ const Player = () => {
       fontWeight: "500",
     },
 
-    //----------------------------------------
-    container: {
-      flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
-      padding: 20,
-    },
-    title: {
-      fontSize: 22,
-      fontWeight: "bold",
-      marginBottom: 5,
-    },
-    artist: {
-      fontSize: 18,
-      marginBottom: 5,
-    },
-    album: {
-      fontSize: 16,
-      color: "#666",
-      marginBottom: 30,
-    },
-    controls: {
-      flexDirection: "row",
-      justifyContent: "space-around",
-      width: "100%",
-      marginTop: 20,
-    },
-    //-----------------------------------------
+  
   });
 
-  //-----------------------------------------------
   <View style={styles.container}>
     <Text style={styles.title}>{currentTrack.title}</Text>
     <Text style={styles.artist}>{currentTrack.artist}</Text>
@@ -567,15 +538,11 @@ const Player = () => {
 
     <View style={styles.controls}>
       <Button title="Previous" onPress={handlePrevious} />
-      <Button
-        title={isplaying ? 'Pause' : 'Play'}
-        onPress={togglePlayback}
-      />
+      <Button title={isplaying ? "Pause" : "Play"} onPress={togglePlayback} />
       <Button title="Next" onPress={handleNext} />
       <Button title="Stop" onPress={handleStop} />
     </View>
-  </View>
-  //------------------------------------------------
+  </View>;
 
   // Render the mini player if minimized
   if (isMinimized) {
@@ -647,8 +614,9 @@ const Player = () => {
                   style={[
                     styles.miniProgressBarFill,
                     {
-                      width: `${TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0
-                        }%`,
+                      width: `${
+                        TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0
+                      }%`,
                     },
                   ]}
                 />
@@ -985,7 +953,6 @@ const Custom_modal = ({
             <Text style={styles.option}>Add to Liked Songs</Text>
           </TouchableOpacity>
 
-
           <TouchableOpacity
             style={styles.optionTouch}
             onPress={() => {
@@ -1006,20 +973,20 @@ const Custom_modal = ({
 
           <TouchableOpacity
             style={styles.optionTouch}
-          // onPress={() => {
-          //   toggleModal();
-          //   dispatch({ type: "ADD_TO_QUEUE", payload: song });
-          // }}
+            // onPress={() => {
+            //   toggleModal();
+            //   dispatch({ type: "ADD_TO_QUEUE", payload: song });
+            // }}
           >
             <Text style={styles.option}>Add to Queue</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.optionTouch}
-          // onPress={() => {
-          //   toggleModal();
-          //   dispatch({ type: "ADD_TO_QUEUE", payload: song });
-          // }}
+            // onPress={() => {
+            //   toggleModal();
+            //   dispatch({ type: "ADD_TO_QUEUE", payload: song });
+            // }}
           >
             <Text style={styles.option}>Add to Queue</Text>
           </TouchableOpacity>
