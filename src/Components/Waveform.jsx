@@ -1,10 +1,13 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { Text, Animated, StatusBar } from "react-native";
 import { StyleSheet, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import MaskedView from "@react-native-masked-view/masked-view";
-import { useSelector } from "react-redux";
-
+import { connect, useSelector } from "react-redux";
+import * as Device from "expo-device";
+import { setClientID, setWebsocket } from "../../Store/UserSlice"
+import { useDispatch } from "react-redux";
+import { initWebSocket, getWebSocket } from '../Websocket/websocketfunc';
 const WaveformLoader = () => {
 
   const NUMBER_OF_BARS = 20;
@@ -89,7 +92,26 @@ const WaveformLoader = () => {
 const Waveform = () => {
   const { Mode } = useSelector((state) => state.theme)
   const fadeAnim = useRef(new Animated.Value(0)).current;
-
+  const [deviceName, setDeviceName] = useState(null);
+  const hasConnected = useRef(false);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    const fetchDeviceName = async () => {
+      try {
+        const name =
+          Device.getDeviceNameAsync && typeof Device.getDeviceNameAsync === "function"
+            ? await Device.getDeviceNameAsync()
+            : null;
+        setDeviceName(
+          name || `${Device.manufacturer ?? "Unknown"} ${Device.modelName ?? "Device"}`
+        );
+      } catch (err) {
+        console.error("Error fetching device name:", err);
+        setDeviceName(`${Device.manufacturer ?? "Unknown"} ${Device.modelName ?? "Device"}`);
+      }
+    };
+    fetchDeviceName();
+  }, []);
   useEffect(() => {
     Animated.timing(fadeAnim, {
       toValue: 1,
@@ -97,6 +119,26 @@ const Waveform = () => {
       useNativeDriver: true,
     }).start();
   }, []);
+  useEffect(() => {
+    if (!deviceName || hasConnected.current) return;
+    hasConnected.current = true; // Prevent reconnecting on deviceName change
+    const id = Math.random().toString(36).slice(2, 8);
+    initWebSocket('ws://192.168.1.44:80/download-progress');
+    const ws = getWebSocket();
+    const Connect = () => {
+      ws.onopen = () => {
+        console.error("Connected to WebSocket server");
+        dispatch(setClientID({ id: id }))
+        ws.send(JSON.stringify({
+          type: "register",
+          clientId: id,
+          value: "hi"
+        }));
+
+      };
+    }
+    Connect();
+  }, [deviceName])
 
   return (
     <Animated.View style={{ opacity: fadeAnim }}>

@@ -8,7 +8,8 @@ const userSlice = createSlice({
     session: null,
     loading: false,
     error: null,
-    clientID: null
+    clientID: null,
+    ws: null
   },
   reducers: {
     setUser: (state, action) => {
@@ -30,6 +31,9 @@ const userSlice = createSlice({
     },
     setClientID(state, action) {
       state.clientID = action.payload.id
+    },
+    setWebsocket(state, action) {
+      state.ws = action.payload.ws
     }
   },
   extraReducers: (builder) => {
@@ -56,5 +60,5 @@ const userSlice = createSlice({
   },
 });
 
-export const { setUser, setSession, clearUser, setLoading, setError, setClientID } = userSlice.actions;
+export const { setUser, setSession, clearUser, setLoading, setError, setClientID, setWebsocket } = userSlice.actions;
 export default userSlice.reducer;
