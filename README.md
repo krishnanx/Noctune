@@ -40,9 +40,10 @@ Stay tuned to know more!
 - [x] Search across music sources
 - [x] User playlists & persistence
 - [x] Offline playback
-- [ ] Playlist migration
+- [x] Playlist migration
+- [x] Notification playback support
+- [ ] Persistence usihg redis
 - [ ] Collab playlists
-- [ ] Notification playback support
 - [ ] Listening to songs from playlist
 - [ ] Mobile builds and beta release
 

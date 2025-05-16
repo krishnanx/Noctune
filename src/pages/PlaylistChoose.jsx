@@ -8,6 +8,9 @@ import {
   TouchableOpacity,
   TouchableHighlight,
   Image,
+  Modal,
+  TextInput,
+  Switch,
 } from "react-native";
 import BackArrow from "../Components/BackArrow";
 import { useDispatch, useSelector } from "react-redux";
@@ -15,6 +18,8 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { addMusicinPlaylist } from "../../Store/PlaylistSlice";
 import { LinearGradient } from "expo-linear-gradient";
 import icon from "../../assets/icon.png";
+import { addPlaylist } from "../../Store/PlaylistSlice";
+import { useTheme } from "@react-navigation/native";
 
 const PlaylistChoose = () => {
   const navigation = useNavigation();
@@ -24,9 +29,35 @@ const PlaylistChoose = () => {
   const { data } = useSelector((state) => state.playlist);
   const { data: value, pos } = useSelector((state) => state.data);
 
-  const [selectedIndex, setSelectedIndex] = useState(null); // NEW STATE
-
+  const [selectedIndex, setSelectedIndex] = useState(null);
+     const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isPlaylistaddVisible, setisPlaylistaddVisible] = useState(false);
+  const [isPrivate, setIsPrivate] = useState(false);
+  const [playlistName, setPlaylistName] = useState("");
+  const [description, setDescription] = useState("");
+  const { colors } = useTheme();
+  const handlePress = () => {
+    toggleModal();
+    togglePlaylistadd();
+  };
+  const handlePlaylist = () => {
+    togglePlaylistadd();
+    dispatch(addPlaylist({ name: playlistName, desc: description }));
+    setDescription("");
+    setPlaylistName("");
+  };
+  const toggleModal = () => {
+    setIsModalVisible((prev) => !prev);
+  };
+  const togglePlaylistadd = () => {
+    setisPlaylistaddVisible((prev) => !prev);
+  };
   const styles = StyleSheet.create({
+    modalOverlay: {
+      flex: 1,
+      justifyContent: "flex-end",
+      backgroundColor: "rgba(85, 85, 85, 0.85)", // backdrop blur
+    },
     Main: { flex: 1, width: "100%" },
     Header: {
       width: "100%",
@@ -84,11 +115,58 @@ const PlaylistChoose = () => {
       fontSize: 16,
       fontWeight: "bold",
     },
+    switchContainer: {
+      width: "100%",
+      height: 30,
+      alignItems: "center",
+      flexDirection: "row",
+      justifyContent: "space-around",
+    },
+    ButtonContainer: {
+      width: "100%",
+      height: 60,
+      flexDirection: "row",
+      justifyContent: "flex-end",
+      alignItems: "center",
+      //backgroundColor:"white"
+    },
+    input: {
+      width: "100%",
+      color: "white",
+      borderWidth: 1,
+      padding: 10,
+      backgroundColor: "gray",
+      borderRadius: 8,
+    },
+    Button: {
+      color: "white",
+      width: 120,
+      height: 40,
+      backgroundColor: "green",
+      borderRadius: 20,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    PlaylistModal: {
+      height: 350,
+      backgroundColor: colors.text,
+      borderRadius: 20,
+      padding: 25,
+      backgroundColor: "rgba(0,0,0,1)",
+      gap: 15,
+      width: "80%",
+    },
+    playlistMain: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      //backgroundColor: "rgba(98, 92, 92, 0.)", // backdrop blur
+    },
   });
 
   return (
     <LinearGradient
-      colors={["#141414", "#1c2c30"]}
+      colors={["#141414", "#1c2c32"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={{ flex: 1 }}
@@ -164,10 +242,25 @@ const PlaylistChoose = () => {
           }}
           onPress={() => {}}
         >
-          <Text style={{ color: "white", fontSize: 16, fontWeight: "bold" }}>
+          <Text
+            style={{ color: "white", fontSize: 16, fontWeight: "bold" }}
+            onPress={() => handlePress()}
+          >
             + New Playlist
           </Text>
         </TouchableOpacity>
+        <Playlistadd
+          isPlaylistaddVisible={isPlaylistaddVisible}
+          togglePlaylistadd={togglePlaylistadd}
+          styles={styles}
+          isPrivate={isPrivate}
+          setIsPrivate={setIsPrivate}
+          handlePlaylist={handlePlaylist}
+          description={description}
+          setDescription={setDescription}
+          setPlaylistName={setPlaylistName}
+          playlistName={playlistName}
+        />
 
         {/* Playlist List */}
         <View style={styles.body}>
@@ -299,8 +392,72 @@ const DisplayPlaylist = ({
           </View>
         </TouchableOpacity>
       </View>
-
-
     </TouchableHighlight>
+  );
+};
+
+const Playlistadd = ({
+  isPlaylistaddVisible,
+  togglePlaylistadd,
+  styles,
+  isPrivate,
+  setIsPrivate,
+  handlePlaylist,
+  playlistName,
+  setPlaylistName,
+  description,
+  setDescription,
+}) => {
+  return (
+    <Modal
+      transparent
+      visible={isPlaylistaddVisible}
+      animationType="slide"
+      onRequestClose={() => togglePlaylistadd()}
+    >
+      {" "}
+      <View style={styles.modalOverlay}>
+        <View style={styles.playlistMain}>
+          <View style={styles.PlaylistModal}>
+            <Text style={{ fontSize: 20, color: "white" }}>
+              Create Playlist
+            </Text>
+            <TextInput
+              placeholder="Playlist Name"
+              value={playlistName}
+              onChangeText={setPlaylistName}
+              placeholderTextColor="white"
+              style={styles.input}
+            />
+
+            <TextInput
+              placeholder="Description (optional)"
+              value={description}
+              onChangeText={setDescription}
+              placeholderTextColor="white"
+              style={[styles.input, { height: 100 }]}
+            />
+
+            <View style={styles.switchContainer}>
+              <Text style={{ color: "white" }}>Private</Text>
+              <Switch
+                value={isPrivate}
+                onValueChange={setIsPrivate}
+                trackColor={{ false: "#767577", true: "wheat" }}
+                thumbColor={!isPrivate ? "white" : "wheat"}
+              />
+            </View>
+            <View style={styles.ButtonContainer}>
+              <TouchableOpacity
+                style={styles.Button}
+                onPress={() => handlePlaylist()}
+              >
+                <Text style={{ color: "white" }}>Drop the Beat</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </View>
+    </Modal>
   );
 };
