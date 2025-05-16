@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Constants from "expo-constants";
 import * as Device from "expo-device";
 import { LogBox, Alert, Platform } from 'react-native';
-import { setClientID } from "../../Store/UserSlice";
+
 import { addData, changeProgress, setCompleted } from "../../Store/DownloadSlice";
 import {
     createFile,
@@ -12,7 +12,7 @@ import {
     openDocumentTree
 } from 'react-native-saf-x';
 import { saveFile } from "../functions/SaveFile";
-
+import { initWebSocket, getWebSocket } from "./websocketfunc";
 // Action to set the download path in your Redux store
 // You'll need to add this to your DownloadSlice.js
 // export const setDownloadPath = createSlice({
@@ -29,11 +29,11 @@ import { saveFile } from "../functions/SaveFile";
 const Websocket = () => {
     const [deviceName, setDeviceName] = useState(null);
     const dispatch = useDispatch();
-    const hasConnected = useRef(false); // Prevent multiple WebSocket connections
+    // Prevent multiple WebSocket connections
     const [downloadQueue, setDownloadQueue] = useState([]);
     const [isDownloading, setIsdownloading] = useState(false);
     const { songs, status, completed, path } = useSelector((state) => state.download);
-
+    const wsRef = useRef(null);
 
 
     // Process the queue with a specific path
@@ -173,9 +173,9 @@ const Websocket = () => {
     }, []);
 
     useEffect(() => {
-        if (!deviceName || hasConnected.current) return;
-        hasConnected.current = true; // Prevent reconnecting on deviceName change
-        let ws;
+
+        // hasConnected.current = true; // Prevent reconnecting on deviceName change
+        // let ws;
         let reconnectTimeout;
         let pingInterval;
         const id = Math.random().toString(36).slice(2, 8);
@@ -184,30 +184,22 @@ const Websocket = () => {
             console.error(`[${id}] Connecting WebSocket...`);
             //Constants.expoConfig.extra.WEBSOC
             //ws://192.168.1.44:80
-            ws = new WebSocket(`ws://192.168.1.44:80/download-progress`);
 
-            ws.onopen = () => {
-                console.error("Connected to WebSocket server");
-                dispatch(setClientID({ id: id }))
-                ws.send(JSON.stringify({
-                    type: "register",
-                    clientId: id,
-                    value: "hi"
-                }));
-                pingInterval = setInterval(() => {
-                    if (ws.readyState === WebSocket.OPEN) {
-                        ws.send(JSON.stringify({
-                            type: "ping",
-                            clientId: id,
-                            value: "hi"
-                        }));
-                        console.error("pinged");
-                    }
-                }, 25000);
-            };
-
-            ws.onmessage = (event) => {
+            const ws = getWebSocket();
+            wsRef.current = ws;
+            pingInterval = setInterval(() => {
+                if (ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({
+                        type: "ping",
+                        clientId: id,
+                        value: "hi"
+                    }));
+                    console.error("pinged");
+                }
+            }, 25000);
+            wsRef.current.onmessage = (event) => {
                 try {
+                    console.error("message!!")
                     const parsed = JSON.parse(event.data);
                     if (parsed.type == "progress") {
                         dispatch(changeProgress({ progress: parsed.value.percent, index: parsed.value.index }))
@@ -230,13 +222,13 @@ const Websocket = () => {
                 }
             };
 
-            ws.onerror = (error) => {
+            wsRef.current.onerror = (error) => {
                 console.error("WebSocket Error:", error.message);
                 attemptReconnect();
             };
 
-            ws.onclose = () => {
-                console.error("WebSocket disconnected");
+            wsRef.current.onclose = (event) => {
+                console.error(`WebSocket closed: code=${event.code} reason=${event.reason} wasClean=${event.wasClean}`);
                 clearInterval(pingInterval);
                 attemptReconnect();
             };
@@ -258,7 +250,7 @@ const Websocket = () => {
         return () => {
             clearTimeout(reconnectTimeout);
             clearInterval(pingInterval);
-            ws?.close();
+
         };
     }, [deviceName]);
 
