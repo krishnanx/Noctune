@@ -319,13 +319,13 @@ const Information = ({
           <BackArrow />
         </TouchableOpacity>
 
-        <View style={styles.info}>
+        {/* <View style={styles.info}>
           <TouchableOpacity onPress={openModal}>
             <Info width={24} height={24} fill="#e3e3e3" />
           </TouchableOpacity>
-        </View>
+        </View> */}
 
-        {/* Info Modal */}
+        {/* Info Modal*/}
         <InfoModal
           visible={modalVisible}
           onClose={closeModal}
@@ -392,6 +392,7 @@ const Information = ({
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.funcbutton, { marginRight: 15 }]}
+                onPress={openModal}
               >
                 <ThreeDots />
               </TouchableOpacity>

@@ -55,16 +55,41 @@ const DownloadSlice = createSlice({
 })
 export const { addSong, changeProgress, setCompleted, addPath, addData, changeSongStatus } = DownloadSlice.actions;
 export default DownloadSlice.reducer;
-export const download = createAsyncThunk('download/music', async ({ data, ClientId }) => {
-    console.warn("blahh")
-    console.warn({ data, ClientId })
 
-    const song = data.map(element => element.url);
+export const download = createAsyncThunk(
+  "download/music",
+  async ({ data, ClientId }) => {
+    console.warn("=== REDUX THUNK DEBUG ===");
+    console.warn("Input data:", data);
+    console.warn("ClientId:", ClientId);
+    console.warn("Data type:", typeof data);
+    console.warn("Is array?", Array.isArray(data));
 
-    console.warn(song, ClientId)
-    const response = await axios.post("http://192.168.82.33/api/download", {
-      song,
-      ClientId,
-    });
-    return response.data; // This will be returned to your Redux store
-});
+    // Fix: Don't wrap in nested data object
+    const payload = { data, ClientId };
+    console.warn("Sending payload:", payload);
+
+    try {
+      //192.168.82.33 K
+      //192.168.1.44 krish
+      const response = await axios.post(
+        "http://192.168.82.33/api/download",
+        payload, // Remove the extra wrapping
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.warn("Response status:", response.status);
+      console.warn("Response data:", response.data);
+      return response.data;
+    } catch (error) {
+      console.warn("Request failed:", error);
+      console.warn("Error response:", error.response?.data);
+      console.warn("Error status:", error.response?.status);
+      throw error;
+    }
+  }
+);
