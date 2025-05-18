@@ -996,15 +996,6 @@ const Custom_modal = ({
             <Text style={styles.option}>Add to Queue</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.optionTouch}
-            // onPress={() => {
-            //   toggleModal();
-            //   dispatch({ type: "ADD_TO_QUEUE", payload: song });
-            // }}
-          >
-            <Text style={styles.option}>Add to Queue</Text>
-          </TouchableOpacity>
         </View>
       </TouchableOpacity>
     </Modal>
