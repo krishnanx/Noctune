@@ -1,17 +1,27 @@
 // In Components/SleepTimerModal.jsx
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Modal, TouchableWithoutFeedback } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Modal,
+  TouchableWithoutFeedback,
+} from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { startTimer, stopTimer } from "../../Store/TimerSlice";
-import { setIsPlaying } from "../../Store/MusicSlice"; 
+import { setIsPlaying } from "../../Store/MusicSlice";
 
 const SleepTimerModal = ({ visible, onClose, soundRef }) => {
   const dispatch = useDispatch();
-  const { isTimerActive, timerEndTime, timerId } = useSelector(
+  const { isTimerActive, timerEndTime, timerId, timerDuration } = useSelector(
     (state) => state.sleepTimer
   );
   const { data, pos } = useSelector((state) => state.data);
   const [timeRemaining, setTimeRemaining] = useState(null);
+
+  const isplaying = useSelector((state) => state.data.isplaying);
+ 
 
   // Timer options in milliseconds
   const timerOptions = [
@@ -25,10 +35,35 @@ const SleepTimerModal = ({ visible, onClose, soundRef }) => {
     { label: "End of track", value: "end_of_track" },
   ];
 
-  // Update the remaining time every second if timer is active
+  
   useEffect(() => {
     let interval;
 
+    // Start the timer only when music begins playing 
+    if (isplaying && isTimerActive && !timerId && timerDuration) {
+
+      const timeout = setTimeout(async () => {
+        console.log("⏱ Timer fired after song started!");
+
+        if (soundRef && soundRef.current) {
+          await soundRef.current.pauseAsync();
+          dispatch(setIsPlaying(false));
+        }
+
+        dispatch(stopTimer());
+      }, timerDuration);
+
+      // Update Redux state 
+      dispatch(
+        startTimer({
+          duration: timerDuration,
+          timerId: timeout,
+          endTime: Date.now() + timerDuration,
+        })
+      );
+    }
+
+    
     if (isTimerActive && timerEndTime) {
       interval = setInterval(() => {
         const remaining = timerEndTime - Date.now();
@@ -41,10 +76,19 @@ const SleepTimerModal = ({ visible, onClose, soundRef }) => {
       }, 1000);
     }
 
+    // Cleanup on unmount 
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isTimerActive, timerEndTime]);
+  }, [
+    isplaying,
+    isTimerActive,
+    timerId,
+    timerDuration,
+    timerEndTime,
+    dispatch,
+    soundRef,
+  ]);
 
   // Format milliseconds to MM:SS
   const formatTime = (ms) => {
@@ -57,45 +101,31 @@ const SleepTimerModal = ({ visible, onClose, soundRef }) => {
       .padStart(2, "0")}`;
   };
 
-  const handleTimerSelect = (duration) => {
-    if (duration === "end_of_track") {
-    
+  const handleTimerSelect = (timerDuration) => {
+    if (timerDuration === "end_of_track") {
       if (data && data[pos]?.duration) {
         const remainingTime =
           data[pos].duration - (data[pos].currentPosition || 0);
         handleSetTimer(remainingTime);
       }
     } else {
-      handleSetTimer(duration);
+      handleSetTimer(timerDuration);
     }
   };
 
-  const handleSetTimer = (duration) => {
+  const handleSetTimer = (durationValue) => {
     // Clear any existing timer
     if (isTimerActive && timerId) {
       clearTimeout(timerId);
     }
 
-    // Set new timer
-    const newTimerId = setTimeout(async () => {
-      console.log("⏱ Timer fired!");
-
-      if (soundRef && soundRef.current) {
-        await soundRef.current.pauseAsync();
-        dispatch(setIsPlaying(false));
-      } else {
-        console.error("Music did not pause");
-      }
-
-      dispatch(stopTimer());
-    }, duration);
-
-    // Update Redux state
+    // Update redux to activate timer status without starting the actual timer yet
+    // The actual timer will start in useEffect when the song plays
     dispatch(
       startTimer({
-        duration,
-        timerId: newTimerId,
-        endTime: Date.now() + duration,
+        duration:durationValue,
+        timerId: null,
+        endTime: null,
       })
     );
 
@@ -122,7 +152,7 @@ const SleepTimerModal = ({ visible, onClose, soundRef }) => {
           <View style={styles.modalContent}>
             <Text style={styles.title}>
               Sleep Timer{" "}
-              {isTimerActive ? `-${formatTime(timeRemaining)} left` : ""}
+              {isTimerActive && timeRemaining != null ? `:Set for ${formatTime(timerDuration)}` : ""}
             </Text>
             <View style={styles.line}></View>
 
@@ -222,4 +252,3 @@ const styles = StyleSheet.create({
 });
 
 export default SleepTimerModal;
-

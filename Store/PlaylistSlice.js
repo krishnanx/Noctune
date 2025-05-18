@@ -10,16 +10,8 @@ const PlaylistSlice = createSlice({
     },
     reducers: {
         addPlaylist(state, action) {
-            const playlist = {
-                id: state.id + 1,
-                image: action.payload.image || null,
-                name: action.payload.name,
-                desc: action.payload.desc,
-                songs: [],
-                Time: 0,
-                isPlaying: false
-            }
-            state.data = [...state.data, playlist];
+
+            state.data = [...state.data, action.payload.playlist];
         },
         addMusicinPlaylist(state, action) {
             let bool = true;
@@ -89,6 +81,49 @@ const PlaylistSlice = createSlice({
                 state.data[id].songs = song
 
             })
+            .addCase(migrate.pending, (state, action) => {
+
+
+            })
+            .addCase(migrate.rejected, (state, action) => {
+
+
+
+            })
+            .addCase(AddNewPlaylist.fulfilled, (state, action) => {
+
+                const response = action.payload;
+                console.warn("New playlist added")
+
+            })
+            .addCase(AddNewPlaylist.pending, (state, action) => {
+
+                const response = action.payload;
+
+            })
+            .addCase(AddNewPlaylist.rejected, (state, action) => {
+
+                const response = action.payload;
+
+            })
+            .addCase(pullPlaylists.fulfilled, (state, action) => {
+
+                const response = action.payload;
+                response.forEach((item) => {
+                    const data = item.value;
+                    state.data = [...state.data, data]
+                })
+                console.warn(response)
+                console.log("Playlists taken")
+
+            })
+            .addCase(AddNewPlaylistwithmusic.fulfilled, (state, action) => {
+
+
+                console.log("Playlists added");
+
+            })
+
 
     }
 })
@@ -103,5 +138,35 @@ export const migrate = createAsyncThunk('/migratedata', async ({ Url: data }) =>
     }
     catch (e) {
         console.error("error migrating!!", e)
+    }
+})
+export const AddNewPlaylist = createAsyncThunk('/newplaylist', async ({ data: playlist }) => {
+    try {
+        console.warn("adding new playlist");
+        const response = await axios.post("http://192.168.1.44/api/NewPlaylists", { playlist: playlist })
+        return response.data
+    }
+    catch (e) {
+        console.error(e)
+    }
+})
+export const AddNewPlaylistwithmusic = createAsyncThunk('/newplaylistwithmusic', async ({ data: value, song: song }) => {
+    try {
+        console.warn("adding new playlist");
+        const response = await axios.post("http://192.168.1.44/api/NewPlaylistswithmusic", { playlist: value, song: song })
+        return response.data
+    }
+    catch (e) {
+        console.error(e)
+    }
+})
+export const pullPlaylists = createAsyncThunk('/pullPlaylists', async () => {
+    try {
+        console.warn("pulling playlist");
+        const response = await axios.get("http://192.168.1.44/api/Playlist")
+        return response.data
+    }
+    catch (e) {
+        console.error(e)
     }
 })

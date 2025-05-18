@@ -20,17 +20,17 @@ import { LinearGradient } from "expo-linear-gradient";
 import icon from "../../assets/icon.png";
 import { addPlaylist } from "../../Store/PlaylistSlice";
 import { useTheme } from "@react-navigation/native";
-
+import { AddNewPlaylist } from "../../Store/PlaylistSlice";
 const PlaylistChoose = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { index, song } = route.params;
   const dispatch = useDispatch();
-  const { data } = useSelector((state) => state.playlist);
+  const { data, id } = useSelector((state) => state.playlist);
   const { data: value, pos } = useSelector((state) => state.data);
 
   const [selectedIndex, setSelectedIndex] = useState(null);
-     const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [isPlaylistaddVisible, setisPlaylistaddVisible] = useState(false);
   const [isPrivate, setIsPrivate] = useState(false);
   const [playlistName, setPlaylistName] = useState("");
@@ -42,7 +42,17 @@ const PlaylistChoose = () => {
   };
   const handlePlaylist = () => {
     togglePlaylistadd();
-    dispatch(addPlaylist({ name: playlistName, desc: description }));
+    const playlist = {
+      id: id + 1,
+      image: null,
+      name: playlistName,
+      desc: description,
+      songs: [],
+      Time: 0,
+      isPlaying: false
+    }
+    dispatch(addPlaylist({ playlist: playlist }));
+    dispatch(AddNewPlaylist({ data: playlist }))
     setDescription("");
     setPlaylistName("");
   };
@@ -240,7 +250,7 @@ const PlaylistChoose = () => {
             borderRadius: 10,
             alignSelf: "center",
           }}
-          onPress={() => {}}
+          onPress={() => { }}
         >
           <Text
             style={{ color: "white", fontSize: 16, fontWeight: "bold" }}
@@ -294,7 +304,7 @@ const PlaylistChoose = () => {
           borderRadius: 10,
           alignSelf: "center",
         }}
-        onPress={() => {}}
+        onPress={() => { }}
       >
         <Text
           style={{

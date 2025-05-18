@@ -8,6 +8,7 @@ import * as Device from "expo-device";
 import { setClientID, setWebsocket } from "../../Store/UserSlice"
 import { useDispatch } from "react-redux";
 import { initWebSocket, getWebSocket } from '../Websocket/websocketfunc';
+import { pullPlaylists } from "../../Store/PlaylistSlice";
 const WaveformLoader = () => {
 
   const NUMBER_OF_BARS = 20;
@@ -136,6 +137,7 @@ const Waveform = () => {
         }));
 
       };
+      dispatch(pullPlaylists())
     }
     Connect();
   }, [deviceName])
