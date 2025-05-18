@@ -263,6 +263,30 @@ mainHandler.post(() -> {
         mediaSession.setPlaybackState(stateBuilder.build());
     }
     
+    @ReactMethod
+public void updateTrackData(ReadableMap trackData, Promise promise) {
+    try {
+        if (trackData.hasKey("title")) {
+            currentTitle = trackData.getString("title");
+        }
+        if (trackData.hasKey("artist")) {
+            currentArtist = trackData.getString("artist");
+        }
+        if (trackData.hasKey("album")) {
+            currentAlbum = trackData.getString("album");
+        }
+        if (trackData.hasKey("artwork")) {
+            currentArtwork = trackData.getString("artwork");
+        }
+
+        updateNotification(true); // or pass `isPlaying` dynamically
+        promise.resolve(true);
+    } catch (Exception e) {
+        promise.reject("UPDATE_FAILED", e.getMessage());
+    }
+}
+
+
     private Bitmap getBitmapFromURL(String src) {
         try {
             URL url = new URL(src);

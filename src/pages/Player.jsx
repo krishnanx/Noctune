@@ -38,6 +38,7 @@ const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
 
 import MediaNotificationManager from "../functions/MediaNotification";
+import { showNotification } from "../functions/MediaNotification";
 
 const Player = () => {
   const { colors } = useTheme();
@@ -55,13 +56,29 @@ const Player = () => {
   const { data, pos, seek, isplaying, isMinimized, animationTargetY } =
     useSelector((state) => state.data);
 
+    const currentTrack =
+      data && pos >= 0 && pos < data.length ? data[pos] : null;
   //------------------------------------------------------
-  const [currentTrack, setCurrentTrack] = useState({
-    title: "Sample Track",
-    artist: "Sample Artist",
-    album: "Sample Album",
-    artwork: "https://example.com/artwork.jpg",
-  });
+
+  useEffect(() => {
+    if (currentTrack) {
+      
+        MediaNotificationManager.showNotification(
+          {
+            title: currentTrack.title || "Unknown Title",
+            artist:
+              currentTrack.artist || currentTrack.uploader || "Unknown Artist",
+            album: currentTrack.album || "",
+            artwork: currentTrack.image || "",
+          },
+          {
+            showNextPrev: data.length > 1, // Only show next/prev if we have multiple tracks
+            showStop: true,
+          }
+        );
+    }
+  }, [data,pos]);
+
   //--------------------------------------------------
 
   useEffect(() => {
@@ -174,7 +191,7 @@ const Player = () => {
   //-----------------------------------------------------
   useEffect(() => {
     // Show notification when component mounts
-    MediaNotificationManager.showNotification(currentTrack);
+    //MediaNotificationManager.showNotification(currentTrack);
 
     // Set up event listeners for media controls
     const playListener = MediaNotificationManager.addEventListener(
@@ -244,7 +261,7 @@ const Player = () => {
 
   const togglePlayback = () => {
     dispatch(setIsPlaying("toggle"));
-  }
+  };
 
   const styles = StyleSheet.create({
     Main: {
@@ -465,7 +482,7 @@ const Player = () => {
       fontSize: 18,
       fontWeight: "300",
       color: "gray",
-      marginTop:2,
+      marginTop: 2,
     },
     albumArt: {
       position: "absolute",
@@ -527,8 +544,6 @@ const Player = () => {
       color: "#4f8ef7",
       fontWeight: "500",
     },
-
-  
   });
 
   <View style={styles.container}>
