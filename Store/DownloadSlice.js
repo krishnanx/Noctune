@@ -62,6 +62,9 @@ export const download = createAsyncThunk('download/music', async ({ data, Client
     const song = data.map(element => element.url);
 
     console.warn(song, ClientId)
-    const response = await axios.post("http://192.168.1.44/api/download", { song, ClientId },);
+    const response = await axios.post("http://192.168.82.33/api/download", {
+      song,
+      ClientId,
+    });
     return response.data; // This will be returned to your Redux store
 });

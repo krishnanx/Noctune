@@ -124,21 +124,23 @@ const Waveform = () => {
     if (!deviceName || hasConnected.current) return;
     hasConnected.current = true; // Prevent reconnecting on deviceName change
     const id = Math.random().toString(36).slice(2, 8);
-    initWebSocket('ws://192.168.1.44:80/download-progress');
+    //192.168.1.44:80
+    initWebSocket("ws://192.168.82.33:80/download-progress");
     const ws = getWebSocket();
     const Connect = () => {
       ws.onopen = () => {
         console.error("Connected to WebSocket server");
-        dispatch(setClientID({ id: id }))
-        ws.send(JSON.stringify({
-          type: "register",
-          clientId: id,
-          value: "hi"
-        }));
-
+        dispatch(setClientID({ id: id }));
+        ws.send(
+          JSON.stringify({
+            type: "register",
+            clientId: id,
+            value: "hi",
+          })
+        );
       };
-      dispatch(pullPlaylists())
-    }
+      dispatch(pullPlaylists());
+    };
     Connect();
   }, [deviceName])
 
