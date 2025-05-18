@@ -12,6 +12,8 @@ const MediaNotificationEmitter = MediaNotification
 class MediaNotificationManager {
   constructor() {
     this.listeners = {};
+    this.currentTrack = null; //added
+    this.callbackMap = {}; //added
 
     // Android only - iOS will return null
     this.isAvailable = Platform.OS === "android" && MediaNotification != null;
@@ -39,6 +41,7 @@ class MediaNotificationManager {
       return Promise.resolve(false);
     }
 
+    this.currentTrack = { ...trackData }; //added
     return MediaNotification.showNotification(trackData);
   }
 
@@ -66,7 +69,25 @@ class MediaNotificationManager {
       return Promise.resolve(false);
     }
 
+    this.currentTrack = null; //added
     return MediaNotification.hideNotification();
+  }
+
+  /**
+   * Update the current track metadata in the notification
+   * @param {Object} trackData - Object with new metadata (title, artist, album, artwork)
+   * @returns {Promise<boolean>}
+   */
+  updateTrackData(trackData) {
+    if (!this.isAvailable) {
+      console.warn("MediaNotification is not available on this platform");
+      return Promise.resolve(false);
+    }
+
+    // Merge with existing track data if needed
+    this.currentTrack = { ...this.currentTrack, ...trackData };
+
+    return MediaNotification.updateTrackData(trackData);
   }
 
   /**
