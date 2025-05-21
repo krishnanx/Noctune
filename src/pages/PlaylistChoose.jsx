@@ -21,6 +21,7 @@ import icon from "../../assets/icon.png";
 import { addPlaylist } from "../../Store/PlaylistSlice";
 import { useTheme } from "@react-navigation/native";
 import { AddNewPlaylist } from "../../Store/PlaylistSlice";
+import Tick from "react-native-vector-icons/MaterialIcons";
 
 const PlaylistChoose = () => {
   const navigation = useNavigation();
@@ -136,9 +137,9 @@ const PlaylistChoose = () => {
       paddingLeft: 25,
     },
     circle: {
-      width: 24,
-      height: 24,
-      borderRadius: 12,
+      width: 25,
+      height: 25,
+      borderRadius: 20,
       borderWidth: 2,
       borderColor: "#1DB954",
       justifyContent: "center",
@@ -414,7 +415,7 @@ const DisplayPlaylist = ({
             </Text>
           </View>
         </View>
-        <TouchableOpacity
+        <View
           activeOpacity={0.7}
           style={{
             position: "absolute",
@@ -422,9 +423,8 @@ const DisplayPlaylist = ({
             top: "40%",
             justifyContent: "center",
             alignItems: "center",
-            padding: 10, // Increases the touchable area
-            borderRadius: 25, // Makes it easier to tap around the icon
-            backgroundColor: "rgba(255, 255, 255, 0.2)", // Optional background to make it more noticeable
+            padding: 10,
+            borderRadius: 25,
           }}
           accessibilityLabel={
             isSelected ? "Deselect playlist" : "Select playlist"
@@ -440,9 +440,9 @@ const DisplayPlaylist = ({
               },
             ]}
           >
-            {isSelected && <Text style={styles.tick}>✓</Text>}
+            {isSelected && <Tick name="done" size={20} color="white" />}
           </View>
-        </TouchableOpacity>
+        </View>
       </View>
     </TouchableHighlight>
   );
