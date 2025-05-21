@@ -125,7 +125,7 @@ const Waveform = () => {
     hasConnected.current = true; // Prevent reconnecting on deviceName change
     const id = Math.random().toString(36).slice(2, 8);
     //192.168.1.44:80
-    initWebSocket("ws://192.168.82.33:80/download-progress");
+    initWebSocket("ws://192.168.85.33:80/download-progress");
     const ws = getWebSocket();
     const Connect = () => {
       ws.onopen = () => {
