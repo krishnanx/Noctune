@@ -70,10 +70,10 @@ export const download = createAsyncThunk(
     console.warn("Sending payload:", payload);
 
     try {
-      //192.168.82.33 K
+      //192.168.85.33 K
       //192.168.1.44 krish
       const response = await axios.post(
-        "http://192.168.82.33/api/download",
+        "http://192.168.85.33/api/download",
         payload, // Remove the extra wrapping
         {
           headers: {

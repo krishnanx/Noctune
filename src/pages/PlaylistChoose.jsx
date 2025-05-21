@@ -21,6 +21,7 @@ import icon from "../../assets/icon.png";
 import { addPlaylist } from "../../Store/PlaylistSlice";
 import { useTheme } from "@react-navigation/native";
 import { AddNewPlaylist } from "../../Store/PlaylistSlice";
+
 const PlaylistChoose = () => {
   const navigation = useNavigation();
   const route = useRoute();
@@ -28,18 +29,19 @@ const PlaylistChoose = () => {
   const dispatch = useDispatch();
   const { data, id } = useSelector((state) => state.playlist);
   const { data: value, pos } = useSelector((state) => state.data);
-
-  const [selectedIndex, setSelectedIndex] = useState(null);
+  const [selectedIndices, setSelectedIndices] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isPlaylistaddVisible, setisPlaylistaddVisible] = useState(false);
   const [isPrivate, setIsPrivate] = useState(false);
   const [playlistName, setPlaylistName] = useState("");
   const [description, setDescription] = useState("");
   const { colors } = useTheme();
+
   const handlePress = () => {
     toggleModal();
     togglePlaylistadd();
   };
+
   const handlePlaylist = () => {
     togglePlaylistadd();
     const playlist = {
@@ -49,19 +51,41 @@ const PlaylistChoose = () => {
       desc: description,
       songs: [],
       Time: 0,
-      isPlaying: false
-    }
+      isPlaying: false,
+    };
     dispatch(addPlaylist({ playlist: playlist }));
-    dispatch(AddNewPlaylist({ data: playlist }))
+    dispatch(AddNewPlaylist({ data: playlist }));
     setDescription("");
     setPlaylistName("");
   };
+
   const toggleModal = () => {
     setIsModalVisible((prev) => !prev);
   };
+
   const togglePlaylistadd = () => {
     setisPlaylistaddVisible((prev) => !prev);
   };
+
+  const handleDone = () => {
+    if (selectedIndices.length === 0) {
+      // Optionally show a message that no playlists were selected
+      return;
+    }
+
+    const musicToAdd = song || value[pos];
+
+    // Add the song to all selected playlists
+    selectedIndices.forEach((playlistIndex) => {
+      dispatch(addMusicinPlaylist({ id: playlistIndex, music: musicToAdd }));
+    });
+
+    // Show success message or toast here if desired
+
+    // Navigate back
+    navigation.goBack();
+  };
+
   const styles = StyleSheet.create({
     modalOverlay: {
       flex: 1,
@@ -138,7 +162,6 @@ const PlaylistChoose = () => {
       flexDirection: "row",
       justifyContent: "flex-end",
       alignItems: "center",
-      //backgroundColor:"white"
     },
     input: {
       width: "100%",
@@ -170,7 +193,37 @@ const PlaylistChoose = () => {
       flex: 1,
       justifyContent: "center",
       alignItems: "center",
-      //backgroundColor: "rgba(98, 92, 92, 0.)", // backdrop blur
+    },
+    doneButton: {
+      position: "absolute",
+      bottom: 20,
+      alignSelf: "center",
+      backgroundColor: "#1DB954",
+      paddingVertical: 12,
+      paddingHorizontal: 30,
+      borderRadius: 20,
+      elevation: 3,
+    },
+    doneButtonDisabled: {
+      backgroundColor: "#2c3a2f",
+    },
+    doneButtonText: {
+      color: "white",
+      fontSize: 16,
+      fontWeight: "bold",
+    },
+    selectionCount: {
+      position: "absolute",
+      bottom: 80,
+      alignSelf: "center",
+      backgroundColor: "rgba(0,0,0,0.7)",
+      paddingVertical: 6,
+      paddingHorizontal: 12,
+      borderRadius: 15,
+    },
+    selectionCountText: {
+      color: "white",
+      fontSize: 14,
     },
   });
 
@@ -202,7 +255,7 @@ const PlaylistChoose = () => {
             </TouchableOpacity>
             <View style={styles.HeaderInsideText}>
               <Text style={{ fontSize: 20, color: "white" }}>
-                Add to playlist
+                Add to playlists
               </Text>
             </View>
           </View>
@@ -250,15 +303,13 @@ const PlaylistChoose = () => {
             borderRadius: 10,
             alignSelf: "center",
           }}
-          onPress={() => { }}
+          onPress={handlePress}
         >
-          <Text
-            style={{ color: "white", fontSize: 16, fontWeight: "bold" }}
-            onPress={() => handlePress()}
-          >
+          <Text style={{ color: "white", fontSize: 16, fontWeight: "bold" }}>
             + New Playlist
           </Text>
         </TouchableOpacity>
+
         <Playlistadd
           isPlaylistaddVisible={isPlaylistaddVisible}
           togglePlaylistadd={togglePlaylistadd}
@@ -281,13 +332,8 @@ const PlaylistChoose = () => {
                 item={item}
                 index={index}
                 styles={styles}
-                dispatch={dispatch}
-                navigation={navigation}
-                data={value}
-                pos={pos}
-                songToAdd={song}
-                selectedIndex={selectedIndex}
-                setSelectedIndex={setSelectedIndex}
+                selectedIndices={selectedIndices}
+                setSelectedIndices={setSelectedIndices}
               />
             )}
             keyExtractor={(item, index) => index.toString()}
@@ -295,26 +341,27 @@ const PlaylistChoose = () => {
           />
         </View>
       </ScrollView>
+
+      {/* Selection count indicator */}
+      {selectedIndices.length > 0 && (
+        <View style={styles.selectionCount}>
+          <Text style={styles.selectionCountText}>
+            {selectedIndices.length} playlist
+            {selectedIndices.length > 1 ? "s" : ""} selected
+          </Text>
+        </View>
+      )}
+
+      {/* Done button */}
       <TouchableOpacity
-        style={{
-          margin: 20,
-          backgroundColor: "#2c3a2f",
-          paddingVertical: 10,
-          paddingHorizontal: 25,
-          borderRadius: 10,
-          alignSelf: "center",
-        }}
-        onPress={() => { }}
+        style={[
+          styles.doneButton,
+          selectedIndices.length === 0 && styles.doneButtonDisabled,
+        ]}
+        onPress={handleDone}
+        disabled={selectedIndices.length === 0}
       >
-        <Text
-          style={{
-            color: "white",
-            fontSize: 16,
-            fontWeight: "bold",
-          }}
-        >
-          Done
-        </Text>
+        <Text style={styles.doneButtonText}>Done</Text>
       </TouchableOpacity>
     </LinearGradient>
   );
@@ -322,26 +369,22 @@ const PlaylistChoose = () => {
 
 export default PlaylistChoose;
 
-// Playlist item
+// Playlist item component
 const DisplayPlaylist = ({
   item,
   index,
   styles,
-  dispatch,
-  navigation,
-  data,
-  pos,
-  songToAdd,
-  selectedIndex,
-  setSelectedIndex,
+  selectedIndices,
+  setSelectedIndices,
 }) => {
-  const isSelected = selectedIndex === index;
-  const [selected, setSelected] = useState(false);
+  const isSelected = selectedIndices.includes(index);
+
   const handleSelect = () => {
-    setSelectedIndex(index);
-    const musicToAdd = songToAdd || data[pos];
-    dispatch(addMusicinPlaylist({ id: index, music: musicToAdd }));
-    navigation.goBack();
+    if (isSelected) {
+      setSelectedIndices((prev) => prev.filter((i) => i !== index));
+    } else {
+      setSelectedIndices((prev) => [...prev, index]);
+    }
   };
 
   return (
@@ -372,7 +415,6 @@ const DisplayPlaylist = ({
           </View>
         </View>
         <TouchableOpacity
-          onPress={() => setSelected(!selected)}
           activeOpacity={0.7}
           style={{
             position: "absolute",
@@ -385,7 +427,7 @@ const DisplayPlaylist = ({
             backgroundColor: "rgba(255, 255, 255, 0.2)", // Optional background to make it more noticeable
           }}
           accessibilityLabel={
-            selected ? "Deselect playlist" : "Select playlist"
+            isSelected ? "Deselect playlist" : "Select playlist"
           }
           accessibilityHint="Double-tap to select or deselect this playlist"
         >
@@ -393,12 +435,12 @@ const DisplayPlaylist = ({
             style={[
               styles.circle,
               {
-                backgroundColor: selected ? "#1DB954" : "transparent",
-                borderColor: selected ? "#1DB954" : "white",
+                backgroundColor: isSelected ? "#1DB954" : "transparent",
+                borderColor: isSelected ? "#1DB954" : "white",
               },
             ]}
           >
-            {selected && <Text style={styles.tick}>✓</Text>}
+            {isSelected && <Text style={styles.tick}>✓</Text>}
           </View>
         </TouchableOpacity>
       </View>
@@ -425,7 +467,6 @@ const Playlistadd = ({
       animationType="slide"
       onRequestClose={() => togglePlaylistadd()}
     >
-      {" "}
       <View style={styles.modalOverlay}>
         <View style={styles.playlistMain}>
           <View style={styles.PlaylistModal}>
@@ -458,10 +499,7 @@ const Playlistadd = ({
               />
             </View>
             <View style={styles.ButtonContainer}>
-              <TouchableOpacity
-                style={styles.Button}
-                onPress={() => handlePlaylist()}
-              >
+              <TouchableOpacity style={styles.Button} onPress={handlePlaylist}>
                 <Text style={{ color: "white" }}>Drop the Beat</Text>
               </TouchableOpacity>
             </View>
