@@ -200,7 +200,7 @@ const Websocket = () => {
       //Constants.expoConfig.extra.WEBSOC
       //ws://192.168.1.44:80
       // const ws = new WebSocket("ws://192.168.1.44:80");
-      const ws = new WebSocket("ws://192.168.82.33:80");
+      const ws = new WebSocket("ws://192.168.85.33:80");
       wsRef.current = ws;
 
       pingInterval = setInterval(() => {
