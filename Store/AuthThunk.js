@@ -16,18 +16,25 @@ export const loadUser = createAsyncThunk(
       dispatch(setLoading(true));
       const userData = await AsyncStorage.getItem("user");
       const sessionData = await AsyncStorage.getItem("session");
-
+      console.warn("session: ", sessionData)
+      console.warn("user data: ", userData)
       if (userData && sessionData) {
-        dispatch(setUser(JSON.parse(userData)));
+        const parsedUser = JSON.parse(userData);
+        //console.error(parsedUser)
+        dispatch(setUser(parsedUser));
         dispatch(setSession(JSON.parse(sessionData)));
+        return parsedUser;
       }
+
+      return null;
     } catch (error) {
+      console.error(error)
       dispatch(setError("Failed to load userdata"));
-    } finally {
-      dispatch(setLoading(false));
+      throw error;
     }
   }
 );
+
 
 // Sign up thunk
 export const signUp = createAsyncThunk(
@@ -57,7 +64,7 @@ export const signUp = createAsyncThunk(
 
       // Update Redux state
       dispatch(setUser(user));
-  
+
       return { success: true };
     } catch (error) {
       const errorMessage = error.response?.data?.error || "Failed to sign up";
@@ -73,7 +80,7 @@ export const signUp = createAsyncThunk(
 export const signIn = createAsyncThunk(
   "user/signIn",
   async ({ email, password }, { dispatch, rejectWithValue }) => {
-    
+
     try {
       dispatch(setLoading(true));
 
@@ -85,7 +92,7 @@ export const signIn = createAsyncThunk(
       if (response.data && response.data.user) {
         const { user, session } = response.data;
 
-        
+
         await AsyncStorage.setItem("user", JSON.stringify(user));
         if (session) {
           await AsyncStorage.setItem("session", JSON.stringify(session));

@@ -25,6 +25,7 @@ import Tick from "react-native-vector-icons/MaterialIcons";
 
 const PlaylistChoose = () => {
   const navigation = useNavigation();
+  const { user } = useSelector((state) => state.user)
   const route = useRoute();
   const { index, song } = route.params;
   const dispatch = useDispatch();
@@ -55,7 +56,7 @@ const PlaylistChoose = () => {
       isPlaying: false,
     };
     dispatch(addPlaylist({ playlist: playlist }));
-    dispatch(AddNewPlaylist({ data: playlist }));
+    dispatch(AddNewPlaylist({ data: playlist, userid: user.id }))
     setDescription("");
     setPlaylistName("");
   };

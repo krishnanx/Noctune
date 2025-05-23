@@ -114,7 +114,7 @@ const PlaylistSlice = createSlice({
                     state.data = [...state.data, data]
                 })
                 console.warn(response)
-                console.log("Playlists taken")
+                console.error("Playlists taken")
 
             })
             .addCase(AddNewPlaylistwithmusic.fulfilled, (state, action) => {
@@ -140,10 +140,10 @@ export const migrate = createAsyncThunk('/migratedata', async ({ Url: data }) =>
         console.error("error migrating!!", e)
     }
 })
-export const AddNewPlaylist = createAsyncThunk('/newplaylist', async ({ data: playlist }) => {
+export const AddNewPlaylist = createAsyncThunk('/newplaylist', async ({ data: playlist, userid: userid }) => {
     try {
         console.warn("adding new playlist");
-        const response = await axios.post("http://192.168.1.44/api/NewPlaylists", { playlist: playlist })
+        const response = await axios.post("http://192.168.1.44/api/NewPlaylists", { playlist: playlist, user: userid })
         return response.data
     }
     catch (e) {
@@ -160,10 +160,11 @@ export const AddNewPlaylistwithmusic = createAsyncThunk('/newplaylistwithmusic',
         console.error(e)
     }
 })
-export const pullPlaylists = createAsyncThunk('/pullPlaylists', async () => {
+export const pullPlaylists = createAsyncThunk('/pullPlaylists', async ({ user: user }) => {
     try {
         console.warn("pulling playlist");
-        const response = await axios.get("http://192.168.1.44/api/Playlist")
+        console.warn("user reached pull: ", user)
+        const response = await axios.post("http://192.168.1.44/api/Playlist", { data: user })
         return response.data
     }
     catch (e) {

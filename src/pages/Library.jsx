@@ -15,12 +15,14 @@ import { useNavigation } from '@react-navigation/native';
 import { AddNewPlaylist } from '../../Store/PlaylistSlice';
 const Library = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
+
     const [isPlaylistaddVisible, setisPlaylistaddVisible] = useState(false);
     const [isPrivate, setIsPrivate] = useState(false);
     const [playlistName, setPlaylistName] = useState("");
     const [description, setDescription] = useState("")
     const { colors } = useTheme();
     const { data } = useSelector((state) => state.playlist);
+    const { user, id } = useSelector((state) => state.user)
     const navigation = useNavigation();
 
     const toggleModal = () => {
@@ -204,7 +206,7 @@ const Library = () => {
             isPlaying: false
         }
         dispatch(addPlaylist({ playlist: playlist }));
-        dispatch(AddNewPlaylist({ data: playlist }))
+        dispatch(AddNewPlaylist({ data: playlist, userid: user.id }))
         setDescription("");
         setPlaylistName("");
     }

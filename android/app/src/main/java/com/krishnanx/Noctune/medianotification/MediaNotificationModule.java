@@ -171,6 +171,9 @@ mainHandler.post(() -> {
         
         LocalBroadcastManager.getInstance(getReactApplicationContext())
             .registerReceiver(notificationReceiver, filter);
+        //getReactApplicationContext().registerReceiver(notificationReceiver, filter);
+
+
     }
 
     @ReactMethod

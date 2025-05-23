@@ -169,14 +169,13 @@ const Websocket = () => {
       try {
         const name =
           Device.getDeviceNameAsync &&
-          typeof Device.getDeviceNameAsync === "function"
+            typeof Device.getDeviceNameAsync === "function"
             ? await Device.getDeviceNameAsync()
             : null;
         setDeviceName(
           name ||
-            `${Device.manufacturer ?? "Unknown"} ${
-              Device.modelName ?? "Device"
-            }`
+          `${Device.manufacturer ?? "Unknown"} ${Device.modelName ?? "Device"
+          }`
         );
       } catch (err) {
         console.error("Error fetching device name:", err);
@@ -196,11 +195,11 @@ const Websocket = () => {
     const id = Math.random().toString(36).slice(2, 8);
 
     const connectWebSocket = () => {
-      console.error(`[${id}] Connecting WebSocket...`);
+
       //Constants.expoConfig.extra.WEBSOC
       //ws://192.168.1.44:80
       // const ws = new WebSocket("ws://192.168.1.44:80");
-      const ws = new WebSocket("ws://192.168.85.33:80");
+      const ws = getWebSocket()
       wsRef.current = ws;
 
       pingInterval = setInterval(() => {

@@ -22,10 +22,11 @@ import { useEffect, useRef } from "react";
 import { Text, Animated } from "react-native";
 import Waveform from "./src/Components/Waveform";
 import Audioloader from "./src/functions/Audioloader";
-import { loadUser } from "./Store/AuthThunk";
+
 
 export default function App() {
   const { Mode } = useSelector((state) => state.theme);
+  const { user, loading } = useSelector((state) => state.user);
   const dispatch = useDispatch();
 
   const { data, pos, seek, isplaying, canLoad } = useSelector(
@@ -33,20 +34,17 @@ export default function App() {
   );
   const [status, setStatus] = useState("loading");
 
-  useEffect(() => {
-    const fetchData = async () => {
-      dispatch(loadUser());
-      setTimeout(() => {
-        setStatus("idle");
-      }, 1000); // Wait 1 second then go idle
-    };
+  // useEffect(() => {
+  //   const fetchData = async () => {
 
-    fetchData();
-  }, []);
+  //     setTimeout(() => {
+  //       setStatus("idle");
+  //     }, 1000); // Wait 1 second then go idle
+  //   };
 
-
-
-  if (status === "loading") {
+  //   fetchData();
+  // }, []);
+  if (loading) {
     return (
       <>
         <View
