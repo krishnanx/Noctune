@@ -40,6 +40,7 @@ const windowWidth = Dimensions.get("window").width;
 import MediaNotificationManager from "../functions/MediaNotification";
 import { showNotification } from "../functions/MediaNotification";
 
+
 const Player = () => {
   const { colors } = useTheme();
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -56,30 +57,38 @@ const Player = () => {
   const { data, pos, seek, isplaying, isMinimized, animationTargetY } =
     useSelector((state) => state.data);
 
-    const currentTrack =
-      data && pos >= 0 && pos < data.length ? data[pos] : null;
-  //------------------------------------------------------
+  const currentTrack = data && pos >= 0 && pos < data.length ? data[pos] : null;
+
+  //const mediaListenersInitialized = useRef(false);
 
   useEffect(() => {
     if (currentTrack) {
-      
-        MediaNotificationManager.showNotification(
-          {
-            title: currentTrack.title || "Unknown Title",
-            artist:
-              currentTrack.artist || currentTrack.uploader || "Unknown Artist",
-            album: currentTrack.album || "",
-            artwork: currentTrack.image || "",
-          },
-          {
-            showNextPrev: data.length > 1, // Only show next/prev if we have multiple tracks
-            showStop: true,
-          }
-        );
+      console.warn("Track changed, resetting notification state");
+      // First hide any existing notification
+      MediaNotificationManager.hideNotification().then(() => {
+        // Short delay to ensure complete reset
+        setTimeout(() => {
+          MediaNotificationManager.showNotification(
+            {
+              title: currentTrack.title || "Unknown Title",
+              artist:
+                currentTrack.artist ||
+                currentTrack.uploader ||
+                "Unknown Artist",
+              album: currentTrack.album || "",
+              artwork: currentTrack.image || "",
+            },
+            {
+              showNextPrev: data.length > 1, // Only show next/prev if we have multiple tracks
+              showStop: true,
+            }
+          ).then(() => {
+            MediaNotificationManager.updatePlaybackStatus(isplaying);
+          });
+        }, 100);
+      });
     }
-  }, [data,pos]);
-
-  //--------------------------------------------------
+  }, [currentTrack]);
 
   useEffect(() => {
     const autoPlayIfUserSearched = async () => {
@@ -112,6 +121,8 @@ const Player = () => {
     console.log("isPlaying?...:", isplaying);
   }, [seek, isplaying]);
 
+  const togglePlayPauseRef = useRef(null);
+
   const togglePlayPause = async () => {
     if (!soundRef.current) return;
 
@@ -143,6 +154,7 @@ const Player = () => {
     setIsModalVisible((prev) => !prev);
   };
 
+  
   // Respond to changes in animationTargetY
   useEffect(() => {
     Animated.timing(slideY, {
@@ -189,79 +201,41 @@ const Player = () => {
   const TOTAL_DURATION = data ? data[pos]?.duration : 0;
 
   //-----------------------------------------------------
+  
   useEffect(() => {
-    // Show notification when component mounts
-    //MediaNotificationManager.showNotification(currentTrack);
+    togglePlayPauseRef.current = togglePlayPause;
+    console.log("hola");
+  }, [togglePlayPause]);
 
-    // Set up event listeners for media controls
-    const playListener = MediaNotificationManager.addEventListener(
-      "play",
-      handlePlay
-    );
-    const pauseListener = MediaNotificationManager.addEventListener(
-      "pause",
-      handlePause
-    );
-    const nextListener = MediaNotificationManager.addEventListener(
-      "next",
-      handleNext
-    );
-    const prevListener = MediaNotificationManager.addEventListener(
-      "previous",
-      handlePrevious
-    );
-    const stopListener = MediaNotificationManager.addEventListener(
-      "stop",
-      handleStop
-    );
+  useEffect(() => {
+    let mediaListenersInitialized = false;
+    if (!mediaListenersInitialized) {
+      console.log("Setting up media notification listeners");
 
-    // Clean up on unmount
-    return () => {
-      playListener();
-      pauseListener();
-      nextListener();
-      prevListener();
-      stopListener();
-      MediaNotificationManager.hideNotification();
-    };
+      
+      MediaNotificationManager.registerPlayPauseHandler(() => {
+        console.log("Play/Pause triggered from notification");
+        if (togglePlayPauseRef.current) {
+          togglePlayPauseRef.current();
+        } else {
+          console.warn("togglePlayPauseRef is not available");
+        }
+      });
+
+      mediaListenersInitialized = true;
+      return () => {
+        console.log("Cleaning up media notification listeners");
+        MediaNotificationManager.removeAllListeners();
+        MediaNotificationManager.hideNotification();
+      };
+    }
   }, []);
 
-  // Update notification when playback state changes
+  //Update notification when playback state changes
   useEffect(() => {
     MediaNotificationManager.updatePlaybackStatus(isplaying);
   }, [isplaying]);
 
-  const handlePlay = () => {
-    console.log("Play pressed");
-    dispatch(setIsPlaying(true));
-    // Start your audio playback here
-  };
-
-  const handlePause = () => {
-    console.log("Pause pressed");
-    dispatch(setIsPlaying(false));
-    // Pause your audio playback here
-  };
-
-  const handleNext = () => {
-    console.log("Next pressed");
-    // Handle next track logic
-  };
-
-  const handlePrevious = () => {
-    console.log("Previous pressed");
-    // Handle previous track logic
-  };
-
-  const handleStop = () => {
-    console.log("Stop pressed");
-    dispatch(setIsPlaying(false));
-    // Stop your audio playback here
-  };
-
-  const togglePlayback = () => {
-    dispatch(setIsPlaying("toggle"));
-  };
 
   const styles = StyleSheet.create({
     Main: {
@@ -546,19 +520,7 @@ const Player = () => {
     },
   });
 
-  <View style={styles.container}>
-    <Text style={styles.title}>{currentTrack.title}</Text>
-    <Text style={styles.artist}>{currentTrack.artist}</Text>
-    <Text style={styles.album}>{currentTrack.album}</Text>
-
-    <View style={styles.controls}>
-      <Button title="Previous" onPress={handlePrevious} />
-      <Button title={isplaying ? "Pause" : "Play"} onPress={togglePlayback} />
-      <Button title="Next" onPress={handleNext} />
-      <Button title="Stop" onPress={handleStop} />
-    </View>
-  </View>;
-
+  
   // Render the mini player if minimized
   if (isMinimized) {
     return (
