@@ -5,10 +5,12 @@ import { LinearGradient } from "expo-linear-gradient";
 import MaskedView from "@react-native-masked-view/masked-view";
 import { connect, useSelector } from "react-redux";
 import * as Device from "expo-device";
-import { setClientID, setWebsocket } from "../../Store/UserSlice"
+import { setClientID, setLoading, setWebsocket } from "../../Store/UserSlice"
 import { useDispatch } from "react-redux";
 import { initWebSocket, getWebSocket } from '../Websocket/websocketfunc';
 import { pullPlaylists } from "../../Store/PlaylistSlice";
+import { loadUser } from "../../Store/AuthThunk";
+
 const WaveformLoader = () => {
 
   const NUMBER_OF_BARS = 20;
@@ -92,6 +94,7 @@ const WaveformLoader = () => {
 };
 const Waveform = () => {
   const { Mode } = useSelector((state) => state.theme)
+  const { user } = useSelector((state) => state.user)
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [deviceName, setDeviceName] = useState(null);
   const hasConnected = useRef(false);
@@ -106,6 +109,7 @@ const Waveform = () => {
         setDeviceName(
           name || `${Device.manufacturer ?? "Unknown"} ${Device.modelName ?? "Device"}`
         );
+
       } catch (err) {
         console.error("Error fetching device name:", err);
         setDeviceName(`${Device.manufacturer ?? "Unknown"} ${Device.modelName ?? "Device"}`);
@@ -122,27 +126,42 @@ const Waveform = () => {
   }, []);
   useEffect(() => {
     if (!deviceName || hasConnected.current) return;
-    hasConnected.current = true; // Prevent reconnecting on deviceName change
-    const id = Math.random().toString(36).slice(2, 8);
-    //192.168.1.44:80
-    initWebSocket("ws://192.168.85.33:80/download-progress");
-    const ws = getWebSocket();
-    const Connect = () => {
-      ws.onopen = () => {
-        console.error("Connected to WebSocket server");
-        dispatch(setClientID({ id: id }));
-        ws.send(
-          JSON.stringify({
+
+    hasConnected.current = true;
+
+    const runAsyncLogic = async () => {
+      const id = Math.random().toString(36).slice(2, 8);
+
+      try {
+        const loadedUser = await dispatch(loadUser()).unwrap(); // Await loadUser thunk
+        console.warn("data:", loadedUser);
+
+        await dispatch(pullPlaylists({ user: loadedUser.id })).unwrap();
+
+        initWebSocket('ws://192.168.1.44:80/download-progress');
+        const ws = getWebSocket();
+
+        ws.onopen = () => {
+          console.error("Connected to WebSocket server");
+          dispatch(setClientID({ id }));
+
+          ws.send(JSON.stringify({
             type: "register",
             clientId: id,
-            value: "hi",
-          })
-        );
-      };
-      dispatch(pullPlaylists());
+            value: "hi"
+          }));
+
+          dispatch(setLoading(false));
+        };
+      } catch (error) {
+        console.error("Failed to load user:", error);
+      }
     };
-    Connect();
-  }, [deviceName])
+
+    runAsyncLogic();
+  }, [deviceName]);
+
+
 
   return (
     <Animated.View style={{ opacity: fadeAnim }}>

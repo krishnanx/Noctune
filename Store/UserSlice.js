@@ -4,9 +4,9 @@ import { signIn, signUp, signOut, loadUser } from './AuthThunk';
 const userSlice = createSlice({
   name: 'user',
   initialState: {
-    user: !null,
+    user: null,
     session: null,
-    loading: false,
+    loading: true,
     error: null,
     clientID: null,
     ws: null
