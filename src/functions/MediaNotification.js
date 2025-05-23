@@ -5,7 +5,6 @@ const MediaNotificationEmitter = MediaNotification
   ? new NativeEventEmitter(MediaNotification)
   : null;
 
-
 /**
  * A React Native wrapper for the native MediaNotification module
  */
@@ -24,6 +23,37 @@ class MediaNotificationManager {
     } else {
       console.warn("MediaNotification module not available");
     }
+  }
+
+  /**
+   * Register a function to handle play/pause toggles from the notification
+   * @param {Function} callback - The togglePlayPause function to call
+   */
+  registerPlayPauseHandler(callback) {
+    if (!this.isAvailable) {
+      console.warn("MediaNotification is not available on this platform");
+      return;
+    }
+
+    this.playPauseHandler = callback;
+
+    // Set up listeners that will use this handler
+    this.addEventListener("play", () => {
+      if (this.playPauseHandler) {
+        this.playPauseHandler();
+      }
+    });
+
+    this.addEventListener("pause", () => {
+      if (this.playPauseHandler) {
+        this.playPauseHandler();
+      }
+    });
+  }
+  _initializeDefaultListeners() {
+    // This method is now just a placeholder
+    // We'll handle play/pause through the registerPlayPauseHandler method
+    console.log("Media notification listeners initialized");
   }
 
   /**
