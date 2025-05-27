@@ -478,7 +478,7 @@ const DisplayPlaylist = ({ item, index, styles, navigation }) => {
                     style={styles.ImageContainer}
                 >
                     <Image
-                        source={item.image ? { uri: item.image } : icon}
+                        source={item.image ? { uri: item.image } : item.songs.length > 0 ? { uri: item.songs[0].image } : icon}
                         style={{ width: 50, height: 50 }}
                     // fallback if user image fails to load
                     />

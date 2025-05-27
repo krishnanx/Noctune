@@ -26,7 +26,7 @@ import Info from "../Components/Info";
 import InfoModal from "../Components/InfoModal";
 
 const Playlist = () => {
- 
+
 
   const { data, id, playlistNo } = useSelector((state) => state.playlist);
   const { user, session, loading, error, clientID } = useSelector(
@@ -226,7 +226,7 @@ const Playlist = () => {
     },
   });
   const Pname = data[index].name;
-  const Description=data[index].desc;
+  const Description = data[index].desc;
   const Uname = "Krishnan E";
 
   const togglePlayPause = async () => {
@@ -344,9 +344,9 @@ const Information = ({
       <View style={styles.metadata}>
         <View style={styles.imageContainer}>
           <Image
-            source={data.image ? { uri: data.image } : icon}
+            source={data.image ? { uri: data.image } : { uri: data.songs[0].image }}
             style={styles.albumArt}
-            // fallback if user image fails to load
+          // fallback if user image fails to load
           />
         </View>
         <View style={styles.Name}>
@@ -424,7 +424,7 @@ const DataList = ({ styles, item }) => {
   return (
     <View
       style={styles.card}
-      // onTouchEnd={() => handleCardPress(item)}
+    // onTouchEnd={() => handleCardPress(item)}
     >
       <Image source={{ uri: item.image }} style={styles.cardImage} />
       <View style={styles.textContainer}>

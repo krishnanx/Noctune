@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios, { Axios } from "axios";
+import Constants from "expo-constants";
 import { progress } from "./MusicSlice";
 const DownloadSlice = createSlice({
     name: "download",
@@ -72,8 +73,10 @@ export const download = createAsyncThunk(
     try {
       //192.168.85.33 K
       //192.168.1.44 krish
-      const response = await axios.post(
-        "http://192.168.85.33/api/download",
+      const response = await axios.post(`
+        ${
+      Constants.expoConfig.extra.SERVER
+    }/api/download`,
         payload, // Remove the extra wrapping
         {
           headers: {

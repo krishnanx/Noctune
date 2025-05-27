@@ -10,6 +10,7 @@ import { useDispatch } from "react-redux";
 import { initWebSocket, getWebSocket } from '../Websocket/websocketfunc';
 import { pullPlaylists } from "../../Store/PlaylistSlice";
 import { loadUser } from "../../Store/AuthThunk";
+import Constants from "expo-constants";
 
 const WaveformLoader = () => {
 
@@ -138,7 +139,9 @@ const Waveform = () => {
 
         await dispatch(pullPlaylists({ user: loadedUser.id })).unwrap();
 
-        initWebSocket('ws://192.168.1.44:80/download-progress');
+        initWebSocket(`${
+      Constants.expoConfig.extra.SERVER
+    }/download-progress`);
         const ws = getWebSocket();
 
         ws.onopen = () => {

@@ -22,7 +22,7 @@ import { addPlaylist } from "../../Store/PlaylistSlice";
 import { useTheme } from "@react-navigation/native";
 import { AddNewPlaylist } from "../../Store/PlaylistSlice";
 import Tick from "react-native-vector-icons/MaterialIcons";
-
+import { addMusictoPlaylist } from "../../Store/PlaylistSlice";
 const PlaylistChoose = () => {
   const navigation = useNavigation();
   const { user } = useSelector((state) => state.user)
@@ -80,6 +80,8 @@ const PlaylistChoose = () => {
     // Add the song to all selected playlists
     selectedIndices.forEach((playlistIndex) => {
       dispatch(addMusicinPlaylist({ id: playlistIndex, music: musicToAdd }));
+      console.error(data[playlistIndex])
+      dispatch(addMusictoPlaylist({ playlist: data[playlistIndex], user: user.id, music: musicToAdd }))
     });
 
     // Show success message or toast here if desired

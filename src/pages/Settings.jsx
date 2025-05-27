@@ -1,39 +1,48 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Switch, ScrollView, TouchableOpacity,Button } from 'react-native';
-
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  Switch, 
+  ScrollView, 
+  TouchableOpacity, 
+  Image 
+} from 'react-native';
 import { useDispatch } from "react-redux";
 import { signOut } from "../../Store/AuthThunk";
+import { Ionicons } from '@expo/vector-icons';
 
-const Settings = () => {
+const Settings = ({ navigation }) => {
   const [darkMode, setDarkMode] = useState(true);
   const [offlineMode, setOfflineMode] = useState(false);
   const [notifications, setNotifications] = useState(true);
-{
-  /*--------------------------*/
-}
-   const dispatch = useDispatch();
 
-   const handleSignOut = () => {
-     dispatch(signOut());
-   };
-{
-  /*--------------------------*/
-}
+  const dispatch = useDispatch();
+
+  // Mock user data - replace with actual user data from your state/context
+  const userProfilePicture = 'https://via.placeholder.com/40/1DB954/FFFFFF?text=JD';
+
+  const handleSignOut = () => {
+    dispatch(signOut());
+  };
+
+  const navigateToAccount = () => {
+    navigation.navigate('Account');
+  };
+
   return (
     <ScrollView
       style={styles.container}
       contentContainerStyle={{ minHeight: 900 }}
     >
-      ----------------
-      <View style={{ padding: 20 }}>
-        <TouchableOpacity onPress={handleSignOut}>
-          <Text style={{ color: "red", fontWeight: "bold", fontSize: 16 }}>
-            Sign Out
-          </Text>
+      {/* Header with Profile Picture */}
+      <View style={styles.headerContainer}>
+        <Text style={styles.header}>Settings</Text>
+        <TouchableOpacity onPress={navigateToAccount} style={styles.profileButton}>
+          <Image source={{ uri: userProfilePicture }} style={styles.headerProfilePicture} />
         </TouchableOpacity>
       </View>
-      -----------------------------
-      <Text style={styles.header}>Settings</Text>
+
       <Section title="Playback">
         <SettingItem
           label="Offline mode"
@@ -41,6 +50,7 @@ const Settings = () => {
           onToggle={setOfflineMode}
         />
       </Section>
+
       <Section title="Preferences">
         <SettingItem
           label="Dark Mode"
@@ -53,14 +63,34 @@ const Settings = () => {
           onToggle={setNotifications}
         />
       </Section>
+
       <Section title="Account">
-        <NavItem label="Account Info" />
-        <NavItem label="Change Password" />
+        <NavItem 
+          label="Account Info" 
+          onPress={navigateToAccount}
+          icon="person-outline"
+        />
+        <NavItem 
+          label="Change Password" 
+          icon="lock-closed-outline"
+        />
       </Section>
+
       <Section title="Support">
-        <NavItem label="Help Center" />
-        <NavItem label="Privacy Policy" />
-        <NavItem label="Log Out" onPress={() => console.log("Logged Out")} />
+        <NavItem 
+          label="Help Center" 
+          icon="help-circle-outline"
+        />
+        <NavItem 
+          label="Privacy Policy" 
+          icon="shield-outline"
+        />
+        <NavItem 
+          label="Log Out" 
+          onPress={handleSignOut}
+          icon="log-out-outline"
+          isDestructive={true}
+        />
       </Section>
     </ScrollView>
   );
@@ -84,26 +114,52 @@ const SettingItem = ({ label, value, onToggle }) => (
   </View>
 );
 
-const NavItem = ({ label, onPress }) => (
+const NavItem = ({ label, onPress, icon, isDestructive = false }) => (
   <TouchableOpacity style={styles.item} onPress={onPress}>
-    <Text style={styles.itemText}>{label}</Text>
+    <View style={styles.navItemContent}>
+      {icon && (
+        <Ionicons 
+          name={icon} 
+          size={20} 
+          color={isDestructive ? "#ff4444" : "#888"} 
+          style={styles.navIcon} 
+        />
+      )}
+      <Text style={[styles.itemText, isDestructive && styles.destructiveText]}>
+        {label}
+      </Text>
+    </View>
+    <Ionicons name="chevron-forward" size={20} color="#888" />
   </TouchableOpacity>
 );
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    //backgroundColor: '#121212',
+    backgroundColor: '#121212',
     paddingHorizontal: 20,
     paddingTop: 20,
-
-
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 30,
   },
   header: {
     color: '#fff',
     fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 30,
+  },
+  profileButton: {
+    padding: 5,
+  },
+  headerProfilePicture: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: "white",
   },
   section: {
     marginBottom: 30,
@@ -127,6 +183,16 @@ const styles = StyleSheet.create({
   itemText: {
     color: '#fff',
     fontSize: 16,
+  },
+  navItemContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  navIcon: {
+    marginRight: 12,
+  },
+  destructiveText: {
+    color: '#ff4444',
   },
 });
 
