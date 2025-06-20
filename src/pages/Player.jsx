@@ -39,7 +39,7 @@ const windowWidth = Dimensions.get("window").width;
 
 import MediaNotificationManager from "../functions/MediaNotification";
 import { showNotification } from "../functions/MediaNotification";
-
+import { setPlaylistplaying } from "../../Store/PlaylistSlice";
 
 const Player = () => {
   const { colors } = useTheme();
@@ -50,7 +50,7 @@ const Player = () => {
   const slideY = useRef(new Animated.Value(windowHeight)).current; // initially hidden (off-screen)
   const [sleepTimerVisible, setSleepTimerVisible] = useState(false);
   const { isTimerActive } = useSelector((state) => state.sleepTimer);
-
+  const { data: array, id, playlistNo } = useSelector((state) => state.playlist);
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
@@ -129,17 +129,17 @@ const Player = () => {
     if (!soundRef.current) {
       if (playRef.current) {
         if (isplaying) {
-          await soundRef.current.pauseAsync();
+          await playRef.current.pauseAsync();
           dispatch(progress(-1));
         } else {
-          await soundRef.current.playAsync(); // resumes from last position
+          await playRef.current.playAsync(); // resumes from last position
           dispatch(progress(-1));
         }
         dispatch(setIsPlaying("toggle"));
+        dispatch(setPlaylistplaying({ action: "toggle", id: playlistNo }));
       }
-    };
-
-    if (isplaying) {
+    }
+    else if (isplaying) {
       await soundRef.current.pauseAsync();
       dispatch(progress(-1));
     } else {
@@ -570,20 +570,20 @@ const Player = () => {
             <View style={styles.miniPlayer} activeOpacity={0.9}>
               <View style={styles.miniPlayerInfo}>
                 <Image
-                  source={{ uri: data ? data[pos]?.image : null }}
+                  source={{ uri: soundRef.current != null ? data ? data[pos]?.image : null : playRef.current != null ? song ? song[position]?.image : null : null }}
                   style={styles.miniPlayerThumbnail}
                 />
                 <View style={styles.miniPlayerTextContainer}>
                   <Marquee
                     text={
-                      data
+                      soundRef.current != null ? data
                         ? data[pos]?.title + "             "
-                        : "Unknown Title"
+                        : "Unknown Title" : playRef.current != null ? song ? song[position]?.title + "             " : "Unknown Title" : "Unknown Title"
                     }
                   />
 
                   <Text style={styles.miniPlayerArtist} numberOfLines={1}>
-                    {data ? data[pos]?.uploader : "Unknown Artist"}
+                    {soundRef.current != null ? data ? data[pos]?.uploader : "Unknown Artist" : playRef.current != null ? song ? song[position]?.uploader : "Unknown Artist" : "Unknown Artist"}
                   </Text>
                 </View>
               </View>

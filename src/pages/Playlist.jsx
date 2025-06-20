@@ -240,15 +240,31 @@ const Playlist = () => {
       dispatch(addType(data[index].songs))
       dispatch(changeLoad(true))
       dispatch(load(false));
-      await playRef.current.playAsync();
 
+      dispatch(setPlaylistplaying({ action: "toggle", id: index }));
+      dispatch(setIsPlaying("toggle"));
+      setTimeout(async () => {
+        console.warn("resuming")
+        await playRef.current.playAsync();
+      }, 3000);
     } else {
       console.warn("reached playlist toggle");
       console.warn(playlistNo, index);
       if (playlistNo != index) {
-        dispatch(changePlaylist(index));
+        dispatch(changePlaylist(index))
+        dispatch(addType(data[index].songs))
+        dispatch(changeLoad(false))
+        dispatch(load(false));
+        setTimeout(() => {
+          dispatch(changeLoad(true))
+        }, 1000);
+        setTimeout(async () => {
+          console.warn("resuming")
+          await playRef.current.playAsync();
+        }, 2000);
+        //await playRef.current.playAsync();
       }
-      if (isplaying) {
+      else if (isplaying) {
         await playRef.current.pauseAsync();
         dispatch(progress(-1));
         //updatePlaybackState(false, seek); //added
