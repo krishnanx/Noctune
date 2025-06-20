@@ -24,7 +24,7 @@ import {
   setAnimationTargetY,
   toggleMinimized,
 } from "../../Store/MusicSlice";
-import { loadAudio, soundRef } from "../functions/music";
+import { loadAudio, playRef, soundRef } from "../functions/music";
 // import { addMusicinPlaylist } from "../../Store/PlaylistSlice";
 // import MarqueeText from "react-native-marquee";
 // import TextTicker from "react-native-text-ticker";
@@ -56,8 +56,10 @@ const Player = () => {
 
   const { data, pos, seek, isplaying, isMinimized, animationTargetY } =
     useSelector((state) => state.data);
-
-  const currentTrack = data && pos >= 0 && pos < data.length ? data[pos] : null;
+  const { song, pos: position, seek: seekk, load } = useSelector(
+    (state) => state.playlistload
+  );
+  const currentTrack = soundRef.current != null ? data && pos >= 0 && pos < data.length ? data[pos] : null : playRef.current != null ? song && position >= 0 && position < song.length ? song[position] : null : null
 
   //const mediaListenersInitialized = useRef(false);
 
@@ -124,7 +126,18 @@ const Player = () => {
   const togglePlayPauseRef = useRef(null);
 
   const togglePlayPause = async () => {
-    if (!soundRef.current) return;
+    if (!soundRef.current) {
+      if (playRef.current) {
+        if (isplaying) {
+          await soundRef.current.pauseAsync();
+          dispatch(progress(-1));
+        } else {
+          await soundRef.current.playAsync(); // resumes from last position
+          dispatch(progress(-1));
+        }
+        dispatch(setIsPlaying("toggle"));
+      }
+    };
 
     if (isplaying) {
       await soundRef.current.pauseAsync();
@@ -138,8 +151,14 @@ const Player = () => {
 
   const replaySound = async () => {
     if (isplaying) {
-      await soundRef.current.setPositionAsync(0);
-      await soundRef.current.playAsync();
+      if (soundRef.current) {
+        await soundRef.current.setPositionAsync(0);
+        await soundRef.current.playAsync();
+      }
+      else if (playRef.current) {
+        await playRef.current.setPositionAsync(0);
+        await playRef.current.playAsync();
+      }
       dispatch(progress(0));
     }
   };
@@ -154,7 +173,7 @@ const Player = () => {
     setIsModalVisible((prev) => !prev);
   };
 
-  
+
   // Respond to changes in animationTargetY
   useEffect(() => {
     Animated.timing(slideY, {
@@ -201,7 +220,7 @@ const Player = () => {
   const TOTAL_DURATION = data ? data[pos]?.duration : 0;
 
   //-----------------------------------------------------
-  
+
   useEffect(() => {
     togglePlayPauseRef.current = togglePlayPause;
     console.log("hola");
@@ -212,7 +231,7 @@ const Player = () => {
     if (!mediaListenersInitialized) {
       console.log("Setting up media notification listeners");
 
-      
+
       MediaNotificationManager.registerPlayPauseHandler(() => {
         console.log("Play/Pause triggered from notification");
         if (togglePlayPauseRef.current) {
@@ -520,7 +539,7 @@ const Player = () => {
     },
   });
 
-  
+
   // Render the mini player if minimized
   if (isMinimized) {
     return (
@@ -591,9 +610,8 @@ const Player = () => {
                   style={[
                     styles.miniProgressBarFill,
                     {
-                      width: `${
-                        TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0
-                      }%`,
+                      width: `${TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0
+                        }%`,
                     },
                   ]}
                 />
@@ -652,9 +670,9 @@ const Player = () => {
 
         <Metadata
           data={
-            data && data[pos]
+            soundRef.current != null ? data && data[pos]
               ? data[pos]
-              : { title: "Unknown Song", uploader: "Unknown Artist" }
+              : { title: "Unknown Song", uploader: "Unknown Artist" } : playRef.current != null ? song && song[position] ? song[position] : { title: "Unknown Song", uploader: "Unknown Artist" } : { title: "Unknown Song", uploader: "Unknown Artist" }
           }
           colors={colors}
           liked={liked}
@@ -950,10 +968,10 @@ const Custom_modal = ({
 
           <TouchableOpacity
             style={styles.optionTouch}
-            // onPress={() => {
-            //   toggleModal();
-            //   dispatch({ type: "ADD_TO_QUEUE", payload: song });
-            // }}
+          // onPress={() => {
+          //   toggleModal();
+          //   dispatch({ type: "ADD_TO_QUEUE", payload: song });
+          // }}
           >
             <Text style={styles.option}>Add to Queue</Text>
           </TouchableOpacity>

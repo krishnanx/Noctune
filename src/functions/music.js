@@ -4,18 +4,22 @@ import Constants from "expo-constants";
 import { progress } from "../../Store/MusicSlice.js";
 import { useDispatch } from "react-redux";
 import { setIsPlaying, load, changePos } from "../../Store/MusicSlice.js";
+import { current } from "@reduxjs/toolkit";
 export const soundRef = {
   current: null,
 };
-
+export const playRef = {
+  current: null
+}
 export const loadAudio = async (
   data,
   pos,
   dispatch,
   getSeek,
-  isLoadedFromAsyncStorage
+  queueLoad,
+  playLoad
 ) => {
-  console.warn(data[pos].url);
+  console.warn("song url", data[pos].url);
 
   try {
     if (!data[pos]) {
@@ -23,16 +27,19 @@ export const loadAudio = async (
     }
     //http://192.168.1.44
     //Constants.expoConfig.extra.SERVER
-   
 
-    const audioUri = `${
-      Constants.expoConfig.extra.SERVER
-    }/api/stream?url=${encodeURIComponent(data[pos].url)}`;
+
+    const audioUri = `${Constants.expoConfig.extra.SERVER
+      }/api/stream?url=${encodeURIComponent(data[pos].url)}`;
     console.warn("Audio URI:", audioUri); // Check if the URL is correct
 
     if (soundRef.current) {
       await soundRef.current.unloadAsync();
       soundRef.current = null;
+    }
+    if (playRef.current) {
+      await playRef.current.unloadAsync();
+      playRef.current = null;
     }
     console.warn("i am here before dispatch");
     dispatch(progress(0));
@@ -58,16 +65,26 @@ export const loadAudio = async (
 
 
 
-    soundRef.current = sound;
+    if (queueLoad) {
+      soundRef.current = sound;
+      playRef.current = null
+      console.warn("Audio Loaded", soundRef.current);
+    }
+    if (playLoad) {
+      playRef.current = sound
+      soundRef.current = null
+      console.warn("Audio Loaded from playref", playRef.current)
+    }
     sound.setOnPlaybackStatusUpdate((status) => {
       onPlaybackStatusUpdate(status, dispatch, getSeek, data, pos);
     });
 
-    console.warn("Audio Loaded", soundRef.current);
-    if (!isLoadedFromAsyncStorage) {
-      await soundRef.current.playAsync();
-      dispatch(setIsPlaying(true));
-    }
+
+
+    // if (!isLoadedFromAsyncStorage) {
+    //   await soundRef.current.playAsync();
+    //   dispatch(setIsPlaying(true));
+    // }
   } catch (error) {
     console.error("Error loading audio:", error);
 

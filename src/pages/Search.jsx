@@ -36,6 +36,7 @@ import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import store from "../../Store/store";
 import SearchModal from "../Components/SearchModal.jsx";
+import { changeLoad } from "../../Store/Playdataslice.js";
 
 const Search = () => {
   const { colors } = useTheme(); // Get theme colors
@@ -179,6 +180,7 @@ const Search = () => {
     dispatch(addMusic(song));
     dispatch(setIsLoadedFromAsyncStorage(false));
     dispatch(load(true));
+    dispatch(changeLoad(false))
     console.log("Dispatches complete");
     //dispatch(toggleMinimized());
     // Add this line to save the song metadata to AsyncStorage

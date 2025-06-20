@@ -23,7 +23,7 @@ import Waveform from "./src/Components/Waveform";
 import Audioloader from "./src/functions/Audioloader";
 import { addEventListener, useNetInfo } from '@react-native-community/netinfo';
 import { connection, type } from "./Store/NetworkSlice";
-
+import PlaylistLoader from "./src/functions/PlaylistLoader"
 export default function App() {
   const { Mode } = useSelector((state) => state.theme);
   const { user, loading } = useSelector((state) => state.user);
@@ -31,6 +31,9 @@ export default function App() {
 
   const { data, pos, seek, isplaying, canLoad } = useSelector(
     (state) => state.data
+  );
+  const { song, load } = useSelector(
+    (state) => state.playlistload
   );
   const [status, setStatus] = useState("loading");
   useEffect(() => {
@@ -46,7 +49,10 @@ export default function App() {
     // Cleanup on unmount
 
   }, []);
-
+  useEffect(() => {
+    console.error("queue loader", canLoad)
+    console.error("playlist loader", load)
+  }, [canLoad, load])
   // useEffect(() => {
   //   const fetchData = async () => {
 
@@ -110,6 +116,8 @@ export default function App() {
 
           <Websocket />
           {canLoad && <Audioloader />}
+
+          {load && <PlaylistLoader />}
         </KeyboardAvoidingView>
       </SafeAreaView>
     </SafeAreaProvider>
