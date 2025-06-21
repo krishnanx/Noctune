@@ -26,7 +26,9 @@ import { connection, type } from "./Store/NetworkSlice";
 import PlaylistLoader from "./src/functions/PlaylistLoader"
 export default function App() {
   const { Mode } = useSelector((state) => state.theme);
-  const { user, loading } = useSelector((state) => state.user);
+  // const { user, loading } = useSelector((state) => state.user);
+  const { user, loading } = useSelector((state) => state.user || {});
+
   const dispatch = useDispatch();
 
   const { data, pos, seek, isplaying, canLoad } = useSelector(

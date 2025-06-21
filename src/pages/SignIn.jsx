@@ -42,6 +42,7 @@ const SignIn = () => {
       const result = await dispatch(signIn({ email, password }));
 
       if (result.payload?.success) {
+        const { user, session } = result.payload; 
         dispatch(setUser(user));
       } else {
         const errorMessage = result.payload?.error || "Failed to sign in";

@@ -29,10 +29,14 @@ import { addType, changeLoad } from "../../Store/Playdataslice";
 const Playlist = () => {
 
 
-  const { data, id, playlistNo } = useSelector((state) => state.playlist);
-  const { user, session, loading, error, clientID } = useSelector(
-    (state) => state.user
-  );
+  // const { data, id, playlistNo } = useSelector((state) => state.playlist);
+  // const { user, session, loading, error, clientID } = useSelector(
+  //   (state) => state.user
+  // );
+
+    const userState = useSelector((state) => state.user || {});
+    const { user, session, loading, error, clientID } = userState;
+
   const { index } = useRoute().params;
   const {
     data: value,

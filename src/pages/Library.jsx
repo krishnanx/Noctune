@@ -22,7 +22,9 @@ const Library = () => {
     const [description, setDescription] = useState("")
     const { colors } = useTheme();
     const { data } = useSelector((state) => state.playlist);
-    const { user, id } = useSelector((state) => state.user)
+    //const { user, id } = useSelector((state) => state.user)
+    const { user, id } = useSelector((state) => state.user || {});
+
     const navigation = useNavigation();
 
     const toggleModal = () => {
@@ -206,7 +208,7 @@ const Library = () => {
             isPlaying: false
         }
         dispatch(addPlaylist({ playlist: playlist }));
-        dispatch(AddNewPlaylist({ data: playlist, userid: user.id }))
+        dispatch(AddNewPlaylist({ data: playlist, userid: user?.id }))
         setDescription("");
         setPlaylistName("");
     }
