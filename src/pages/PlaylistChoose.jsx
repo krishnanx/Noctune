@@ -406,10 +406,16 @@ const DisplayPlaylist = ({
       >
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <View style={styles.ImageContainer}>
-            <Image
-              source={item.image ? { uri: item.image } : icon}
-              style={{ width: 50, height: 50 }}
-            />
+             <Image
+  source={
+    item.image
+      ? { uri: item.image }
+      : item.songs?.[0]?.image
+      ? { uri: item.songs[0].image }
+      : icon
+  }
+  style={{ width: 50, height: 50 }}
+/>
           </View>
           <View style={styles.Name}>
             <Text style={{ fontSize: 20, color: "white" }}>{item.name}</Text>

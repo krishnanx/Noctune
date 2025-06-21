@@ -7,8 +7,9 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Image,
+  Text, Animated
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import UniversalNavi from "./Navigation/Universal";
@@ -18,11 +19,10 @@ import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import Websocket from "./src/Websocket/Websocket";
 import { FetchMetadata } from "./Store/MusicSlice";
-import { useEffect, useRef } from "react";
-import { Text, Animated } from "react-native";
 import Waveform from "./src/Components/Waveform";
 import Audioloader from "./src/functions/Audioloader";
-
+import { addEventListener, useNetInfo } from '@react-native-community/netinfo';
+import { connection, type } from "./Store/NetworkSlice";
 
 export default function App() {
   const { Mode } = useSelector((state) => state.theme);
@@ -35,6 +35,19 @@ export default function App() {
     (state) => state.data
   );
   const [status, setStatus] = useState("loading");
+  useEffect(() => {
+    const unsubscribe = addEventListener(state => {
+      console.error('Connection type', state.type);
+      console.error('Is connected?', state.isConnected);
+      dispatch(connection(state.isConnected))
+      dispatch(type(state.type))
+    });
+    return () => {
+      unsubscribe();
+    };
+    // Cleanup on unmount
+
+  }, []);
 
   // useEffect(() => {
   //   const fetchData = async () => {

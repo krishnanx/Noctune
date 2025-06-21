@@ -3,56 +3,56 @@ import axios, { Axios } from "axios";
 import Constants from "expo-constants";
 import { progress } from "./MusicSlice";
 const DownloadSlice = createSlice({
-    name: "download",
-    initialState: {
-        songs: [],
-        status: "idle",
-        completed: 0,
-        path: "",
-        finalData: [],
-    },
-    reducers: {
-        addSong(state, action) {
-            const array = action.payload.data.map(item => ({ ...item, progress: 0 })
+  name: "download",
+  initialState: {
+    songs: [],
+    status: "idle",
+    completed: 0,
+    path: "",
+    finalData: [],
+  },
+  reducers: {
+    addSong(state, action) {
+      const array = action.payload.data.map(item => ({ ...item, progress: 0 })
 
-            )
-            state.songs = array
-        },
-        changeProgress(state, action) {
-            state.songs[action.payload.index].progress = action.payload.progress
-        },
-        setCompleted(state, action) {
-            if (action.payload == 1) {
-                state.completed += action.payload
-            }
-            else if (action.payload == 0) {
-                state.completed = action.payload
-            }
-        },
-        addPath(state, action) {
-            state.path = action.payload.path
-        },
-        addData(state, action) {
-            const data = action.payload.final
-            const status = "idle"
-            state.finalData = [...state.finalData, { data: data, status: status }]
-        },
-        changeSongStatus(state, action) {
-            state.finalData[action.payload.index].status = action.payload.status
-        }
+      )
+      state.songs = array
     },
-    extraReducers: (builder) => {
-        builder
-            .addCase(download.pending, (state, action) => {
-                state.status = "downloading"
-            })
-            .addCase(download.fulfilled, (state, action) => {
-                state.status = "idle"
-            })
-            .addCase(download.rejected, (state, action) => {
-                state.status = "error"
-            })
+    changeProgress(state, action) {
+      state.songs[action.payload.index].progress = action.payload.progress
+    },
+    setCompleted(state, action) {
+      if (action.payload == 1) {
+        state.completed += action.payload
+      }
+      else if (action.payload == 0) {
+        state.completed = action.payload
+      }
+    },
+    addPath(state, action) {
+      state.path = action.payload.path
+    },
+    addData(state, action) {
+      const data = action.payload.final
+      const status = "idle"
+      state.finalData = [...state.finalData, { data: data, status: status }]
+    },
+    changeSongStatus(state, action) {
+      state.finalData[action.payload.index].status = action.payload.status
     }
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(download.pending, (state, action) => {
+        state.status = "downloading"
+      })
+      .addCase(download.fulfilled, (state, action) => {
+        state.status = "idle"
+      })
+      .addCase(download.rejected, (state, action) => {
+        state.status = "error"
+      })
+  }
 })
 export const { addSong, changeProgress, setCompleted, addPath, addData, changeSongStatus } = DownloadSlice.actions;
 export default DownloadSlice.reducer;
@@ -106,11 +106,11 @@ export const download = createAsyncThunk(
       return rejectWithValue(error);
     }
 
-    const payload = { 
-      data: validatedData, 
-      ClientId 
+    const payload = {
+      data: validatedData,
+      ClientId
     };
-    
+
     console.warn("Sending payload:", payload);
     console.warn("Validated data count:", validatedData.length);
 
@@ -130,16 +130,16 @@ export const download = createAsyncThunk(
 
       console.warn("Response status:", response.status);
       console.warn("Response data:", response.data);
-      
+
       return response.data;
     } catch (error) {
       console.error("=== REDUX THUNK ERROR ===");
       console.error("Request failed:", error.message);
-      
+
       if (error.response) {
         console.error("Error response status:", error.response.status);
         console.error("Error response data:", error.response.data);
-        
+
         return rejectWithValue({
           status: error.response.status,
           message: error.response.data?.error || error.response.data?.detail || "Server error",

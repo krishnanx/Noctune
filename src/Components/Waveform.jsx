@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // import React, { useRef, useEffect, useState } from "react";
 // import { Text, Animated, StatusBar } from "react-native";
 // import { StyleSheet, View } from "react-native";
@@ -484,6 +485,9 @@
 
 //-----------------------------------------------------------------------------------------------------------------
 import React, { useRef, useEffect, useState } from "react";
+=======
+import React, { useRef, useEffect, useState, use } from "react";
+>>>>>>> upstream/dev
 import { Text, Animated, StatusBar } from "react-native";
 import { StyleSheet, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
@@ -496,6 +500,9 @@ import { initWebSocket, getWebSocket } from '../Websocket/websocketfunc';
 import { pullPlaylists } from "../../Store/PlaylistSlice";
 import { loadUser } from "../../Store/AuthThunk";
 import Constants from "expo-constants";
+import NetInfo, { addEventListener } from "@react-native-community/netinfo";
+import { connection, checked, type } from "../../Store/NetworkSlice";
+
 
 const WaveformLoader = () => {
 
@@ -580,9 +587,14 @@ const WaveformLoader = () => {
 };
 const Waveform = () => {
   const { Mode } = useSelector((state) => state.theme)
+<<<<<<< HEAD
   //const { user } = useSelector((state) => state.user)
   const { user } = useSelector((state) => state.user || {});
 
+=======
+  const { user } = useSelector((state) => state.user)
+  const { isConnected, nettype, hasChecked } = useDispatch((state) => state.network)
+>>>>>>> upstream/dev
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [deviceName, setDeviceName] = useState(null);
   const hasConnected = useRef(false);
@@ -612,41 +624,83 @@ const Waveform = () => {
       useNativeDriver: true,
     }).start();
   }, []);
+
   useEffect(() => {
     if (!deviceName || hasConnected.current) return;
-
+    console.warn("hey")
     hasConnected.current = true;
 
-    const runAsyncLogic = async () => {
-      const id = Math.random().toString(36).slice(2, 8);
+    NetInfo.fetch().then(state => {
+      console.log("Is connected?", state.isConnected);
+      console.log("Connection type:", state.type);
+      if (state.isConnected) {
+        const runAsyncLogic = async () => {
+          const id = Math.random().toString(36).slice(2, 8);
+          console.error("HI")
+          try {
+            const loadedUser = await dispatch(loadUser()).unwrap(); // Await loadUser thunk
+            console.warn("data:", loadedUser === null);
+            let ws;
+            loadedUser === null ? null : await dispatch(pullPlaylists({ user: loadedUser.id })).unwrap()
+            // 192.168.85.33 K
+            // 192.168.1.44 krish
+            console.error("loader user over")
+            console.error(isConnected)
 
-      try {
-        const loadedUser = await dispatch(loadUser()).unwrap(); // Await loadUser thunk
-        console.warn("data:", loadedUser);
+            console.error("reached websocket connection")
+            initWebSocket(`${Constants.expoConfig.extra.WEBSOC}/download-progress`)
+            ws = getWebSocket();
 
+<<<<<<< HEAD
         await dispatch(pullPlaylists({ user: loadedUser.id })).unwrap();
 
         initWebSocket(`192.168.1.11/download-progress`);
         const ws = getWebSocket();
+=======
+            ws.onopen = () => {
+              console.error("Connected to WebSocket server");
+              dispatch(setClientID({ id }));
+>>>>>>> upstream/dev
 
-        ws.onopen = () => {
-          console.error("Connected to WebSocket server");
-          dispatch(setClientID({ id }));
+              ws.send(JSON.stringify({
+                type: "register",
+                clientId: id,
+                value: "hi"
 
-          ws.send(JSON.stringify({
-            type: "register",
-            clientId: id,
-            value: "hi"
-          }));
+              }));
+              dispatch(setLoading(false));
 
+<<<<<<< HEAD
           dispatch(setwaveLoad(false));
         };
       } catch (error) {
         console.error("Failed to load user:", error);
-      }
-    };
+=======
+            };
 
-    runAsyncLogic();
+
+
+
+
+          } catch (error) {
+            console.error("Failed to load user:", error);
+          }
+
+        }
+        runAsyncLogic();
+      } else {
+        // Show no internet UI or alert
+        dispatch(setLoading(false));
+>>>>>>> upstream/dev
+      }
+    });
+
+
+
+
+
+
+
   }, [deviceName]);
 
 

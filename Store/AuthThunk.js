@@ -20,7 +20,7 @@ export const loadUser = createAsyncThunk(
       console.warn("user data: ", userData)
       if (userData && sessionData) {
         const parsedUser = JSON.parse(userData);
-        //console.error(parsedUser)
+        console.error(parsedUser)
         dispatch(setUser(parsedUser));
         dispatch(setSession(JSON.parse(sessionData)));
         return parsedUser;
