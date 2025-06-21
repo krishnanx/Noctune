@@ -85,7 +85,7 @@ export const signIn = createAsyncThunk(
       dispatch(setLoading(true));
 
       const response = await axios.post(
-        "http://nutrigen.myprojects.studio/api/auth/signin",
+        "http://192.168.1.11:3000/api/auth/signin",  //"http://nutrigen.myprojects.studio/api/auth/signin",
         { email, password }
       );
 
@@ -102,7 +102,10 @@ export const signIn = createAsyncThunk(
         dispatch(setUser(user));
         if (session) dispatch(setSession(session));
 
-        return { success: true, user };
+        return { success: true, 
+                user: response.data.user,
+                session: response.data.session,
+        };
       } else {
         console.error("Invalid response format:", response.data);
         return rejectWithValue({ error: "Invalid response from server" });
