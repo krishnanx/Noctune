@@ -9,7 +9,9 @@ import { User } from "react-native-feather";
 const Stack = createStackNavigator();
 const UniversalNavi = () => {
 
-  const { user } = useSelector((state) => state.user)
+  //const { user } = useSelector((state) => state.user)
+  const { user } = useSelector((state) => state.user || {});
+
 
   return (
     <Stack.Navigator>

@@ -195,11 +195,11 @@ const Websocket = () => {
     const id = Math.random().toString(36).slice(2, 8);
 
     const connectWebSocket = () => {
-
+      //initWebSocket();
       //Constants.expoConfig.extra.WEBSOC
       //ws://192.168.1.44:80
-      // const ws = new WebSocket("ws://192.168.1.44:80");
-      const ws = getWebSocket()
+      const ws = new WebSocket("ws://192.168.1.11:3000/download-progress");   
+      //const ws = getWebSocket()
       wsRef.current = ws;
 
       pingInterval = setInterval(() => {
@@ -219,7 +219,7 @@ const Websocket = () => {
           console.error("message!!");
           const parsed = JSON.parse(event.data);
           if (parsed.type == "progress") {
-            dispatch(
+            dispatch( 
               changeProgress({
                 progress: parsed.value.percent,
                 index: parsed.value.index,

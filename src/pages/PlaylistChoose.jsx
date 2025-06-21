@@ -25,7 +25,7 @@ import Tick from "react-native-vector-icons/MaterialIcons";
 import { addMusictoPlaylist } from "../../Store/PlaylistSlice";
 const PlaylistChoose = () => {
   const navigation = useNavigation();
-  const { user } = useSelector((state) => state.user)
+  const { user } = useSelector((state) => state.user || {} );
   const route = useRoute();
   const { index, song } = route.params;
   const dispatch = useDispatch();
@@ -56,7 +56,7 @@ const PlaylistChoose = () => {
       isPlaying: false,
     };
     dispatch(addPlaylist({ playlist: playlist }));
-    dispatch(AddNewPlaylist({ data: playlist, userid: user.id }))
+    dispatch(AddNewPlaylist({ data: playlist, userid: user?.id }))
     setDescription("");
     setPlaylistName("");
   };
@@ -81,7 +81,7 @@ const PlaylistChoose = () => {
     selectedIndices.forEach((playlistIndex) => {
       dispatch(addMusicinPlaylist({ id: playlistIndex, music: musicToAdd }));
       console.error(data[playlistIndex])
-      dispatch(addMusictoPlaylist({ playlist: data[playlistIndex], user: user.id, music: musicToAdd }))
+      dispatch(addMusictoPlaylist({ playlist: data[playlistIndex], user: user?.id, music: musicToAdd }))
     });
 
     // Show success message or toast here if desired
