@@ -230,7 +230,7 @@ const Playlist = () => {
   const Pname = data[index].name;
   const Description = data[index].desc;
   const Uname = "Krishnan E";
-
+  const minHeight = 1000
   const togglePlayPause = async () => {
     console.error(isMinimized)
     if (!isMinimized) {
@@ -284,6 +284,7 @@ const Playlist = () => {
       dispatch(setIsPlaying("toggle"));
     }
   };
+
   const handleDownload = async () => {
     console.warn("reached download function");
     console.warn(data[index]?.songs, clientID);
@@ -292,6 +293,7 @@ const Playlist = () => {
     dispatch(addPath({ path: path }));
     dispatch(addSong({ data: data[index]?.songs }));
     dispatch(download({ data: data[index]?.songs, ClientId: clientID }));
+
   };
   return (
     <ScrollView
@@ -301,7 +303,8 @@ const Playlist = () => {
         paddingBottom: 100,
         paddingHorizontal: 20,
         paddingTop: 20,
-        height: 1000,
+        height: 620 + (data[index].songs.length * 90),
+        //backgroundColor: "white"
       }}
     >
       <Information
@@ -380,7 +383,7 @@ const Information = ({
       <View style={styles.metadata}>
         <View style={styles.imageContainer}>
           <Image
-            source={data.length > 0 ? data.image ? { uri: data.image } : { uri: data.songs[0].image } : icon}
+            source={data.songs.length > 0 ? data.image ? { uri: data.image } : { uri: data.songs[0].image } : icon}
             style={styles.albumArt}
           // fallback if user image fails to load
           />
@@ -467,7 +470,7 @@ const DataList = ({ styles, item }) => {
         <Text numberOfLines={1} ellipsizeMode="tail" style={styles.songName}>
           {item.title}
         </Text>
-        <Text style={styles.artistName}>{item.uploader}</Text>
+        <Text style={styles.artistName}>{item.uploader || item.artist}</Text>
       </View>
       <View style={styles.dotsContainer}>
         <ThreeDots />

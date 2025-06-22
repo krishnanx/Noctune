@@ -24,11 +24,12 @@ import Audioloader from "./src/functions/Audioloader";
 import { addEventListener, useNetInfo } from '@react-native-community/netinfo';
 import { connection, type } from "./Store/NetworkSlice";
 import PlaylistLoader from "./src/functions/PlaylistLoader"
+import { AddNewPlaylist, updatemigrateSliceSucess } from "./Store/PlaylistSlice";
 export default function App() {
   const { Mode } = useSelector((state) => state.theme);
   // const { user, loading } = useSelector((state) => state.user);
   const { user, loading, waveload } = useSelector((state) => state.user || {});
-
+  const { data: array, id, playlistNo, migrateSliceSucess, migratedPlaylist } = useSelector((state) => state.playlist);
   const dispatch = useDispatch();
 
   const { data, pos, seek, isplaying, canLoad } = useSelector(
@@ -55,6 +56,13 @@ export default function App() {
     console.error("queue loader", canLoad)
     console.error("playlist loader", load)
   }, [canLoad, load])
+  useEffect(() => {
+    if (migrateSliceSucess) {
+      dispatch(AddNewPlaylist({ data: migratedPlaylist, userid: user?.id }))
+      dispatch(updatemigrateSliceSucess(false))
+    }
+
+  }, [migrateSliceSucess])
   // useEffect(() => {
   //   const fetchData = async () => {
 
