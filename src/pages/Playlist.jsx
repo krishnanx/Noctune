@@ -380,7 +380,7 @@ const Information = ({
       <View style={styles.metadata}>
         <View style={styles.imageContainer}>
           <Image
-            source={data.length > 0 ? data.image ? { uri: data.image } : { uri: data.songs[0].image } : icon}
+            source={data.songs.length > 0 ? data.image ? { uri: data.image } : { uri: data.songs[0].image } : icon}
             style={styles.albumArt}
           // fallback if user image fails to load
           />
@@ -467,7 +467,7 @@ const DataList = ({ styles, item }) => {
         <Text numberOfLines={1} ellipsizeMode="tail" style={styles.songName}>
           {item.title}
         </Text>
-        <Text style={styles.artistName}>{item.uploader}</Text>
+        <Text style={styles.artistName}>{item.uploader || item.artist}</Text>
       </View>
       <View style={styles.dotsContainer}>
         <ThreeDots />
