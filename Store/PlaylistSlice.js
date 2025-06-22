@@ -7,7 +7,9 @@ const PlaylistSlice = createSlice({
     initialState: {
         data: [],
         id: -1,
-        playlistNo: -1
+        playlistNo: -1,
+        migrateSliceSucess: false,
+        migratedPlaylist: []
     },
     reducers: {
         addPlaylist(state, action) {
@@ -15,6 +17,9 @@ const PlaylistSlice = createSlice({
             state.data = [...state.data, action.payload.playlist];
             state.id = state.id + 1
             console.warn(state.id)
+        },
+        updatemigrateSliceSucess(state, action) {
+            state.migrateSliceSucess = action.payload.success
         },
         updataID(state, action) {
             state.id = state.data.length - 1
@@ -101,6 +106,7 @@ const PlaylistSlice = createSlice({
                 });
 
                 state.data[id].songs = song
+                state.migratedPlaylist = state.data[id]
 
             })
             .addCase(migrate.pending, (state, action) => {
@@ -148,7 +154,7 @@ const PlaylistSlice = createSlice({
 
     }
 })
-export const { addPlaylist, addMusicinPlaylist, setPlaylistplaying, changePlaylist, updataID } = PlaylistSlice.actions;
+export const { addPlaylist, addMusicinPlaylist, setPlaylistplaying, changePlaylist, updataID, updatemigrateSliceSucess } = PlaylistSlice.actions;
 export default PlaylistSlice.reducer;
 export const migrate = createAsyncThunk('/migratedata', async ({ Url: data }) => {
     try {
