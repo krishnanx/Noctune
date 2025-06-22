@@ -58,6 +58,7 @@ export default function App() {
   }, [canLoad, load])
   useEffect(() => {
     if (migrateSliceSucess) {
+      console.warn("pushing migrated playlist")
       dispatch(AddNewPlaylist({ data: migratedPlaylist, userid: user?.id }))
       dispatch(updatemigrateSliceSucess(false))
     }
