@@ -1,6 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
+import Constants from "expo-constants"
 import {
   setUser,
   setSession,
@@ -83,10 +84,12 @@ export const signIn = createAsyncThunk(
   async ({ email, password }, { dispatch, rejectWithValue }) => {
 
     try {
+      console.warn("sign in reached")
       dispatch(setLoading(true));
 
       const response = await axios.post(
-        "http://192.168.1.11:3000/api/auth/signin",  //"http://nutrigen.myprojects.studio/api/auth/signin",
+        `${Constants.expoConfig.extra.SERVER
+        }/api/auth//signin`,
         { email, password }
       );
 

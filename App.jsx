@@ -27,7 +27,7 @@ import PlaylistLoader from "./src/functions/PlaylistLoader"
 export default function App() {
   const { Mode } = useSelector((state) => state.theme);
   // const { user, loading } = useSelector((state) => state.user);
-  const { user, loading } = useSelector((state) => state.user || {});
+  const { user, loading, waveload } = useSelector((state) => state.user || {});
 
   const dispatch = useDispatch();
 
@@ -65,7 +65,7 @@ export default function App() {
 
   //   fetchData();
   // }, []);
-  if (loading) {
+  if (waveload) {
     return (
       <>
         <View

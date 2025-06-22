@@ -29,13 +29,10 @@ import { addType, changeLoad } from "../../Store/Playdataslice";
 const Playlist = () => {
 
 
-  // const { data, id, playlistNo } = useSelector((state) => state.playlist);
-  // const { user, session, loading, error, clientID } = useSelector(
-  //   (state) => state.user
-  // );
+  const { data, id, playlistNo } = useSelector((state) => state.playlist);
 
-    const userState = useSelector((state) => state.user || {});
-    const { user, session, loading, error, clientID } = userState;
+  const userState = useSelector((state) => state.user || {});
+  const { user, session, loading, error, clientID } = userState;
 
   const { index } = useRoute().params;
   const {
@@ -242,15 +239,14 @@ const Playlist = () => {
       }
       console.warn(data[index].songs)
       dispatch(addType(data[index].songs))
-      dispatch(changeLoad(true))
+      dispatch(changeLoad(false))
       dispatch(load(false));
+      setTimeout(() => {
+        dispatch(changeLoad(true))
+      }, 500);
+      dispatch(setPlaylistplaying({ action: true, id: index }));
+      dispatch(setIsPlaying(true));
 
-      dispatch(setPlaylistplaying({ action: "toggle", id: index }));
-      dispatch(setIsPlaying("toggle"));
-      setTimeout(async () => {
-        console.warn("resuming")
-        await playRef.current.playAsync();
-      }, 3000);
     } else {
       console.warn("reached playlist toggle");
       console.warn(playlistNo, index);
@@ -259,25 +255,28 @@ const Playlist = () => {
         dispatch(addType(data[index].songs))
         dispatch(changeLoad(false))
         dispatch(load(false));
+        dispatch(setPlaylistplaying({ action: true, id: index }));
+
         setTimeout(() => {
           dispatch(changeLoad(true))
-        }, 1000);
-        setTimeout(async () => {
-          console.warn("resuming")
-          await playRef.current.playAsync();
-        }, 2000);
+        }, 500);
+
         //await playRef.current.playAsync();
       }
       else if (isplaying) {
+        console.warn("isplaying", isplaying)
         await playRef.current.pauseAsync();
+        dispatch(setPlaylistplaying({ action: false, id: index }));
         dispatch(progress(-1));
         //updatePlaybackState(false, seek); //added
       } else {
+        console.warn("isplaying", isplaying)
         await playRef.current.playAsync(); // resumes from last position
+        dispatch(setPlaylistplaying({ action: true, id: index }));
         dispatch(progress(-1));
         //updatePlaybackState(true, seek); //added
       }
-      dispatch(setPlaylistplaying({ action: "toggle", id: index }));
+
       dispatch(setIsPlaying("toggle"));
     }
   };

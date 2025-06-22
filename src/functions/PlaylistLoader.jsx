@@ -6,6 +6,7 @@ const PlaylistLoader = () => {
     const { song: data, pos, seek, load } = useSelector(
         (state) => state.playlistload
     );
+    const { data: song, id, playlistNo } = useSelector((state) => state.playlist);
     const seekRef = useRef(seek);
     const prevPosRef = useRef(null);
     const hasLoadedOnce = useRef(false);
@@ -28,7 +29,8 @@ const PlaylistLoader = () => {
                 dispatch,
                 () => seekRef.current,
                 queueLoad,
-                load
+                load,
+                playlistNo
 
             );
             prevPosRef.current = pos;

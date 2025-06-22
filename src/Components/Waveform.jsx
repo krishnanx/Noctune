@@ -662,9 +662,6 @@ const Waveform = () => {
                 value: "hi"
 
               }));
-              dispatch(setLoading(false));
-
-
               dispatch(setwaveLoad(false));
             };
           } catch (error) {
@@ -675,17 +672,10 @@ const Waveform = () => {
         runAsyncLogic();
       } else {
         // Show no internet UI or alert
-        dispatch(setLoading(false));
+        dispatch(setwaveLoad(false));
 
       }
     });
-
-
-
-
-
-
-
   }, [deviceName]);
 
 

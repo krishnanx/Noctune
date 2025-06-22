@@ -4,6 +4,7 @@ import Constants from "expo-constants";
 import { progress } from "../../Store/MusicSlice.js";
 import { useDispatch } from "react-redux";
 import { setIsPlaying, load, changePos } from "../../Store/MusicSlice.js";
+import { setPlaylistplaying } from "../../Store/PlaylistSlice.js";
 import { current } from "@reduxjs/toolkit";
 export const soundRef = {
   current: null,
@@ -17,7 +18,8 @@ export const loadAudio = async (
   dispatch,
   getSeek,
   queueLoad,
-  playLoad
+  playLoad,
+  playlistNo = -1
 ) => {
   console.warn("song url", data[pos].url);
 
@@ -74,9 +76,10 @@ export const loadAudio = async (
       playRef.current = sound
       soundRef.current = null
       console.warn("Audio Loaded from playref", playRef.current)
+      playRef.current.playAsync()
     }
     sound.setOnPlaybackStatusUpdate((status) => {
-      onPlaybackStatusUpdate(status, dispatch, getSeek, data, pos);
+      onPlaybackStatusUpdate(status, dispatch, getSeek, data, pos, playlistNo);
     });
 
 
@@ -96,8 +99,23 @@ export const unloadAudio = async () => {
     await soundRef.current.unloadAsync();
     soundRef.current = null;
   }
+  if (playRef.current) {
+    await playRef.current.unloadAsync();
+    playRef.current = null;
+  }
 };
-const onPlaybackStatusUpdate = (status, dispatch, getSeek, data, pos) => {
+const onPlaybackStatusUpdate = (status, dispatch, getSeek, data, pos, playlistNo) => {
+
+  if (status.didJustFinish) {
+    const currentSeek = getSeek?.();
+    console.warn("finished")
+    checkNext(pos, data, dispatch, playlistNo)
+    if (currentSeek != data[pos]?.duration && currentSeek != 0) {
+      console.warn("finishing up!!");
+      tailFill(data[pos]?.duration, dispatch);
+
+    }
+  }
   if (status.isLoaded) {
     console.warn("hi?");
     console.warn("positionMillis:", status.positionMillis / 1000);
@@ -105,14 +123,7 @@ const onPlaybackStatusUpdate = (status, dispatch, getSeek, data, pos) => {
       dispatch(progress(+1));
     }
 
-    if (status.didJustFinish) {
-      const currentSeek = getSeek?.();
-      if (currentSeek != data[pos]?.duration && currentSeek != 0) {
-        console.warn("finishing up!!");
-        tailFill(data[pos]?.duration, dispatch);
 
-      }
-    }
   } else if (status.error) {
     console.warn(`Playback error: ${status.error}`);
   }
@@ -126,9 +137,33 @@ const tailFill = async (currentSec, dispatch) => {
   // once done:
   dispatch(progress(currentSec));
   //dispatch(setIsPlaying(false));
+
   dispatch(changePos(1));
+
   dispatch(load(false));
   dispatch(load(true));
   unloadAudio();
   return; // if you want to free the sound
 };
+const checkNext = async (pos, data, dispatch, playlistNo) => {
+  console.warn("pos:", pos)
+  console.warn("data length", data.length)
+  if (pos + 1 >= data.length) {
+    if (soundRef.current) {
+      console.warn("pausing player")
+      await soundRef.current.pauseAsync();
+      await soundRef.current.unloadAsync();
+      soundRef.current = null;
+      dispatch(setIsPlaying(false))
+    }
+    if (playRef.current && playlistNo != -1) {
+      console.warn("pausing playlist")
+      await playRef.current.pauseAsync();
+      await playRef.current.unloadAsync();
+      playRef.current = null;
+      dispatch(setPlaylistplaying({ action: false, id: playlistNo }));
+      dispatch(setIsPlaying(false))
+    }
+    return
+  }
+}
