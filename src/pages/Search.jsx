@@ -126,16 +126,16 @@ const Search = () => {
       keyboardDidHide.remove();
     };
   }, []);
-  useFocusEffect(
-    React.useCallback(() => {
-      // When screen is focused
-      return () => {
-        // When screen is unfocused (like going to another page)
-        dispatch(load(false));
-        console.log("it is false");
-      };
-    }, [])
-  );
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     // When screen is focused
+  //     return () => {
+  //       // When screen is unfocused (like going to another page)
+  //       dispatch(load(false));
+  //       console.log("it is false");
+  //     };
+  //   }, [])
+  // );
   const searchMusic = async (searchText) => {
     if (!searchText || !searchText.trim()) return;
     if (!isApiInitialized) {

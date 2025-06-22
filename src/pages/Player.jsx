@@ -54,12 +54,12 @@ const Player = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
-  const { data, pos, seek, isplaying, isMinimized, animationTargetY } =
+  const { data, pos, seek, isplaying, canLoad, isMinimized, animationTargetY } =
     useSelector((state) => state.data);
   const { song, pos: position, seek: seekk, load } = useSelector(
     (state) => state.playlistload
   );
-  const currentTrack = soundRef.current != null ? data && pos >= 0 && pos < data.length ? data[pos] : null : playRef.current != null ? song && position >= 0 && position < song.length ? song[position] : null : null
+  const currentTrack = canLoad ? data && pos >= 0 && pos < data.length ? data[pos] : null : song && position >= 0 && position < song.length ? song[position] : null
 
   //const mediaListenersInitialized = useRef(false);
 
@@ -570,20 +570,20 @@ const Player = () => {
             <View style={styles.miniPlayer} activeOpacity={0.9}>
               <View style={styles.miniPlayerInfo}>
                 <Image
-                  source={{ uri: soundRef.current != null ? data ? data[pos]?.image : null : playRef.current != null ? song ? song[position]?.image : null : null }}
+                  source={{ uri: canLoad ? data ? data[pos]?.image : null : song ? song[position]?.image : null }}
                   style={styles.miniPlayerThumbnail}
                 />
                 <View style={styles.miniPlayerTextContainer}>
                   <Marquee
                     text={
-                      soundRef.current != null ? data
+                      canLoad ? data
                         ? data[pos]?.title + "             "
-                        : "Unknown Title" : playRef.current != null ? song ? song[position]?.title + "             " : "Unknown Title" : "Unknown Title"
+                        : "Unknown Title" : song ? song[position]?.title + "             " : "Unknown Title"
                     }
                   />
 
                   <Text style={styles.miniPlayerArtist} numberOfLines={1}>
-                    {soundRef.current != null ? data ? data[pos]?.uploader : "Unknown Artist" : playRef.current != null ? song ? song[position]?.uploader : "Unknown Artist" : "Unknown Artist"}
+                    {canLoad ? data ? data[pos]?.uploader : "Unknown Artist" : song ? song[position]?.uploader : "Unknown Artist"}
                   </Text>
                 </View>
               </View>
@@ -670,9 +670,9 @@ const Player = () => {
 
         <Metadata
           data={
-            soundRef.current != null ? data && data[pos]
+            canLoad ? data && data[pos]
               ? data[pos]
-              : { title: "Unknown Song", uploader: "Unknown Artist" } : playRef.current != null ? song && song[position] ? song[position] : { title: "Unknown Song", uploader: "Unknown Artist" } : { title: "Unknown Song", uploader: "Unknown Artist" }
+              : { title: "Unknown Song", uploader: "Unknown Artist" } : song && song[position] ? song[position] : { title: "Unknown Song", uploader: "Unknown Artist" }
           }
           colors={colors}
           liked={liked}
