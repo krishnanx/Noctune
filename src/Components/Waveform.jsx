@@ -497,7 +497,7 @@ import * as Device from "expo-device";
 import { setClientID, setLoading, setWebsocket, setwaveLoad } from "../../Store/UserSlice"
 import { useDispatch } from "react-redux";
 import { initWebSocket, getWebSocket } from '../Websocket/websocketfunc';
-import { pullPlaylists } from "../../Store/PlaylistSlice";
+import { pullPlaylists, updataID } from "../../Store/PlaylistSlice";
 import { loadUser } from "../../Store/AuthThunk";
 import Constants from "expo-constants";
 import NetInfo, { addEventListener } from "@react-native-community/netinfo";
@@ -642,6 +642,7 @@ const Waveform = () => {
             console.warn("data:", loadedUser === null);
             let ws;
             loadedUser === null ? null : await dispatch(pullPlaylists({ user: loadedUser.id })).unwrap()
+            dispatch(updataID())
             // 192.168.85.33 K
             // 192.168.1.44 krish
             console.error("loader user over")

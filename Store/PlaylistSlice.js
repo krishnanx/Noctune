@@ -16,6 +16,9 @@ const PlaylistSlice = createSlice({
             state.id = state.id + 1
             console.warn(state.id)
         },
+        updataID(state, action) {
+            state.id = state.data.length - 1
+        },
         addMusicinPlaylist(state, action) {
             let bool = true;
             if (state.data[action.payload.id].songs.length === 0) {
@@ -71,6 +74,7 @@ const PlaylistSlice = createSlice({
 
                 const response = action.payload;
                 const id = state.id + 1;
+                console.warn("id", id)
                 const playlist = {
                     id: id,
                     image: response[0].cover_url || null,
@@ -143,7 +147,7 @@ const PlaylistSlice = createSlice({
 
     }
 })
-export const { addPlaylist, addMusicinPlaylist, setPlaylistplaying, changePlaylist } = PlaylistSlice.actions;
+export const { addPlaylist, addMusicinPlaylist, setPlaylistplaying, changePlaylist, updataID } = PlaylistSlice.actions;
 export default PlaylistSlice.reducer;
 export const migrate = createAsyncThunk('/migratedata', async ({ Url: data }) => {
     try {
