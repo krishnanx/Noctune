@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 // import React, { useRef, useEffect, useState } from "react";
 // import { Text, Animated, StatusBar } from "react-native";
 // import { StyleSheet, View } from "react-native";
@@ -117,7 +117,7 @@
 // //   const [charIndex, setCharIndex] = useState(0);
 // //   const [isDeleting, setIsDeleting] = useState(false);
 
-  
+
 // //   useEffect(() => {
 // //     // Cursor blink effect
 // //     const cursorInterval = setInterval(() => {
@@ -393,9 +393,9 @@
 //             clientId: id,
 //             value: "hi"
 //           }));
-          
+
 //           dispatch(setLoading(false));
-          
+
 //         };
 //       } catch (error) {
 //         console.error("Failed to load user:", error);
@@ -484,17 +484,17 @@
 // export default Waveform;
 
 //-----------------------------------------------------------------------------------------------------------------
-import React, { useRef, useEffect, useState } from "react";
-=======
+// import React, { useRef, useEffect, useState } from "react";
+
 import React, { useRef, useEffect, useState, use } from "react";
->>>>>>> upstream/dev
+
 import { Text, Animated, StatusBar } from "react-native";
 import { StyleSheet, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import MaskedView from "@react-native-masked-view/masked-view";
 import { connect, useSelector } from "react-redux";
 import * as Device from "expo-device";
-import { setClientID, setLoading, setWebsocket,setwaveLoad } from "../../Store/UserSlice"
+import { setClientID, setLoading, setWebsocket, setwaveLoad } from "../../Store/UserSlice"
 import { useDispatch } from "react-redux";
 import { initWebSocket, getWebSocket } from '../Websocket/websocketfunc';
 import { pullPlaylists } from "../../Store/PlaylistSlice";
@@ -587,14 +587,14 @@ const WaveformLoader = () => {
 };
 const Waveform = () => {
   const { Mode } = useSelector((state) => state.theme)
-<<<<<<< HEAD
-  //const { user } = useSelector((state) => state.user)
-  const { user } = useSelector((state) => state.user || {});
 
-=======
+  //const { user } = useSelector((state) => state.user)
+
+
+
   const { user } = useSelector((state) => state.user)
   const { isConnected, nettype, hasChecked } = useDispatch((state) => state.network)
->>>>>>> upstream/dev
+
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [deviceName, setDeviceName] = useState(null);
   const hasConnected = useRef(false);
@@ -651,16 +651,10 @@ const Waveform = () => {
             initWebSocket(`${Constants.expoConfig.extra.WEBSOC}/download-progress`)
             ws = getWebSocket();
 
-<<<<<<< HEAD
-        await dispatch(pullPlaylists({ user: loadedUser.id })).unwrap();
-
-        initWebSocket(`192.168.1.11/download-progress`);
-        const ws = getWebSocket();
-=======
             ws.onopen = () => {
               console.error("Connected to WebSocket server");
               dispatch(setClientID({ id }));
->>>>>>> upstream/dev
+
 
               ws.send(JSON.stringify({
                 type: "register",
@@ -668,20 +662,8 @@ const Waveform = () => {
                 value: "hi"
 
               }));
-              dispatch(setLoading(false));
-
-<<<<<<< HEAD
-          dispatch(setwaveLoad(false));
-        };
-      } catch (error) {
-        console.error("Failed to load user:", error);
-=======
+              dispatch(setwaveLoad(false));
             };
-
-
-
-
-
           } catch (error) {
             console.error("Failed to load user:", error);
           }
@@ -690,17 +672,10 @@ const Waveform = () => {
         runAsyncLogic();
       } else {
         // Show no internet UI or alert
-        dispatch(setLoading(false));
->>>>>>> upstream/dev
+        dispatch(setwaveLoad(false));
+
       }
     });
-
-
-
-
-
-
-
   }, [deviceName]);
 
 

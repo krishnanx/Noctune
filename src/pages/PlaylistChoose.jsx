@@ -25,7 +25,7 @@ import Tick from "react-native-vector-icons/MaterialIcons";
 import { addMusictoPlaylist } from "../../Store/PlaylistSlice";
 const PlaylistChoose = () => {
   const navigation = useNavigation();
-  const { user } = useSelector((state) => state.user || {} );
+  const { user } = useSelector((state) => state.user || {});
   const route = useRoute();
   const { index, song } = route.params;
   const dispatch = useDispatch();
@@ -74,7 +74,11 @@ const PlaylistChoose = () => {
       // Optionally show a message that no playlists were selected
       return;
     }
-
+    const upscaledUrl = song.image.replace(
+      /w\d+-h\d+/,
+      "w500-h500"
+    );
+    song.image = upscaledUrl
     const musicToAdd = song || value[pos];
 
     // Add the song to all selected playlists
@@ -406,16 +410,16 @@ const DisplayPlaylist = ({
       >
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <View style={styles.ImageContainer}>
-             <Image
-  source={
-    item.image
-      ? { uri: item.image }
-      : item.songs?.[0]?.image
-      ? { uri: item.songs[0].image }
-      : icon
-  }
-  style={{ width: 50, height: 50 }}
-/>
+            <Image
+              source={
+                item.image
+                  ? { uri: item.image }
+                  : item.songs?.[0]?.image
+                    ? { uri: item.songs[0].image }
+                    : icon
+              }
+              style={{ width: 50, height: 50 }}
+            />
           </View>
           <View style={styles.Name}>
             <Text style={{ fontSize: 20, color: "white" }}>{item.name}</Text>

@@ -16,25 +16,23 @@ import ThreeDots from "../Components/ThreeDots";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import icon from "../../assets/favicon.png";
-import { soundRef } from "../functions/music";
-import { progress, setIsPlaying } from "../../Store/MusicSlice";
+import { playRef, soundRef } from "../functions/music";
+import { load, progress, setIsPlaying } from "../../Store/MusicSlice";
 import { changePlaylist, setPlaylistplaying } from "../../Store/PlaylistSlice";
 import { addPath, addSong, download } from "../../Store/DownloadSlice";
 import DownloadButton from "../Components/DownloadButton";
 import { folderPicker } from "../functions/StoragePicker";
 import Info from "../Components/Info";
 import InfoModal from "../Components/InfoModal";
+import { addType, changeLoad } from "../../Store/Playdataslice";
 
 const Playlist = () => {
 
 
-  // const { data, id, playlistNo } = useSelector((state) => state.playlist);
-  // const { user, session, loading, error, clientID } = useSelector(
-  //   (state) => state.user
-  // );
+  const { data, id, playlistNo } = useSelector((state) => state.playlist);
 
-    const userState = useSelector((state) => state.user || {});
-    const { user, session, loading, error, clientID } = userState;
+  const userState = useSelector((state) => state.user || {});
+  const { user, session, loading, error, clientID } = userState;
 
   const { index } = useRoute().params;
   const {
@@ -234,23 +232,57 @@ const Playlist = () => {
   const Uname = "Krishnan E";
 
   const togglePlayPause = async () => {
-    if (!soundRef.current) return;
-    console.warn("reached playlist toggle");
-    console.warn(playlistNo, index);
-    if (playlistNo != index) {
-      dispatch(changePlaylist(index));
+    console.error(isMinimized)
+    if (!isMinimized) {
+      dispatch(toggleMinimized())
     }
-    // if (isplaying) {
-    //   await soundRef.current.pauseAsync();
-    //   dispatch(progress(-1));
-    //   //updatePlaybackState(false, seek); //added
-    // } else {
-    //   await soundRef.current.playAsync(); // resumes from last position
-    //   dispatch(progress(-1));
-    //   //updatePlaybackState(true, seek); //added
-    // }
-    dispatch(setPlaylistplaying({ action: "toggle", id: index }));
-    dispatch(setIsPlaying("toggle"));
+    if (!playRef.current) {
+      console.warn("no current songs")
+      if (playlistNo != index) {
+        dispatch(changePlaylist(index))
+      }
+      console.warn(data[index].songs)
+      dispatch(addType(data[index].songs))
+      dispatch(changeLoad(false))
+      dispatch(load(false));
+      setTimeout(() => {
+        dispatch(changeLoad(true))
+      }, 500);
+      dispatch(setPlaylistplaying({ action: true, id: index }));
+      dispatch(setIsPlaying(true));
+
+    } else {
+      console.warn("reached playlist toggle");
+      console.warn(playlistNo, index);
+      if (playlistNo != index) {
+        dispatch(changePlaylist(index))
+        dispatch(addType(data[index].songs))
+        dispatch(changeLoad(false))
+        dispatch(load(false));
+        dispatch(setPlaylistplaying({ action: true, id: index }));
+
+        setTimeout(() => {
+          dispatch(changeLoad(true))
+        }, 500);
+
+        //await playRef.current.playAsync();
+      }
+      else if (isplaying) {
+        console.warn("isplaying", isplaying)
+        await playRef.current.pauseAsync();
+        dispatch(setPlaylistplaying({ action: false, id: index }));
+        dispatch(progress(-1));
+        //updatePlaybackState(false, seek); //added
+      } else {
+        console.warn("isplaying", isplaying)
+        await playRef.current.playAsync(); // resumes from last position
+        dispatch(setPlaylistplaying({ action: true, id: index }));
+        dispatch(progress(-1));
+        //updatePlaybackState(true, seek); //added
+      }
+
+      dispatch(setIsPlaying("toggle"));
+    }
   };
   const handleDownload = async () => {
     console.warn("reached download function");

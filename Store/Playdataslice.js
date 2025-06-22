@@ -4,7 +4,8 @@ const Playdataslice = createSlice({
     initialState: {
         song: [],
         pos: 0,
-
+        seek: 0,
+        load: false
     },
     reducers: {
         addType(state, action) {
@@ -22,12 +23,15 @@ const Playdataslice = createSlice({
                     state.pos = state.pos - 1;
                 }
             }
+        },
+        changeLoad(state, action) {
+            state.load = action.payload
         }
     },
 
 
 });
 export const {
-    addType
+    addType, changeLoad
 } = Playdataslice.actions;
 export default Playdataslice.reducer;

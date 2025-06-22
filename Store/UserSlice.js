@@ -28,7 +28,7 @@ const userSlice = createSlice({
       state.loading = action.payload;
     },
     setwaveLoad: (state, action) => {
-      state.loading = action.payload;
+      state.waveload = action.payload;
     },
     setError: (state, action) => {
       state.error = action.payload;
@@ -64,5 +64,5 @@ const userSlice = createSlice({
   },
 });
 
-export const { setUser, setSession, clearUser,setwaveLoad, setLoading, setError, setClientID, setWebsocket } = userSlice.actions;
+export const { setUser, setSession, clearUser, setwaveLoad, setLoading, setError, setClientID, setWebsocket } = userSlice.actions;
 export default userSlice.reducer;
