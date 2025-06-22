@@ -216,9 +216,10 @@ const Websocket = () => {
       }, 25000);
       wsRef.current.onmessage = (event) => {
         try {
-          console.error("message!!");
+
           const parsed = JSON.parse(event.data);
           if (parsed.type == "progress") {
+            console.error(parsed.value.percent);
             dispatch(
               changeProgress({
                 progress: parsed.value.percent,
