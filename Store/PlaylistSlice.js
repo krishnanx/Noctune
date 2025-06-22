@@ -74,6 +74,7 @@ const PlaylistSlice = createSlice({
 
                 const response = action.payload;
                 const id = state.id + 1;
+                state.id = id
                 console.warn("id", id)
                 const playlist = {
                     id: id,
