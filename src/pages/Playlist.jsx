@@ -232,6 +232,10 @@ const Playlist = () => {
   const Uname = "Krishnan E";
 
   const togglePlayPause = async () => {
+    console.error(isMinimized)
+    if (!isMinimized) {
+      dispatch(toggleMinimized())
+    }
     if (!playRef.current) {
       console.warn("no current songs")
       if (playlistNo != index) {
