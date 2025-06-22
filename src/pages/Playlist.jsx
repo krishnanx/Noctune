@@ -380,7 +380,7 @@ const Information = ({
       <View style={styles.metadata}>
         <View style={styles.imageContainer}>
           <Image
-            source={data.image ? { uri: data.image } : { uri: data.songs[0].image }}
+            source={data.length > 0 ? data.image ? { uri: data.image } : { uri: data.songs[0].image } : icon}
             style={styles.albumArt}
           // fallback if user image fails to load
           />
