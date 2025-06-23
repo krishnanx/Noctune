@@ -74,11 +74,16 @@ const PlaylistChoose = () => {
       // Optionally show a message that no playlists were selected
       return;
     }
-    const upscaledUrl = song.image.replace(
-      /w\d+-h\d+/,
-      "w500-h500"
-    );
-    song.image = upscaledUrl
+    // const upscaledUrl = song.image.replace(
+    //   /w\d+-h\d+/,
+    //   "w500-h500"
+    // );
+    // song.image = upscaledUrl
+  if (song?.image) {
+    const upscaledUrl = song.image.replace(/w\d+-h\d+/, "w500-h500");
+    song.image = upscaledUrl;
+  }
+
     const musicToAdd = song || value[pos];
 
     // Add the song to all selected playlists
