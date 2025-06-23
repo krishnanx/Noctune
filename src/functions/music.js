@@ -6,6 +6,7 @@ import { useDispatch } from "react-redux";
 import { setIsPlaying, load, changePos } from "../../Store/MusicSlice.js";
 import { setPlaylistplaying } from "../../Store/PlaylistSlice.js";
 import { current } from "@reduxjs/toolkit";
+import eventBus from './eventBus';
 export const soundRef = {
   current: null,
 };
@@ -17,6 +18,7 @@ export const loadAudio = async (
   pos,
   dispatch,
   getSeek,
+  isLoadedFromAsyncStorage,
   queueLoad,
   playLoad,
   playlistNo = -1
@@ -34,12 +36,14 @@ export const loadAudio = async (
     const audioUri = `${Constants.expoConfig.extra.SERVER
       }/api/stream?url=${encodeURIComponent(data[pos].url)}`;
     console.warn("Audio URI:", audioUri); // Check if the URL is correct
-
+    dispatch(progress(0));
     if (soundRef.current) {
+      await soundRef.current.pauseAsync()
       await soundRef.current.unloadAsync();
       soundRef.current = null;
     }
     if (playRef.current) {
+      await playRef.current.pauseAsync()
       await playRef.current.unloadAsync();
       playRef.current = null;
     }
@@ -66,11 +70,14 @@ export const loadAudio = async (
     );
 
 
-
+    console.warn(queueLoad, playLoad)
     if (queueLoad) {
       soundRef.current = sound;
       playRef.current = null
       console.warn("Audio Loaded", soundRef.current);
+      // Wherever you set the sound
+      eventBus.emit("soundChanged", soundRef.current);
+
     }
     if (playLoad) {
       playRef.current = sound

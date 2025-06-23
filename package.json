@@ -26,6 +26,7 @@
     "axios": "^1.3.5",
     "buffer": "^6.0.3",
     "dotenv": "^16.4.7",
+    "events": "^3.3.0",
     "expo": "~52.0.41",
     "expo-av": "~15.0.2",
     "expo-constants": "~17.0.8",
