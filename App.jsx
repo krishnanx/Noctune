@@ -24,10 +24,12 @@ import Audioloader from "./src/functions/Audioloader";
 import { addEventListener, useNetInfo } from '@react-native-community/netinfo';
 import { connection, type } from "./Store/NetworkSlice";
 import PlaylistLoader from "./src/functions/PlaylistLoader"
+import { YtMusicRef } from "./src/functions/YtMusicRef";
+import YoutubeMusicApi from "youtube-music-api";
+
 import { AddNewPlaylist, updatemigrateSliceSucess } from "./Store/PlaylistSlice";
 export default function App() {
   const { Mode } = useSelector((state) => state.theme);
-  // const { user, loading } = useSelector((state) => state.user);
   const { user, loading, waveload } = useSelector((state) => state.user || {});
   const { data: array, id, playlistNo, migrateSliceSucess, migratedPlaylist } = useSelector((state) => state.playlist);
   const dispatch = useDispatch();
@@ -74,6 +76,27 @@ export default function App() {
 
   //   fetchData();
   // }, []);
+
+
+useEffect(() => {
+  const setup = async () => {
+    try {
+      const api = new YoutubeMusicApi();
+      await api.initalize();
+      YtMusicRef.current = api;
+      console.warn("YTMusic API initialized successfully");
+    } catch (err) {
+      console.error("YTMusic API init failed:", err.message);
+      if (err.response) {
+        console.error("Status:", err.response.status);
+        console.error("Data:", err.response.data);
+      }
+    }
+  };
+  setup();
+}, []);
+
+  
   if (waveload) {
     return (
       <>
