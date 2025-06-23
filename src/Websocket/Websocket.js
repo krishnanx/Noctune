@@ -39,6 +39,7 @@ const Websocket = () => {
   const { songs, status, completed, path } = useSelector(
     (state) => state.download
   );
+  const { isConnected, nettype } = useDispatch((state) => state.network)
   const wsRef = useRef(null);
 
   // Process the queue with a specific path
