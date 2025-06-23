@@ -13,6 +13,7 @@ import { pullPlaylists, updataID } from "../../Store/PlaylistSlice";
 import { loadUser } from "../../Store/AuthThunk";
 import Constants from "expo-constants";
 import NetInfo from "@react-native-community/netinfo";
+import TypewriterText from "../Components/TypeWriter";
 
 const WaveformLoader = () => {
 
@@ -107,6 +108,15 @@ const Waveform = () => {
   const hasConnected = useRef(false);
   const dispatch = useDispatch();
 
+  const musicQuotes = [
+  "Where words fail, music finds you.",
+  "Music is what feelings sound like.",
+  "Life is better with music.",
+  "Music is the voice of the soul.",
+  "Feel the beat, live the moment."
+];
+
+
   useEffect(() => {
     const fetchDeviceName = async () => {
       try {
@@ -190,7 +200,7 @@ const Waveform = () => {
   
 const styles = StyleSheet.create({
   container: {justifyContent: "center", alignItems: "center" },
-  typewriter: { fontSize: 15, fontWeight: "bold", color: "#fff" },
+  typewriter: { fontSize: 15, fontWeight: "bold", color: "wheat" },
 });
 
 
@@ -241,17 +251,10 @@ const styles = StyleSheet.create({
       >
         <WaveformLoader />
       </Text>
-       
-      {/* <Text
-        style={{
-          color: "beige",
-          padding: 20,
-          fontSize: 18,
-          textAlign: "center",
-        }}
-      >
-        "𝚆𝚑𝚎𝚗 𝚠𝚘𝚛𝚍𝚜 𝚏𝚊𝚒𝚕, 𝚖𝚞𝚜𝚒𝚌 𝚏𝚒𝚗𝚍𝚜 𝚢𝚘𝚞... "
-      </Text> */}
+
+      <View style={styles.container}>
+        <TypewriterText quotes={musicQuotes} style={styles.typewriter} />
+    </View>
     </Animated.View>
   );
 };
