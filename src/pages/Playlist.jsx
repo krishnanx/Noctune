@@ -47,6 +47,14 @@ const Playlist = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
+    const goToNewPage = () => {
+console.warn("DATA: ", JSON.stringify(data, null, 2));
+data[0].songs.forEach((song, idx) => {
+  console.warn(`Song ${idx + 1}:`, song);
+});
+navigation.navigate('PlaylistEdit', { index });
+  };
+
   const styles = StyleSheet.create({
     Main: {
       flex: 1,
@@ -317,6 +325,7 @@ const Playlist = () => {
         handleDownload={handleDownload}
         DownloadButton={DownloadButton}
         Description={Description}
+        goToNewPage={goToNewPage}
       />
       <Flatlist data={data[index].songs || []} styles={styles} />
     </ScrollView>
@@ -336,6 +345,7 @@ const Information = ({
   handleDownload,
   DownloadButton,
   Description,
+  goToNewPage,
 }) => {
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -431,7 +441,7 @@ const Information = ({
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.funcbutton, { marginRight: 15 }]}
-                onPress={openModal}
+                onPress={goToNewPage}
               >
                 <ThreeDots />
               </TouchableOpacity>
