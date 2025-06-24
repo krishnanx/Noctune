@@ -7,6 +7,8 @@ import UserSlice from "./UserSlice.js"
 import TimerSlice from "./TimerSlice.js"
 import DownloadSlice from "./DownloadSlice.js"
 import NetworkSlice from "./NetworkSlice.js"
+
+import Playdataslice from "./Playdataslice.js"
 const store = configureStore({
     reducer: {
         theme: ThemeSlice,
@@ -16,7 +18,8 @@ const store = configureStore({
         user: UserSlice,
         sleepTimer: TimerSlice,
         download: DownloadSlice,
-        network: NetworkSlice
+        network: NetworkSlice,
+        playlistload: Playdataslice
 
     }
 })

@@ -23,14 +23,22 @@ import Waveform from "./src/Components/Waveform";
 import Audioloader from "./src/functions/Audioloader";
 import { addEventListener, useNetInfo } from '@react-native-community/netinfo';
 import { connection, type } from "./Store/NetworkSlice";
+import PlaylistLoader from "./src/functions/PlaylistLoader"
+import { YtMusicRef } from "./src/functions/YtMusicRef";
+import YoutubeMusicApi from "youtube-music-api";
 
+import { AddNewPlaylist, updatemigrateSliceSucess } from "./Store/PlaylistSlice";
 export default function App() {
   const { Mode } = useSelector((state) => state.theme);
-  const { user, loading } = useSelector((state) => state.user);
+  const { user, loading, waveload } = useSelector((state) => state.user || {});
+  const { data: array, id, playlistNo, migrateSliceSucess, migratedPlaylist } = useSelector((state) => state.playlist);
   const dispatch = useDispatch();
 
   const { data, pos, seek, isplaying, canLoad } = useSelector(
     (state) => state.data
+  );
+  const { song, load } = useSelector(
+    (state) => state.playlistload
   );
   const [status, setStatus] = useState("loading");
   useEffect(() => {
@@ -46,7 +54,18 @@ export default function App() {
     // Cleanup on unmount
 
   }, []);
+  useEffect(() => {
+    console.error("queue loader", canLoad)
+    console.error("playlist loader", load)
+  }, [canLoad, load])
+  useEffect(() => {
+    if (migrateSliceSucess) {
+      console.warn("pushing migrated playlist")
+      dispatch(AddNewPlaylist({ data: migratedPlaylist, userid: user?.id }))
+      dispatch(updatemigrateSliceSucess(false))
+    }
 
+  }, [migrateSliceSucess])
   // useEffect(() => {
   //   const fetchData = async () => {
 
@@ -57,7 +76,28 @@ export default function App() {
 
   //   fetchData();
   // }, []);
-  if (loading) {
+
+
+useEffect(() => {
+  const setup = async () => {
+    try {
+      const api = new YoutubeMusicApi();
+      await api.initalize();
+      YtMusicRef.current = api;
+      console.warn("YTMusic API initialized successfully");
+    } catch (err) {
+      console.error("YTMusic API init failed:", err.message);
+      if (err.response) {
+        console.error("Status:", err.response.status);
+        console.error("Data:", err.response.data);
+      }
+    }
+  };
+  setup();
+}, []);
+
+  
+  if (waveload) {
     return (
       <>
         <View
@@ -110,6 +150,8 @@ export default function App() {
 
           <Websocket />
           {canLoad && <Audioloader />}
+
+          {load && <PlaylistLoader />}
         </KeyboardAvoidingView>
       </SafeAreaView>
     </SafeAreaProvider>

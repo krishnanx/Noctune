@@ -36,6 +36,8 @@ import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import store from "../../Store/store";
 import SearchModal from "../Components/SearchModal.jsx";
+import { changeLoad } from "../../Store/Playdataslice.js";
+import { YtMusicRef } from "../functions/YtMusicRef.js";
 
 const Search = () => {
   const { colors } = useTheme(); // Get theme colors
@@ -44,13 +46,10 @@ const Search = () => {
   const [query, setText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [isApiInitialized, setIsApiInitialized] = useState(false);
-  const [ytmusicApi, setYtMusicApi] = useState(null);
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { data, pos } = useSelector((state) => state.data);
   const [shouldLoad, setShouldLoad] = useState(false);
-
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedSong, setSelectedSong] = useState(null);
 
@@ -99,20 +98,6 @@ const Search = () => {
   }, []);
 
   useEffect(() => {
-    const initializeApi = async () => {
-      try {
-        const api = new YoutubeMusicApi();
-        await api.initalize(); //initialize the api
-        setYtMusicApi(api);
-        setIsApiInitialized(true);
-        console.log("YouTube Music API initialized successfully");
-      } catch (err) {
-        console.error("Failed to initialize YouTube Music API:", err);
-        setError("Failed to initialize music search. Please try again later.");
-      }
-    };
-
-    initializeApi();
     const keybaordDidShow = Keyboard.addListener("keyboardDidShow", () =>
       dispatch(changeState(true))
     );
@@ -125,27 +110,29 @@ const Search = () => {
       keyboardDidHide.remove();
     };
   }, []);
-  useFocusEffect(
-    React.useCallback(() => {
-      // When screen is focused
-      return () => {
-        // When screen is unfocused (like going to another page)
-        dispatch(load(false));
-        console.log("it is false");
-      };
-    }, [])
-  );
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     // When screen is focused
+  //     return () => {
+  //       // When screen is unfocused (like going to another page)
+  //       dispatch(load(false));
+  //       console.log("it is false");
+  //     };
+  //   }, [])
+  // );
   const searchMusic = async (searchText) => {
     if (!searchText || !searchText.trim()) return;
-    if (!isApiInitialized) {
-      setError("Please try again.");
-      return;
+
+    const api = YtMusicRef.current;
+    if(!api){
+      setError("Api not initialized");
+      return
     }
     setIsLoading(true);
     setError(null);
 
     try {
-      const results = await ytmusicApi.search(searchText, "song");
+      const results = await api.search(searchText, "song");
       console.log("Search results:", results);
 
       if (results && results.content && results.content.length > 0) {
@@ -179,6 +166,7 @@ const Search = () => {
     dispatch(addMusic(song));
     dispatch(setIsLoadedFromAsyncStorage(false));
     dispatch(load(true));
+    dispatch(changeLoad(false))
     console.log("Dispatches complete");
     //dispatch(toggleMinimized());
     // Add this line to save the song metadata to AsyncStorage

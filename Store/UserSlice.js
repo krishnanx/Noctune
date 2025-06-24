@@ -6,7 +6,8 @@ const userSlice = createSlice({
   initialState: {
     user: null,
     session: null,
-    loading: true,
+    loading: false,   //krish set to true
+    waveload: true,
     error: null,
     clientID: null,
     ws: null
@@ -25,6 +26,9 @@ const userSlice = createSlice({
     },
     setLoading: (state, action) => {
       state.loading = action.payload;
+    },
+    setwaveLoad: (state, action) => {
+      state.waveload = action.payload;
     },
     setError: (state, action) => {
       state.error = action.payload;
@@ -60,5 +64,5 @@ const userSlice = createSlice({
   },
 });
 
-export const { setUser, setSession, clearUser, setLoading, setError, setClientID, setWebsocket } = userSlice.actions;
+export const { setUser, setSession, clearUser, setwaveLoad, setLoading, setError, setClientID, setWebsocket } = userSlice.actions;
 export default userSlice.reducer;

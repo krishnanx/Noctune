@@ -1,6 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
+import Constants from "expo-constants"
 import {
   setUser,
   setSession,
@@ -45,7 +46,8 @@ export const signUp = createAsyncThunk(
       dispatch(setError(null));
 
       const response = await axios.post(
-        "http://nutrigen.myprojects.studio/api/auth/signup",
+        `${Constants.expoConfig.extra.SERVER
+        }/api/auth/signup`,
         { email, password, username }
       );
 
@@ -82,10 +84,12 @@ export const signIn = createAsyncThunk(
   async ({ email, password }, { dispatch, rejectWithValue }) => {
 
     try {
+      console.warn("sign in reached")
       dispatch(setLoading(true));
 
       const response = await axios.post(
-        "http://nutrigen.myprojects.studio/api/auth/signin",
+        `${Constants.expoConfig.extra.SERVER
+        }/api/auth//signin`,
         { email, password }
       );
 
@@ -102,7 +106,11 @@ export const signIn = createAsyncThunk(
         dispatch(setUser(user));
         if (session) dispatch(setSession(session));
 
-        return { success: true, user };
+        return {
+          success: true,
+          user: response.data.user,
+          session: response.data.session,
+        };
       } else {
         console.error("Invalid response format:", response.data);
         return rejectWithValue({ error: "Invalid response from server" });

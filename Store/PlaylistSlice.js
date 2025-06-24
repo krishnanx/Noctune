@@ -7,12 +7,22 @@ const PlaylistSlice = createSlice({
     initialState: {
         data: [],
         id: -1,
-        playlistNo: -1
+        playlistNo: -1,
+        migrateSliceSucess: false,
+        migratedPlaylist: []
     },
     reducers: {
         addPlaylist(state, action) {
 
             state.data = [...state.data, action.payload.playlist];
+            state.id = state.id + 1
+            console.warn(state.id)
+        },
+        updatemigrateSliceSucess(state, action) {
+            state.migrateSliceSucess = action.payload.success
+        },
+        updataID(state, action) {
+            state.id = state.data.length - 1
         },
         addMusicinPlaylist(state, action) {
             let bool = true;
@@ -38,9 +48,23 @@ const PlaylistSlice = createSlice({
         },
         setPlaylistplaying(state, action) {
             if (typeof action.payload.action === "boolean") {
+                if (action.payload.action) {
+                    state.data.forEach((item, index) => {
+                        if (index != action.payload.id) {
+                            state.data[index].isPlaying = false
+                        }
+                    })
+                }
                 state.data[action.payload.id].isPlaying = action.payload.action; // Set specific value
+
             } else if (action.payload.action === "toggle") {
                 state.data[action.payload.id].isPlaying = !state.data[action.payload.id].isPlaying // Toggle
+
+                state.data.forEach((item, index) => {
+                    if (index != action.payload.id) {
+                        state.data[index].isPlaying = false
+                    }
+                })
             }
 
         },
@@ -61,6 +85,8 @@ const PlaylistSlice = createSlice({
 
                 const response = action.payload;
                 const id = state.id + 1;
+                state.id = id
+                console.warn("id", id)
                 const playlist = {
                     id: id,
                     image: response[0].cover_url || null,
@@ -86,6 +112,8 @@ const PlaylistSlice = createSlice({
                 });
 
                 state.data[id].songs = song
+                state.migratedPlaylist = state.data[id]
+                state.migrateSliceSucess = true
 
             })
             .addCase(migrate.pending, (state, action) => {
@@ -133,14 +161,15 @@ const PlaylistSlice = createSlice({
 
     }
 })
-export const { addPlaylist, addMusicinPlaylist, setPlaylistplaying, changePlaylist, updatePlaylistData } = PlaylistSlice.actions;
+
+export const { addPlaylist, addMusicinPlaylist, setPlaylistplaying, changePlaylist, updataID, updatemigrateSliceSucess,updatePlaylistData } = PlaylistSlice.actions;
+
 export default PlaylistSlice.reducer;
 export const migrate = createAsyncThunk('/migratedata', async ({ Url: data }) => {
     try {
         console.warn(data)
-        const response = await axios.post(`${
-      Constants.expoConfig.extra.SERVER
-    }/api/migrate`, { playlist: data })
+        const response = await axios.post(`${Constants.expoConfig.extra.SERVER
+            }/api/migrate`, { playlist: data })
         console.warn("reached back")
         return response.data
     }
@@ -151,9 +180,10 @@ export const migrate = createAsyncThunk('/migratedata', async ({ Url: data }) =>
 export const AddNewPlaylist = createAsyncThunk('/newplaylist', async ({ data: playlist, userid: userid }) => {
     try {
         console.warn("adding new playlist");
-        const response = await axios.post(`${
-      Constants.expoConfig.extra.SERVER
-    }/playlist/NewPlaylists`, { playlist: playlist, user: userid })
+        // const response = await axios.post(`${Constants.expoConfig.extra.SERVER
+        //     }/playlist/NewPlaylists`, { playlist: playlist, user: userid })
+        const response = await axios.post(`http://192.168.1.44/playlist/NewPlaylists`, { playlist: playlist, user: userid })
+
         return response.data
     }
     catch (e) {
@@ -165,10 +195,11 @@ export const pullPlaylists = createAsyncThunk('/pullPlaylists', async ({ user: u
     try {
         console.warn("pulling playlist");
         console.warn("user reached pull: ", user)
-        const response = await axios.post(`${
-      Constants.expoConfig.extra.SERVER
-    }/playlist/pullPlaylist`
+
+        const response = await axios.post(`${Constants.expoConfig.extra.SERVER
+            }/playlist/pullPlaylist`
             , { data: user })
+
         return response.data
     }
     catch (e) {
@@ -179,9 +210,8 @@ export const addMusictoPlaylist = createAsyncThunk('/addMusic', async ({ playlis
     try {
         console.warn("pulling playlist");
         console.warn("user reached pull: ", user)
-        const response = await axios.post(`${
-      Constants.expoConfig.extra.SERVER
-    }/playlist/addMusic`, { playlist: playlist, user: user, music: music })
+        const response = await axios.post(`${Constants.expoConfig.extra.SERVER
+            }/playlist/addMusic`, { playlist: playlist, user: user, music: music })
         return response.data
     }
     catch (e) {

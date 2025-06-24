@@ -1,19 +1,18 @@
-import React, { useRef, useEffect, useState, use } from "react";
+import React, { useRef, useEffect, useState,use } from "react";
+
 import { Text, Animated, StatusBar } from "react-native";
 import { StyleSheet, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import MaskedView from "@react-native-masked-view/masked-view";
 import { connect, useSelector } from "react-redux";
 import * as Device from "expo-device";
-import { setClientID, setLoading, setWebsocket } from "../../Store/UserSlice"
+import { setClientID, setLoading, setWebsocket, setwaveLoad } from "../../Store/UserSlice"
 import { useDispatch } from "react-redux";
 import { initWebSocket, getWebSocket } from '../Websocket/websocketfunc';
-import { pullPlaylists } from "../../Store/PlaylistSlice";
+import { pullPlaylists, updataID } from "../../Store/PlaylistSlice";
 import { loadUser } from "../../Store/AuthThunk";
 import Constants from "expo-constants";
-import NetInfo, { addEventListener } from "@react-native-community/netinfo";
-import { connection, checked, type } from "../../Store/NetworkSlice";
-
+import NetInfo from "@react-native-community/netinfo";
 
 const WaveformLoader = () => {
 
@@ -56,6 +55,8 @@ const WaveformLoader = () => {
       borderRadius: 3,
       backgroundColor: "transparent", // no solid color
     },
+  
+
   });
 
   return (
@@ -100,10 +101,12 @@ const Waveform = () => {
   const { Mode } = useSelector((state) => state.theme)
   const { user } = useSelector((state) => state.user)
   const { isConnected, nettype, hasChecked } = useDispatch((state) => state.network)
+
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [deviceName, setDeviceName] = useState(null);
   const hasConnected = useRef(false);
   const dispatch = useDispatch();
+
   useEffect(() => {
     const fetchDeviceName = async () => {
       try {
@@ -129,10 +132,9 @@ const Waveform = () => {
       useNativeDriver: true,
     }).start();
   }, []);
-
   useEffect(() => {
     if (!deviceName || hasConnected.current) return;
-    console.warn("hey")
+
     hasConnected.current = true;
 
     NetInfo.fetch().then(state => {
@@ -147,6 +149,7 @@ const Waveform = () => {
             console.warn("data:", loadedUser === null);
             let ws;
             loadedUser === null ? null : await dispatch(pullPlaylists({ user: loadedUser.id })).unwrap()
+            dispatch(updataID())
             // 192.168.85.33 K
             // 192.168.1.44 krish
             console.error("loader user over")
@@ -160,20 +163,15 @@ const Waveform = () => {
               console.error("Connected to WebSocket server");
               dispatch(setClientID({ id }));
 
+
               ws.send(JSON.stringify({
                 type: "register",
                 clientId: id,
                 value: "hi"
 
               }));
-              dispatch(setLoading(false));
-
+              dispatch(setwaveLoad(false));    //set it to false
             };
-
-
-
-
-
           } catch (error) {
             console.error("Failed to load user:", error);
           }
@@ -182,18 +180,18 @@ const Waveform = () => {
         runAsyncLogic();
       } else {
         // Show no internet UI or alert
-        dispatch(setLoading(false));
+        dispatch(setwaveLoad(false));
+
       }
     });
-
-
-
-
-
-
-
   }, [deviceName]);
 
+ 
+  
+const styles = StyleSheet.create({
+  container: {justifyContent: "center", alignItems: "center" },
+  typewriter: { fontSize: 15, fontWeight: "bold", color: "#fff" },
+});
 
 
   return (
@@ -243,7 +241,8 @@ const Waveform = () => {
       >
         <WaveformLoader />
       </Text>
-      <Text
+       
+      {/* <Text
         style={{
           color: "beige",
           padding: 20,
@@ -252,7 +251,7 @@ const Waveform = () => {
         }}
       >
         "𝚆𝚑𝚎𝚗 𝚠𝚘𝚛𝚍𝚜 𝚏𝚊𝚒𝚕, 𝚖𝚞𝚜𝚒𝚌 𝚏𝚒𝚗𝚍𝚜 𝚢𝚘𝚞... "
-      </Text>
+      </Text> */}
     </Animated.View>
   );
 };

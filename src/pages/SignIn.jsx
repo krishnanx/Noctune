@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -42,6 +42,7 @@ const SignIn = () => {
       const result = await dispatch(signIn({ email, password }));
 
       if (result.payload?.success) {
+        const { user, session } = result.payload;
         dispatch(setUser(user));
       } else {
         const errorMessage = result.payload?.error || "Failed to sign in";
@@ -58,7 +59,7 @@ const SignIn = () => {
       });
     }
   };
-
+  useEffect(() => { console.error("Loading", loading) }, [])
   const styles = StyleSheet.create({
     container: {
       flex: 1,

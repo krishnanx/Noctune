@@ -22,7 +22,9 @@ const Library = () => {
     const [description, setDescription] = useState("")
     const { colors } = useTheme();
     const { data } = useSelector((state) => state.playlist);
-    const { user, id } = useSelector((state) => state.user)
+    //const { user, id } = useSelector((state) => state.user)
+    const { user, id } = useSelector((state) => state.user || {});
+
     const navigation = useNavigation();
 
     const toggleModal = () => {
@@ -166,7 +168,7 @@ const Library = () => {
         },
         Playinfo: {
             width: "100%",
-            height: 80,
+            // /height: 80,
             //backgroundColor:"red",
             alignItems: "center",
 
@@ -206,7 +208,7 @@ const Library = () => {
             isPlaying: false
         }
         dispatch(addPlaylist({ playlist: playlist }));
-        dispatch(AddNewPlaylist({ data: playlist, userid: user.id }))
+        dispatch(AddNewPlaylist({ data: playlist, userid: user?.id }))
         setDescription("");
         setPlaylistName("");
     }
@@ -464,9 +466,14 @@ const DisplayPlaylist = ({ item, index, styles, navigation }) => {
                 navigation.navigate("Playlist", { index: index });
             }}
             style={{
-                borderRadius: 3
+                borderRadius: 25,
+                // /backgroundColor: "rgba(128,128,128,0.2)",
+                marginBottom: 5,
+                height: 70,
+                paddingLeft: 15,
+                paddingVertical: 5
             }}
-            underlayColor="rgba(245,222,179,0.2)"
+            underlayColor="rgba(128,128,128,0.2)"
             activeOpacity={0.7}
         >
             <View
