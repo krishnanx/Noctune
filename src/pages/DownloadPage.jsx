@@ -15,17 +15,23 @@ import { useDispatch, useSelector } from "react-redux";
 import { setCompleted } from "../../Store/DownloadSlice";
 import { Navigation } from "react-native-feather";
 import { useNavigation } from "@react-navigation/native";
-
+import { useFocusEffect } from "@react-navigation/native";
 const DownloadPage = () => {
   // Static data for the download items
   const dispatch = useDispatch();
   const { songs, status, completed } = useSelector((state) => state.download);
-  useEffect(() => {
-    if (completed == songs.length) {
-      dispatch(setCompleted(0));
-    }
-  }, [completed]);
+
+
   const navigation = useNavigation();
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', () => {
+      if (completed === songs.length) {
+        dispatch(setCompleted(0));
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation, completed, songs.length]);
 
   const renderDownloadItem = (item) => {
     return (
@@ -49,13 +55,13 @@ const DownloadPage = () => {
             </Text>
           </View>
         </View>
-        <TouchableOpacity style={styles.actionButton}>
+        {/* <TouchableOpacity style={styles.actionButton}>
           {item.completed ? (
             <Text style={styles.playIcon}>▶</Text>
           ) : (
             <Text style={styles.pauseIcon}>⏸</Text>
           )}
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     );
   };
@@ -101,12 +107,21 @@ const DownloadPage = () => {
           </ScrollView>
 
           <View style={styles.footer}>
-            <TouchableOpacity style={styles.pauseAllButton}>
+            {/* <TouchableOpacity style={styles.pauseAllButton}>
               <Text style={styles.pauseAllText}>Pause All</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.cancelAllButton}>
               <Text style={styles.cancelAllText}>Cancel All</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
+            <Text
+              style={{
+                color: "rgba(255, 255, 255, 0.5)"
+                , textAlign: "center", width: "100%", fontSize: 14,
+              }}
+            >
+              Every download begins a story
+
+            </Text>
           </View>
         </SafeAreaView>
       </LinearGradient>

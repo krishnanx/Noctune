@@ -118,7 +118,8 @@ export const download = createAsyncThunk(
       // 192.168.85.33 K
       // 192.168.1.44 krish
       const response = await axios.post(
-        `http://192.168.1.11/api/download`,
+        `${Constants.expoConfig.extra.SERVER
+        }/api/download`,
         payload,
         {
           headers: {

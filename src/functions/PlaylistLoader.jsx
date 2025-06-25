@@ -21,6 +21,7 @@ const PlaylistLoader = () => {
         console.log("pos:", pos);
         console.log("prev pos:", prevPosRef.current);
         let queueLoad = false
+        const isLoadedFromAsyncStorage = false
         if (prevPosRef.current !== pos) {
             console.log("Loading audio");
             loadAudio(
@@ -28,6 +29,7 @@ const PlaylistLoader = () => {
                 pos,
                 dispatch,
                 () => seekRef.current,
+                isLoadedFromAsyncStorage,
                 queueLoad,
                 load,
                 playlistNo

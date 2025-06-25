@@ -14,6 +14,8 @@ const MusicSlice = createSlice({
     isMinimized: true,
     isLoadedFromAsyncStorage: true, //NOTE: true | false will always evaluate to true in JavaScript (because of bitwise OR). isLoadedFromAsyncStorage: true | false,
     animationTargetY: 0,
+    searchedMusic: false
+
   },
   reducers: {
     addMusic(state, action) {
@@ -100,6 +102,9 @@ const MusicSlice = createSlice({
     setIsLoadedFromAsyncStorage(state, action) {
       state.isLoadedFromAsyncStorage = action.payload;
     },
+    setSearchedMusic(state, action) {
+      state.searchedMusic = action.payload
+    }
   },
 
   // extraReducers: (builder) => {
@@ -136,7 +141,8 @@ export const {
   toggleMinimized,
   setAnimationTargetY,
   setIsLoadedFromAsyncStorage,
-  changeDATA
+  changeDATA,
+  setSearchedMusic
 } = MusicSlice.actions;
 export default MusicSlice.reducer;
 

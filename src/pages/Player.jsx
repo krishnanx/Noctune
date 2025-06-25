@@ -23,6 +23,7 @@ import {
   load,
   setAnimationTargetY,
   toggleMinimized,
+  setSearchedMusic,
 } from "../../Store/MusicSlice";
 import { loadAudio, playRef, soundRef } from "../functions/music";
 // import { addMusicinPlaylist } from "../../Store/PlaylistSlice";
@@ -36,7 +37,7 @@ import ChevronForward from "../Components/Icons/ChevronForward";
 import Replay from "../Components/Icons/Replay";
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
-
+import eventBus from '../functions/eventBus.js';
 import MediaNotificationManager from "../functions/MediaNotification";
 import { showNotification } from "../functions/MediaNotification";
 import { setPlaylistplaying } from "../../Store/PlaylistSlice";
@@ -54,7 +55,7 @@ const Player = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
-  const { data, pos, seek, isplaying, canLoad, isMinimized, animationTargetY } =
+  const { data, pos, seek, isplaying, canLoad, isMinimized, isLoadedFromAsyncStorage, animationTargetY, searchedMusic } =
     useSelector((state) => state.data);
   const { song, pos: position, seek: seekk, load } = useSelector(
     (state) => state.playlistload
@@ -93,12 +94,16 @@ const Player = () => {
   }, [currentTrack]);
 
   useEffect(() => {
-    const autoPlayIfUserSearched = async () => {
-      if (!soundRef.current) return;
-
-      if (!isLoadedFromAsyncStorage && data[pos]) {
+    const autoPlayIfUserSearched = async (sound) => {
+      console.warn("Sound changed event received", sound);
+      //if (!sound) return;
+      console.error("hi: ")
+      console.warn(searchedMusic)
+      if (searchedMusic && data[pos]) {
         try {
-          await soundRef.current.playAsync();
+          dispatch(setSearchedMusic(false))
+          console.warn("auto play")
+          await sound.playAsync();
           dispatch(setIsPlaying(true));
         } catch (error) {
           console.error("Error auto-playing after search", error);
@@ -110,14 +115,17 @@ const Player = () => {
       }
     };
 
-    autoPlayIfUserSearched();
-    {
-      /**If you ever want it even safer (rare), you can do [pos, data[pos]?.url]
-      (so it depends on the exact song url changing).
-      But in 99% cases, [pos, data.length] is enough for you. */
-    }
-  }, [(pos, data.length)]);
 
+    eventBus.on("soundChanged", autoPlayIfUserSearched);
+    return () => eventBus.off("soundChanged", autoPlayIfUserSearched);
+
+  }, []);
+  {
+    /**If you ever want it even safer (rare), you can do [pos, data[pos]?.url]
+    (so it depends on the exact song url changing).
+    But in 99% cases, [pos, data.length] is enough for you. */
+    //(pos, data.length), soundRef.current
+  }
   useEffect(() => {
     console.log("sec:", seek);
     console.log("isPlaying?...:", isplaying);
@@ -127,6 +135,8 @@ const Player = () => {
 
   const togglePlayPause = async () => {
     if (!soundRef.current) {
+      console.warn("sound ref is null")
+      console.warn(soundRef.current)
       if (playRef.current) {
         if (isplaying) {
           await playRef.current.pauseAsync();
@@ -140,9 +150,11 @@ const Player = () => {
       }
     }
     else if (isplaying) {
+      console.warn("paused")
       await soundRef.current.pauseAsync();
       dispatch(progress(-1));
     } else {
+      console.warn("resumed")
       await soundRef.current.playAsync(); // resumes from last position
       dispatch(progress(-1));
     }

@@ -19,6 +19,7 @@ const Audioloader = () => {
   useEffect(() => {
     console.log("pos:", pos);
     console.log("prev pos:", prevPosRef.current);
+    const playlisNo = -1
     let playLoad = false
     if (prevPosRef.current !== pos) {
       console.log("Loading audio");
@@ -28,8 +29,9 @@ const Audioloader = () => {
         dispatch,
         () => seekRef.current,
         isLoadedFromAsyncStorage,
-        load,
-        playLoad
+        true,
+        playLoad,
+        playlisNo
       );
       prevPosRef.current = pos;
     }

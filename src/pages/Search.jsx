@@ -28,6 +28,7 @@ import {
   toggleMinimized,
   setIsLoadedFromAsyncStorage,
   setAnimationTargetY,
+  setSearchedMusic
 } from "../../Store/MusicSlice";
 import { loadAudio, unloadAudio } from "../functions/music.js";
 import Audioloader from "../functions/Audioloader.jsx";
@@ -48,7 +49,7 @@ const Search = () => {
   const [error, setError] = useState(null);
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const { data, pos } = useSelector((state) => state.data);
+  const { data, pos, seek, isplaying, canLoad, isMinimized, isLoadedFromAsyncStorage } = useSelector((state) => state.data);
   const [shouldLoad, setShouldLoad] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedSong, setSelectedSong] = useState(null);
@@ -124,7 +125,7 @@ const Search = () => {
     if (!searchText || !searchText.trim()) return;
 
     const api = YtMusicRef.current;
-    if(!api){
+    if (!api) {
       setError("Api not initialized");
       return
     }
@@ -161,12 +162,23 @@ const Search = () => {
   const handleCardPress = (song) => {
     unloadAudio();
     console.log("Card pressed with URL:", song.url);
+    dispatch(setSearchedMusic(true))
     // dispatch(FetchMetadata({ text: song.url }));
     console.log(song);
     dispatch(addMusic(song));
     dispatch(setIsLoadedFromAsyncStorage(false));
-    dispatch(load(true));
+    console.warn("canLoad", canLoad)
+    if (canLoad) {
+      dispatch(load(false))
+      setTimeout(() => {
+        dispatch(load(true))
+      }, 500)
+    }
+    else {
+      dispatch(load(true))
+    }
     dispatch(changeLoad(false))
+    console.warn(isLoadedFromAsyncStorage)
     console.log("Dispatches complete");
     //dispatch(toggleMinimized());
     // Add this line to save the song metadata to AsyncStorage
