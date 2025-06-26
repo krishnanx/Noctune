@@ -72,11 +72,11 @@ const PlaylistSlice = createSlice({
             state.playlistNo = action.payload;
         },
         updatePlaylistData(state, action) {
-  const { index, updatedData } = action.payload;
-  if (state.data[index]) {
-    state.data[index] = { ...state.data[index], ...updatedData };
-  }
-}
+            const { index, updatedData } = action.payload;
+            if (state.data[index]) {
+                state.data[index] = { ...state.data[index], ...updatedData };
+            }
+        }
     },
     extraReducers: (builder) => {
         builder
@@ -144,10 +144,15 @@ const PlaylistSlice = createSlice({
             .addCase(pullPlaylists.fulfilled, (state, action) => {
 
                 const response = action.payload;
+                var array = []
                 response.forEach((item) => {
                     const data = item.value;
-                    state.data = [...state.data, data]
-                })
+                    array = [...array, data]
+
+                }
+                )
+                array.sort((a, b) => a.id - b.id)
+                state.data = array
                 console.warn(response)
                 console.error("Playlists taken")
 
@@ -162,7 +167,7 @@ const PlaylistSlice = createSlice({
     }
 })
 
-export const { addPlaylist, addMusicinPlaylist, setPlaylistplaying, changePlaylist, updataID, updatemigrateSliceSucess,updatePlaylistData } = PlaylistSlice.actions;
+export const { addPlaylist, addMusicinPlaylist, setPlaylistplaying, changePlaylist, updataID, updatemigrateSliceSucess, updatePlaylistData } = PlaylistSlice.actions;
 
 export default PlaylistSlice.reducer;
 export const migrate = createAsyncThunk('/migratedata', async ({ Url: data }) => {
