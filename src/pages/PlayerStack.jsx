@@ -610,6 +610,11 @@ const PlayerStack = () => {
         />
 
         <Custom_modal
+         data={
+            canLoad ? data && data[pos]
+              ? data[pos]
+              : { title: "Unknown Song", uploader: "Unknown Artist" } : song && song[position] ? song[position] : { title: "Unknown Song", uploader: "Unknown Artist" }
+          }
           isModalVisible={isModalVisible}
           styles={styles}
           toggleModal={toggleModal}
@@ -638,32 +643,12 @@ const Metadata = ({
   const [userSeek, setUserSeek] = useState(seek);
   const [userSetPosition, setUserSetPosition] = useState(false);
 
-  // Reference to the progress bar for measuring
-  const progressBarRef = useRef(null);
-
   useEffect(() => {
     if (!isDragging && (!userSetPosition || Math.abs(seek - userSeek) > 5)) {
       setUserSeek(seek);
     }
   }, [seek, isDragging, userSetPosition]);
 
-  const handleProgressTouch = (event) => {
-    if (!progressBarRef.current || !TOTAL_DURATION) return;
-
-    progressBarRef.current.measure((x, y, width, height, pageX, pageY) => {
-      // Calculate the touch position relative to the progress bar
-      const touchX = event.nativeEvent.pageX - pageX;
-      const percentage = Math.max(0, Math.min(1, touchX / width));
-      const newSeekValue = Math.round(percentage * TOTAL_DURATION);
-
-      setUserSeek(newSeekValue);
-      dispatch(progress(userSeek));
-      console.log("Dispatched seek to:", userSeek);
-    });
-  };
-
-  const currentProgressPercent = (userSeek / TOTAL_DURATION) * 100;
-  const knobPosition = `${currentProgressPercent}%`;
 
   return (
     <>
@@ -675,7 +660,7 @@ const Metadata = ({
             <Text style={styles.songName}>{data?.title || "Unknown Song"}</Text>
           </View>
           <Text style={styles.singerName}>
-            {data?.uploader || "Unknown Artist"}
+            {data?.uploader || data?.artist || "Unknown Artist"}
           </Text>
         </View>
         <TouchableOpacity onPress={() => setLiked(!liked)}>
@@ -759,14 +744,16 @@ const Controls = ({
 };
 
 const Custom_modal = ({
+  data,
   isModalVisible,
   styles,
   toggleModal,
   dispatch,
   navigation,
 }) => {
-  const { data, pos } = useSelector((state) => state.data);
-
+  // The data prop already contains the correct current track data
+  // that's being passed from PlayerStack, so we can use it directly
+  
   return (
     <Modal
       transparent
@@ -782,15 +769,15 @@ const Custom_modal = ({
         <View style={styles.modalContent}>
           <View style={[styles.miniPlayerInfo, { marginBottom: 30 }]}>
             <Image
-              source={{ uri: data ? data[pos]?.image : null }}
+              source={{ uri: data?.image ?? null }}
               style={styles.miniPlayerThumbnail}
             />
             <View style={styles.miniPlayerTextContainer}>
               <Text style={styles.miniPlayerTitle} numberOfLines={1}>
-                {data ? data[pos]?.title : "Unknown Title"}
+                {data?.title || "Unknown Title"}
               </Text>
               <Text style={styles.miniPlayerArtist} numberOfLines={1}>
-                {data ? data[pos]?.uploader : "Unknown Artist"}
+                {data?.uploader || data?.artist || "Unknown Artist"}
               </Text>
             </View>
           </View>
@@ -803,7 +790,7 @@ const Custom_modal = ({
             style={styles.optionTouch}
             onPress={() => {
               toggleModal();
-              navigation.navigate("Playchoose", { index: data[pos] });
+              navigation.navigate("Playchoose", { index: data });
             }}
           >
             <Text style={styles.option}>Add to playlist</Text>
@@ -819,14 +806,13 @@ const Custom_modal = ({
 
           <TouchableOpacity
             style={styles.optionTouch}
-          // onPress={() => {
-          //   toggleModal();
-          //   dispatch({ type: "ADD_TO_QUEUE", payload: song });
-          // }}
+            // onPress={() => {
+            //   toggleModal();
+            //   dispatch({ type: "ADD_TO_QUEUE", payload: data });
+            // }}
           >
             <Text style={styles.option}>Add to Queue</Text>
           </TouchableOpacity>
-
         </View>
       </TouchableOpacity>
     </Modal>

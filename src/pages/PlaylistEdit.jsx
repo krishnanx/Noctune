@@ -385,13 +385,14 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    backgroundColor: 'transparent', // Fixed: Made transparent to inherit parent background
+    backgroundColor: 'transparent', 
   },
   scrollContainer: {
     flexGrow: 1,
-    paddingBottom: 20, // Fixed: Added bottom padding for keyboard space
+    paddingBottom: 20, 
   },
   header: {
+    paddingTop:15,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -427,7 +428,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   saveButtonDisabled: {
-    backgroundColor: "#555", // Fixed: Added disabled state
+    backgroundColor: "#555", 
   },
   saveButtonText: {
     color: "white",
@@ -435,7 +436,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   saveButtonTextDisabled: {
-    color: "#888", // Fixed: Added disabled text color
+    color: "#888",
   },
   imageSection: {
     alignItems: "center",
@@ -494,31 +495,31 @@ const styles = StyleSheet.create({
   },
   songsSection: {
     paddingBottom: 20,
-    backgroundColor: 'transparent', // Fixed: Made transparent
+    backgroundColor: 'transparent', 
   },
   sortableContainer: {
     paddingTop: 10,
-    backgroundColor: 'transparent', // Fixed: Made transparent
+    backgroundColor: 'transparent', 
   },
   sortableList: {
-    backgroundColor: 'transparent', // Fixed: Made transparent
+    backgroundColor: 'transparent', 
   },
   sortableItem: {
-    backgroundColor: 'transparent', // Fixed: Made transparent
+    backgroundColor: 'transparent',
   },
   songItem: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(255,255,255,0.05)",
+    backgroundColor: "rgba(255,255,255,0.0)",
     borderRadius: 12,
     padding: 12,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.1)",
+    //borderColor: "rgba(255,255,255,0.1)",
     height: 70,
   },
   songItemActive: {
-    backgroundColor: "rgba(40,40,40,0.9)", // Fixed: Changed from white to dark gray
+    backgroundColor: "rgba(40,40,40,0.9)", 
     borderColor: "rgba(29, 185, 84, 0.3)",
     elevation: 8,
     shadowColor: "#1DB954",
@@ -544,7 +545,7 @@ const styles = StyleSheet.create({
 },
 dragHandleText: {
   fontSize: 20,
-  color: "#ccc", // Or any color that suits your theme
+  color: "#ccc", 
 },
   songImage: {
     width: 50,
@@ -580,7 +581,7 @@ dragHandleText: {
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 40,
-    backgroundColor: 'transparent', // Fixed: Made transparent
+    backgroundColor: 'transparent', 
   },
   emptyStateText: {
     color: "#666",

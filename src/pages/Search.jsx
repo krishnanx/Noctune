@@ -345,13 +345,7 @@ const Search = () => {
                     <Text style={styles.artistName}>{item.artist}</Text>
                   </View>
                   <View style={styles.dotsContainer}>
-                    <SearchModal
-                      isModalVisible={isModalVisible}
-                      toggleModal={() => setModalVisible(false)}
-                      dispatch={dispatch}
-                      navigation={navigation}
-                      song={selectedSong}
-                    />
+                 
 
                     <TouchableOpacity
                       onPress={() => toggleModal(item)}
@@ -372,6 +366,13 @@ const Search = () => {
           )}
           <Text style={{ color: "white" }}></Text>
         </KeyboardAvoidingView>
+           <SearchModal
+                      isModalVisible={isModalVisible}
+                      toggleModal={() => setModalVisible(false)}
+                      dispatch={dispatch}
+                      navigation={navigation}
+                      song={selectedSong}
+                    />
       </View>
     </View>
   );
