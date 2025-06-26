@@ -1,19 +1,13 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   Image,
-  Modal,
-  Dimensions,
-  Animated,
   TouchableWithoutFeedback,
-  Button,
 } from "react-native";
 import { useTheme } from "@react-navigation/native";
-import { SkipBack, SkipForward } from "react-native-feather";
-import Icon from "react-native-vector-icons/FontAwesome";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import {
@@ -21,8 +15,6 @@ import {
   progress,
   setIsPlaying,
   load,
-  setAnimationTargetY,
-  toggleMinimized,
   setSearchedMusic,
 } from "../../Store/MusicSlice";
 import { loadAudio, playRef, soundRef } from "../functions/music";
@@ -30,13 +22,6 @@ import { loadAudio, playRef, soundRef } from "../functions/music";
 // import MarqueeText from "react-native-marquee";
 // import TextTicker from "react-native-text-ticker";
 import Marquee from "../Components/Marquee";
-import SleepTimerModal from "../Components/SleepTimerModal";
-import TimerIcon from "../Components/TimerIcon";
-import ThreeDots from "../Components/ThreeDots";
-import ChevronForward from "../Components/Icons/ChevronForward";
-import Replay from "../Components/Icons/Replay";
-const windowHeight = Dimensions.get("window").height;
-const windowWidth = Dimensions.get("window").width;
 import eventBus from '../functions/eventBus.js';
 import MediaNotificationManager from "../functions/MediaNotification";
 import { showNotification } from "../functions/MediaNotification";
@@ -44,18 +29,11 @@ import { setPlaylistplaying } from "../../Store/PlaylistSlice";
 
 const Player = () => {
   const { colors } = useTheme();
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [liked, setLiked] = useState(false);
-  const [lastPress, setLastPress] = useState(0);
-  const DOUBLE_PRESS_DELAY = 800;
-  const slideY = useRef(new Animated.Value(windowHeight)).current; // initially hidden (off-screen)
-  const [sleepTimerVisible, setSleepTimerVisible] = useState(false);
-  const { isTimerActive } = useSelector((state) => state.sleepTimer);
   const { data: array, id, playlistNo } = useSelector((state) => state.playlist);
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
-  const { data, pos, seek, isplaying, canLoad, isMinimized, isLoadedFromAsyncStorage, animationTargetY, searchedMusic } =
+  const { data, pos, seek, isplaying, canLoad, isLoadedFromAsyncStorage, searchedMusic } =
     useSelector((state) => state.data);
   const { song, pos: position, seek: seekk, load } = useSelector(
     (state) => state.playlistload
@@ -161,77 +139,12 @@ const Player = () => {
     dispatch(setIsPlaying("toggle"));
   };
 
-  const replaySound = async () => {
-    if (isplaying) {
-      if (soundRef.current) {
-        await soundRef.current.setPositionAsync(0);
-        await soundRef.current.playAsync();
-      }
-      else if (playRef.current) {
-        await playRef.current.setPositionAsync(0);
-        await playRef.current.playAsync();
-      }
-      dispatch(progress(0));
-    }
-  };
-
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
-  };
-
-  const toggleModal = () => {
-    setIsModalVisible((prev) => !prev);
-  };
-
-
-  // Respond to changes in animationTargetY
-  useEffect(() => {
-    Animated.timing(slideY, {
-      toValue: animationTargetY,
-      duration: 300,
-      useNativeDriver: true,
-    }).start(() => {
-      // Optionally dispatch after animation
-      if (animationTargetY === windowHeight) {
-        dispatch(toggleMinimized()); // Set state to minimized after hiding
-      }
-    });
-  }, [animationTargetY]);
-
   const togglePlayerSize = () => {
-    if (isMinimized) {
-      dispatch(toggleMinimized()); // First expand the component
-      dispatch(setAnimationTargetY(0)); // Animate to visible
-    } else {
-      dispatch(setAnimationTargetY(windowHeight)); // Animate to bottom
-    }
+ 
+      navigation.navigate('PlayerStack');
   };
 
-  const handlePress = async (value) => {
-    const timeNow = Date.now();
-    if (timeNow - lastPress < DOUBLE_PRESS_DELAY) {
-      // Double press detected
-      console.warn("Double press detected!");
-      //dispatch(setIsPlaying(false));
-      dispatch(changePos(value));
-      dispatch(load(false));
-      dispatch(load(true));
-      // Action for double press
-    } else {
-      // Regular single press action
-      console.warn("Single press detected");
-      console.warn("hi");
-      dispatch(progress(0));
-      await soundRef.current.playFromPositionAsync(0);
-      // Action for single press
-    }
-    setLastPress(timeNow);
-  };
   const TOTAL_DURATION = data ? data[pos]?.duration : 0;
-
-  //-----------------------------------------------------
 
   useEffect(() => {
     togglePlayPauseRef.current = togglePlayPause;
@@ -552,8 +465,6 @@ const Player = () => {
   });
 
 
-  // Render the mini player if minimized
-  if (isMinimized) {
     return (
       // Remove the TouchableWithoutFeedback wrapping the entire view
       <View
@@ -633,363 +544,6 @@ const Player = () => {
         </View>
       </View>
     );
-  }
-
-  // Render the full player
-  return (
-    <Animated.View
-      style={{
-        position: "absolute",
-        bottom: 0,
-        width: "100%",
-        height: windowHeight,
-        transform: [{ translateY: slideY }],
-        backgroundColor: "white", // or your styling
-        borderTopLeftRadius: 16,
-        borderTopRightRadius: 16,
-        overflow: "hidden",
-      }}
-    >
-      <View style={styles.Main}>
-        <View
-          style={{
-            paddingHorizontal: 20,
-            paddingTop: 20,
-            width: "100%",
-            flexDirection: "row",
-            height: 60,
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <TouchableOpacity
-            style={[
-              styles.button,
-              {
-                transform: [{ rotate: "90deg" }],
-                justifyContent: "center",
-                alignItems: "center",
-              },
-            ]}
-            onPress={togglePlayerSize}
-          >
-            <ChevronForward width={28} height={28} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => toggleModal()}>
-            <ThreeDots height={28} width={28} />
-          </TouchableOpacity>
-        </View>
-
-        <Metadata
-          data={
-            canLoad ? data && data[pos]
-              ? data[pos]
-              : { title: "Unknown Song", uploader: "Unknown Artist" } : song && song[position] ? song[position] : { title: "Unknown Song", uploader: "Unknown Artist" }
-          }
-          colors={colors}
-          liked={liked}
-          setLiked={setLiked}
-          seek={seek}
-          TOTAL_DURATION={TOTAL_DURATION}
-          formatTime={formatTime}
-          styles={styles}
-          dispatch={dispatch}
-        />
-
-        <SleepTimerModal
-          visible={sleepTimerVisible}
-          onClose={() => setSleepTimerVisible(false)}
-          soundRef={soundRef}
-        />
-
-        <Controls
-          togglePlayPause={togglePlayPause}
-          isPlaying={isplaying}
-          styles={styles}
-          colors={colors}
-          dispatch={dispatch}
-          changePos={changePos}
-          handlePress={handlePress}
-          Replay={Replay}
-          TimerIcon={TimerIcon}
-          replaySound={replaySound}
-          setSleepTimerVisible={setSleepTimerVisible}
-          isTimerActive={isTimerActive}
-        />
-
-        <Custom_modal
-          isModalVisible={isModalVisible}
-          styles={styles}
-          toggleModal={toggleModal}
-          navigation={navigation}
-        />
-      </View>
-    </Animated.View>
-  );
 };
 
 export default Player;
-
-const Metadata = ({
-  data,
-  colors,
-  liked,
-  setLiked,
-  seek,
-  TOTAL_DURATION,
-  formatTime,
-  styles,
-  dispatch,
-}) => {
-  // Add state for tracking drag operation
-  const [isDragging, setIsDragging] = useState(false);
-  const [userSeek, setUserSeek] = useState(seek);
-  const [userSetPosition, setUserSetPosition] = useState(false);
-
-  // Reference to the progress bar for measuring
-  const progressBarRef = useRef(null);
-
-  useEffect(() => {
-    if (!isDragging && (!userSetPosition || Math.abs(seek - userSeek) > 5)) {
-      setUserSeek(seek);
-    }
-  }, [seek, isDragging, userSetPosition]);
-
-  const handleProgressTouch = (event) => {
-    if (!progressBarRef.current || !TOTAL_DURATION) return;
-
-    progressBarRef.current.measure((x, y, width, height, pageX, pageY) => {
-      // Calculate the touch position relative to the progress bar
-      const touchX = event.nativeEvent.pageX - pageX;
-      const percentage = Math.max(0, Math.min(1, touchX / width));
-      const newSeekValue = Math.round(percentage * TOTAL_DURATION);
-
-      setUserSeek(newSeekValue);
-      dispatch(progress(userSeek));
-      console.log("Dispatched seek to:", userSeek);
-    });
-  };
-
-  const currentProgressPercent = (userSeek / TOTAL_DURATION) * 100;
-  const knobPosition = `${currentProgressPercent}%`;
-
-  return (
-    <>
-      <Image source={{ uri: data?.image }} style={styles.albumArt} />
-
-      <View style={styles.container}>
-        <View style={{ height: "100%" }}>
-          <View style={{ width: 300 }}>
-            <Text style={styles.songName}>{data?.title || "Unknown Song"}</Text>
-          </View>
-          <Text style={styles.singerName}>
-            {data?.uploader || "Unknown Artist"}
-          </Text>
-        </View>
-        <TouchableOpacity onPress={() => setLiked(!liked)}>
-          <Icon
-            name={liked ? "heart" : "heart-o"}
-            size={28}
-            color={liked ? colors.text : "gray"}
-          />
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.progressBarContainer}>
-        {/* Touchable area - made larger for easier interaction */}
-        <View
-          ref={progressBarRef}
-          style={[styles.progressBarTouchArea, { position: "relative" }]}
-          onStartShouldSetResponder={() => true}
-          onResponderGrant={(event) => {
-            setIsDragging(true);
-            handleProgressTouch(event);
-          }}
-          onResponderMove={handleProgressTouch}
-          onResponderRelease={(event) => {
-            handleProgressTouch(event);
-            setIsDragging(false);
-            setUserSetPosition(true);
-            // Here you would update the actual playback position
-            // if (soundRef.current) {
-            //   soundRef.current.setPositionAsync(userSeek * 1000);
-            // }
-            console.error("Released at second:", userSeek);
-          }}
-        >
-          <View style={styles.progressBarBackground}>
-            <View
-              style={[
-                styles.progressBarFill,
-                {
-                  width: `${currentProgressPercent}%`,
-                  backgroundColor: "green",
-                },
-              ]}
-            />
-
-            {/* Draggable knob */}
-            <View
-              style={{
-                left: knobPosition,
-                width: 10,
-                height: 20,
-                backgroundColor: "purple",
-                borderWidth: 2,
-                transform: [{ translateX: -8 }, { translateY: -8 }],
-              }}
-            />
-          </View>
-        </View>
-
-        <View style={styles.timeContainer}>
-          <Text style={styles.timeText}>{formatTime(userSeek)}</Text>
-          <Text style={styles.timeText}>{formatTime(TOTAL_DURATION)}</Text>
-        </View>
-      </View>
-    </>
-  );
-};
-
-const Controls = ({
-  togglePlayPause,
-  isPlaying,
-  styles,
-  colors,
-  dispatch,
-  changePos,
-  handlePress,
-  replaySound,
-  TimerIcon,
-  Replay,
-  setSleepTimerVisible,
-  isTimerActive,
-}) => {
-  return (
-    <View style={styles.controlsContainer}>
-      <View style={styles.controls}>
-        <View>
-          <TouchableOpacity onPress={() => setSleepTimerVisible(true)}>
-            <TimerIcon
-              name="timer"
-              color={isTimerActive ? "#F5DEB3" : colors.text}
-            />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.playpause}>
-          <TouchableOpacity
-            style={styles.skipButton}
-            onPress={() => {
-              handlePress(-1);
-            }}
-          >
-            <SkipBack width={35} height={35} stroke={colors.text} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.playPauseButton}
-            onPress={() => togglePlayPause()}
-          >
-            {isPlaying ? (
-              <View style={styles.pauseLinesContainer}>
-                <View style={styles.pauseLine} />
-                <View style={styles.pauseLine} />
-              </View>
-            ) : (
-              <View style={styles.triangle} />
-            )}
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.skipButton}
-            onPress={() => {
-              handlePress(+1);
-            }}
-          >
-            <SkipForward width={35} height={35} stroke={colors.text} />
-          </TouchableOpacity>
-        </View>
-        <View>
-          <TouchableOpacity onPress={() => replaySound()}>
-            <Replay height={24} width={24} fill={colors.text} />
-          </TouchableOpacity>
-        </View>
-      </View>
-    </View>
-  );
-};
-
-const Custom_modal = ({
-  isModalVisible,
-  styles,
-  toggleModal,
-  dispatch,
-  navigation,
-}) => {
-  const { data, pos } = useSelector((state) => state.data);
-
-  return (
-    <Modal
-      transparent
-      visible={isModalVisible}
-      animationType="slide"
-      onRequestClose={() => toggleModal()}
-    >
-      <TouchableOpacity
-        style={styles.modalOverlay}
-        activeOpacity={1}
-        onPressOut={() => toggleModal()}
-      >
-        <View style={styles.modalContent}>
-          <View style={[styles.miniPlayerInfo, { marginBottom: 30 }]}>
-            <Image
-              source={{ uri: data ? data[pos]?.image : null }}
-              style={styles.miniPlayerThumbnail}
-            />
-            <View style={styles.miniPlayerTextContainer}>
-              <Text style={styles.miniPlayerTitle} numberOfLines={1}>
-                {data ? data[pos]?.title : "Unknown Title"}
-              </Text>
-              <Text style={styles.miniPlayerArtist} numberOfLines={1}>
-                {data ? data[pos]?.uploader : "Unknown Artist"}
-              </Text>
-            </View>
-          </View>
-
-          <TouchableOpacity style={styles.optionTouch}>
-            <Text style={styles.option}>Add to Liked Songs</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.optionTouch}
-            onPress={() => {
-              toggleModal();
-              navigation.navigate("Playchoose", { index: data[pos] });
-            }}
-          >
-            <Text style={styles.option}>Add to playlist</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.optionTouch}>
-            <Text style={styles.option}>Media Quality</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.optionTouch}>
-            <Text style={styles.option}>Share</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.optionTouch}
-          // onPress={() => {
-          //   toggleModal();
-          //   dispatch({ type: "ADD_TO_QUEUE", payload: song });
-          // }}
-          >
-            <Text style={styles.option}>Add to Queue</Text>
-          </TouchableOpacity>
-
-        </View>
-      </TouchableOpacity>
-    </Modal>
-  );
-};

@@ -10,7 +10,6 @@ import { useSelector, useDispatch } from "react-redux";
 import { Keyboard } from "react-native";
 import Playlist from "../src/pages/Playlist";
 import Library from "../src/pages/Library";
-import { setAnimationTargetY } from ".././Store/MusicSlice";
 
 const Tab = createBottomTabNavigator();
 
@@ -35,7 +34,6 @@ const MainTab = () => {
     const keyboardDidHide = Keyboard.addListener("keyboardDidHide", () => {
       console.warn("keyboard is inactive");
       setKeyboardVisible(false);
-      dispatch(setAnimationTargetY(0));
     });
     return () => {
       keybaordDidShow.remove();

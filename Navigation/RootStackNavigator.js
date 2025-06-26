@@ -6,6 +6,7 @@ import MigratePlaylist from "../src/pages/MigratePlaylist";
 import DownloadPage from "../src/pages/DownloadPage";
 import Account from "../src/pages/Account";
 import PlaylistEdit from "../src/pages/PlaylistEdit"
+import PlayerStack from "../src/pages/PlayerStack"
 
 const Stack = createNativeStackNavigator();
 
@@ -19,6 +20,7 @@ const RootNavigator = () => {
       <Stack.Screen name="Download" component={DownloadPage} />
       <Stack.Screen name="Account" component={Account} />
       <Stack.Screen name="PlaylistEdit" component={PlaylistEdit} />
+      <Stack.Screen name="PlayerStack" component={PlayerStack} />
       {/* You can add more screens here */}
     </Stack.Navigator>
   );
