@@ -176,6 +176,7 @@ const Search = () => {
     }
     dispatch(changeLoad(false))
     console.warn(isLoadedFromAsyncStorage)
+    dispatch(setSearchedMusic(true))
     console.log("Dispatches complete");
     //dispatch(toggleMinimized());
     // Add this line to save the song metadata to AsyncStorage
@@ -345,7 +346,7 @@ const Search = () => {
                     <Text style={styles.artistName}>{item.artist}</Text>
                   </View>
                   <View style={styles.dotsContainer}>
-                 
+
 
                     <TouchableOpacity
                       onPress={() => toggleModal(item)}
@@ -366,13 +367,13 @@ const Search = () => {
           )}
           <Text style={{ color: "white" }}></Text>
         </KeyboardAvoidingView>
-           <SearchModal
-                      isModalVisible={isModalVisible}
-                      toggleModal={() => setModalVisible(false)}
-                      dispatch={dispatch}
-                      navigation={navigation}
-                      song={selectedSong}
-                    />
+        <SearchModal
+          isModalVisible={isModalVisible}
+          toggleModal={() => setModalVisible(false)}
+          dispatch={dispatch}
+          navigation={navigation}
+          song={selectedSong}
+        />
       </View>
     </View>
   );
