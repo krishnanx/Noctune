@@ -25,14 +25,11 @@ import { FetchMetadata } from "../../Store/MusicSlice";
 import {
   addMusic,
   load,
-  toggleMinimized,
   setIsLoadedFromAsyncStorage,
-  setAnimationTargetY,
   setSearchedMusic
 } from "../../Store/MusicSlice";
 import { loadAudio, unloadAudio } from "../functions/music.js";
 import Audioloader from "../functions/Audioloader.jsx";
-import { useFocusEffect } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import store from "../../Store/store";
@@ -49,7 +46,7 @@ const Search = () => {
   const [error, setError] = useState(null);
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const { data, pos, seek, isplaying, canLoad, isMinimized, isLoadedFromAsyncStorage } = useSelector((state) => state.data);
+  const { data, pos, seek, isplaying, canLoad, isLoadedFromAsyncStorage } = useSelector((state) => state.data);
   const [shouldLoad, setShouldLoad] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedSong, setSelectedSong] = useState(null);
@@ -183,12 +180,7 @@ const Search = () => {
     //dispatch(toggleMinimized());
     // Add this line to save the song metadata to AsyncStorage
     saveLastPlayedSong(song);
-    const currentIsMinimized = store.getState().data.isMinimized; // OR pass it as prop/context if this line throws
-    if (currentIsMinimized) {
-      dispatch(toggleMinimized()); // Make sure the component renders full player
-    }
-
-    dispatch(setAnimationTargetY(0));
+    navigation.navigate('PlayerStack');
 
   };
 
@@ -353,13 +345,7 @@ const Search = () => {
                     <Text style={styles.artistName}>{item.artist}</Text>
                   </View>
                   <View style={styles.dotsContainer}>
-                    <SearchModal
-                      isModalVisible={isModalVisible}
-                      toggleModal={() => setModalVisible(false)}
-                      dispatch={dispatch}
-                      navigation={navigation}
-                      song={selectedSong}
-                    />
+                 
 
                     <TouchableOpacity
                       onPress={() => toggleModal(item)}
@@ -380,6 +366,13 @@ const Search = () => {
           )}
           <Text style={{ color: "white" }}></Text>
         </KeyboardAvoidingView>
+           <SearchModal
+                      isModalVisible={isModalVisible}
+                      toggleModal={() => setModalVisible(false)}
+                      dispatch={dispatch}
+                      navigation={navigation}
+                      song={selectedSong}
+                    />
       </View>
     </View>
   );

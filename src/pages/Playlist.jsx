@@ -40,8 +40,6 @@ const Playlist = () => {
     pos,
     seek,
     isplaying,
-    isMinimized,
-    animationTargetY,
   } = useSelector((state) => state.data);
 
   const navigation = useNavigation();
@@ -240,10 +238,7 @@ navigation.navigate('PlaylistEdit', { index });
   const Uname = "Krishnan E";
   const minHeight = 1000
   const togglePlayPause = async () => {
-    console.error(isMinimized)
-    if (!isMinimized) {
-      dispatch(toggleMinimized())
-    }
+   
     if (!playRef.current) {
       console.warn("no current songs")
       if (playlistNo != index) {

@@ -86,7 +86,7 @@ const SearchModal = ({
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(29, 26, 26, 0.4)",
+    backgroundColor: "rgba(29, 26, 26, 0.9)",
     justifyContent: "center",
     alignItems: "center",
   },

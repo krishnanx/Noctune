@@ -11,9 +11,7 @@ const MusicSlice = createSlice({
     seek: 0,
     isplaying: false,
     canLoad: false,
-    isMinimized: true,
     isLoadedFromAsyncStorage: true, //NOTE: true | false will always evaluate to true in JavaScript (because of bitwise OR). isLoadedFromAsyncStorage: true | false,
-    animationTargetY: 0,
     searchedMusic: false
 
   },
@@ -92,14 +90,7 @@ const MusicSlice = createSlice({
       state.canLoad = action.payload;
       console.log("canLoad:", state.canLoad);
     },
-    toggleMinimized(state) {
-      state.isMinimized = !state.isMinimized;
-    },
-    setAnimationTargetY(state, action) {
-      state.animationTargetY = action.payload; // e.g., 0 or windowHeight or 100
-    },
-
-    setIsLoadedFromAsyncStorage(state, action) {
+     setIsLoadedFromAsyncStorage(state, action) {
       state.isLoadedFromAsyncStorage = action.payload;
     },
     setSearchedMusic(state, action) {
@@ -138,8 +129,6 @@ export const {
   progress,
   setIsPlaying,
   load,
-  toggleMinimized,
-  setAnimationTargetY,
   setIsLoadedFromAsyncStorage,
   changeDATA,
   setSearchedMusic
