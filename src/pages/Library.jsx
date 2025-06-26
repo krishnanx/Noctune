@@ -13,6 +13,7 @@ import icon from "../../assets/favicon.png"
 import { addPlaylist } from '../../Store/PlaylistSlice';
 import { useNavigation } from '@react-navigation/native';
 import { AddNewPlaylist } from '../../Store/PlaylistSlice';
+import { Dimensions } from 'react-native';
 const Library = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -26,7 +27,7 @@ const Library = () => {
     const { user, id } = useSelector((state) => state.user || {});
 
     const navigation = useNavigation();
-
+    const screenWidth = Dimensions.get('window').width;
     const toggleModal = () => {
         setIsModalVisible((prev) => !prev);
     };
@@ -65,10 +66,6 @@ const Library = () => {
             height: "auto",
             paddingTop: 80,
             flexDirection: "column",
-
-
-
-
         },
         modalOverlay: {
             flex: 1,
@@ -182,7 +179,7 @@ const Library = () => {
             alignItems: "center"
         },
         Name: {
-            width: "100%" - 60,
+            width: screenWidth - 60,
             height: "100%",
             justifyContent: "center",
             paddingLeft: 25
@@ -469,7 +466,7 @@ const DisplayPlaylist = ({ item, index, styles, navigation }) => {
                 borderRadius: 25,
                 // /backgroundColor: "rgba(128,128,128,0.2)",
                 marginBottom: 5,
-                height: 70,
+                height: 80,
                 paddingLeft: 15,
                 paddingVertical: 5
             }}
@@ -494,12 +491,12 @@ const DisplayPlaylist = ({ item, index, styles, navigation }) => {
                     style={styles.Name}
                 >
                     <Text
-                        style={{ fontSize: 20, color: "white" }}
+                        style={{ fontSize: 20, color: "white", width: "95%", paddingHorizontal: 5, flexWrap: "wrap" }}
                     >
                         {item.name}
                     </Text>
                     <Text
-                        style={{ fontSize: 15, color: "white" }}
+                        style={{ fontSize: 15, color: "white", paddingLeft: 5 }}
                     >
                         Playlist . Noctune
                     </Text>
