@@ -10,6 +10,7 @@ import {
   Alert,
   ScrollView,
 } from "react-native";
+import { KeyboardAvoidingView, Platform } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {
   Sortable,
@@ -68,18 +69,18 @@ const PlaylistEdit = () => {
     }
   }, [playlistData]);
   
-useEffect(() => {
-  if (playlistData) {
-    const nameChanged = editedName !== (playlistData.name || "");
-    const descChanged = editedDescription !== (playlistData.desc || playlistData.description || "");
-    const imageChanged = editedImage !== (playlistData.image || "");
+  useEffect(() => {
+    if (playlistData) {
+      const nameChanged = editedName !== (playlistData.name || "");
+      const descChanged = editedDescription !== (playlistData.desc || playlistData.description || "");
+      const imageChanged = editedImage !== (playlistData.image || "");
 
-    const originalSongs = playlistData.songs || [];
-    const songsChanged = JSON.stringify(originalSongs.map(s => s.id)) !== JSON.stringify(editedSongs.map(s => s.id));
+      const originalSongs = playlistData.songs || [];
+      const songsChanged = JSON.stringify(originalSongs.map(s => s.id)) !== JSON.stringify(editedSongs.map(s => s.id));
 
-    setHasChanges(nameChanged || descChanged || imageChanged || songsChanged);
-  }
-}, [editedName, editedDescription, editedImage, editedSongs, playlistData]);
+      setHasChanges(nameChanged || descChanged || imageChanged || songsChanged);
+    }
+  }, [editedName, editedDescription, editedImage, editedSongs, playlistData]);
 
   
   // Render function for draggable song items using react-native-reanimated-dnd
@@ -105,34 +106,16 @@ useEffect(() => {
           autoScrollDirection={autoScrollDirection}
           itemsCount={itemsCount}
           itemHeight={itemHeight}
-        
-  onDragEnd={(newData) => setEditedSongs(newData)}
-
-            // onMove={(itemId, from, to) => {
-            //   const newSongs = [...editedSongs];
-            //   const [movedSong] = newSongs.splice(from, 1);
-            //   newSongs.splice(to, 0, movedSong);
-            //   setEditedSongs(newSongs);
-            // }}
+          onDragEnd={(newData) => setEditedSongs(newData)}
           style={styles.sortableItem}
           activeStyle={styles.songItemActive}
         >
           <View style={styles.songItem}>
             {/* Drag Handle */}
-            <SortableItem.Handle style={styles.dragHandle}>
-              <View style={styles.dragIconContainer}>
-                <View style={styles.dragColumn}>
-                  <View style={styles.dragDot} />
-                  <View style={styles.dragDot} />
-                  <View style={styles.dragDot} />
-                </View>
-                <View style={styles.dragColumn}>
-                  <View style={styles.dragDot} />
-                  <View style={styles.dragDot} />
-                  <View style={styles.dragDot} />
-                </View>
-              </View>
-            </SortableItem.Handle>
+     <SortableItem.Handle style={styles.dragHandle}>
+  <Text style={styles.dragHandleText}>≡</Text>
+</SortableItem.Handle>
+
             
             <Image 
               source={{ uri: item.image }} 
@@ -174,25 +157,6 @@ useEffect(() => {
 
   const pickImage = async () => {
     try {
-      // Note: You'll need to uncomment and import ImagePicker when ready
-      // const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      
-      // if (status !== 'granted') {
-      //   Alert.alert('Permission needed', 'Please grant camera roll permissions to change the playlist image.');
-      //   return;
-      // }
-
-      // const result = await ImagePicker.launchImageLibraryAsync({
-      //   mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      //   allowsEditing: true,
-      //   aspect: [1, 1],
-      //   quality: 0.8,
-      // });
-
-      // if (!result.canceled && result.assets[0]) {
-      //   setEditedImage(result.assets[0].uri);
-      // }
-      
       Alert.alert('Image Picker', 'Image picker functionality needs to be implemented');
     } catch (error) {
       console.error('Error picking image:', error);
@@ -303,11 +267,11 @@ useEffect(() => {
           )}
           
           <TouchableOpacity 
-            style={styles.saveButton}
+            style={[styles.saveButton, !hasChanges && styles.saveButtonDisabled]}
             onPress={saveChanges}
             disabled={!hasChanges}
           >
-            <Text style={styles.saveButtonText}>Save</Text>
+            <Text style={[styles.saveButtonText, !hasChanges && styles.saveButtonTextDisabled]}>Save</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -357,76 +321,75 @@ useEffect(() => {
     </View>
   );
 
-  // Empty state component
-  const EmptyListComponent = () => (
-    <View style={styles.emptyState}>
-      <Text style={styles.emptyStateText}>
-        No songs in this playlist.{'\n'}Add some songs to get started!
-      </Text>
-    </View>
-  );
-
   return (
-    <GestureHandlerRootView style={styles.container}>
-      {isLoading && (
-        <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color="#1DB954" />
-          <Text style={{ color: "white", marginTop: 10 }}>Saving changes...</Text>
-        </View>
-      )}
-      
-      <ScrollView 
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContainer}
-        showsVerticalScrollIndicator={false}
-        nestedScrollEnabled={false}
-      >
-        {renderHeader()}
+    <KeyboardAvoidingView 
+      style={styles.container} 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+    >
+      <GestureHandlerRootView style={styles.gestureContainer}>
+        {isLoading && (
+          <View style={styles.loadingOverlay}>
+            <ActivityIndicator size="large" color="#1DB954" />
+            <Text style={{ color: "white", marginTop: 10 }}>Saving changes...</Text>
+          </View>
+        )}
         
-        {/* Songs Section with Drag & Drop */}
-        <View style={styles.songsSection}>
-          <Text style={styles.sectionTitle}>
-            Songs ({editedSongs.length}) - Drag to reorder
-          </Text>
+        <ScrollView 
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContainer}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          {renderHeader()}
           
-          {editedSongs.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyStateText}>
-                No songs in this playlist.{'\n'}Add some songs to get started!
-              </Text>
-            </View>
-          ) : (
-            <View style={styles.sortableContainer}>
-              <Sortable
-                data={editedSongs}
-                renderItem={renderSongItem}
-                itemHeight={80}
-                style={styles.sortableList}
-                scrollEnabled={false}
-                onDragEnd={(newData) => setEditedSongs([...newData])}
-              />
-            </View>
-          )}
-        </View>
-      </ScrollView>
-    </GestureHandlerRootView>
+          {/* Songs Section with Drag & Drop */}
+          <View style={styles.songsSection}>
+            <Text style={styles.sectionTitle}>
+              Songs ({editedSongs.length}) - Drag to reorder
+            </Text>
+            
+            {editedSongs.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyStateText}>
+                  No songs in this playlist.{'\n'}Add some songs to get started!
+                </Text>
+              </View>
+            ) : (
+              <View style={styles.sortableContainer}>
+                <Sortable
+                  data={editedSongs}
+                  renderItem={renderSongItem}
+                  itemHeight={80}
+                  style={styles.sortableList}
+                  scrollEnabled={false}
+                  onDragEnd={(newData) => setEditedSongs([...newData])}
+                />
+              </View>
+            )}
+          </View>
+        </ScrollView>
+      </GestureHandlerRootView>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000",
-    padding:20,
   },
-  flatList: {
+  gestureContainer: {
     flex: 1,
-  },
-  flatListContainer: {
-    flexGrow: 1,
     paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 100,
+    backgroundColor: '#000', // Fixed: Added explicit background color
+  },
+  scrollView: {
+    flex: 1,
+    backgroundColor: 'transparent', // Fixed: Made transparent to inherit parent background
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    paddingBottom: 20, // Fixed: Added bottom padding for keyboard space
   },
   header: {
     flexDirection: "row",
@@ -439,16 +402,40 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
   },
+  headerButtons: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  discardButton: {
+    backgroundColor: "transparent",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#666",
+    marginRight: 10,
+  },
+  discardButtonText: {
+    color: "#666",
+    fontSize: 14,
+    fontWeight: "600",
+  },
   saveButton: {
     backgroundColor: "#1DB954",
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
   },
+  saveButtonDisabled: {
+    backgroundColor: "#555", // Fixed: Added disabled state
+  },
   saveButtonText: {
     color: "white",
     fontSize: 14,
     fontWeight: "600",
+  },
+  saveButtonTextDisabled: {
+    color: "#888", // Fixed: Added disabled text color
   },
   imageSection: {
     alignItems: "center",
@@ -501,27 +488,24 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.2)",
   },
-  textInputFocused: {
-    borderColor: "#1DB954",
-  },
   multilineInput: {
     height: 80,
     textAlignVertical: "top",
   },
-  songsSectionHeader: {
-    marginBottom: 15,
+  songsSection: {
+    paddingBottom: 20,
+    backgroundColor: 'transparent', // Fixed: Made transparent
   },
-songsSection: {
-  backgroundColor: "#000", // Black background
-
-  paddingBottom: 20,
-},
-
-sortableContainer: {
-  backgroundColor: "#000", // Ensure drag list has black background
+  sortableContainer: {
     paddingTop: 10,
-},
-
+    backgroundColor: 'transparent', // Fixed: Made transparent
+  },
+  sortableList: {
+    backgroundColor: 'transparent', // Fixed: Made transparent
+  },
+  sortableItem: {
+    backgroundColor: 'transparent', // Fixed: Made transparent
+  },
   songItem: {
     flexDirection: "row",
     alignItems: "center",
@@ -534,7 +518,7 @@ sortableContainer: {
     height: 70,
   },
   songItemActive: {
-      backgroundColor: "#111",
+    backgroundColor: "rgba(40,40,40,0.9)", // Fixed: Changed from white to dark gray
     borderColor: "rgba(29, 185, 84, 0.3)",
     elevation: 8,
     shadowColor: "#1DB954",
@@ -551,21 +535,17 @@ sortableContainer: {
     borderRadius: 6,
     backgroundColor: "rgba(255, 255, 255, 0.05)",
   },
-  dragIconContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 3,
-  },
-  dragColumn: {
-    flexDirection: "column",
-    gap: 2,
-  },
-  dragDot: {
-    width: 3,
-    height: 3,
-    borderRadius: 1.5,
-    backgroundColor: "#6D6D70",
-  },
+  dragHandle: {
+  padding: 10,
+  marginRight: 12,
+  borderRadius: 6,
+  justifyContent: "center",
+  alignItems: "center",
+},
+dragHandleText: {
+  fontSize: 20,
+  color: "#ccc", // Or any color that suits your theme
+},
   songImage: {
     width: 50,
     height: 50,
@@ -600,6 +580,7 @@ sortableContainer: {
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 40,
+    backgroundColor: 'transparent', // Fixed: Made transparent
   },
   emptyStateText: {
     color: "#666",
@@ -616,24 +597,6 @@ sortableContainer: {
     justifyContent: "center",
     alignItems: "center",
     zIndex: 1000,
-  },
-  discardButton: {
-    backgroundColor: "transparent",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "#666",
-    marginRight: 10,
-  },
-  discardButtonText: {
-    color: "#666",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  headerButtons: {
-    flexDirection: "row",
-    alignItems: "center",
   },
 });
 
