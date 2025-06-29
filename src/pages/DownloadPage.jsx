@@ -8,6 +8,7 @@ import {
   StatusBar,
   ScrollView,
   TouchableOpacity,
+  FlatList
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import BackArrow from "../Components/BackArrow";
@@ -33,7 +34,7 @@ const DownloadPage = () => {
     return unsubscribe;
   }, [navigation, completed, songs.length]);
 
-  const renderDownloadItem = ({ song }) => {
+  const RenderDownloadItem = ({ song }) => {
     return (
       <View key={song.id} style={styles.downloadItem}>
         <Image source={{ uri: song.image }} style={styles.albumArt} />
@@ -51,7 +52,7 @@ const DownloadPage = () => {
               />
             </View>
             <Text style={styles.progressText}>
-              {song.completed ? "Completed" : `${item.progress}%`}
+              {song.completed ? "Completed" : `${song.progress}%`}
             </Text>
           </View>
         </View>
@@ -75,7 +76,7 @@ const DownloadPage = () => {
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       >
-        <ScrollView style={styles.container}>
+        <SafeAreaView style={styles.container}>
           <View style={styles.header}>
             <TouchableOpacity
               style={styles.backButton}
@@ -107,9 +108,8 @@ const DownloadPage = () => {
           </ScrollView> */}
           <FlatList
             data={songs}
-            renderItem={({ item }) => <renderDownloadItem song={item} />}
+            renderItem={({ item }) => <RenderDownloadItem song={item} />}
             keyExtractor={item => item.id}
-            scrollEnabled={false}
           />
 
           <View style={styles.footer}>
@@ -129,7 +129,7 @@ const DownloadPage = () => {
 
             </Text>
           </View>
-        </ScrollView>
+        </SafeAreaView>
       </LinearGradient>
     </>
   );
@@ -199,6 +199,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(255,255,255,0.05)",
+    paddingHorizontal: 20
   },
   albumArt: {
     width: 56,
