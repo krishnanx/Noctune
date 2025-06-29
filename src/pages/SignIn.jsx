@@ -39,7 +39,7 @@ const SignIn = () => {
         return;
       }
 
-      const result = await dispatch(signIn({ email, password }));
+      const result = await dispatch(signIn({ email, password })).unwrap();
 
       if (result.payload?.success) {
         const { user, session } = result.payload;
@@ -140,7 +140,7 @@ const SignIn = () => {
       padding: 10,
     },
   });
-  const { loading } = useSelector((state) => state.user);
+  const { user, session, loading } = useSelector((state) => state.user);
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}

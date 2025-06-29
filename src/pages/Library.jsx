@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { ScrollView, View, StyleSheet, Text, ViewBase, TouchableOpacity, Modal, Image, TextInput, Switch, FlatList, TouchableHighlight } from 'react-native'
 import { Download } from 'react-native-feather';
 import ThreeDots from "../Components/ThreeDots"
@@ -34,6 +34,7 @@ const Library = () => {
     const togglePlaylistadd = () => {
         setisPlaylistaddVisible((prev) => !prev);
     };
+    useEffect(() => { console.warn(data) }, [])
     const dispatch = useDispatch();
     const styles = StyleSheet.create({
         Main: {

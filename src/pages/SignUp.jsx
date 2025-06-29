@@ -13,9 +13,11 @@ import { ScrollView } from "react-native-gesture-handler";
 import { useTheme } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
-import { signUp } from "../../Store/AuthThunk"; 
-import Icon from "react-native-vector-icons/Ionicons"; 
+import { signUp } from "../../Store/AuthThunk";
+import Icon from "react-native-vector-icons/Ionicons";
 import Toast from "react-native-toast-message";
+import { AddNewPlaylist, addPlaylist } from "../../Store/PlaylistSlice";
+import Playlist from "./Playlist";
 
 const SignUp = () => {
   const { colors } = useTheme();
@@ -25,13 +27,13 @@ const SignUp = () => {
   const [username, setUserName] = useState();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
+
   //const [loading, setLoading] = useState(false);
   //const [error, setError] = useState(null);
   const navigation = useNavigation();
 
   const dispatch = useDispatch();
-  const { loading = false, error = null } = useSelector(
+  const { user, session, loading, waveload, error } = useSelector(
     (state) => state.user || {}
   );
 
@@ -44,43 +46,58 @@ const SignUp = () => {
   };
 
   const handleSignUp = async () => {
-    try{
-    if (!username || !email || !password || !confirmpass) {
+    try {
+      if (!username || !email || !password || !confirmpass) {
+        dispatch({
+          type: "user/setError",
+          payload: "Please fill in all the fields",
+        });
+        return;
+      }
+
+      if (password !== confirmpass) {
+        dispatch({ type: "user/setError", payload: "Password doesnt match" });
+        return;
+      }
+
+
+      const result = await dispatch(signUp({ email, password, username })).unwrap();
+      console.warn(result)
+
+      if (result.success) {
+        alert("Account created successfully! Please sign in");
+        console.warn(result)
+        const userid = result.user.id
+        const playlist = {
+
+          id: 0,
+          image: "",
+          name: "Liked Songs",
+          desc: "A collection of all your favorite tracks in one place. Updated every time you tap that ❤️.",
+          songs: [],
+          Time: 0,
+          isPlaying: false
+
+        }
+        await dispatch(AddNewPlaylist({ data: playlist, userid: userid })).unwrap()
+        dispatch(addPlaylist({ playlist: playlist }))
+        navigation.navigate("signin");
+      }
+      else {
+
+        dispatch({
+          type: "user/setError",
+          payload: result.payload?.message || "Failed to create account"
+        });
+      }
+    } catch (error) {
+      console.error("Sign-up error:", error);
       dispatch({
         type: "user/setError",
-        payload: "Please fill in all the fields",
-      });
-      return;
-    }
-
-    if (password !== confirmpass) {
-      dispatch({ type: "user/setError", payload: "Password doesnt match" });
-      return;
-    }
-
-    
-    const result = await dispatch(signUp({ email, password, username }));
-    
-
-    if (result.payload?.success) {
-      alert("Account created successfully! Please sign in");
-      navigation.navigate("signin");
-    }
-    else {
-      
-      dispatch({ 
-        type: "user/setError", 
-        payload: result.payload?.message || "Failed to create account" 
+        payload: error.message || "An unexpected error occurred"
       });
     }
-  } catch (error) {
-    console.error("Sign-up error:", error);
-    dispatch({ 
-      type: "user/setError", 
-      payload: error.message || "An unexpected error occurred" 
-    });
-  }
-   
+
   };
 
   const styles = StyleSheet.create({
@@ -240,7 +257,7 @@ const SignUp = () => {
           <TouchableOpacity
             style={styles.button}
             onPress={handleSignUp}
-            //disabled={loading}
+            disabled={loading}
           >
             {error && (
               <Text style={{ color: "red", marginBottom: 10 }}>{error}</Text>

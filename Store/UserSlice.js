@@ -8,7 +8,7 @@ const userSlice = createSlice({
     session: null,
     loading: false,   //krish set to true
     waveload: true,
-    error: null,
+    error: false,
     clientID: null,
     ws: null
   },
