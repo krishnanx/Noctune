@@ -26,7 +26,7 @@ const DownloadPage = () => {
   const navigation = useNavigation();
   useEffect(() => {
     const unsubscribe = navigation.addListener('beforeRemove', () => {
-      if (completed === songs.length) {
+      if (completed == songs.length) {
         dispatch(setCompleted(0));
       }
     });

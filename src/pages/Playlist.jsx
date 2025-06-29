@@ -15,7 +15,8 @@ import AddFriend from "../Components/addFriend";
 import ThreeDots from "../Components/ThreeDots";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import icon from "../../assets/favicon.png";
+import icon from "../../assets/LikedSongs/heart.png"
+import normIcon from "../../assets/LikedSongs/heart.png"
 import { playRef, soundRef } from "../functions/music";
 import { load, progress, setIsPlaying } from "../../Store/MusicSlice";
 import { changePlaylist, setPlaylistplaying } from "../../Store/PlaylistSlice";
@@ -45,12 +46,12 @@ const Playlist = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
-    const goToNewPage = () => {
-console.warn("DATA: ", JSON.stringify(data, null, 2));
-data[0].songs.forEach((song, idx) => {
-  console.warn(`Song ${idx + 1}:`, song);
-});
-navigation.navigate('PlaylistEdit', { index });
+  const goToNewPage = () => {
+    console.warn("DATA: ", JSON.stringify(data, null, 2));
+    data[0].songs.forEach((song, idx) => {
+      console.warn(`Song ${idx + 1}:`, song);
+    });
+    navigation.navigate('PlaylistEdit', { index });
   };
 
   const styles = StyleSheet.create({
@@ -86,7 +87,7 @@ navigation.navigate('PlaylistEdit', { index });
       height: 240,
       borderRadius: 20,
       marginBottom: 20,
-      backgroundColor: "gray",
+      //backgroundColor: "gray",
     },
     imageContainer: {
       width: "100%",
@@ -238,7 +239,7 @@ navigation.navigate('PlaylistEdit', { index });
   const Uname = "Krishnan E";
   const minHeight = 1000
   const togglePlayPause = async () => {
-   
+
     if (!playRef.current) {
       console.warn("no current songs")
       if (playlistNo != index) {
@@ -321,6 +322,7 @@ navigation.navigate('PlaylistEdit', { index });
         DownloadButton={DownloadButton}
         Description={Description}
         goToNewPage={goToNewPage}
+        index={index}
       />
       <Flatlist data={data[index].songs || []} styles={styles} />
     </ScrollView>
@@ -341,6 +343,7 @@ const Information = ({
   DownloadButton,
   Description,
   goToNewPage,
+  index
 }) => {
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -388,7 +391,8 @@ const Information = ({
       <View style={styles.metadata}>
         <View style={styles.imageContainer}>
           <Image
-            source={data.songs.length > 0 ? data.image ? { uri: data.image } : { uri: data.songs[0].image } : icon}
+            source={index == 0 ? data.songs.length > 0 ? data.image ? { uri: data.image } : { uri: data.songs[0].image } :
+              icon : data.songs.length > 0 ? data.image ? { uri: data.image } : { uri: data.songs[0].image } : normIcon}
             style={styles.albumArt}
           // fallback if user image fails to load
           />

@@ -9,11 +9,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTheme } from "@react-navigation/native";
 import MusicNote from "../Components/MusicNote"
 import Collab from "../Components/Collab"
-import icon from "../../assets/favicon.png"
+import icon from "../../assets/LikedSongs/heart.png"
 import { addPlaylist } from '../../Store/PlaylistSlice';
 import { useNavigation } from '@react-navigation/native';
 import { AddNewPlaylist } from '../../Store/PlaylistSlice';
 import { Dimensions } from 'react-native';
+import normIcon from "../../assets/LikedSongs/heart.png"
 const Library = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -22,7 +23,7 @@ const Library = () => {
     const [playlistName, setPlaylistName] = useState("");
     const [description, setDescription] = useState("")
     const { colors } = useTheme();
-    const { data } = useSelector((state) => state.playlist);
+    const { data, id: playid } = useSelector((state) => state.playlist);
     //const { user, id } = useSelector((state) => state.user)
     const { user, id } = useSelector((state) => state.user || {});
 
@@ -175,7 +176,7 @@ const Library = () => {
         ImageContainer: {
             width: 60,
             height: 60,
-            //backgroundColor:"white",
+            //backgroundColor: "white",
             justifyContent: "center",
             alignItems: "center"
         },
@@ -197,7 +198,7 @@ const Library = () => {
     const handlePlaylist = () => {
         togglePlaylistadd();
         const playlist = {
-            id: id + 1,
+            id: playid + 1,
             image: null,
             name: playlistName,
             desc: description,
@@ -243,7 +244,7 @@ const Library = () => {
                 style={styles.body}
             >
                 <FlatList
-                    data={data}
+                    data={[...data].sort((a, b) => a.id - b.id)}
                     renderItem={({ item, index }) => <DisplayPlaylist item={item}
                         index={index}
                         styles={styles}
@@ -483,7 +484,8 @@ const DisplayPlaylist = ({ item, index, styles, navigation }) => {
                     style={styles.ImageContainer}
                 >
                     <Image
-                        source={item.image ? { uri: item.image } : item.songs.length > 0 ? { uri: item.songs[0].image } : icon}
+                        source={item.id == 0 ? item.image ? { uri: item.image } : item.songs.length > 0 ? { uri: item.songs[0].image } : icon :
+                            item.image ? { uri: item.image } : item.songs.length > 0 ? { uri: item.songs[0].image } : normIcon}
                         style={{ width: 50, height: 50 }}
                     // fallback if user image fails to load
                     />
