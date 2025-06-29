@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  Switch, 
-  ScrollView, 
-  TouchableOpacity, 
-  Image 
+import {
+  View,
+  Text,
+  StyleSheet,
+  Switch,
+  ScrollView,
+  TouchableOpacity,
+  Image
 } from 'react-native';
 import { useDispatch } from "react-redux";
 import { signOut } from "../../Store/AuthThunk";
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Settings = ({ navigation }) => {
   const [darkMode, setDarkMode] = useState(true);
@@ -22,7 +23,8 @@ const Settings = ({ navigation }) => {
   // Mock user data - replace with actual user data from your state/context
   const userProfilePicture = 'https://via.placeholder.com/40/1DB954/FFFFFF?text=JD';
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
+    await AsyncStorage.clear()
     dispatch(signOut());
   };
 
@@ -65,28 +67,28 @@ const Settings = ({ navigation }) => {
       </Section>
 
       <Section title="Account">
-        <NavItem 
-          label="Account Info" 
+        <NavItem
+          label="Account Info"
           onPress={navigateToAccount}
           icon="person-outline"
         />
-        <NavItem 
-          label="Change Password" 
+        <NavItem
+          label="Change Password"
           icon="lock-closed-outline"
         />
       </Section>
 
       <Section title="Support">
-        <NavItem 
-          label="Help Center" 
+        <NavItem
+          label="Help Center"
           icon="help-circle-outline"
         />
-        <NavItem 
-          label="Privacy Policy" 
+        <NavItem
+          label="Privacy Policy"
           icon="shield-outline"
         />
-        <NavItem 
-          label="Log Out" 
+        <NavItem
+          label="Log Out"
           onPress={handleSignOut}
           icon="log-out-outline"
           isDestructive={true}
@@ -118,11 +120,11 @@ const NavItem = ({ label, onPress, icon, isDestructive = false }) => (
   <TouchableOpacity style={styles.item} onPress={onPress}>
     <View style={styles.navItemContent}>
       {icon && (
-        <Ionicons 
-          name={icon} 
-          size={20} 
-          color={isDestructive ? "#ff4444" : "#888"} 
-          style={styles.navIcon} 
+        <Ionicons
+          name={icon}
+          size={20}
+          color={isDestructive ? "#ff4444" : "#888"}
+          style={styles.navIcon}
         />
       )}
       <Text style={[styles.itemText, isDestructive && styles.destructiveText]}>

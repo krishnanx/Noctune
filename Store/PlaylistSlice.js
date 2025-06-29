@@ -6,7 +6,7 @@ const PlaylistSlice = createSlice({
     name: "playlist",
     initialState: {
         data: [],
-        id: 0,
+        id: -1,
         playlistNo: -1,
         migrateSliceSucess: false,
         migratedPlaylist: []
