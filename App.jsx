@@ -80,25 +80,25 @@ export default function App() {
 
 
 
-useEffect(() => {
-  const setup = async () => {
-    try {
-      const api = new YoutubeMusicApi();
-      await api.initalize();
-      YtMusicRef.current = api;
-      console.warn("YTMusic API initialized successfully");
-    } catch (err) {
-      console.error("YTMusic API init failed:", err.message);
-      if (err.response) {
-        console.error("Status:", err.response.status);
-        console.error("Data:", err.response.data);
+  useEffect(() => {
+    const setup = async () => {
+      try {
+        const api = new YoutubeMusicApi();
+        await api.initalize();
+        YtMusicRef.current = api;
+        console.warn("YTMusic API initialized successfully");
+      } catch (err) {
+        console.error("YTMusic API init failed:", err.message);
+        if (err.response) {
+          console.error("Status:", err.response.status);
+          console.error("Data:", err.response.data);
+        }
       }
-    }
-  };
-  setup();
-}, []);
+    };
+    setup();
+  }, []);
 
-  
+
   if (waveload) {
     return (
       <>

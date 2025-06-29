@@ -33,25 +33,25 @@ const DownloadPage = () => {
     return unsubscribe;
   }, [navigation, completed, songs.length]);
 
-  const renderDownloadItem = (item) => {
+  const renderDownloadItem = ({ song }) => {
     return (
-      <View key={item.id} style={styles.downloadItem}>
-        <Image source={{ uri: item.image }} style={styles.albumArt} />
+      <View key={song.id} style={styles.downloadItem}>
+        <Image source={{ uri: song.image }} style={styles.albumArt} />
         <View style={styles.songInfo}>
-          <Text style={styles.songTitle}>{item.title}</Text>
-          <Text style={styles.artistName}>{item.uploader}</Text>
+          <Text style={styles.songTitle}>{song.title}</Text>
+          <Text style={styles.artistName}>{song.uploader}</Text>
           <View style={styles.progressContainer}>
             <View style={styles.progressBarBackground}>
               <View
                 style={[
                   styles.progressBarFill,
-                  { width: `${item.progress}%` },
-                  item.completed ? styles.progressBarCompleted : null,
+                  { width: `${song.progress}%` },
+                  song.completed ? styles.progressBarCompleted : null,
                 ]}
               />
             </View>
             <Text style={styles.progressText}>
-              {item.completed ? "Completed" : `${item.progress}%`}
+              {song.completed ? "Completed" : `${item.progress}%`}
             </Text>
           </View>
         </View>
@@ -75,7 +75,7 @@ const DownloadPage = () => {
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       >
-        <SafeAreaView style={styles.container}>
+        <ScrollView style={styles.container}>
           <View style={styles.header}>
             <TouchableOpacity
               style={styles.backButton}
@@ -102,9 +102,15 @@ const DownloadPage = () => {
             </View>
           </View>
 
-          <ScrollView style={styles.downloadsList}>
+          {/* <ScrollView style={styles.downloadsList}>
             {songs.map((item) => renderDownloadItem(item))}
-          </ScrollView>
+          </ScrollView> */}
+          <FlatList
+            data={songs}
+            renderItem={({ item }) => <renderDownloadItem song={item} />}
+            keyExtractor={item => item.id}
+            scrollEnabled={false}
+          />
 
           <View style={styles.footer}>
             {/* <TouchableOpacity style={styles.pauseAllButton}>
@@ -123,7 +129,7 @@ const DownloadPage = () => {
 
             </Text>
           </View>
-        </SafeAreaView>
+        </ScrollView>
       </LinearGradient>
     </>
   );
