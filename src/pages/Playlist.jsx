@@ -22,7 +22,7 @@ import { load, progress, setIsPlaying } from "../../Store/MusicSlice";
 import { changePlaylist, setPlaylistplaying } from "../../Store/PlaylistSlice";
 import { addPath, addSong, download } from "../../Store/DownloadSlice";
 import DownloadButton from "../Components/Icons/DownloadButton";
-import { folderPicker } from "../functions/StoragePicker";
+import { folderPicker } from "../functions/FileFunctions/StoragePicker";
 import Info from "../Components/Icons/Info";
 import InfoModal from "../Components/InfoModal";
 import { addType, changeLoad } from "../../Store/Playdataslice";

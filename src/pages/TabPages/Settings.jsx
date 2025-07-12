@@ -9,7 +9,7 @@ import {
   Image
 } from 'react-native';
 import { useDispatch } from "react-redux";
-import { signOut } from "../../Store/AuthThunk";
+import { signOut } from "../../../Store/AuthThunk";
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 

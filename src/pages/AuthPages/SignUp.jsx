@@ -13,11 +13,11 @@ import { ScrollView } from "react-native-gesture-handler";
 import { useTheme } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
-import { signUp } from "../../Store/AuthThunk";
+import { signUp } from "../../../Store/AuthThunk";
 import Icon from "react-native-vector-icons/Ionicons";
 import Toast from "react-native-toast-message";
-import { AddNewPlaylist, addPlaylist } from "../../Store/PlaylistSlice";
-import Playlist from "./Playlist";
+import { AddNewPlaylist, addPlaylist } from "../../../Store/PlaylistSlice";
+import Playlist from "./../Playlist";
 
 const SignUp = () => {
   const { colors } = useTheme();

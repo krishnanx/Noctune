@@ -23,7 +23,7 @@ import Waveform from "./src/Components/Waveform";
 import Audioloader from "./src/functions/MusicLoaders/Audioloader";
 import { addEventListener, useNetInfo } from '@react-native-community/netinfo';
 import { connection, type } from "./Store/NetworkSlice";
-import PlaylistLoader from "./src/functions/PlaylistLoader"
+import PlaylistLoader from "./src/functions/MusicLoaders/PlaylistLoader"
 import { YtMusicRef } from "./src/functions/YtMusicRef";
 import YoutubeMusicApi from "youtube-music-api";
 import ToastContainer from "./src/Components/ToastContainer";

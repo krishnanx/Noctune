@@ -4,12 +4,12 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Home from "../src/pages/TabPages/Home";
 import Player from "../src/pages/Player";
-import Settings from "../src/pages/Settings";
+import Settings from "../src/pages/TabPages/Settings";
 import Search from "../src/pages/TabPages/Search";
 import { useSelector, useDispatch } from "react-redux";
 import { Keyboard } from "react-native";
 import Playlist from "../src/pages/Playlist";
-import Library from "../src/pages/Library";
+import Library from "../src/pages/TabPages/Library";
 
 const Tab = createBottomTabNavigator();
 
