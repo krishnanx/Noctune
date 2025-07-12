@@ -18,6 +18,7 @@ import {
 } from "react-native-reanimated-dnd";
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useSelector, useDispatch } from 'react-redux';
+import { StatusBar } from 'react-native';
 
 // Import with proper error handling
 let BackArrow;
@@ -97,6 +98,9 @@ const PlaylistEdit = () => {
       } = props;
 
       return (
+            
+
+
         <SortableItem
           key={id}
           data={item}
@@ -322,6 +326,10 @@ const PlaylistEdit = () => {
   );
 
   return (
+    <>
+  <StatusBar
+  backgroundColor="#000"
+/>
     <KeyboardAvoidingView 
       style={styles.container} 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -371,6 +379,7 @@ const PlaylistEdit = () => {
         </ScrollView>
       </GestureHandlerRootView>
     </KeyboardAvoidingView>
+    </>
   );
 };
 
