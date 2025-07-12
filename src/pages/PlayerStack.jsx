@@ -24,14 +24,14 @@ import {
   isLoadedFromAsyncStorage,
   isplaying
 } from "../../Store/MusicSlice";
-import { loadAudio, playRef, soundRef } from "../functions/music";
+import { loadAudio, playRef, soundRef } from "../functions/MusicLoaders/music.js";
 // import { addMusicinPlaylist } from "../../Store/PlaylistSlice";
 // import MarqueeText from "react-native-marquee";
 // import TextTicker from "react-native-text-ticker";
 import Marquee from "../Components/Marquee";
 import SleepTimerModal from "../Components/SleepTimerModal";
-import TimerIcon from "../Components/TimerIcon";
-import ThreeDots from "../Components/ThreeDots";
+import TimerIcon from "../Components/Icons/TimerIcon.jsx";
+import ThreeDots from "../Components/Icons/ThreeDots.jsx";
 import ChevronForward from "../Components/Icons/ChevronForward";
 import Replay from "../Components/Icons/Replay";
 const windowHeight = Dimensions.get("window").height;

@@ -12,7 +12,7 @@ import {
   TextInput,
   Switch,
 } from "react-native";
-import BackArrow from "../Components/BackArrow";
+import BackArrow from "../Components/Icons/BackArrow";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { addMusicinPlaylist } from "../../Store/PlaylistSlice";
@@ -79,10 +79,10 @@ const PlaylistChoose = () => {
     //   "w500-h500"
     // );
     // song.image = upscaledUrl
-  if (song?.image) {
-    const upscaledUrl = song.image.replace(/w\d+-h\d+/, "w500-h500");
-    song.image = upscaledUrl;
-  }
+    if (song?.image) {
+      const upscaledUrl = song.image.replace(/w\d+-h\d+/, "w500-h500");
+      song.image = upscaledUrl;
+    }
 
     const musicToAdd = song || value[pos];
 

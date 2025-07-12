@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, TouchableOpacity, View, Easing } from 'react-native';
 import { useSelector } from 'react-redux';  // to access the status from Redux
-import AnimatedDownloadIcon from "../Components/Icons/AnimatedDownloadIcon"; // Your animated download icon component
+import AnimatedDownloadIcon from "./AnimatedDownloadIcon"; // Your animated download icon component
 import { useNavigation } from '@react-navigation/native';
 
 const DownloadButton = () => {

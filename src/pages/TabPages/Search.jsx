@@ -15,27 +15,27 @@ import { Searchbar } from "react-native-paper";
 import Svg, { Path } from "react-native-svg";
 import { Keyboard } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { changeState } from "../../Store/KeyboardSlice";
+import { changeState } from "../../../Store/KeyboardSlice.js";
 //import ytdl from "react-native-ytdl";
 //import YTSearch from "youtube-search-api";
 import YoutubeMusicApi from "youtube-music-api";
-import { DownloadMusic } from "../../Store/MusicSlice";
+import { DownloadMusic } from "../../../Store/MusicSlice.js";
 import { ScrollView } from "react-native";
-import { FetchMetadata } from "../../Store/MusicSlice";
+import { FetchMetadata } from "../../../Store/MusicSlice.js";
 import {
   addMusic,
   load,
   setIsLoadedFromAsyncStorage,
   setSearchedMusic
-} from "../../Store/MusicSlice";
-import { loadAudio, unloadAudio } from "../functions/music.js";
-import Audioloader from "../functions/Audioloader.jsx";
+} from "../../../Store/MusicSlice.js";
+import { loadAudio, unloadAudio } from "../../functions/MusicLoaders/music.js";
+import Audioloader from "../../functions/MusicLoaders/Audioloader.jsx";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import store from "../../Store/store";
-import SearchModal from "../Components/SearchModal.jsx";
-import { changeLoad } from "../../Store/Playdataslice.js";
-import { YtMusicRef } from "../functions/YtMusicRef.js";
+import store from "../../../Store/store.js";
+import SearchModal from "../../Components/SearchModal.jsx";
+import { changeLoad } from "../../../Store/Playdataslice.js";
+import { YtMusicRef } from "../../functions/YtMusicRef.js";
 
 const Search = () => {
   const { colors } = useTheme(); // Get theme colors

@@ -20,7 +20,7 @@ import { useDispatch } from "react-redux";
 import Websocket from "./src/Websocket/Websocket";
 import { FetchMetadata } from "./Store/MusicSlice";
 import Waveform from "./src/Components/Waveform";
-import Audioloader from "./src/functions/Audioloader";
+import Audioloader from "./src/functions/MusicLoaders/Audioloader";
 import { addEventListener, useNetInfo } from '@react-native-community/netinfo';
 import { connection, type } from "./Store/NetworkSlice";
 import PlaylistLoader from "./src/functions/PlaylistLoader"

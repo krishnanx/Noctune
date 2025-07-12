@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { ScrollView, View, StyleSheet, Text, ViewBase, TouchableOpacity, Modal, Image, TextInput, Switch, FlatList, TouchableHighlight } from 'react-native'
 import { Download } from 'react-native-feather';
-import ThreeDots from "../Components/ThreeDots"
-import SearchIcon from '../Components/Search';
-import AddIcon from '../Components/AddIcon';
+import ThreeDots from "../Components/Icons/ThreeDots"
+import SearchIcon from '../Components/Icons/Search';
+import AddIcon from '../Components/Icons/AddIcon';
 import Migrate from '../Components/Icons/Migrate';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTheme } from "@react-navigation/native";
-import MusicNote from "../Components/MusicNote"
-import Collab from "../Components/Collab"
+import MusicNote from "../Components/Icons/MusicNote"
+import Collab from "../Components/Icons/Collab"
 import icon from "../../assets/LikedSongs/heart.png"
 import { addPlaylist } from '../../Store/PlaylistSlice';
 import { useNavigation } from '@react-navigation/native';

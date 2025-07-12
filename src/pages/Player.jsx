@@ -17,7 +17,7 @@ import {
   load,
   setSearchedMusic,
 } from "../../Store/MusicSlice";
-import { loadAudio, playRef, soundRef } from "../functions/music";
+import { loadAudio, playRef, soundRef } from "../functions/MusicLoaders/music.js";
 // import { addMusicinPlaylist } from "../../Store/PlaylistSlice";
 // import MarqueeText from "react-native-marquee";
 // import TextTicker from "react-native-text-ticker";
@@ -140,8 +140,8 @@ const Player = () => {
   };
 
   const togglePlayerSize = () => {
- 
-      navigation.navigate('PlayerStack');
+
+    navigation.navigate('PlayerStack');
   };
 
   const TOTAL_DURATION = data ? data[pos]?.duration : 0;
@@ -463,83 +463,83 @@ const Player = () => {
       fontWeight: "500",
     },
   });
-return (
-  // Remove the TouchableWithoutFeedback wrapping the entire view
-  <View
-    style={[
-      StyleSheet.absoluteFill,
-      {
-        justifyContent: "flex-end",
-        marginBottom: 55,
-        alignItems: "center",
-      },
-    ]}
-    pointerEvents="box-none"
-  >
+  return (
+    // Remove the TouchableWithoutFeedback wrapping the entire view
     <View
-      style={{
-        position: "static",
-        // /top: "10%",
-        justifyContent: "flex-end",
-        backgroundColor: "pink",
-        width: "100%",
-        zIndex: 0,
-      }}
+      style={[
+        StyleSheet.absoluteFill,
+        {
+          justifyContent: "flex-end",
+          marginBottom: 55,
+          alignItems: "center",
+        },
+      ]}
+      pointerEvents="box-none"
     >
-      {/* Apply TouchableWithoutFeedback only to the mini player */}
-      <TouchableWithoutFeedback onPress={togglePlayerSize}>
-        <View style={styles.miniPlayer} activeOpacity={0.9}>
-          <View style={styles.miniPlayerInfo}>
-            <Image
-              source={{ uri: currentTrack?.image || null }}
-              style={styles.miniPlayerThumbnail}
-            />
-            <View style={styles.miniPlayerTextContainer}>
-              <Marquee
-                text={
-                  (currentTrack?.title || "Unknown Title") + "             "
-                }
+      <View
+        style={{
+          position: "static",
+          // /top: "10%",
+          justifyContent: "flex-end",
+          backgroundColor: "pink",
+          width: "100%",
+          zIndex: 0,
+        }}
+      >
+        {/* Apply TouchableWithoutFeedback only to the mini player */}
+        <TouchableWithoutFeedback onPress={togglePlayerSize}>
+          <View style={styles.miniPlayer} activeOpacity={0.9}>
+            <View style={styles.miniPlayerInfo}>
+              <Image
+                source={{ uri: currentTrack?.image || null }}
+                style={styles.miniPlayerThumbnail}
               />
+              <View style={styles.miniPlayerTextContainer}>
+                <Marquee
+                  text={
+                    (currentTrack?.title || "Unknown Title") + "             "
+                  }
+                />
 
-              <Text style={styles.miniPlayerArtist} numberOfLines={1}>
-                {currentTrack?.uploader || currentTrack?.artist || "Unknown Artist"}
-              </Text>
+                <Text style={styles.miniPlayerArtist} numberOfLines={1}>
+                  {currentTrack?.uploader || currentTrack?.artist || "Unknown Artist"}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.miniPlayerControls}>
+              <TouchableOpacity
+                onPress={togglePlayPause}
+                style={styles.miniPlayPauseButton}
+              >
+                {isplaying ? (
+                  <View style={styles.pauseLinesContainer}>
+                    <View style={styles.miniPauseLine} />
+                    <View style={styles.miniPauseLine} />
+                  </View>
+                ) : (
+                  <View style={styles.miniTriangle} />
+                )}
+              </TouchableOpacity>
+            </View>
+
+            {/* Mini progress bar */}
+            <View style={styles.miniProgressBar}>
+              <View
+                style={[
+                  styles.miniProgressBarFill,
+                  {
+                    width: `${TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0
+                      }%`,
+                  },
+                ]}
+              />
             </View>
           </View>
-
-          <View style={styles.miniPlayerControls}>
-            <TouchableOpacity
-              onPress={togglePlayPause}
-              style={styles.miniPlayPauseButton}
-            >
-              {isplaying ? (
-                <View style={styles.pauseLinesContainer}>
-                  <View style={styles.miniPauseLine} />
-                  <View style={styles.miniPauseLine} />
-                </View>
-              ) : (
-                <View style={styles.miniTriangle} />
-              )}
-            </TouchableOpacity>
-          </View>
-
-          {/* Mini progress bar */}
-          <View style={styles.miniProgressBar}>
-            <View
-              style={[
-                styles.miniProgressBarFill,
-                {
-                  width: `${TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0
-                    }%`,
-                },
-              ]}
-            />
-          </View>
-        </View>
-      </TouchableWithoutFeedback>
+        </TouchableWithoutFeedback>
+      </View>
     </View>
-  </View>
-);
+  );
 };
 
 export default Player;

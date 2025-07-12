@@ -11,7 +11,7 @@ import {
   FlatList
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import BackArrow from "../Components/BackArrow";
+import BackArrow from "../Components/Icons/BackArrow";
 import { useDispatch, useSelector } from "react-redux";
 import { setCompleted } from "../../Store/DownloadSlice";
 import { Navigation } from "react-native-feather";

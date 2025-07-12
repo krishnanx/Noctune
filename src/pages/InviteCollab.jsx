@@ -9,7 +9,7 @@ import {
     SafeAreaView,
 } from 'react-native';
 import { Svg, Path } from 'react-native-svg';
-import BackArrow from '../Components/BackArrow';
+import BackArrow from '../Components/Icons/BackArrow';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import { showToast } from '../../Store/ToastSlice';

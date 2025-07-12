@@ -1,12 +1,12 @@
 import { Audio } from "expo-av";
 import { useSelector } from "react-redux";
 import Constants from "expo-constants";
-import { progress } from "../../Store/MusicSlice.js";
+import { progress } from "../../../Store/MusicSlice.js";
 import { useDispatch } from "react-redux";
-import { setIsPlaying, load, changePos } from "../../Store/MusicSlice.js";
-import { setPlaylistplaying } from "../../Store/PlaylistSlice.js";
+import { setIsPlaying, load, changePos } from "../../../Store/MusicSlice.js";
+import { setPlaylistplaying } from "../../../Store/PlaylistSlice.js";
 import { current } from "@reduxjs/toolkit";
-import eventBus from './eventBus';
+import eventBus from '../eventBus.js';
 export const soundRef = {
   previous: null,
   current: null,

@@ -8,22 +8,22 @@ import {
   ScrollView,
   FlatList,
 } from "react-native";
-import BackArrow from "../Components/BackArrow";
-import Download from "../Components/Download";
+import BackArrow from "../Components/Icons/BackArrow";
+import Download from "../Components/Icons/Download";
 import AnimatedDownloadIcon from "../Components/Icons/AnimatedDownloadIcon";
-import AddFriend from "../Components/addFriend";
-import ThreeDots from "../Components/ThreeDots";
+import AddFriend from "../Components/Icons/addFriend";
+import ThreeDots from "../Components/Icons/ThreeDots";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import icon from "../../assets/LikedSongs/heart.png"
 import normIcon from "../../assets/LikedSongs/heart.png"
-import { playRef, soundRef } from "../functions/music";
+import { playRef, soundRef } from "../functions/MusicLoaders/music";
 import { load, progress, setIsPlaying } from "../../Store/MusicSlice";
 import { changePlaylist, setPlaylistplaying } from "../../Store/PlaylistSlice";
 import { addPath, addSong, download } from "../../Store/DownloadSlice";
-import DownloadButton from "../Components/DownloadButton";
+import DownloadButton from "../Components/Icons/DownloadButton";
 import { folderPicker } from "../functions/StoragePicker";
-import Info from "../Components/Info";
+import Info from "../Components/Icons/Info";
 import InfoModal from "../Components/InfoModal";
 import { addType, changeLoad } from "../../Store/Playdataslice";
 
