@@ -27,6 +27,7 @@ import MediaNotificationManager from "../functions/MediaNotification";
 import { showNotification } from "../functions/MediaNotification";
 import { setPlaylistplaying } from "../../Store/PlaylistSlice";
 
+
 const Player = () => {
   const { colors } = useTheme();
   const { data: array, id, playlistNo } = useSelector((state) => state.playlist);
@@ -41,6 +42,7 @@ const Player = () => {
   const currentTrack = canLoad ? data && pos >= 0 && pos < data.length ? data[pos] : null : song && position >= 0 && position < song.length ? song[position] : null
 
   //const mediaListenersInitialized = useRef(false);
+  const currentSong = data[pos] || {};
 
   useEffect(() => {
     if (currentTrack) {
