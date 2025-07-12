@@ -116,6 +116,14 @@ const Waveform = () => {
   "Feel the beat, live the moment."
 ];
 
+useEffect(() => {
+  const timer = setTimeout(() => {
+    dispatch(setwaveLoad(false));
+  }, 3000); // fallback after 8 sec
+
+  return () => clearTimeout(timer);
+}, []);
+
 
   useEffect(() => {
     const fetchDeviceName = async () => {
@@ -182,6 +190,22 @@ const Waveform = () => {
               }));
               dispatch(setwaveLoad(false));    //set it to false
             };
+
+            ws.onerror = (e) => {
+  console.error("WebSocket error:", e.message);
+  Alert.alert(
+    "Connection Issue",
+    "Couldn't connect to server services. You'll be using offline mode.",
+    [{ text: "Continue" }]
+  );
+  dispatch(setwaveLoad(false));
+};
+
+// ✅ Also outside
+ws.onclose = () => {
+  console.warn("WebSocket closed");
+  dispatch(setwaveLoad(false));
+};
           } catch (error) {
             console.error("Failed to load user:", error);
           }

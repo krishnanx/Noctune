@@ -32,33 +32,41 @@ const SignIn = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleSignIn = async () => {
-    try {
-      if (!email || !password) {
-        dispatch(setError(null));
-        return;
-      }
-
-      const result = await dispatch(signIn({ email, password })).unwrap();
-
-      if (result.payload?.success) {
-        const { user, session } = result.payload;
-        dispatch(setUser(user));
-      } else {
-        const errorMessage = result.payload?.error || "Failed to sign in";
-        dispatch({
-          type: "user/setError",
-          payload: errorMessage,
-        });
-      }
-    } catch (error) {
-      console.error("Sign-in error:", error);
-      dispatch({
-        type: "user/setError",
-        payload: error.message || "An unexpected error occurred",
-      });
+const handleSignIn = async () => {
+  try {
+    if (!email || !password) {
+      dispatch(setError("Email and password required"));
+      return;
     }
-  };
+
+    const result = await dispatch(signIn({ email, password })).unwrap();
+
+    if (result.payload?.success) {
+      const { user, session } = result.payload;
+      dispatch(setUser(user));
+    } else {
+      const errorMessage = result.payload?.error || "Failed to sign in";
+      dispatch(setError(errorMessage));
+    }
+
+  } catch (error) {
+    console.error("Sign-in error:", error);
+
+    const message = error?.response?.status === 530 || error?.message?.includes("Cloudflare Tunnel")
+      ? "The server is currently unreachable. You'll be signed in as guest."
+      : "The server is currently unreachable. You'll be signed in as guest. Currently song wont load, please be patient untill our team soon resolves the issue. Thankyou";
+
+    // ✅ Alert and fallback to guest
+    alert(message);
+
+    // ✅ Set guest user in Redux
+    dispatch(setUser({ id: "guest", email: "guest@offline.com", guest: true }));
+
+    // Optional: mark session as null
+    dispatch(setSession(null));
+  }
+};
+
   useEffect(() => { console.error("Loading", loading) }, [])
   const styles = StyleSheet.create({
     container: {
