@@ -165,17 +165,22 @@ useEffect(() => {
           try {
             const loadedUser = await dispatch(loadUser()).unwrap(); // Await loadUser thunk
             console.warn("data:", loadedUser === null);
-            let ws;
+            //let ws;
             loadedUser === null ? null : await dispatch(pullPlaylists({ user: loadedUser.id })).unwrap()
             dispatch(updataID())
             // 192.168.85.33 K
             // 192.168.1.44 krish
+            // `${Constants.expoConfig.extra.WEBSOC}
             console.error("loader user over")
             console.error(isConnected)
 
             console.error("reached websocket connection")
-            initWebSocket(`${Constants.expoConfig.extra.WEBSOC}/download-progress`)
-            ws = getWebSocket();
+            const ws = initWebSocket(`${Constants.expoConfig.extra.WEBSOC}/download-progress`);
+            //const ws = getWebSocket();
+            if (!ws) {
+              console.error("WebSocket failed to initialize.");
+              return;
+            }
 
             ws.onopen = () => {
               console.error("Connected to WebSocket server");

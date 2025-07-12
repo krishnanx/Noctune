@@ -40,6 +40,7 @@ import eventBus from '../functions/eventBus.js';
 import MediaNotificationManager from "../functions/MediaNotification";
 import { showNotification } from "../functions/MediaNotification";
 import { setPlaylistplaying } from "../../Store/PlaylistSlice";
+import WaveformVisualizer from "../Components/WaveformVisualizer";
 
 const PlayerStack = () => {
   const { colors } = useTheme();
@@ -571,6 +572,8 @@ const PlayerStack = () => {
             <ThreeDots height={28} width={28} />
           </TouchableOpacity>
         </View>
+
+        <WaveformVisualizer ytUrl={currentTrack?.url}/>
 
         <Metadata
           data={
