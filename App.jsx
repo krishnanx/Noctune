@@ -28,6 +28,7 @@ import { YtMusicRef } from "./src/functions/YtMusicRef";
 import YoutubeMusicApi from "youtube-music-api";
 import ToastContainer from "./src/Components/ToastContainer";
 import { AddNewPlaylist, updatemigrateSliceSucess } from "./Store/PlaylistSlice";
+import { showToast } from "./Store/ToastSlice";
 export default function App() {
   const { Mode } = useSelector((state) => state.theme);
   const { user, loading, waveload } = useSelector((state) => state.user || {});
@@ -62,6 +63,7 @@ export default function App() {
     if (migrateSliceSucess) {
       console.warn("pushing migrated playlist")
       console.warn(migratedPlaylist)
+      dispatch(showToast("Migration Completed"));
       dispatch(AddNewPlaylist({ data: migratedPlaylist, userid: user?.id }))
       dispatch(updatemigrateSliceSucess(false))
     }
