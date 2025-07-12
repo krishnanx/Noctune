@@ -196,11 +196,11 @@ const Websocket = () => {
     const id = Math.random().toString(36).slice(2, 8);
 
     const connectWebSocket = () => {
-      //initWebSocket();
+      
       //Constants.expoConfig.extra.WEBSOC
       //ws://192.168.1.44:80
 
-      const ws = getWebSocket()
+      const ws = getWebSocket() 
       wsRef.current = ws;
 
       pingInterval = setInterval(() => {

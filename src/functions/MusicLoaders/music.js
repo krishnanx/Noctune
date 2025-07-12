@@ -35,8 +35,7 @@ export const loadAudio = async (
     //Constants.expoConfig.extra.SERVER
 
 
-    const audioUri = `${Constants.expoConfig.extra.SERVER
-      }/api/stream?url=${encodeURIComponent(data[pos].url)}`;
+    const audioUri = `${Constants.expoConfig.extra.SERVER}/api/stream?url=${encodeURIComponent(data[pos].url)}`
     console.warn("Audio URI:", audioUri); // Check if the URL is correct
     dispatch(progress(0));
     if (soundRef.current) {
