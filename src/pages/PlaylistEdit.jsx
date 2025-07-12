@@ -12,10 +12,9 @@ import {
 } from "react-native";
 import { KeyboardAvoidingView, Platform } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { useSelector, useDispatch } from 'react-redux';
 import { StatusBar } from 'react-native';
-import { useNavigation } from "@react-navigation/native";
 
 // Option 1: Try the correct import for react-native-reanimated-dnd
 // Uncomment the version that works with your library:
@@ -27,7 +26,8 @@ import { useNavigation } from "@react-navigation/native";
 // import { useSortable, SortableProvider } from 'react-native-reanimated-dnd';
 
 // For react-native-draggable-flatlist (popular alternative)
-// import DraggableFlatList, { RenderItemParams } from 'react-native-draggable-flatlist';
+import DraggableFlatList, { RenderItemParams } from "react-native-draggable-flatlist";
+
 
 // Import with proper error handling
 let BackArrow;
@@ -48,6 +48,9 @@ import {
 } from "../../Store/PlaylistSlice";
 
 import icon from "../../assets/icon.png";
+
+// Option 1: Simple drag-and-drop with react-native-draggable-flatlist
+// This is a more reliable and commonly used library
 
 // Option 1: Simple drag-and-drop with react-native-draggable-flatlist
 // This is a more reliable and commonly used library
@@ -234,69 +237,17 @@ const PlaylistEdit = () => {
   };
 
   // Manual drag and drop implementation (fallback if no library works)
-  const ManualSortableList = () => {
-    return (
-      <View style={styles.sortableContainer}>
-        {editedSongs.map((song, index) => (
-          <View key={song.id} style={styles.songItem}>
-            <View style={styles.dragHandle}>
-              <Text style={styles.dragHandleText}>≡</Text>
-            </View>
-            
-            <Image 
-              source={{ uri: song.image }} 
-              style={styles.songImage}
-              defaultSource={require('../../assets/favicon.png')}
-            />
-            
-            <View style={styles.songDetails}>
-              <Text numberOfLines={1} style={styles.songTitle}>
-                {song.title}
-              </Text>
-              <Text numberOfLines={1} style={styles.songArtist}>
-                {song.uploader || song.artist}
-              </Text>
-            </View>
-            
-            <View style={styles.reorderButtons}>
-              {index > 0 && (
-                <TouchableOpacity 
-                  style={styles.reorderButton}
-                  onPress={() => {
-                    const newSongs = [...editedSongs];
-                    [newSongs[index - 1], newSongs[index]] = [newSongs[index], newSongs[index - 1]];
-                    setEditedSongs(newSongs);
-                  }}
-                >
-                  <Text style={styles.reorderButtonText}>↑</Text>
-                </TouchableOpacity>
-              )}
-              
-              {index < editedSongs.length - 1 && (
-                <TouchableOpacity 
-                  style={styles.reorderButton}
-                  onPress={() => {
-                    const newSongs = [...editedSongs];
-                    [newSongs[index], newSongs[index + 1]] = [newSongs[index + 1], newSongs[index]];
-                    setEditedSongs(newSongs);
-                  }}
-                >
-                  <Text style={styles.reorderButtonText}>↓</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-            
-            <TouchableOpacity 
-              style={styles.removeButton}
-              onPress={() => removeSong(song.id)}
-            >
-              <Text style={styles.removeButtonText}>×</Text>
-            </TouchableOpacity>
-          </View>
-        ))}
-      </View>
-    );
-  };
+const DraggableSongsList = () => (
+  <DraggableFlatList
+    data={editedSongs}
+    keyExtractor={(item) => item.id.toString()}
+    onDragEnd={({ data }) => setEditedSongs(data)}
+    renderItem={({ item, drag, isActive }) => renderSongItem({ item, drag, isActive })}
+    activationDistance={12}
+    containerStyle={styles.sortableContainer}
+  />
+);
+
 
   // Header component for the main content
   const renderHeader = () => (
@@ -411,7 +362,8 @@ const PlaylistEdit = () => {
                   </Text>
                 </View>
               ) : (
-                <ManualSortableList />
+                <DraggableSongsList />
+
               )}
             </View>
           </ScrollView>
@@ -429,6 +381,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
     backgroundColor: '#000',
+    backgroundColor: '#000',
   },
   scrollView: {
     flex: 1,
@@ -439,6 +392,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20, 
   },
   header: {
+    paddingTop: 15,
     paddingTop: 15,
     flexDirection: "row",
     justifyContent: "space-between",
@@ -547,10 +501,12 @@ const styles = StyleSheet.create({
   sortableContainer: {
     paddingTop: 10,
     backgroundColor: 'transparent', 
+    backgroundColor: 'transparent', 
   },
   songItem: {
     flexDirection: "row",
     alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.05)",
     backgroundColor: "rgba(255,255,255,0.05)",
     borderRadius: 12,
     padding: 12,
@@ -558,8 +514,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.1)",
     minHeight: 70,
+    borderColor: "rgba(255,255,255,0.1)",
+    minHeight: 70,
   },
   songItemActive: {
+    backgroundColor: "rgba(40,40,40,0.9)",
     backgroundColor: "rgba(40,40,40,0.9)",
     borderColor: "rgba(29, 185, 84, 0.3)",
     elevation: 8,
@@ -573,11 +532,18 @@ const styles = StyleSheet.create({
   },
   dragHandle: {
     padding: 10,
+    padding: 10,
     marginRight: 12,
     borderRadius: 6,
     justifyContent: "center",
     alignItems: "center",
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: "rgba(255, 255, 255, 0.05)",
+  },
+  dragHandleText: {
+    fontSize: 20,
+    color: "#ccc", 
   },
   dragHandleText: {
     fontSize: 20,
@@ -603,6 +569,23 @@ const styles = StyleSheet.create({
   songArtist: {
     color: "#ccc",
     fontSize: 14,
+  },
+  reorderButtons: {
+    flexDirection: "column",
+    marginRight: 10,
+  },
+  reorderButton: {
+    padding: 4,
+    backgroundColor: "rgba(255,255,255,0.1)",
+    borderRadius: 4,
+    marginVertical: 1,
+    minWidth: 24,
+    alignItems: "center",
+  },
+  reorderButtonText: {
+    color: "#1DB954",
+    fontSize: 14,
+    fontWeight: "600",
   },
   reorderButtons: {
     flexDirection: "column",
@@ -651,7 +634,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     zIndex: 1000,
-  },
-});
+  },}
+);
 
 export default PlaylistEdit;
