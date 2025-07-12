@@ -26,7 +26,7 @@ import { connection, type } from "./Store/NetworkSlice";
 import PlaylistLoader from "./src/functions/PlaylistLoader"
 import { YtMusicRef } from "./src/functions/YtMusicRef";
 import YoutubeMusicApi from "youtube-music-api";
-
+import ToastContainer from "./src/Components/ToastContainer";
 import { AddNewPlaylist, updatemigrateSliceSucess } from "./Store/PlaylistSlice";
 export default function App() {
   const { Mode } = useSelector((state) => state.theme);
@@ -146,7 +146,7 @@ export default function App() {
             >
               <UniversalNavi />
             </NavigationContainer>
-
+            <ToastContainer />
 
           </View>
 

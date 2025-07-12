@@ -11,6 +11,8 @@ import {
 import { Svg, Path } from 'react-native-svg';
 import BackArrow from '../Components/BackArrow';
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
+import { showToast } from '../../Store/ToastSlice';
 const InviteCollab = () => {
     // Sample friends data
     const [friends, setFriends] = useState([
@@ -27,6 +29,7 @@ const InviteCollab = () => {
     ]);
 
     const navigation = useNavigation();
+    const dispatch = useDispatch()
     const toggleFriendSelection = (id) => {
         setFriends(prevFriends =>
             prevFriends.map(friend =>
@@ -37,7 +40,7 @@ const InviteCollab = () => {
 
     const handleDone = () => {
         const selectedFriends = friends.filter(friend => friend.selected);
-        console.log('Selected friends:', selectedFriends);
+        dispatch(showToast('Hello from Redux toast!'))
         // Handle the done action here
     };
 

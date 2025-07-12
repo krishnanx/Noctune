@@ -7,7 +7,7 @@ import UserSlice from "./UserSlice.js"
 import TimerSlice from "./TimerSlice.js"
 import DownloadSlice from "./DownloadSlice.js"
 import NetworkSlice from "./NetworkSlice.js"
-
+import ToastReducer from './ToastSlice.js'
 import Playdataslice from "./Playdataslice.js"
 const store = configureStore({
     reducer: {
@@ -19,8 +19,8 @@ const store = configureStore({
         sleepTimer: TimerSlice,
         download: DownloadSlice,
         network: NetworkSlice,
-        playlistload: Playdataslice
-
+        playlistload: Playdataslice,
+        toast: ToastReducer,
     }
 })
 export default store;

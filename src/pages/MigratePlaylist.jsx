@@ -15,20 +15,23 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { useDispatch } from 'react-redux';
 import { migrate } from '../../Store/PlaylistSlice';
+import { showToast } from '../../Store/ToastSlice';
 
 const MigratePlaylist = () => {
     const [playlistUrl, setPlaylistUrl] = useState('');
     const dispatch = useDispatch()
     const handleSubmit = () => {
         if (!playlistUrl.trim()) {
-            Alert.alert('Error', 'Please enter a Spotify playlist URL');
+
+            dispatch(showToast("Please enter a Spotify playlist URL"))
             return;
         }
 
         // Here you would add your actual migration logic
         console.warn('Migrating playlist:', playlistUrl);
+        dispatch(showToast("Migration Started"))
         dispatch(migrate({ Url: playlistUrl }))
-        Alert.alert('Success', 'Migration process started');
+
     };
 
     return (
