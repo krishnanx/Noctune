@@ -19,8 +19,9 @@ const MainTab = () => {
   const { status } = useSelector((state) => state.key);
 
   const data = useSelector((state) => state.data.data);
+  const playlistData = useSelector((state) => state.playlist.data); 
 
-  const displayPlayer = data && data.length > 0;
+  const displayPlayer = (data && data.length > 0 ) || (playlistData && playlistData.length);
   //------------------------------------------------------------
 
   //const {isFirst } = useSelector((state) => state.user.isFirstTime);
