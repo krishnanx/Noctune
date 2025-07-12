@@ -435,6 +435,9 @@ const Information = ({
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.funcbutton, { marginRight: 15 }]}
+                onPress={() => navigation.navigate("InviteCollab")}
+
+
               >
                 <AddFriend />
               </TouchableOpacity>

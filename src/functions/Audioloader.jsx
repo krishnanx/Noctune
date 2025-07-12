@@ -23,6 +23,7 @@ const Audioloader = () => {
     let playLoad = false
     if (prevPosRef.current !== pos) {
       console.log("Loading audio");
+      prevPosRef.current = pos;
       loadAudio(
         data,
         pos,
@@ -33,7 +34,7 @@ const Audioloader = () => {
         playLoad,
         playlisNo
       );
-      prevPosRef.current = pos;
+
     }
   }, [pos, data, dispatch, isLoadedFromAsyncStorage]);
 

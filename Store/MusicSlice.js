@@ -57,8 +57,9 @@ const MusicSlice = createSlice({
     },
 
     changePos(state, action) {
-      console.log(state.pos);
-      console.log(state.data.length - 1);
+      console.error("pos is being changed")
+      console.warn(state.pos);
+      console.warn(state.data.length - 1);
       if (action.payload == +1) {
         if (state.pos !== state.data.length - 1) {
           state.pos = state.pos + 1;
@@ -90,7 +91,7 @@ const MusicSlice = createSlice({
       state.canLoad = action.payload;
       console.log("canLoad:", state.canLoad);
     },
-     setIsLoadedFromAsyncStorage(state, action) {
+    setIsLoadedFromAsyncStorage(state, action) {
       state.isLoadedFromAsyncStorage = action.payload;
     },
     setSearchedMusic(state, action) {

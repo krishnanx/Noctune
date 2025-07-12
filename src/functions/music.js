@@ -8,7 +8,9 @@ import { setPlaylistplaying } from "../../Store/PlaylistSlice.js";
 import { current } from "@reduxjs/toolkit";
 import eventBus from './eventBus';
 export const soundRef = {
+  previous: null,
   current: null,
+  next: null
 };
 export const playRef = {
   current: null
@@ -38,7 +40,10 @@ export const loadAudio = async (
     console.warn("Audio URI:", audioUri); // Check if the URL is correct
     dispatch(progress(0));
     if (soundRef.current) {
-      await soundRef.current.pauseAsync()
+      // soundRef.previous = soundRef.current;
+      console.error("newwwwww")
+      console.warn("...")
+      await soundRef.current.pauseAsync();
       await soundRef.current.unloadAsync();
       soundRef.current = null;
     }
@@ -74,7 +79,7 @@ export const loadAudio = async (
     if (queueLoad) {
       soundRef.current = sound;
       playRef.current = null
-      console.warn("Audio Loaded", soundRef.current);
+      console.warn("Audio Loaded");
       // Wherever you set the sound
       eventBus.emit("soundChanged", soundRef.current);
 
@@ -82,7 +87,7 @@ export const loadAudio = async (
     if (playLoad) {
       playRef.current = sound
       soundRef.current = null
-      console.warn("Audio Loaded from playref", playRef.current)
+      console.warn("Audio Loaded from playref")
       playRef.current.playAsync()
     }
     sound.setOnPlaybackStatusUpdate((status) => {
@@ -115,11 +120,11 @@ const onPlaybackStatusUpdate = (status, dispatch, getSeek, data, pos, playlistNo
 
   if (status.didJustFinish) {
     const currentSeek = getSeek?.();
-    console.warn("finished")
+    console.warn("finished......")
     checkNext(pos, data, dispatch, playlistNo)
     if (currentSeek != data[pos]?.duration && currentSeek != 0) {
       console.warn("finishing up!!");
-      tailFill(data[pos]?.duration, dispatch);
+      tailFill(data[pos]?.duration, dispatch, true);
 
     }
   }
@@ -135,23 +140,20 @@ const onPlaybackStatusUpdate = (status, dispatch, getSeek, data, pos, playlistNo
     console.warn(`Playback error: ${status.error}`);
   }
 };
-const tailFill = async (currentSec, dispatch) => {
-  // for (let sec = currentSec + 1; sec <= data?.duration; sec++) {
-  //   // wait 1 s
-  //   await new Promise(res => setTimeout(res, 1000));
-  //   setProgressSeconds(sec);
-  // }
-  // once done:
+
+const tailFill = async (currentSec, dispatch, skipToNext = false) => {
   dispatch(progress(currentSec));
-  //dispatch(setIsPlaying(false));
 
-  dispatch(changePos(1));
+  if (skipToNext) {
+    dispatch(changePos(1));
+    dispatch(load(false));
+    dispatch(load(true));
+    unloadAudio();
+  }
 
-  dispatch(load(false));
-  dispatch(load(true));
-  unloadAudio();
-  return; // if you want to free the sound
+  return;
 };
+
 const checkNext = async (pos, data, dispatch, playlistNo) => {
   console.warn("pos:", pos)
   console.warn("data length", data.length)
