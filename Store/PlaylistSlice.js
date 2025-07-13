@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import Constants from "expo-constants";
 
+
 const PlaylistSlice = createSlice({
     name: "playlist",
     initialState: {
@@ -76,7 +77,14 @@ const PlaylistSlice = createSlice({
             if (state.data[index]) {
                 state.data[index] = { ...state.data[index], ...updatedData };
             }
-        }
+        },
+            resetPlaylists(state) {
+        state.data = [];
+        state.id = -1;
+        state.playlistNo = -1;
+        state.migrateSliceSucess = false;
+        state.migratedPlaylist = [];
+    }
     },
     extraReducers: (builder) => {
         builder
@@ -168,7 +176,7 @@ const PlaylistSlice = createSlice({
     }
 })
 
-export const { addPlaylist, addMusicinPlaylist, setPlaylistplaying, changePlaylist, updataID, updatemigrateSliceSucess, updatePlaylistData } = PlaylistSlice.actions;
+export const { addPlaylist, addMusicinPlaylist, setPlaylistplaying, changePlaylist, updataID, updatemigrateSliceSucess, updatePlaylistData,  resetPlaylists,  } = PlaylistSlice.actions;
 
 export default PlaylistSlice.reducer;
 export const migrate = createAsyncThunk('/migratedata', async ({ Url: data }) => {
