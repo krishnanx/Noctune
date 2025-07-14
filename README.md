@@ -43,8 +43,8 @@ Stay tuned to know more!
 - [x] Playlist migration
 - [x] Notification playback support
 - [x] Persistence using redis
+- [x] Listening to songs from playlist
 - [ ] Collab playlists
-- [ ] Listening to songs from playlist
 - [ ] Mobile builds and beta release
 
 ---
