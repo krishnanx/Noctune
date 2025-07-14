@@ -39,7 +39,8 @@ const Player = () => {
   const { song, pos: position, seek: seekk, load } = useSelector(
     (state) => state.playlistload
   );
-  const currentTrack = canLoad ? data && pos >= 0 && pos < data.length ? data[pos] : null : song && position >= 0 && position < song.length ? song[position] : null
+  const currentTrack = canLoad ? data && pos >= 0 && pos < data.length ? data[pos] : null : load? song && position >= 0 && position < song.length ? song[position] : null :
+      !canLoad? data && pos >= 0 && pos < data.length ? data[pos] : null : song && position >= 0 && position < song.length ? song[position] : null
 
   //const mediaListenersInitialized = useRef(false);
   const currentSong = data[pos] || {};
