@@ -167,14 +167,18 @@ const Search = () => {
     console.warn("canLoad", canLoad)
     if (canLoad) {
       dispatch(load(false))
+      //dispatch(load(true))
       setTimeout(() => {
         dispatch(load(true))
-      }, 500)
+         // musics queue
+      }, 1)
     }
     else {
+      
       dispatch(load(true))
+      
     }
-    dispatch(changeLoad(false))
+    dispatch(changeLoad(false)) //playlist
     console.warn(isLoadedFromAsyncStorage)
     dispatch(setSearchedMusic(true))
     console.log("Dispatches complete");
@@ -182,6 +186,7 @@ const Search = () => {
     // Add this line to save the song metadata to AsyncStorage
     saveLastPlayedSong(song);
     navigation.navigate('PlayerStack');
+    
 
   };
 
