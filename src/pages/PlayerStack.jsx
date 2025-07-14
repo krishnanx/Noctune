@@ -22,7 +22,8 @@ import {
   setIsPlaying,
   load,
   isLoadedFromAsyncStorage,
-  isplaying
+  isplaying,
+  setSearchedMusic
 } from "../../Store/MusicSlice";
 import { loadAudio, playRef, soundRef } from "../functions/MusicLoaders/music.js";
 // import { addMusicinPlaylist } from "../../Store/PlaylistSlice";
@@ -55,8 +56,8 @@ const PlayerStack = () => {
   const navigation = useNavigation();
   const lastPressRef = useRef(0);
   const singlePressTimeoutRef = useRef(null);
-  const { data, pos, seek, isplaying, canLoad } =
-    useSelector((state) => state.data);
+   const { data, pos, seek, isplaying, canLoad, isLoadedFromAsyncStorage, searchedMusic } =
+      useSelector((state) => state.data);
   const { song, pos: position, seek: seekk, load: newLoad } = useSelector(
     (state) => state.playlistload
   );
@@ -64,34 +65,34 @@ const PlayerStack = () => {
 
   //const mediaListenersInitialized = useRef(false);
 
-  useEffect(() => {
-    if (currentTrack) {
-      console.warn("Track changed, resetting notification state");
-      // First hide any existing notification
-      MediaNotificationManager.hideNotification().then(() => {
-        // Short delay to ensure complete reset
-        setTimeout(() => {
-          MediaNotificationManager.showNotification(
-            {
-              title: currentTrack.title || "Unknown Title",
-              artist:
-                currentTrack.artist ||
-                currentTrack.uploader ||
-                "Unknown Artist",
-              album: currentTrack.album || "",
-              artwork: currentTrack.image || "",
-            },
-            {
-              showNextPrev: data.length > 1, // Only show next/prev if we have multiple tracks
-              showStop: true,
-            }
-          ).then(() => {
-            MediaNotificationManager.updatePlaybackStatus(isplaying);
-          });
-        }, 100);
-      });
-    }
-  }, [currentTrack]);
+  // useEffect(() => {
+  //   if (currentTrack) {
+  //     console.warn("Track changed, resetting notification state");
+  //     // First hide any existing notification
+  //     MediaNotificationManager.hideNotification().then(() => {
+  //       // Short delay to ensure complete reset
+  //       setTimeout(() => {
+  //         MediaNotificationManager.showNotification(
+  //           {
+  //             title: currentTrack.title || "Unknown Title",
+  //             artist:
+  //               currentTrack.artist ||
+  //               currentTrack.uploader ||
+  //               "Unknown Artist",
+  //             album: currentTrack.album || "",
+  //             artwork: currentTrack.image || "",
+  //           },
+  //           {
+  //             showNextPrev: data.length > 1, // Only show next/prev if we have multiple tracks
+  //             showStop: true,
+  //           }
+  //         ).then(() => {
+  //           MediaNotificationManager.updatePlaybackStatus(isplaying);
+  //         });
+  //       }, 100);
+  //     });
+  //   }
+  // }, [currentTrack]);
 
   useEffect(() => {
     const autoPlayIfUserSearched = async (sound) => {
@@ -137,24 +138,32 @@ const PlayerStack = () => {
     if (!soundRef.current) {
       if (playRef.current) {
         if (isplaying) {
+          console.warn("true->false")
           await playRef.current.pauseAsync();
           dispatch(progress(-1));
+          dispatch(setIsPlaying(false));
+          dispatch(setPlaylistplaying({ action: false, id: playlistNo }));
         } else {
+          console.warn("false->true")
           await playRef.current.playAsync(); // resumes from last position
           dispatch(progress(-1));
+          dispatch(setIsPlaying(true));
+          dispatch(setPlaylistplaying({ action: true, id: playlistNo }));
         }
-        dispatch(setIsPlaying("toggle"));
-        dispatch(setPlaylistplaying({ action: "toggle", id: playlistNo }));
+        
+        
       }
     }
     else if (isplaying) {
       await soundRef.current.pauseAsync();
       dispatch(progress(-1));
+      dispatch(setIsPlaying(false));
     } else {
       await soundRef.current.playAsync(); // resumes from last position
       dispatch(progress(-1));
+      dispatch(setIsPlaying(true));
     }
-    dispatch(setIsPlaying("toggle"));
+    
   };
 
   const replaySound = async () => {

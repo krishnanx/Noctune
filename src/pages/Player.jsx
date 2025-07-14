@@ -73,57 +73,21 @@ const Player = () => {
     }
   }, [currentTrack]);
 
-  useEffect(() => {
-    const autoPlayIfUserSearched = async (sound) => {
-      console.warn("Sound changed event received", sound);
-      //if (!sound) return;
-      console.error("hi: ")
-      console.warn(searchedMusic)
-      if (searchedMusic && data[pos]) {
-        try {
-          dispatch(setSearchedMusic(false))
-          console.warn("auto play")
-          await sound.playAsync();
-          dispatch(setIsPlaying(true));
-        } catch (error) {
-          console.error("Error auto-playing after search", error);
-        }
-      } else {
-        console.log(
-          "Song loaded from AsyncStorage or no valid song, skipping auto-play"
-        );
-      }
-    };
-
-
-    eventBus.on("soundChanged", autoPlayIfUserSearched);
-    return () => eventBus.off("soundChanged", autoPlayIfUserSearched);
-
-  }, []);
-  {
-    /**If you ever want it even safer (rare), you can do [pos, data[pos]?.url]
-    (so it depends on the exact song url changing).
-    But in 99% cases, [pos, data.length] is enough for you. */
-    //(pos, data.length), soundRef.current
-  }
-  useEffect(() => {
-    console.log("sec:", seek);
-    console.log("isPlaying?...:", isplaying);
-  }, [seek, isplaying]);
-
   const togglePlayPauseRef = useRef(null);
 
-  const togglePlayPause = async () => {
+  const changePlayPause = async () => {
     if (!soundRef.current) {
       console.warn("sound ref is null")
       console.warn(soundRef.current)
       if (playRef.current) {
         if (isplaying) {
+          console.error("secomd")
           await playRef.current.pauseAsync();
           dispatch(progress(-1));
         } else {
           await playRef.current.playAsync(); // resumes from last position
           dispatch(progress(-1));
+          console.error("second")
         }
         dispatch(setIsPlaying("toggle"));
         dispatch(setPlaylistplaying({ action: "toggle", id: playlistNo }));
@@ -133,12 +97,14 @@ const Player = () => {
       console.warn("paused")
       await soundRef.current.pauseAsync();
       dispatch(progress(-1));
+      dispatch(setIsPlaying(false));
     } else {
       console.warn("resumed")
       await soundRef.current.playAsync(); // resumes from last position
       dispatch(progress(-1));
+      dispatch(setIsPlaying(true));
     }
-    dispatch(setIsPlaying("toggle"));
+    
   };
 
   const togglePlayerSize = () => {
@@ -149,9 +115,9 @@ const Player = () => {
   const TOTAL_DURATION = data ? data[pos]?.duration : 0;
 
   useEffect(() => {
-    togglePlayPauseRef.current = togglePlayPause;
+    togglePlayPauseRef.current = changePlayPause;
     console.log("hola");
-  }, [togglePlayPause]);
+  }, [changePlayPause]);
 
   useEffect(() => {
     let mediaListenersInitialized = false;
@@ -511,7 +477,7 @@ const Player = () => {
 
             <View style={styles.miniPlayerControls}>
               <TouchableOpacity
-                onPress={togglePlayPause}
+                onPress={changePlayPause}
                 style={styles.miniPlayPauseButton}
               >
                 {isplaying ? (
