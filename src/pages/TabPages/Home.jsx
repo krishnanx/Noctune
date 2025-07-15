@@ -6,17 +6,29 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
-  Dimensions
+  Dimensions,
+  FlatList,
+  ImageBackground
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useSelector } from 'react-redux';
 
 const { width } = Dimensions.get('window');
 
-const QuickPickCard = ({ title, bgColor }) => (
-  <TouchableOpacity style={[styles.quickPickCard, { backgroundColor: bgColor }]}>
-    <Text style={styles.quickPickTitle} numberOfLines={2}>{title}</Text>
+const QuickPickCard = ({ title, imageUrl }) => (
+  <TouchableOpacity style={styles.quickPickCard}>
+    <ImageBackground
+      source={{ uri: imageUrl }}
+      style={styles.imageBackground}
+      imageStyle={styles.imageStyle}
+    >
+      {/* Dim overlay */}
+      <View style={styles.overlay} />
+      <Text style={styles.quickPickTitle} numberOfLines={2}>{title}</Text>
+    </ImageBackground>
   </TouchableOpacity>
 );
+
 
 const RecommendationCard = ({ title, subtitle, bgColor }) => (
   <TouchableOpacity style={[styles.recommendationCard, { backgroundColor: bgColor }]}>
@@ -28,6 +40,7 @@ const RecommendationCard = ({ title, subtitle, bgColor }) => (
 );
 
 const Home = () => {
+  const {searchedMusicHistory} = useSelector((state)=>state.data)
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -51,30 +64,25 @@ const Home = () => {
         contentContainerStyle={styles.scrollViewContent}
       >
         {/* Quick Picks Section */}
-        <View style={styles.section}>
+        <View style={[styles.section]}>
           <Text style={styles.sectionTitle}>Your Quick Picks</Text>
-          <ScrollView
-            horizontal
+          {searchedMusicHistory.length>0 && 
+          
+          <FlatList
+            data={searchedMusicHistory.slice().reverse()}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => <QuickPickCard title={item.title} imageUrl={item.image} />}
+            horizontal={true} // 👈 Make it horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.quickPicksContainer}
-          >
-            <QuickPickCard
-              title="Chill Hits"
-              bgColor="#FF6B6B"
-            />
-            <QuickPickCard
-              title="Deep Focus"
-              bgColor="#4ECDC4"
-            />
-            <QuickPickCard
-              title="Workout Mix"
-              bgColor="#45B7D1"
-            />
-            <QuickPickCard
-              title="Summer Vibes"
-              bgColor="#FF8C42"
-            />
-          </ScrollView>
+            style={{ height: 170 }} // 👈 Hide scroll bar (optional)
+          /> }
+          {searchedMusicHistory.length==0 &&
+          <View style={{justifyContent:"center",alignItems:"center",height:"90%"}}>
+            <Text style={styles.searchMusicText}>It’s quiet here... Search for something to play!</Text> 
+          </View>
+          
+          
+          }
         </View>
 
         {/* Recommended for You Section */}
@@ -134,17 +142,21 @@ const Home = () => {
     </SafeAreaView>
   );
 };
+// const DisplaySearchedSongs=({title})=>{
+//   <Cus
+// }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#141414',
+    paddingHorizontal:15
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 15,
+    //paddingHorizontal: 15,
     paddingTop: 25,
     paddingBottom: 20,
   },
@@ -165,24 +177,51 @@ const styles = StyleSheet.create({
   },
   section: {
     marginBottom: 20,
+    height:220
   },
   sectionTitle: {
     color: 'white',
     fontSize: 20,
     fontWeight: 'bold',
-    paddingHorizontal: 15,
+    //paddingHorizontal: 15,
+    marginBottom: 10,
+  },
+  searchMusicText:{
+    color: 'wheat',
+    fontSize: 16,
+    fontWeight: "300",
+    //paddingHorizontal: 15,
     marginBottom: 10,
   },
   quickPicksContainer: {
     paddingHorizontal: 15,
     gap: 10,
+    
+  },
+  imageBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    //padding: 10,
+    justifyContent:"flex-end",
+    paddingVertical:5,
+    paddingHorizontal:10
+  },
+  imageStyle: {
+    resizeMode: 'cover',
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)', // dim effect
   },
   quickPickCard: {
-    width: 150,
-    height: 150,
+    width: 185,
+    height: 180,
     borderRadius: 10,
     justifyContent: 'flex-end',
-    padding: 10,
+    //padding: 10,
+    backgroundColor:"white",
+    overflow: 'hidden',
+    marginRight:10
   },
   quickPickTitle: {
     color: 'white',
@@ -190,8 +229,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   recommendationsContainer: {
-    paddingHorizontal: 15,
+    //paddingHorizontal: 15,
     gap: 15,
+
   },
   recommendationCard: {
     width: 180,

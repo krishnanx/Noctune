@@ -26,7 +26,8 @@ import {
   addMusic,
   load,
   setIsLoadedFromAsyncStorage,
-  setSearchedMusic
+  setSearchedMusic,
+  setSearchedMusicHistory
 } from "../../../Store/MusicSlice.js";
 import { loadAudio, unloadAudio } from "../../functions/MusicLoaders/music.js";
 import Audioloader from "../../functions/MusicLoaders/Audioloader.jsx";
@@ -160,6 +161,7 @@ const Search = () => {
     unloadAudio();
     console.log("Card pressed with URL:", song.url);
     dispatch(setSearchedMusic(true))
+    dispatch(setSearchedMusicHistory(song))
     // dispatch(FetchMetadata({ text: song.url }));
     console.log(song);
     dispatch(addMusic(song));
