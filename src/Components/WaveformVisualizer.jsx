@@ -37,6 +37,7 @@ const WaveformVisualizer = ({ ytUrl }) => {
     if (!ytUrl) return;
 
     const fetchWaveform = async () => {
+      
       try {
         setLoading(true);
         console.error("Request made");
@@ -45,13 +46,8 @@ const WaveformVisualizer = ({ ytUrl }) => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ data: ytUrl }),
         });
-
-        const text = await res.text();
-        console.error("Raw response:", text);
-        console.error("Status:", res.status);
-        const json = JSON.parse(text);
-        console.log(" Parsed waveform:", json.waveform);
-        //const json = await res.json();
+        console.error("Status:", res.status);        
+        const json = await res.json();
         console.error("Waveform JSON response:", json);
         setWaveformData(json?.waveform || []);
       } catch (err) {
