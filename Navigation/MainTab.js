@@ -19,6 +19,7 @@ const MainTab = () => {
   const { status } = useSelector((state) => state.key);
 
   const data = useSelector((state) => state.data.data);
+  const isLoadedFromAsyncStorage = useSelector((state)=>state.data.isLoadedFromAsyncStorage)
   const playlistData = useSelector((state) => state.playlist.data); 
 
   const displayPlayer = (data && data.length > 0 ) || (playlistData && playlistData.length);
@@ -27,21 +28,23 @@ const MainTab = () => {
   //const {isFirst } = useSelector((state) => state.user.isFirstTime);
 
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-  useEffect(() => {
-    const keybaordDidShow = Keyboard.addListener("keyboardDidShow", () => {
-      console.warn("keyboard is active");
-      setKeyboardVisible(true);
-    });
-    const keyboardDidHide = Keyboard.addListener("keyboardDidHide", () => {
-      console.warn("keyboard is inactive");
-      setKeyboardVisible(false);
-    });
-    return () => {
-      keybaordDidShow.remove();
-      keyboardDidHide.remove();
-    };
-  }, []);
 
+  useEffect(() => {
+  const keyboardDidShow = Keyboard.addListener("keyboardDidShow", () => {
+    setKeyboardVisible(true);
+  });
+  const keyboardDidHide = Keyboard.addListener("keyboardDidHide", () => {
+    setKeyboardVisible(false);
+  });
+
+  return () => {
+    keyboardDidShow.remove();
+    keyboardDidHide.remove();
+  };
+}, []);
+
+  console.warn("isLoaded",isLoadedFromAsyncStorage)
+  console.warn("keyboard: ",isKeyboardVisible)
   return (
     <>
       <Tab.Navigator
@@ -58,11 +61,13 @@ const MainTab = () => {
               <Icon name={iconName} size={size} color={color} />
             ),
             headerShown: false,
-            tabBarHideOnKeyboard: true,
-            tabBarStyle: {
-              height: 55, // <== custom height in pixels
-              padding: "auto",
-            },
+            //tabBarHideOnKeyboard: true,
+            tabBarStyle: isKeyboardVisible
+      ? { display: "none",height:0 } // Hides instantly
+      : {
+          height: 55,
+          padding: "auto",
+        },
           };
         }}
         initialRouteName="Search"
@@ -73,7 +78,7 @@ const MainTab = () => {
         <Tab.Screen name="Settings" component={Settings} />
       </Tab.Navigator>
 
-      {displayPlayer && !isKeyboardVisible && <Player />}
+      {displayPlayer && !isKeyboardVisible && isLoadedFromAsyncStorage && <Player />}
 
       {/* <Player /> */}
     </>
