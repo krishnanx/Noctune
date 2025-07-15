@@ -18,6 +18,7 @@ import Icon from "react-native-vector-icons/Ionicons";
 import Toast from "react-native-toast-message";
 import { AddNewPlaylist, addPlaylist } from "../../../Store/PlaylistSlice";
 import Playlist from "./../Playlist";
+import { showToast,hideToast } from "../../../Store/ToastSlice";
 
 const SignUp = () => {
   const { colors } = useTheme();
@@ -47,18 +48,17 @@ const SignUp = () => {
 
   const handleSignUp = async () => {
     try {
-      if (!username || !email || !password || !confirmpass) {
-        dispatch({
-          type: "user/setError",
-          payload: "Please fill in all the fields",
-        });
+     if (!username || !email || !password || !confirmpass) {
+        dispatch(showToast("Please fill in all the fields"));
         return;
       }
 
-      if (password !== confirmpass) {
-        dispatch({ type: "user/setError", payload: "Password doesnt match" });
+
+     if (password !== confirmpass) {
+        dispatch(showToast("Passwords do not match"));
         return;
       }
+
 
 
       const result = await dispatch(signUp({ email, password, username })).unwrap();
@@ -83,19 +83,17 @@ const SignUp = () => {
         dispatch(addPlaylist({ playlist: playlist }))
         navigation.navigate("signin");
       }
+      // else {
+      //   dispatch(showToast(result.payload?.message || "Failed to create account"));
+      // }
       else {
-
-        dispatch({
-          type: "user/setError",
-          payload: result.payload?.message || "Failed to create account"
-        });
+        const errorMessage =
+          result.error || result.payload?.message || "Failed to create account";
+          dispatch(showToast(errorMessage));
       }
     } catch (error) {
       console.error("Sign-up error:", error);
-      dispatch({
-        type: "user/setError",
-        payload: error.message || "An unexpected error occurred"
-      });
+        dispatch(showToast(error.message || "An unexpected error occurred"));
     }
 
   };
@@ -259,9 +257,9 @@ const SignUp = () => {
             onPress={handleSignUp}
             disabled={loading}
           >
-            {error && (
+            {/* {error && (
               <Text style={{ color: "red", marginBottom: 10 }}>{error}</Text>
-            )}
+            )} */}
             {loading ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (

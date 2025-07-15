@@ -16,6 +16,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { signIn } from "../../../Store/AuthThunk";
 import { setUser } from "../../../Store/UserSlice";
 import Icon from "react-native-vector-icons/Ionicons";
+import { showToast,hideToast } from "../../../Store/ToastSlice";
 
 const SignIn = () => {
   const { colors } = useTheme();
@@ -35,28 +36,29 @@ const SignIn = () => {
 const handleSignIn = async () => {
     try {
       if (!email || !password) {
-        dispatch(setError(null));
+        //dispatch(setError(null));
+        dispatch(showToast("Email and password are required"));
         return;
       }
       
       const result = await dispatch(signIn({ email, password })).unwrap();
+      console.warn("SignIn Result:", result);
 
-      if (result.payload?.success) {
-        const { user, session } = result.payload;
+      if (result.success) {
+        const { user, session } = result;
         dispatch(setUser(user));
       } else {
-        const errorMessage = result.payload?.error || "Failed to sign in";
-        dispatch({
-          type: "user/setError",
-          payload: errorMessage,
-        });
+        const errorMessage = result.error || "Failed to sign in";
+        dispatch(showToast(errorMessage));
       }
     } catch (error) {
       console.error("Sign-in error:", error);
-      dispatch({
-        type: "user/setError",
-        payload: error.message || "An unexpected error occurred",
-      });
+      const errorMessage =
+        typeof error === "object" && error !== null
+          ? error.error || error.message || "An unexpected error occurred"
+          : "An unexpected error occurred";
+      dispatch(showToast(errorMessage));
+
     }
   };
 
