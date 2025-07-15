@@ -14,7 +14,8 @@ import { loadUser } from "../../Store/AuthThunk";
 import Constants from "expo-constants";
 import NetInfo from "@react-native-community/netinfo";
 import TypewriterText from "../Components/TypeWriter";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { setIsLoadedFromAsyncStorage } from "../../Store/MusicSlice";
 
 const Waveform = () => {
   const { Mode } = useSelector((state) => state.theme)
@@ -77,6 +78,9 @@ const Waveform = () => {
             //let ws;
             loadedUser === null ? null : await dispatch(pullPlaylists({ user: loadedUser.id })).unwrap()
             dispatch(updataID())
+            if(!checkForIsAsync()){
+              dispatch(setIsLoadedFromAsyncStorage(false))
+            }
             // 192.168.85.33 K
             // 192.168.1.44 krish
             // `${Constants.expoConfig.extra.WEBSOC}
@@ -140,6 +144,9 @@ const styles = StyleSheet.create({
   container: {justifyContent: "center", alignItems: "center" },
   typewriter: { fontSize: 15, fontWeight: "bold", color: "wheat" },
 });
+  const checkForIsAsync = async() => {
+    await AsyncStorage.getItem("lastPlayedSong")
+  }
 
 
   return (
