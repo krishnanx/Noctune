@@ -10,7 +10,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { Keyboard } from "react-native";
 import Playlist from "../src/pages/Playlist";
 import Library from "../src/pages/TabPages/Library";
-
+import { changeState } from "../Store/KeyboardSlice";
 const Tab = createBottomTabNavigator();
 
 const MainTab = () => {
@@ -32,9 +32,11 @@ const MainTab = () => {
   useEffect(() => {
   const keyboardDidShow = Keyboard.addListener("keyboardDidShow", () => {
     setKeyboardVisible(true);
+    dispatch(changeState(true))
   });
   const keyboardDidHide = Keyboard.addListener("keyboardDidHide", () => {
     setKeyboardVisible(false);
+    dispatch(changeState(false))
   });
 
   return () => {
@@ -57,12 +59,14 @@ const MainTab = () => {
           else if (route.name === "Settings") iconName = "cog-outline";
 
           return {
+            
             tabBarIcon: ({ color, size }) => (
               <Icon name={iconName} size={size} color={color} />
             ),
             headerShown: false,
             //tabBarHideOnKeyboard: true,
             tabBarStyle: isKeyboardVisible
+            
       ? { display: "none",height:0 } // Hides instantly
       : {
           height: 55,

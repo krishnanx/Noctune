@@ -8,12 +8,16 @@ import {
   FlatList,
   ActivityIndicator,
   TouchableOpacity,
+  TouchableWithoutFeedback,
+  Keyboard,
+  
+  Platform,
 } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { Entypo } from "@expo/vector-icons";
 import { Searchbar } from "react-native-paper";
 import Svg, { Path } from "react-native-svg";
-import { Keyboard } from "react-native";
+
 import { useDispatch, useSelector } from "react-redux";
 import { changeState } from "../../../Store/KeyboardSlice.js";
 //import ytdl from "react-native-ytdl";
@@ -51,7 +55,7 @@ const Search = () => {
   const [shouldLoad, setShouldLoad] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedSong, setSelectedSong] = useState(null);
-
+  const status = useSelector((state)=>state.key.status)
 
   useEffect(() => {
     const loadLastSong = async () => {
@@ -96,19 +100,7 @@ const Search = () => {
     loadLastSong();
   }, []);
 
-  useEffect(() => {
-    const keybaordDidShow = Keyboard.addListener("keyboardDidShow", () =>
-      dispatch(changeState(true))
-    );
-    const keyboardDidHide = Keyboard.addListener("keyboardDidHide", () =>
-      dispatch(changeState(false))
-    );
-
-    return () => {
-      keybaordDidShow.remove();
-      keyboardDidHide.remove();
-    };
-  }, []);
+  
   // useFocusEffect(
   //   React.useCallback(() => {
   //     // When screen is focused
@@ -210,10 +202,12 @@ const Search = () => {
 
   const styles = StyleSheet.create({
     Main: {
-      backgroundColor: colors.background,
+      //backgroundColor: colors.background,
       width: "100%",
+      
       flex: 1, //added
-      zIndex: 1000,
+      //zIndex: 1000,
+      //paddingTop:30
       //height: "100%", //had to comment this
     },
     input: {
@@ -269,7 +263,9 @@ const Search = () => {
   });
 
   return (
-    <View style={styles.Main}>
+   
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+    <View style={[styles.Main,{paddingTop:status?18:0}]}>
       {/* <Input
           placeholder='Place your Text'
           value={""}
@@ -319,7 +315,7 @@ const Search = () => {
         />
       </View>
       <View style={{ flexGrow: 1 }}>
-        <KeyboardAvoidingView>
+       
           {isLoading ? (
             <View style={{ padding: 20 }}>
               <ActivityIndicator size="large" color="white" />
@@ -373,7 +369,7 @@ const Search = () => {
             />
           )}
           <Text style={{ color: "white" }}></Text>
-        </KeyboardAvoidingView>
+       
         <SearchModal
           isModalVisible={isModalVisible}
           toggleModal={() => setModalVisible(false)}
@@ -383,6 +379,8 @@ const Search = () => {
         />
       </View>
     </View>
+    </TouchableWithoutFeedback>
+   
   );
 };
 
