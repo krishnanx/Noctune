@@ -12,10 +12,28 @@ const MusicSlice = createSlice({
     isplaying: false,
     canLoad: false,
     isLoadedFromAsyncStorage: false, //NOTE: true | false will always evaluate to true in JavaScript (because of bitwise OR). isLoadedFromAsyncStorage: true | false,
-    searchedMusic: false
-
+    searchedMusic: false,
+    searchedMusicHistory:[]
   },
   reducers: {
+    setSearchedMusicHistory(state,action){
+      const upscaledUrl = action.payload.image.replace(
+        /w\d+-h\d+/,
+        "w500-h500"
+      );
+      const newMusic = {
+        id: action.payload.id,
+        title: action.payload.title || null,
+        uploader: action.payload.artist || null,
+        image: upscaledUrl || null,
+        duration: action.payload.duration || null,
+        url: action.payload.url || null,
+        duration: action.payload.duration || 0,
+       
+      };
+      state.searchedMusicHistory = [...state.searchedMusicHistory,newMusic]
+
+    },
     addMusic(state, action) {
       state.data = state.data.filter((item) => item.id !== action.payload.id);
       if (state.pos > state.data.length - 1) {
@@ -133,7 +151,8 @@ export const {
   load,
   setIsLoadedFromAsyncStorage,
   changeDATA,
-  setSearchedMusic
+  setSearchedMusic,
+  setSearchedMusicHistory
 } = MusicSlice.actions;
 export default MusicSlice.reducer;
 
