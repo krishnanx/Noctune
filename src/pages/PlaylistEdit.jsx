@@ -81,19 +81,18 @@ const PlaylistEdit = () => {
     }
   }, [playlistData]);
   
-  useEffect(() => {
-    if (playlistData) {
-      const nameChanged = editedName !== (playlistData.name || "");
-      const descChanged = editedDescription !== (playlistData.desc || playlistData.description || "");
-      const imageChanged = editedImage !== (playlistData.image || "");
+ useEffect(() => {
+  if (playlistData) {
+    const nameChanged = editedName !== (playlistData.name || "");
+    const descChanged = editedDescription !== (playlistData.desc || playlistData.description || "");
+    const imageChanged = selectedImage !== null || editedImage !== (playlistData.image || "");
 
-      const originalSongs = playlistData.songs || [];
-      const songsChanged = JSON.stringify(originalSongs.map(s => s.id)) !== JSON.stringify(editedSongs.map(s => s.id));
+    const originalSongs = playlistData.songs || [];
+    const songsChanged = JSON.stringify(originalSongs.map(s => s.id)) !== JSON.stringify(editedSongs.map(s => s.id));
 
-      setHasChanges(nameChanged || descChanged || imageChanged || songsChanged);
-    }
-  }, [editedName, editedDescription, editedImage, editedSongs, playlistData]);
-
+    setHasChanges(nameChanged || descChanged || imageChanged || songsChanged);
+  }
+}, [editedName, editedDescription, editedImage, editedSongs, selectedImage, playlistData]);
   // Early return if playlist data is not available
   if (!playlistData) {
     return (
@@ -125,9 +124,11 @@ const pickImage = async () => {
     if (!result.canceled) {
       const uri = result.assets[0].uri;
       console.log('Selected image URI:', uri);
+      
+      // Update the state with the new image
+      setEditedImage(uri);
       setSelectedImage(uri);
-      setEditedImage(uri); // Also update editedImage
-      setHasChanges(true);    
+      setHasChanges(true);
     }
   } catch (e) {
     console.error('Error picking image:', e);
@@ -161,7 +162,7 @@ const saveChanges = async () => {
       ...playlistData,
       name: editedName,
       desc: editedDescription,
-      image: selectedImage || editedImage || playlistData.image, // Use selectedImage first
+      image: selectedImage || editedImage || playlistData.image, // Use the new image
       songs: editedSongs,
       Time: editedSongs.reduce((total, song) => total + (song.duration || 0), 0)
     };
@@ -203,7 +204,7 @@ const saveChanges = async () => {
   };
 
   // Get the image source for the playlist
-  const getImageSource = () => {
+const getImageSource = () => {
   if (selectedImage) {
     return { uri: selectedImage };
   }
@@ -219,47 +220,44 @@ const saveChanges = async () => {
   return icon;
 };
 
+
   // Render item for the draggable list
-const renderSongItem = ({ item, drag, isActive }) => {
-  return (
-    <View style={[styles.songItem, isActive && styles.songItemActive]}>
-      {/* Drag Handle */}
-      <TouchableOpacity 
-        style={styles.dragHandle}
-        onLongPress={drag}
-        delayLongPress={0}
-      >
-        <Text style={styles.dragHandleText}>≡</Text>
-      </TouchableOpacity>
-      
-      {/* Use the song's image, not the playlist image */}
-      <Image
-        source={
-          item.image
-            ? { uri: item.image }
-            : require('../../assets/placeholder.png')
-        }
-        style={styles.playlistCover}
-      />
-      
-      <View style={styles.songDetails}>
-        <Text numberOfLines={1} style={styles.songTitle}>
-          {item.title}
-        </Text>
-        <Text numberOfLines={1} style={styles.songArtist}>
-          {item.uploader || item.artist}
-        </Text>
+  const renderSongItem = ({ item, drag, isActive }) => {
+    return (
+      <View style={[styles.songItem, isActive && styles.songItemActive]}>
+        {/* Drag Handle */}
+        <TouchableOpacity 
+          style={styles.dragHandle}
+          onLongPress={drag}
+          delayLongPress={0}
+        >
+          <Text style={styles.dragHandleText}>≡</Text>
+        </TouchableOpacity>
+        
+        <Image 
+          source={{ uri: item.image }} 
+          style={styles.songImage}
+          defaultSource={require('../../assets/favicon.png')}
+        />
+        
+        <View style={styles.songDetails}>
+          <Text numberOfLines={1} style={styles.songTitle}>
+            {item.title}
+          </Text>
+          <Text numberOfLines={1} style={styles.songArtist}>
+            {item.uploader || item.artist}
+          </Text>
+        </View>
+        
+        <TouchableOpacity 
+          style={styles.removeButton}
+          onPress={() => removeSong(item.id)}
+        >
+          <Text style={styles.removeButtonText}>×</Text>
+        </TouchableOpacity>
       </View>
-      
-      <TouchableOpacity 
-        style={styles.removeButton}
-        onPress={() => removeSong(item.id)}
-      >
-        <Text style={styles.removeButtonText}>×</Text>
-      </TouchableOpacity>
-    </View>
-  );
-};
+    );
+  };
 
   // Manual drag and drop implementation (fallback if no library works)
 const DraggableSongsList = () => (
