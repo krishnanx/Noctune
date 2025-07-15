@@ -81,6 +81,7 @@ const MusicSlice = createSlice({
       }
     },
     setIsPlaying(state, action) {
+      console.warn("Is playing called")
       if (typeof action.payload === "boolean") {
         state.isplaying = action.payload; // Set specific value
       } else if (action.payload === "toggle") {
