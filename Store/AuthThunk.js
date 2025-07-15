@@ -9,6 +9,7 @@ import {
   setLoading,
   setError,
 } from "./UserSlice";
+import { deleteAllPlaylist } from "./PlaylistSlice";
 
 export const loadUser = createAsyncThunk(
   "user/loadUser",
@@ -135,6 +136,7 @@ export const signOut = createAsyncThunk(
   "user/signOut",
   async (_, { dispatch }) => {
     try {
+      dispatch(deleteAllPlaylist())
       await AsyncStorage.removeItem("user");
       //-----------------------
       await AsyncStorage.removeItem("session");

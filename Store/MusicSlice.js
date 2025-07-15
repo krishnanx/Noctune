@@ -11,7 +11,7 @@ const MusicSlice = createSlice({
     seek: 0,
     isplaying: false,
     canLoad: false,
-    isLoadedFromAsyncStorage: true, //NOTE: true | false will always evaluate to true in JavaScript (because of bitwise OR). isLoadedFromAsyncStorage: true | false,
+    isLoadedFromAsyncStorage: false, //NOTE: true | false will always evaluate to true in JavaScript (because of bitwise OR). isLoadedFromAsyncStorage: true | false,
     searchedMusic: false
 
   },

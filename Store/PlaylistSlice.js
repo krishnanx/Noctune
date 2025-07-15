@@ -19,6 +19,13 @@ const PlaylistSlice = createSlice({
             state.id = state.id + 1
             console.warn(state.id)
         },
+        deleteAllPlaylist(state,action){
+            state.data = [],
+            state.id = -1,
+            state.playlistNo = -1,
+            state.migrateSliceSucess = false,
+            state.migratedPlaylist = []
+        },
         updatemigrateSliceSucess(state, action) {
             state.migrateSliceSucess = action.payload.success
         },
@@ -154,7 +161,7 @@ const PlaylistSlice = createSlice({
 
                 const response = action.payload;
                 var array = []
-                response.forEach((item) => {
+                response?.forEach((item) => {
                     const data = item.value;
                     array = [...array, data]
 
@@ -176,7 +183,8 @@ const PlaylistSlice = createSlice({
     }
 })
 
-export const { addPlaylist, addMusicinPlaylist, setPlaylistplaying, changePlaylist, updataID, updatemigrateSliceSucess, updatePlaylistData,  resetPlaylists,  } = PlaylistSlice.actions;
+export const { addPlaylist, addMusicinPlaylist, setPlaylistplaying, changePlaylist, updataID, updatemigrateSliceSucess, updatePlaylistData,  
+    resetPlaylists,deleteAllPlaylist  } = PlaylistSlice.actions;
 
 export default PlaylistSlice.reducer;
 export const migrate = createAsyncThunk('/migratedata', async ({ Url: data }) => {
