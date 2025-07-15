@@ -15,6 +15,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useSelector, useDispatch } from 'react-redux';
 import { StatusBar } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 
 // Option 1: Try the correct import for react-native-reanimated-dnd
 // Uncomment the version that works with your library:
@@ -49,14 +50,8 @@ import {
 
 import icon from "../../assets/icon.png";
 
-// Option 1: Simple drag-and-drop with react-native-draggable-flatlist
-// This is a more reliable and commonly used library
-
-// Option 1: Simple drag-and-drop with react-native-draggable-flatlist
-// This is a more reliable and commonly used library
-
 const PlaylistEdit = () => {
-   const navigation = useNavigation();
+  const navigation = useNavigation();
   const dispatch = useDispatch();
   const route = useRoute();
   const { index } = route.params;
@@ -74,6 +69,7 @@ const PlaylistEdit = () => {
   const [editedSongs, setEditedSongs] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   // Initialize state when playlistData is available
   useEffect(() => {
@@ -85,19 +81,18 @@ const PlaylistEdit = () => {
     }
   }, [playlistData]);
   
-  useEffect(() => {
-    if (playlistData) {
-      const nameChanged = editedName !== (playlistData.name || "");
-      const descChanged = editedDescription !== (playlistData.desc || playlistData.description || "");
-      const imageChanged = editedImage !== (playlistData.image || "");
+ useEffect(() => {
+  if (playlistData) {
+    const nameChanged = editedName !== (playlistData.name || "");
+    const descChanged = editedDescription !== (playlistData.desc || playlistData.description || "");
+    const imageChanged = selectedImage !== null || editedImage !== (playlistData.image || "");
 
-      const originalSongs = playlistData.songs || [];
-      const songsChanged = JSON.stringify(originalSongs.map(s => s.id)) !== JSON.stringify(editedSongs.map(s => s.id));
+    const originalSongs = playlistData.songs || [];
+    const songsChanged = JSON.stringify(originalSongs.map(s => s.id)) !== JSON.stringify(editedSongs.map(s => s.id));
 
-      setHasChanges(nameChanged || descChanged || imageChanged || songsChanged);
-    }
-  }, [editedName, editedDescription, editedImage, editedSongs, playlistData]);
-
+    setHasChanges(nameChanged || descChanged || imageChanged || songsChanged);
+  }
+}, [editedName, editedDescription, editedImage, editedSongs, selectedImage, playlistData]);
   // Early return if playlist data is not available
   if (!playlistData) {
     return (
@@ -108,14 +103,38 @@ const PlaylistEdit = () => {
     );
   }
 
-  const pickImage = async () => {
-    try {
-      Alert.alert('Image Picker', 'Image picker functionality needs to be implemented');
-    } catch (error) {
-      console.error('Error picking image:', error);
-      Alert.alert('Error', 'Failed to pick image. Please try again.');
+
+const pickImage = async () => {
+  try {
+    // Ask permission
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission required', 'We need access to your gallery.');
+      return;
     }
-  };
+
+    // Open picker
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const uri = result.assets[0].uri;
+      console.log('Selected image URI:', uri);
+      
+      // Update the state with the new image
+      setEditedImage(uri);
+      setSelectedImage(uri);
+      setHasChanges(true);
+    }
+  } catch (e) {
+    console.error('Error picking image:', e);
+    Alert.alert('Error', 'Could not pick image.');
+  }
+};
 
   const removeSong = (songId) => {
     Alert.alert(
@@ -134,35 +153,35 @@ const PlaylistEdit = () => {
     );
   };
 
-  const saveChanges = async () => {
-    if (!hasChanges) return;
+const saveChanges = async () => {
+  if (!hasChanges) return;
 
-    setIsLoading(true);
-    try {
-      const updatedPlaylist = {
-        ...playlistData,
-        name: editedName,
-        desc: editedDescription,
-        image: editedImage,
-        songs: editedSongs,
-        Time: editedSongs.reduce((total, song) => total + (song.duration || 0), 0)
-      };
+  setIsLoading(true);
+  try {
+    const updatedPlaylist = {
+      ...playlistData,
+      name: editedName,
+      desc: editedDescription,
+      image: selectedImage || editedImage || playlistData.image, // Use the new image
+      songs: editedSongs,
+      Time: editedSongs.reduce((total, song) => total + (song.duration || 0), 0)
+    };
 
-      dispatch(updatePlaylistData({
-        index: index,
-        updatedData: updatedPlaylist
-      }));
+    dispatch(updatePlaylistData({
+      index: index,
+      updatedData: updatedPlaylist
+    }));
 
-      console.log('Updated playlist:', updatedPlaylist);
-      navigation.goBack();
+    console.log('Updated playlist:', updatedPlaylist);
+    navigation.goBack();
 
-    } catch (error) {
-      console.error('Error saving playlist:', error);
-      Alert.alert('Error', `Failed to save changes: ${error.message}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  } catch (error) {
+    console.error('Error saving playlist:', error);
+    Alert.alert('Error', `Failed to save changes: ${error.message}`);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const discardChanges = () => {
     if (!hasChanges) {
@@ -185,18 +204,22 @@ const PlaylistEdit = () => {
   };
 
   // Get the image source for the playlist
-  const getImageSource = () => {
-    if (editedImage) {
-      return { uri: editedImage };
-    }
-    if (playlistData.image) {
-      return { uri: playlistData.image };
-    }
-    if (playlistData.songs && playlistData.songs.length > 0 && playlistData.songs[0].image) {
-      return { uri: playlistData.songs[0].image };
-    }
-    return icon;
-  };
+const getImageSource = () => {
+  if (selectedImage) {
+    return { uri: selectedImage };
+  }
+  if (editedImage) {
+    return { uri: editedImage };
+  }
+  if (playlistData.image) {
+    return { uri: playlistData.image };
+  }
+  if (playlistData.songs && playlistData.songs.length > 0 && playlistData.songs[0].image) {
+    return { uri: playlistData.songs[0].image };
+  }
+  return icon;
+};
+
 
   // Render item for the draggable list
   const renderSongItem = ({ item, drag, isActive }) => {
@@ -206,7 +229,7 @@ const PlaylistEdit = () => {
         <TouchableOpacity 
           style={styles.dragHandle}
           onLongPress={drag}
-          delayLongPress={100}
+          delayLongPress={0}
         >
           <Text style={styles.dragHandleText}>≡</Text>
         </TouchableOpacity>
@@ -243,7 +266,7 @@ const DraggableSongsList = () => (
     keyExtractor={(item) => item.id.toString()}
     onDragEnd={({ data }) => setEditedSongs(data)}
     renderItem={({ item, drag, isActive }) => renderSongItem({ item, drag, isActive })}
-    activationDistance={12}
+    activationDistance={0}
     containerStyle={styles.sortableContainer}
   />
 );
@@ -539,7 +562,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
   },
   dragHandleText: {
     fontSize: 20,

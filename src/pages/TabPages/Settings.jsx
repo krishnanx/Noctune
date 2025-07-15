@@ -45,24 +45,11 @@ const Settings = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      <Section title="Playback">
-        <SettingItem
-          label="Offline mode"
-          value={offlineMode}
-          onToggle={setOfflineMode}
-        />
-      </Section>
-
       <Section title="Preferences">
         <SettingItem
           label="Dark Mode"
           value={darkMode}
           onToggle={setDarkMode}
-        />
-        <SettingItem
-          label="Notifications"
-          value={notifications}
-          onToggle={setNotifications}
         />
       </Section>
 
