@@ -74,7 +74,7 @@ const MainTab = () => {
         },
           };
         }}
-        initialRouteName="Search"
+        initialRouteName="Home"
       >
         <Tab.Screen name="Home" component={Home} />
         <Tab.Screen name="Search" component={Search} />
