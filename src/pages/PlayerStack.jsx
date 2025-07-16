@@ -37,7 +37,7 @@ import ChevronForward from "../Components/Icons/ChevronForward";
 import Replay from "../Components/Icons/Replay";
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
-import eventBus from '../functions/eventBus.js';
+
 import MediaNotificationManager from "../functions/MediaNotification";
 import { showNotification } from "../functions/MediaNotification";
 import { setPlaylistplaying } from "../../Store/PlaylistSlice";
@@ -95,33 +95,7 @@ const PlayerStack = () => {
   //   }
   // }, [currentTrack]);
 
-  useEffect(() => {
-    const autoPlayIfUserSearched = async (sound) => {
-      console.warn("Sound changed event received", sound);
-      //if (!sound) return;
-      console.error("hi: ")
-      console.warn(searchedMusic)
-      if (searchedMusic && data[pos]) {
-        try {
-          dispatch(setSearchedMusic(false))
-          console.warn("auto play")
-          await sound.playAsync();
-          dispatch(setIsPlaying(true));
-        } catch (error) {
-          console.error("Error auto-playing after search", error);
-        }
-      } else {
-        console.log(
-          "Song loaded from AsyncStorage or no valid song, skipping auto-play"
-        );
-      }
-    };
-
-
-    eventBus.on("soundChanged", autoPlayIfUserSearched);
-    return () => eventBus.off("soundChanged", autoPlayIfUserSearched);
-
-  }, []);
+  
   {
     /**If you ever want it even safer (rare), you can do [pos, data[pos]?.url]
     (so it depends on the exact song url changing).

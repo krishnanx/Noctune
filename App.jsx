@@ -18,7 +18,7 @@ import { lightTheme } from "./Theme/lightTheme";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import Websocket from "./src/Websocket/Websocket";
-import { FetchMetadata } from "./Store/MusicSlice";
+import { FetchMetadata ,setIsPlaying,setSearchedMusic} from "./Store/MusicSlice";
 import Waveform from "./src/Components/Waveform";
 import Audioloader from "./src/functions/MusicLoaders/Audioloader";
 import { addEventListener, useNetInfo } from '@react-native-community/netinfo';
@@ -29,19 +29,47 @@ import YoutubeMusicApi from "youtube-music-api";
 import ToastContainer from "./src/Components/ToastContainer";
 import { AddNewPlaylist, updatemigrateSliceSucess } from "./Store/PlaylistSlice";
 import { showToast } from "./Store/ToastSlice";
+import eventBus from './src/functions/eventBus.js';
 export default function App() {
   const { Mode } = useSelector((state) => state.theme);
   const { user, loading, waveload } = useSelector((state) => state.user || {});
   const { data: array, id, playlistNo, migrateSliceSucess, migratedPlaylist } = useSelector((state) => state.playlist);
   const dispatch = useDispatch();
 
-  const { data, pos, seek, isplaying, canLoad } = useSelector(
+  const { data, pos, seek, isplaying, canLoad,searchedMusic } = useSelector(
     (state) => state.data
   );
   const { song, load } = useSelector(
     (state) => state.playlistload
   );
   const [status, setStatus] = useState("loading");
+  useEffect(() => {
+      const autoPlayIfUserSearched = async (sound) => {
+        console.warn("Sound changed event received", sound);
+        //if (!sound) return;
+        console.error("hi: ")
+        console.warn(searchedMusic)
+        if (searchedMusic && data[pos]) {
+          try {
+            dispatch(setSearchedMusic(false))
+            console.warn("auto play")
+            await sound.playAsync();
+            dispatch(setIsPlaying(true));
+          } catch (error) {
+            console.error("Error auto-playing after search", error);
+          }
+        } else {
+          console.log(
+            "Song loaded from AsyncStorage or no valid song, skipping auto-play"
+          );
+        }
+      };
+  
+  
+      eventBus.on("soundChanged", autoPlayIfUserSearched);
+      return () => eventBus.off("soundChanged", autoPlayIfUserSearched);
+  
+    }, []);
   useEffect(() => {
     const unsubscribe = addEventListener(state => {
       console.error('Connection type', state.type);
