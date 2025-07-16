@@ -204,7 +204,7 @@ const Search = () => {
     Main: {
       //backgroundColor: colors.background,
       width: "100%",
-      
+      paddingHorizontal:15,
       flex: 1, //added
       //zIndex: 1000,
       //paddingTop:30
@@ -264,7 +264,7 @@ const Search = () => {
 
   return (
    
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
     <View style={[styles.Main,{paddingTop:status?18:0}]}>
       {/* <Input
           placeholder='Place your Text'
@@ -314,7 +314,7 @@ const Search = () => {
           value={query}
         />
       </View>
-      <View style={{ flexGrow: 1 }}>
+      <View style={{ flexGrow: 1,paddingTop:status?18:0 }}>
        
           {isLoading ? (
             <View style={{ padding: 20 }}>
