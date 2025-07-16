@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSelector } from 'react-redux';
-
+import PlayIcon from '../../Components/Icons/PlayIcon';
 const { width } = Dimensions.get('window');
 
 const QuickPickCard = ({ title, imageUrl }) => (
@@ -24,7 +24,12 @@ const QuickPickCard = ({ title, imageUrl }) => (
     >
       {/* Dim overlay */}
       <View style={styles.overlay} />
-      <Text style={styles.quickPickTitle} numberOfLines={2}>{title}</Text>
+      <View
+        style = {styles.textandicon}
+      >
+        <Text style={styles.quickPickTitle} numberOfLines={2}>{title}</Text>
+        <PlayIcon/>
+      </View>
     </ImageBackground>
   </TouchableOpacity>
 );
@@ -202,7 +207,7 @@ const styles = StyleSheet.create({
     //padding: 10,
     justifyContent:"flex-end",
     paddingVertical:5,
-    paddingHorizontal:10
+    //paddingHorizontal:10
   },
   imageStyle: {
     resizeMode: 'cover',
@@ -271,6 +276,28 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 5,
   },
+  triangle: {
+      width: 0,
+      height: 0,
+      backgroundColor: "transparent",
+      borderStyle: "solid",
+      borderLeftWidth: 18,
+      borderRightWidth: 0,
+      borderBottomWidth: 12,
+      borderTopWidth: 12,
+      borderLeftColor: "black",
+      borderTopColor: "transparent",
+      borderBottomColor: "transparent",
+      borderRightColor: "transparent",
+      marginLeft: 4,
+    },
+    textandicon:{
+      flexDirection:"row",
+      alignItems:"center",
+      width:"100%",
+      justifyContent:"space-between",
+      paddingHorizontal:6
+    }
 });
 
 export default Home;
