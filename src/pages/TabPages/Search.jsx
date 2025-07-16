@@ -158,6 +158,7 @@ const Search = () => {
     console.log(song);
     dispatch(addMusic(song));
     dispatch(setIsLoadedFromAsyncStorage(false));
+    
     console.warn("canLoad", canLoad)
     if (canLoad) {
       dispatch(load(false))
@@ -174,7 +175,7 @@ const Search = () => {
     }
     dispatch(changeLoad(false)) //playlist
     console.warn(isLoadedFromAsyncStorage)
-    dispatch(setSearchedMusic(true))
+    
     console.log("Dispatches complete");
     //dispatch(toggleMinimized());
     // Add this line to save the song metadata to AsyncStorage

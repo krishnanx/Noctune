@@ -36,7 +36,7 @@ export default function App() {
   const { data: array, id, playlistNo, migrateSliceSucess, migratedPlaylist } = useSelector((state) => state.playlist);
   const dispatch = useDispatch();
 
-  const { data, pos, seek, isplaying, canLoad,searchedMusic } = useSelector(
+  const { data, pos, seek, isplaying, canLoad,isLoadedFromAsyncStorage,searchedMusic } = useSelector(
     (state) => state.data
   );
   const { song, load } = useSelector(
