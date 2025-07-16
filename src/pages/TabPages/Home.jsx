@@ -45,7 +45,7 @@ const Home = () => {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Good Evening</Text>
+        <Text style={styles.headerTitle}>Noctune</Text>
         <View style={styles.headerIcons}>
           <TouchableOpacity style={styles.headerIcon}>
             <Ionicons name="notifications-outline" size={24} color="white" />
@@ -53,9 +53,7 @@ const Home = () => {
           <TouchableOpacity style={styles.headerIcon}>
             <Ionicons name="time-outline" size={24} color="white" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.headerIcon}>
-            <Ionicons name="settings-outline" size={24} color="white" />
-          </TouchableOpacity>
+          
         </View>
       </View>
 
