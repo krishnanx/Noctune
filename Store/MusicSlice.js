@@ -31,8 +31,14 @@ const MusicSlice = createSlice({
         duration: action.payload.duration || 0,
        
       };
-      state.searchedMusicHistory = [...state.searchedMusicHistory,newMusic]
+      const id = newMusic.id;
 
+      const index = state.searchedMusicHistory.findIndex(item => item.id === id);
+      if (index !== -1) {
+        state.searchedMusicHistory.splice(index, 1); 
+      }
+
+      state.searchedMusicHistory.push(newMusic);
     },
     addMusic(state, action) {
       state.data = state.data.filter((item) => item.id !== action.payload.id);
