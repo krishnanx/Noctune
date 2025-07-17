@@ -188,7 +188,11 @@ const handleSignIn = async () => {
               />
             </TouchableOpacity>
           </View>
-          <Text style={styles.forgotPassword}>Forgot Password?</Text>
+          
+          <TouchableOpacity onPress={() => navigation.navigate("ForgotPassword")}>
+            <Text style={styles.forgotPassword}>Forgot Password?</Text>
+          </TouchableOpacity>
+
 
           <TouchableOpacity style={styles.button} onPress={handleSignIn}>
             {loading ? (

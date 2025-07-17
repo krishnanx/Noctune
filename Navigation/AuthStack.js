@@ -1,6 +1,7 @@
 import { createStackNavigator } from "@react-navigation/stack";
 import SignIn from "../src/pages/AuthPages/SignIn";
 import SignUp from "../src/pages/AuthPages/SignUp";
+import ForgotPassword from "../src/pages/AuthPages/ForgotPassword";
 import GetStarted from "../src/pages/GetStarted";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState,useEffect } from "react";
@@ -50,6 +51,11 @@ const [initialRoute, setInitialRoute] = useState(null);
       <Stack.Screen
         name="signup"
         component={SignUp}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ForgotPassword" 
+        component={ForgotPassword}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
