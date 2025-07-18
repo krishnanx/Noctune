@@ -22,7 +22,7 @@ const MainTab = () => {
   const isLoadedFromAsyncStorage = useSelector((state)=>state.data.isLoadedFromAsyncStorage)
   const playlistData = useSelector((state) => state.playlist.data); 
 
-  const displayPlayer = (data && data.length > 0 ) || (playlistData && playlistData.length>0);
+  const displayPlayer = (data && data.length > 0 ) || (playlistData && playlistData.length > 0);
   //------------------------------------------------------------
 
   //const {isFirst } = useSelector((state) => state.user.isFirstTime);
@@ -85,7 +85,7 @@ const MainTab = () => {
         <Tab.Screen name="Settings" component={Settings} />
       </Tab.Navigator>
 
-      {displayPlayer && !isKeyboardVisible && isLoadedFromAsyncStorage && <Player />}
+      {displayPlayer && !isKeyboardVisible && <Player />}
       
 
       {/* <Player /> */}

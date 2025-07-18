@@ -50,7 +50,7 @@ export default function App() {
   const { song, load:playload } = useSelector(
     (state) => state.playlistload
   );
-  const [status, setStatus] = useState("loading");
+  //const [status, setStatus] = useState("loading");
 
    useEffect(() => {
       const loadLastSong = async () => {
@@ -122,7 +122,7 @@ export default function App() {
       eventBus.on("soundChanged", autoPlayIfUserSearched);
       return () => eventBus.off("soundChanged", autoPlayIfUserSearched);
   
-    }, []);
+    }, [searchedMusic]);
   useEffect(() => {
     const unsubscribe = addEventListener(state => {
       console.error('Connection type', state.type);
@@ -200,9 +200,7 @@ export default function App() {
     );
   }
 
-  if (status === "error") {
-    return <Text>Something went wrong while fetching data.</Text>;
-  }
+
 
   return (
     <SafeAreaProvider>
