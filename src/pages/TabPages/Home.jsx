@@ -91,12 +91,8 @@ const Home = () => {
         {/* Recommended for You Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Recommended for You</Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.recommendationsContainer}
-          >
-            <RecommendationCard
+         
+            {/* <RecommendationCard
               title="Daily Mix 1"
               subtitle="Arctic Monkeys, The Strokes, and more"
               bgColor="#C7493A"
@@ -110,19 +106,18 @@ const Home = () => {
               title="New Release"
               subtitle="Latest tracks you might like"
               bgColor="#FF6B6B"
-            />
-          </ScrollView>
+            /> */}
+             <View style={{justifyContent:"center",alignItems:"center",height:"90%"}}>
+              <Text style={styles.searchMusicText}>Coming Soon!</Text> 
+            </View>
+          
         </View>
 
         {/* Popular Playlists Section */}
-        <View style={styles.section}>
+        <View style={[styles.section]}>
           <Text style={styles.sectionTitle}>Popular Playlists</Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.recommendationsContainer}
-          >
-            <RecommendationCard
+          
+            {/* <RecommendationCard
               title="Top 50 Global"
               subtitle="Most played tracks worldwide"
               bgColor="#4ECDC4"
@@ -136,8 +131,11 @@ const Home = () => {
               title="Trending Now"
               subtitle="What's hot right now"
               bgColor="#FF8C42"
-            />
-          </ScrollView>
+            /> */}
+            <View style={{justifyContent:"center",alignItems:"center",height:"90%",width:"100%"}}>
+              <Text style={styles.searchMusicText}>Coming Soon!</Text> 
+            </View>
+          
         </View>
       </ScrollView>
 
