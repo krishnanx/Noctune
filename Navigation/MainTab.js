@@ -22,7 +22,7 @@ const MainTab = () => {
   const isLoadedFromAsyncStorage = useSelector((state)=>state.data.isLoadedFromAsyncStorage)
   const playlistData = useSelector((state) => state.playlist.data); 
 
-  const displayPlayer = (data && data.length > 0 ) || (playlistData && playlistData.length);
+  const displayPlayer = (data && data.length > 0 ) || (playlistData && playlistData.length>0);
   //------------------------------------------------------------
 
   //const {isFirst } = useSelector((state) => state.user.isFirstTime);
@@ -47,6 +47,9 @@ const MainTab = () => {
 
   console.warn("isLoaded",isLoadedFromAsyncStorage)
   console.warn("keyboard: ",isKeyboardVisible)
+  console.warn("displayPlayer", displayPlayer)
+  // console.warn("isKeyboardVisible", isKeyboardVisible)
+  // console.warn("isLoadedFromAsyncStorage", isLoadedFromAsyncStorage)
   return (
     <>
       <Tab.Navigator
@@ -83,6 +86,7 @@ const MainTab = () => {
       </Tab.Navigator>
 
       {displayPlayer && !isKeyboardVisible && isLoadedFromAsyncStorage && <Player />}
+      
 
       {/* <Player /> */}
     </>
