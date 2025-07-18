@@ -37,7 +37,7 @@ import { loadAudio, unloadAudio } from "../../functions/MusicLoaders/music.js";
 import Audioloader from "../../functions/MusicLoaders/Audioloader.jsx";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import store from "../../../Store/store.js";
+
 import SearchModal from "../../Components/SearchModal.jsx";
 import { changeLoad } from "../../../Store/Playdataslice.js";
 import { YtMusicRef } from "../../functions/YtMusicRef.js";
@@ -57,48 +57,7 @@ const Search = () => {
   const [selectedSong, setSelectedSong] = useState(null);
   const status = useSelector((state)=>state.key.status)
 
-  useEffect(() => {
-    const loadLastSong = async () => {
-      try {
-        const jsonValue = await AsyncStorage.getItem("lastPlayedSong");
-
-        if (jsonValue != null) {
-          const lastSong = JSON.parse(jsonValue);
-
-          if (lastSong && lastSong.url) {
-            // First, dispatch action to add song to store
-            dispatch(addMusic(lastSong));
-            dispatch(setIsLoadedFromAsyncStorage(true));
-
-            // Then wait for state update
-            setTimeout(() => {
-              const currentState = store.getState();
-              const { data, pos } = currentState.data;
-
-              if (data && data.length > 0 && pos >= 0) {
-                console.log(
-                  "Using Audioloader component for previously saved song"
-                );
-                // No need to directly call loadAudio - your Audioloader component
-                // should handle this since it watches for changes to pos
-                dispatch(load(true)); // This should trigger your Audioloader component
-              } else {
-                console.warn(
-                  "Data or position not valid after loading saved song"
-                );
-              }
-            }, 100);
-          } else {
-            console.warn("No valid song data found in AsyncStorage");
-          }
-        }
-      } catch (e) {
-        console.error("Error loading last song", e);
-      }
-    };
-
-    loadLastSong();
-  }, []);
+ 
 
   
   // useFocusEffect(

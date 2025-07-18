@@ -18,7 +18,12 @@ import { lightTheme } from "./Theme/lightTheme";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import Websocket from "./src/Websocket/Websocket";
-import { FetchMetadata ,setIsPlaying,setSearchedMusic} from "./Store/MusicSlice";
+import { FetchMetadata 
+  ,setIsPlaying,
+  setSearchedMusic,
+  setIsLoadedFromAsyncStorage,
+  addMusic,load
+} from "./Store/MusicSlice";
 import Waveform from "./src/Components/Waveform";
 import Audioloader from "./src/functions/MusicLoaders/Audioloader";
 import { addEventListener, useNetInfo } from '@react-native-community/netinfo';
@@ -30,6 +35,9 @@ import ToastContainer from "./src/Components/ToastContainer";
 import { AddNewPlaylist, updatemigrateSliceSucess } from "./Store/PlaylistSlice";
 import { showToast } from "./Store/ToastSlice";
 import eventBus from './src/functions/eventBus.js';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import store from "./Store/store.js";
+
 export default function App() {
   const { Mode } = useSelector((state) => state.theme);
   const { user, loading, waveload } = useSelector((state) => state.user || {});
@@ -39,10 +47,55 @@ export default function App() {
   const { data, pos, seek, isplaying, canLoad,isLoadedFromAsyncStorage,searchedMusic } = useSelector(
     (state) => state.data
   );
-  const { song, load } = useSelector(
+  const { song, load:playload } = useSelector(
     (state) => state.playlistload
   );
   const [status, setStatus] = useState("loading");
+
+   useEffect(() => {
+      const loadLastSong = async () => {
+        try {
+          const jsonValue = await AsyncStorage.getItem("lastPlayedSong");
+  
+          if (jsonValue != null) {
+            const lastSong = JSON.parse(jsonValue);
+  
+            if (lastSong && lastSong.url) {
+              // First, dispatch action to add song to store
+              dispatch(addMusic(lastSong));
+              dispatch(setIsLoadedFromAsyncStorage(true));
+  
+              // Then wait for state update
+              setTimeout(() => {
+                const currentState = store.getState();
+                const { data, pos } = currentState.data;
+  
+                if (data && data.length > 0 && pos >= 0) {
+                  console.log(
+                    "Using Audioloader component for previously saved song"
+                  );
+                  // No need to directly call loadAudio - your Audioloader component
+                  // should handle this since it watches for changes to pos
+                  dispatch(load(true)); // This should trigger your Audioloader component
+                } else {
+                  console.warn(
+                    "Data or position not valid after loading saved song"
+                  );
+                }
+              }, 100);
+            } else {
+              console.warn("No valid song data found in AsyncStorage");
+            }
+          }
+        } catch (e) {
+          console.error("Error loading last song", e);
+        }
+      };
+  
+      loadLastSong();
+    }, []);
+
+
   useEffect(() => {
       const autoPlayIfUserSearched = async (sound) => {
         console.warn("Sound changed event received", sound);
@@ -183,7 +236,7 @@ export default function App() {
           <Websocket />
           {canLoad && <Audioloader />}
 
-          {load && <PlaylistLoader />}
+          {playload && <PlaylistLoader />}
         </KeyboardAvoidingView>
       </SafeAreaView>
     </SafeAreaProvider>
