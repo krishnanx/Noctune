@@ -482,7 +482,7 @@ const PlayerStack = () => {
     modalOverlay: {
       flex: 1,
       justifyContent: "flex-end",
-      backgroundColor: "rgba(98, 92, 92, 0.5)", // backdrop blur
+      //backgroundColor: "rgba(98, 92, 92, 0.5)", // backdrop blur
     },
     modalContent: {
       height: "60%", // half the screen
