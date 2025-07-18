@@ -7,6 +7,7 @@ import { setIsPlaying, load, changePos } from "../../../Store/MusicSlice.js";
 import { setPlaylistplaying } from "../../../Store/PlaylistSlice.js";
 import { current } from "@reduxjs/toolkit";
 import eventBus from '../eventBus.js';
+import { changeLoad, changePlaylistPos } from "../../../Store/Playdataslice.js";
 export const soundRef = {
   previous: null,
   current: null,
@@ -90,7 +91,7 @@ export const loadAudio = async (
       playRef.current.playAsync()
     }
     sound.setOnPlaybackStatusUpdate((status) => {
-      onPlaybackStatusUpdate(status, dispatch, getSeek, data, pos, playlistNo);
+      onPlaybackStatusUpdate(status, dispatch, getSeek, data, pos, playlistNo,queueLoad,playLoad);
     });
 
 
@@ -115,17 +116,20 @@ export const unloadAudio = async () => {
     playRef.current = null;
   }
 };
-const onPlaybackStatusUpdate = (status, dispatch, getSeek, data, pos, playlistNo) => {
+const onPlaybackStatusUpdate = (status, dispatch, getSeek, data, pos, playlistNo,queueLoad,playLoad) => {
 
   if (status.didJustFinish) {
     const currentSeek = getSeek?.();
     console.warn("finished......")
-    checkNext(pos, data, dispatch, playlistNo)
-    if (currentSeek != data[pos]?.duration && currentSeek != 0) {
-      console.warn("finishing up!!");
-      tailFill(data[pos]?.duration, dispatch, true);
-
-    }
+    
+    if(currentSeek != data[pos]?.duration && currentSeek != 0) {
+    console.warn("finishing up!!");
+    dispatch(progress(data[pos]?.duration))
+  }
+      
+    tailFill(data,pos,data[pos]?.duration, dispatch, true,queueLoad,playLoad,currentSeek,playlistNo);
+      
+    
   }
   if (status.isLoaded) {
     console.warn("hi?");
@@ -140,38 +144,66 @@ const onPlaybackStatusUpdate = (status, dispatch, getSeek, data, pos, playlistNo
   }
 };
 
-const tailFill = async (currentSec, dispatch, skipToNext = false) => {
-  dispatch(progress(currentSec));
-
+const tailFill = async (data,pos,currentSec, dispatch, skipToNext,queueLoad,playLoad,currentSeek,playlistNo) => {
+  console.error("came inside")
+  console.error("0",skipToNext)
+  
+  console.error("1:",skipToNext)
+  const stop = checkNext(pos, data, dispatch, playlistNo)
+  if(stop){
+    console.error("byeee")
+    return
+  }
+  console.error(":",skipToNext)
+  
   if (skipToNext) {
-    dispatch(changePos(1));
-    dispatch(load(false));
-    dispatch(load(true));
+    console.error("skip next is true")
+    if (queueLoad) {
+      console.error("NEXT queue")
+      dispatch(changePos(1));
+      dispatch(load(false));
+      setTimeout(() => {
+        dispatch(load(true))
+      }, 1)
+    }
+    if (playLoad) {
+      console.error("NEXT playlist song")
+      dispatch(changePlaylistPos(1))
+      dispatch(changeLoad(false))
+      setTimeout(() => {
+        dispatch(changeLoad(true))
+      }, 1)
+      
+    }
     unloadAudio();
   }
 
   return;
 };
 
-const checkNext = async (pos, data, dispatch, playlistNo) => {
+const checkNext = (pos, data, dispatch, playlistNo) => {
   console.warn("pos:", pos)
   console.warn("data length", data.length)
   if (pos + 1 >= data.length) {
     if (soundRef.current) {
       console.warn("pausing player")
-      await soundRef.current.pauseAsync();
-      await soundRef.current.unloadAsync();
+      // await soundRef.current.pauseAsync();
+      // await soundRef.current.unloadAsync();
       soundRef.current = null;
       dispatch(setIsPlaying(false))
     }
     if (playRef.current && playlistNo != -1) {
       console.warn("pausing playlist")
-      await playRef.current.pauseAsync();
-      await playRef.current.unloadAsync();
+      // await playRef.current.pauseAsync();
+      // await playRef.current.unloadAsync();
       playRef.current = null;
       dispatch(setPlaylistplaying({ action: false, id: playlistNo }));
       dispatch(setIsPlaying(false))
     }
-    return
+    dispatch(progress(0))
+    return true
+  }
+  else{
+    return false
   }
 }

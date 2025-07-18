@@ -17,6 +17,9 @@ const MusicSlice = createSlice({
   },
   reducers: {
     setSearchedMusicHistory(state,action){
+      if(state.searchedMusicHistory.count == 15){
+        state.searchedMusicHistory.splice(state.searchedMusicHistory.count-1, 1); 
+      }
       const upscaledUrl = action.payload.image.replace(
         /w\d+-h\d+/,
         "w500-h500"

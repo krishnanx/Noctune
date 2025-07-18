@@ -12,7 +12,7 @@ const Playdataslice = createSlice({
             state.song = action.payload
             state.pos = 0;
         },
-        changePos(state, action) {
+        changePlaylistPos(state, action) {
             console.warn(state.pos);
             if (action.payload == +1) {
                 if (state.pos !== state.song.length - 1) {
@@ -32,6 +32,6 @@ const Playdataslice = createSlice({
 
 });
 export const {
-    addType, changeLoad
+    addType, changeLoad , changePlaylistPos
 } = Playdataslice.actions;
 export default Playdataslice.reducer;

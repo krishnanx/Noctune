@@ -39,7 +39,11 @@ const WaveformVisualizer = ({ ytUrl }) => {
     const fetchWaveform = async () => {
       
       try {
-        setLoading(true);
+        setLoading(false);
+        //setWaveformData([1,1,1,1,1,1,1,1,1,1]);
+        const placeholderData = Array(100).fill(0);
+        setWaveformData(placeholderData);
+
         console.error("Request made");
         const res = await fetch(`${Constants.expoConfig.extra.SERVER}/yt/waveform`, {
           method: "POST",

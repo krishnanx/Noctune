@@ -10,7 +10,7 @@ const PlaylistSlice = createSlice({
         id: -1,
         playlistNo: -1,
         migrateSliceSucess: false,
-        migratedPlaylist: []
+        migratedPlaylist: [],
     },
     reducers: {
         addPlaylist(state, action) {
