@@ -17,7 +17,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { addMusicinPlaylist } from "../../Store/PlaylistSlice";
 import { LinearGradient } from "expo-linear-gradient";
-import icon from "../../assets/icon.png";
+import icon from "../../assets/LikedSongs/heart.png";
 import { addPlaylist } from "../../Store/PlaylistSlice";
 import { useTheme } from "@react-navigation/native";
 import { AddNewPlaylist } from "../../Store/PlaylistSlice";
@@ -134,7 +134,7 @@ const PlaylistChoose = () => {
       height: 80,
       flexDirection: "row",
       alignItems: "center",
-      paddingRight: 30,
+      //paddingRight: 30,
     },
     ImageContainer: {
       width: 60,
@@ -147,6 +147,7 @@ const PlaylistChoose = () => {
       height: "100%",
       justifyContent: "center",
       paddingLeft: 25,
+      paddingBottom:10
     },
     circle: {
       width: 25,
@@ -403,17 +404,17 @@ const DisplayPlaylist = ({
   return (
     <TouchableHighlight
       onPress={handleSelect}
-      style={{ borderRadius: 3 }}
+      style={{ borderRadius: 3,justifyContent:"center",alignItems:"center" }}
       underlayColor="rgba(245,222,179,0.2)"
       activeOpacity={0.7}
     >
       <View
         style={[
           styles.Playinfo,
-          { justifyContent: "space-between", paddingHorizontal: 10 },
+          { justifyContent: "space-between", paddingHorizontal: 10,alignItems:"center" },
         ]}
       >
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
+        <View style={{ flexDirection: "row", alignItems: "center",justifyContent:"center" }}>
           <View style={styles.ImageContainer}>
             <Image
               source={
@@ -421,27 +422,26 @@ const DisplayPlaylist = ({
                   ? { uri: item.image }
                   : item.songs?.[0]?.image
                     ? { uri: item.songs[0].image }
-                    : icon
+                    : index == 0 ? icon : icon
               }
               style={{ width: 50, height: 50 }}
             />
           </View>
-          <View style={styles.Name}>
+          <View style={[styles.Name]}>
             <Text style={{ fontSize: 20, color: "white" }}>{item.name}</Text>
             <Text style={{ fontSize: 15, color: "white" }}>
               Playlist . Noctune
             </Text>
           </View>
-        </View>
-        <View
+          <View
           activeOpacity={0.7}
           style={{
-            position: "absolute",
-            right: 10,
-            top: "40%",
+            //position: "absolute",
+            //right: 10,
+            //top: "40%",
             justifyContent: "center",
             alignItems: "center",
-            padding: 10,
+            //padding: 10,
             borderRadius: 25,
           }}
           accessibilityLabel={
@@ -461,6 +461,8 @@ const DisplayPlaylist = ({
             {isSelected && <Tick name="done" size={20} color="white" />}
           </View>
         </View>
+        </View>
+        
       </View>
     </TouchableHighlight>
   );
