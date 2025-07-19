@@ -189,14 +189,14 @@ const checkNext = (pos, data, dispatch, playlistNo) => {
       console.warn("pausing player")
       // await soundRef.current.pauseAsync();
       // await soundRef.current.unloadAsync();
-      soundRef.current = null;
+      //soundRef.current = null;
       dispatch(setIsPlaying(false))
     }
     if (playRef.current && playlistNo != -1) {
       console.warn("pausing playlist")
       // await playRef.current.pauseAsync();
       // await playRef.current.unloadAsync();
-      playRef.current = null;
+      // playRef.current = null;
       dispatch(setPlaylistplaying({ action: false, id: playlistNo }));
       dispatch(setIsPlaying(false))
     }
