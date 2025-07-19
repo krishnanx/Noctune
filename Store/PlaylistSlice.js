@@ -202,14 +202,26 @@ export const migrate = createAsyncThunk('/migratedata', async ({ Url: data }) =>
 export const AddNewPlaylist = createAsyncThunk('/newplaylist', async ({ data: playlist, userid: userid }) => {
     try {
         console.warn("adding new playlist");
-        const response = await axios.post(`${Constants.expoConfig.extra.SERVER
-            }/playlist/NewPlaylists`, { playlist: playlist, user: userid })
-        // const response = await axios.post(`http://192.168.1.44/playlist/NewPlaylists`, { playlist: playlist, user: userid })
+        //const response = await axios.post("http://192.168.1.7:8000/playlist/NewPlaylists", { playlist: playlist, user: userid })
+        const response = await axios.post(`http://192.168.1.44/playlist/NewPlaylists`, { playlist: playlist, user: userid })
 
         return response.data
     }
     catch (e) {
         console.error(e)
+    }
+})
+
+export const editPlaylist = createAsyncThunk('/editPlaylist', async ({data: playlist, userid: userid}) => {
+    try {
+        console.warn("Editing Playlist: ", playlist.name);
+        const response = await axios.post(
+            `${Constants.expoConfig.extra.SERVER}/playlist/editPlaylist`,
+            { playlist: playlist, user: userid }  // ✅ Match Express.js expectations
+        );
+        return response.data
+    } catch (e) {
+        console.error("ERROR FROM EDIT PLAYLIST: ", e)
     }
 })
 

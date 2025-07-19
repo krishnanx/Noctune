@@ -16,6 +16,8 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useSelector, useDispatch } from 'react-redux';
 import { StatusBar } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import {editPlaylist} from '../../Store/PlaylistSlice'
+import {user} from '../../Store/UserSlice'
 
 // Option 1: Try the correct import for react-native-reanimated-dnd
 // Uncomment the version that works with your library:
@@ -58,6 +60,8 @@ const PlaylistEdit = () => {
 
   // Get playlist data from Redux store
   const { data } = useSelector((state) => state.playlist);
+  const userState = useSelector((state) => state.user || {});
+  const { user, session, loading, error, clientID } = userState;
   
   // Get the specific playlist using the index
   const playlistData = data && data[index] ? data[index] : null;
@@ -117,7 +121,7 @@ const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [4, 3],
+      aspect: [3, 3],
       quality: 1,
     });
 
@@ -153,26 +157,32 @@ const pickImage = async () => {
     );
   };
 
-const saveChanges = async () => {
-  if (!hasChanges) return;
+  const saveChanges = async () => {
+    if (!hasChanges) return;
+    
+    setIsLoading(true);
+    try {
+      const updatedPlaylist = {
+        ...playlistData,
+        name: editedName,
+        desc: editedDescription,
+        image: selectedImage || editedImage || playlistData.image,
+        songs: editedSongs,
+        Time: editedSongs.reduce((total, song) => total + (song.duration || 0), 0)
+      };
 
-  setIsLoading(true);
-  try {
-    const updatedPlaylist = {
-      ...playlistData,
-      name: editedName,
-      desc: editedDescription,
-      image: selectedImage || editedImage || playlistData.image, // Use the new image
-      songs: editedSongs,
-      Time: editedSongs.reduce((total, song) => total + (song.duration || 0), 0)
-    };
+      dispatch(updatePlaylistData({
+        index: index,
+        updatedData: updatedPlaylist
+      }));
 
-    dispatch(updatePlaylistData({
-      index: index,
-      updatedData: updatedPlaylist
-    }));
+      //Use unwrap() to get the actual result or throw on rejection
+    const result = await dispatch(editPlaylist({
+      data: updatedPlaylist,
+      userid: user
+    })).unwrap();
 
-    console.log('Updated playlist:', updatedPlaylist);
+    console.log('Playlist updated successfully:', result);
     navigation.goBack();
 
   } catch (error) {

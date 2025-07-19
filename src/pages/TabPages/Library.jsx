@@ -350,10 +350,10 @@ const Custom_modal = ({ isModalVisible, styles, toggleModal, handlePress, naviga
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.modal1}
-                        // onPress={() => {
-                        //     toggleModal();
-                        //     navigation.push("Migrate");
-                        // }}
+                        onPress={() => {
+                            toggleModal();
+                            navigation.push("Migrate");
+                        }}
                     >
                         <View style={styles.modal1L}>
                             <Migrate width={40} height={40} fill="green" />
