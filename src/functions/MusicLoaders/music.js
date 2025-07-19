@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import Constants from "expo-constants";
 import { progress } from "../../../Store/MusicSlice.js";
 import { useDispatch } from "react-redux";
-import { setIsPlaying, load, changePos } from "../../../Store/MusicSlice.js";
+import { setIsPlaying, load, changePos,seek } from "../../../Store/MusicSlice.js";
 import { setPlaylistplaying } from "../../../Store/PlaylistSlice.js";
 import { current } from "@reduxjs/toolkit";
 import eventBus from '../eventBus.js';
@@ -38,6 +38,7 @@ export const loadAudio = async (
     //const audioUri = `http://192.168.1.7:8000/api/stream?url=${encodeURIComponent(data[pos].url)}`;
 
     const audioUri = `${Constants.expoConfig.extra.SERVER}/api/stream?url=${encodeURIComponent(data[pos].url)}`
+    //const audioUri = http://192.168.1.107:3000/api/stream?url=${encodeURIComponent(data[pos].url)}
     console.warn("Audio URI:", audioUri); // Check if the URL is correct
     dispatch(progress(0));
     if (soundRef.current) {
@@ -73,7 +74,7 @@ export const loadAudio = async (
       { uri: audioUri },
       { shouldPlay: false, progressUpdateIntervalMillis: 1060 },
       onPlaybackStatusUpdate
-    );
+    );  
 
 
     console.warn(queueLoad, playLoad)
@@ -144,7 +145,7 @@ const onPlaybackStatusUpdate = (status, dispatch, getSeek, data, pos, playlistNo
 
 
   } else if (status.error) {
-    console.warn(`Playback error: ${status.error}`);
+    console.warn(`Playback error:" ${status.error}`);
   }
 };
 

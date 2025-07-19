@@ -120,6 +120,23 @@ class MediaNotificationManager {
     return MediaNotification.updateTrackData(trackData);
   }
 
+  
+  /**
+   * Update playback progress bar in the Android notification
+   * @param {number} positionMs - Current position in milliseconds
+   * @param {number} durationMs - Total duration in milliseconds
+   * @returns {Promise<boolean>}
+   */
+  updateProgress(positionMs, durationMs) {
+    if (!this.isAvailable || !MediaNotification.updateProgress) {
+      console.warn("MediaNotification is not available or method not defined");
+      return Promise.resolve(false);
+    }
+
+    return MediaNotification.updateProgress(positionMs, durationMs);
+  }
+
+
   /**
    * Add event listener for media notification controls
    * @param {string} event - One of: 'play', 'pause', 'next', 'previous', 'stop'

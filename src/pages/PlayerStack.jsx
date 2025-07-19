@@ -11,6 +11,7 @@ import {
   Animated,
   TouchableWithoutFeedback,
   Button,
+  ImageBackground,
 } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { SkipBack, SkipForward } from "react-native-feather";
@@ -43,6 +44,7 @@ import MediaNotificationManager from "../functions/MediaNotification";
 import { showNotification } from "../functions/MediaNotification";
 import { setPlaylistplaying } from "../../Store/PlaylistSlice";
 import WaveformVisualizer from "../Components/WaveformVisualizer";
+//import { BlurView } from "expo-blur";
 
 const PlayerStack = () => {
   const { colors } = useTheme();
@@ -67,34 +69,34 @@ const PlayerStack = () => {
 
   //const mediaListenersInitialized = useRef(false);
 
-  // useEffect(() => {
-  //   if (currentTrack) {
-  //     console.warn("Track changed, resetting notification state");
-  //     // First hide any existing notification
-  //     MediaNotificationManager.hideNotification().then(() => {
-  //       // Short delay to ensure complete reset
-  //       setTimeout(() => {
-  //         MediaNotificationManager.showNotification(
-  //           {
-  //             title: currentTrack.title || "Unknown Title",
-  //             artist:
-  //               currentTrack.artist ||
-  //               currentTrack.uploader ||
-  //               "Unknown Artist",
-  //             album: currentTrack.album || "",
-  //             artwork: currentTrack.image || "",
-  //           },
-  //           {
-  //             showNextPrev: data.length > 1, // Only show next/prev if we have multiple tracks
-  //             showStop: true,
-  //           }
-  //         ).then(() => {
-  //           MediaNotificationManager.updatePlaybackStatus(isplaying);
-  //         });
-  //       }, 100);
-  //     });
-  //   }
-  // }, [currentTrack]);
+  useEffect(() => {
+    if (currentTrack) {
+      console.warn("Track changed, resetting notification state");
+      // First hide any existing notification
+      MediaNotificationManager.hideNotification().then(() => {
+        // Short delay to ensure complete reset
+        setTimeout(() => {
+          MediaNotificationManager.showNotification(
+            {
+              title: currentTrack.title || "Unknown Title",
+              artist:
+                currentTrack.artist ||
+                currentTrack.uploader ||
+                "Unknown Artist",
+              album: currentTrack.album || "",
+              artwork: currentTrack.image || "",
+            },
+            {
+              showNextPrev: data.length > 1, // Only show next/prev if we have multiple tracks
+              showStop: true,
+            }
+          ).then(() => {
+            MediaNotificationManager.updatePlaybackStatus(isplaying);
+          });
+        }, 100);
+      });
+    }
+  }, [currentTrack]);
 
   
   {
@@ -267,12 +269,14 @@ const PlayerStack = () => {
 
   const styles = StyleSheet.create({
     Main: {
-      backgroundColor: colors.background,
+      //backgroundColor: colors.background,
+      flex:1,
       width: "100%",
       alignItems: "center",
       justifyContent: "space-between",
       paddingBottom: 80,
-      height: "100%",
+      //height: "100%",
+      zIndex:1,
     },
     miniPlayer: {
       flex: 1,
@@ -546,6 +550,21 @@ const PlayerStack = () => {
       color: "#4f8ef7",
       fontWeight: "500",
     },
+    bgImage: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
+  imageStyle: {
+    resizeMode: "cover",
+    transform: [{ scale: 1.5 }],
+  },
+  overlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
   });
 
   // Render the full player
@@ -563,6 +582,15 @@ const PlayerStack = () => {
         overflow: "hidden",
       }}
     >
+      <ImageBackground
+          source={{uri: currentTrack?.image}}
+          style={StyleSheet.absoluteFill}
+          imageStyle={styles.imageStyle}
+          blurRadius={50} 
+        >
+        <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.1)' }]} />
+      </ImageBackground>
+
       <View style={styles.Main}>
         <View
           style={{
@@ -573,6 +601,7 @@ const PlayerStack = () => {
             height: 60,
             justifyContent: "space-between",
             alignItems: "center",
+            zIndex: 10,
           }}
         >
           <TouchableOpacity
@@ -592,9 +621,7 @@ const PlayerStack = () => {
             <ThreeDots height={28} width={28} />
           </TouchableOpacity>
         </View>
-
         <WaveformVisualizer ytUrl={currentTrack?.url}/>
-
         <Metadata
           data={
             canLoad ? data && data[pos]
@@ -674,9 +701,8 @@ const Metadata = ({
 
 
   return (
-    <>
+    <>  
       <Image source={{ uri: data?.image }} style={styles.albumArt} />
-
       <View style={styles.container}>
         <View style={{ height: "100%" }}>
           <View style={{ width: 300 }}>

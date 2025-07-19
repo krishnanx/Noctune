@@ -74,9 +74,18 @@ public class MediaNotificationModule extends ReactContextBaseJavaModule {
     private String currentAlbum = "";
     private String currentArtwork = "";
 
+    // Thread safety and builder management
+    private NotificationCompat.Builder builder;
+    private final Object builderLock = new Object();
+    private volatile boolean isNotificationBuilt = false;
+    private int currentProgress = 0;
+    private int maxProgress = 1000;
+    private Handler mainHandler;
+
     public MediaNotificationModule(ReactApplicationContext reactContext) {
         super(reactContext);
         notificationManager = NotificationManagerCompat.from(reactContext);
+        mainHandler = new Handler(Looper.getMainLooper());
         
         // Create notification channel for Android 8.0+
         createNotificationChannel();
@@ -124,13 +133,10 @@ public class MediaNotificationModule extends ReactContextBaseJavaModule {
             );
             
         mediaSession.setPlaybackState(stateBuilder.build());
-        // Ensure this is being called on a background thread, if necessary:
-Handler mainHandler = new Handler(Looper.getMainLooper());
-mainHandler.post(() -> {
-    // This will run on the main thread
-    mediaSession.setCallback(new MediaSessionCallback());
-});
-
+        
+        mainHandler.post(() -> {
+            mediaSession.setCallback(new MediaSessionCallback());
+        });
        
         mediaSession.setActive(true);
     }
@@ -171,14 +177,13 @@ mainHandler.post(() -> {
         
         LocalBroadcastManager.getInstance(getReactApplicationContext())
             .registerReceiver(notificationReceiver, filter);
-        //getReactApplicationContext().registerReceiver(notificationReceiver, filter);
-
-
     }
 
     @ReactMethod
     public void showNotification(ReadableMap trackData, Promise promise) {
         try {
+            Log.d(TAG, "showNotification called");
+            
             if (trackData.hasKey("title")) {
                 currentTitle = trackData.getString("title");
             }
@@ -192,10 +197,28 @@ mainHandler.post(() -> {
                 currentArtwork = trackData.getString("artwork");
             }
             
-            updateNotification(true);
+            // Create notification immediately without artwork to ensure builder is ready
+            createAndShowNotification(isPlaying, null);
+            
+            // Load artwork asynchronously if available
+            if (currentArtwork != null && !currentArtwork.isEmpty()) {
+                new Thread(() -> {
+                    try {
+                        Bitmap artwork = getBitmapFromURL(currentArtwork);
+                        if (artwork != null) {
+                            Log.d(TAG, "Artwork loaded, updating notification");
+                            updateNotificationWithArtwork(artwork);
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error loading artwork", e);
+                    }
+                }).start();
+            }
+            
             isNotificationActive = true;
             promise.resolve(true);
         } catch (Exception e) {
+            Log.e(TAG, "Failed to show notification", e);
             promise.reject("ERROR", "Failed to show notification: " + e.getMessage());
         }
     }
@@ -203,9 +226,10 @@ mainHandler.post(() -> {
     @ReactMethod
     public void updatePlaybackStatus(boolean isPlaying, Promise promise) {
         try {
+            Log.d(TAG, "updatePlaybackStatus: " + isPlaying);
             this.isPlaying = isPlaying;
             if (isNotificationActive) {
-                updateNotification(isPlaying);
+                updateNotificationPlaybackState();
             }
             promise.resolve(true);
         } catch (Exception e) {
@@ -214,8 +238,96 @@ mainHandler.post(() -> {
     }
 
     @ReactMethod
+    public void updateProgress(int position, int duration, Promise promise) {
+        try {
+            Log.d(TAG, "updateProgress called: " + position + "ms / " + duration + "ms");
+            
+            // Update MediaSession with milliseconds
+            PlaybackStateCompat playbackState = new PlaybackStateCompat.Builder()
+                .setState(
+                    isPlaying ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED,
+                    position, // position in milliseconds
+                    1.0f // playback speed
+                )
+                .setActions(
+                    PlaybackStateCompat.ACTION_PLAY |
+                    PlaybackStateCompat.ACTION_PAUSE |
+                    PlaybackStateCompat.ACTION_SKIP_TO_NEXT |
+                    PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
+                    PlaybackStateCompat.ACTION_STOP
+                )
+                .build();
+
+            mediaSession.setPlaybackState(playbackState);
+
+            // Update notification progress bar
+            if (duration > 0 && isNotificationActive) {
+                int maxProg = 1000;
+                int currentProg = (int) ((long) position * maxProg / duration);
+                currentProg = Math.max(0, Math.min(maxProg, currentProg));
+                
+                Log.d(TAG, "Progress bar: " + currentProg + "/" + maxProg);
+                
+                synchronized (builderLock) {
+                    // Store progress values
+                    this.currentProgress = currentProg;
+                    this.maxProgress = maxProg;
+                    
+                    if (builder != null && isNotificationBuilt) {
+                        Log.d(TAG, "Updating notification progress");
+                        builder.setProgress(maxProg, currentProg, false);
+                        notificationManager.notify(NOTIFICATION_ID, builder.build());
+                    } else {
+                        Log.d(TAG, "Builder not ready, stored progress: " + currentProg + "/" + maxProg);
+                    }
+                }
+            }
+            
+            promise.resolve(true);
+        } catch (Exception e) {
+            Log.e(TAG, "updateProgress failed", e);
+            promise.reject("UPDATE_PROGRESS_FAILED", e.getMessage());
+        }
+    }
+
+    @ReactMethod
+    public void updateTrackData(ReadableMap trackData, Promise promise) {
+        try {
+            Log.d(TAG, "updateTrackData called");
+            
+            if (trackData.hasKey("title")) {
+                currentTitle = trackData.getString("title");
+            }
+            if (trackData.hasKey("artist")) {
+                currentArtist = trackData.getString("artist");
+            }
+            if (trackData.hasKey("album")) {
+                currentAlbum = trackData.getString("album");
+            }
+            if (trackData.hasKey("artwork")) {
+                currentArtwork = trackData.getString("artwork");
+            }
+
+            if (isNotificationActive) {
+                updateNotification(isPlaying);
+            }
+            
+            promise.resolve(true);
+        } catch (Exception e) {
+            promise.reject("UPDATE_FAILED", e.getMessage());
+        }
+    }
+
+    @ReactMethod
     public void hideNotification(Promise promise) {
         try {
+            Log.d(TAG, "hideNotification called");
+            
+            synchronized (builderLock) {
+                builder = null;
+                isNotificationBuilt = false;
+            }
+            
             notificationManager.cancel(NOTIFICATION_ID);
             isNotificationActive = false;
             promise.resolve(true);
@@ -225,6 +337,8 @@ mainHandler.post(() -> {
     }
 
     private void updateNotification(boolean isPlaying) {
+        Log.d(TAG, "updateNotification called, isPlaying: " + isPlaying);
+        
         // Set media session metadata
         MediaMetadataCompat.Builder metadataBuilder = new MediaMetadataCompat.Builder()
             .putString(MediaMetadataCompat.METADATA_KEY_TITLE, currentTitle)
@@ -241,23 +355,27 @@ mainHandler.post(() -> {
                         mediaSession.setMetadata(metadataBuilder.build());
                         
                         // Update notification with artwork
-                        updateNotificationWithArtwork(isPlaying, artwork);
+                        createAndShowNotification(isPlaying, artwork);
                     } else {
                         mediaSession.setMetadata(metadataBuilder.build());
-                        updateNotificationWithoutArtwork(isPlaying);
+                        createAndShowNotification(isPlaying, null);
                     }
                 } catch (Exception e) {
                     Log.e(TAG, "Error loading artwork", e);
                     mediaSession.setMetadata(metadataBuilder.build());
-                    updateNotificationWithoutArtwork(isPlaying);
+                    createAndShowNotification(isPlaying, null);
                 }
             }).start();
         } else {
             mediaSession.setMetadata(metadataBuilder.build());
-            updateNotificationWithoutArtwork(isPlaying);
+            createAndShowNotification(isPlaying, null);
         }
         
         // Update playback state
+        updatePlaybackState(isPlaying);
+    }
+
+    private void updatePlaybackState(boolean isPlaying) {
         int playbackState = isPlaying ? 
             PlaybackStateCompat.STATE_PLAYING : 
             PlaybackStateCompat.STATE_PAUSED;
@@ -265,30 +383,59 @@ mainHandler.post(() -> {
         stateBuilder.setState(playbackState, PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN, 1.0f);
         mediaSession.setPlaybackState(stateBuilder.build());
     }
-    
-    @ReactMethod
-public void updateTrackData(ReadableMap trackData, Promise promise) {
-    try {
-        if (trackData.hasKey("title")) {
-            currentTitle = trackData.getString("title");
-        }
-        if (trackData.hasKey("artist")) {
-            currentArtist = trackData.getString("artist");
-        }
-        if (trackData.hasKey("album")) {
-            currentAlbum = trackData.getString("album");
-        }
-        if (trackData.hasKey("artwork")) {
-            currentArtwork = trackData.getString("artwork");
-        }
 
-        updateNotification(true); // or pass `isPlaying` dynamically
-        promise.resolve(true);
-    } catch (Exception e) {
-        promise.reject("UPDATE_FAILED", e.getMessage());
+    private void updateNotificationPlaybackState() {
+        synchronized (builderLock) {
+            if (builder != null && isNotificationBuilt) {
+                // Update play/pause button
+                Context context = getReactApplicationContext();
+                int playPauseIcon = isPlaying ? 
+                    android.R.drawable.ic_media_pause : 
+                    android.R.drawable.ic_media_play;
+                
+                Intent playPauseIntent = new Intent(isPlaying ? ACTION_PAUSE : ACTION_PLAY);
+                PendingIntent playPausePendingIntent = PendingIntent.getBroadcast(
+                    context, 
+                    1, 
+                    playPauseIntent, 
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                );
+                
+                // Clear existing actions and rebuild
+                builder.clearActions();
+                builder.addAction(android.R.drawable.ic_media_previous, "Previous", createPendingIntent(ACTION_PREV, 3));
+                builder.addAction(playPauseIcon, isPlaying ? "Pause" : "Play", playPausePendingIntent);
+                builder.addAction(android.R.drawable.ic_media_next, "Next", createPendingIntent(ACTION_NEXT, 2));
+                
+                builder.setOngoing(isPlaying);
+                
+                notificationManager.notify(NOTIFICATION_ID, builder.build());
+                Log.d(TAG, "Updated playback state in notification");
+            }
+        }
+        
+        updatePlaybackState(isPlaying);
     }
-}
 
+    private void updateNotificationWithArtwork(Bitmap artwork) {
+        synchronized (builderLock) {
+            if (builder != null && isNotificationBuilt) {
+                builder.setLargeIcon(artwork);
+                notificationManager.notify(NOTIFICATION_ID, builder.build());
+                Log.d(TAG, "Updated notification with artwork");
+            }
+        }
+    }
+
+    private PendingIntent createPendingIntent(String action, int requestCode) {
+        Intent intent = new Intent(action);
+        return PendingIntent.getBroadcast(
+            getReactApplicationContext(), 
+            requestCode, 
+            intent, 
+            PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+    }
 
     private Bitmap getBitmapFromURL(String src) {
         try {
@@ -304,51 +451,10 @@ public void updateTrackData(ReadableMap trackData, Promise promise) {
         }
     }
     
-    private void updateNotificationWithoutArtwork(boolean isPlaying) {
-        createAndShowNotification(isPlaying, null);
-    }
-    
-    private void updateNotificationWithArtwork(boolean isPlaying, Bitmap artwork) {
-        createAndShowNotification(isPlaying, artwork);
-    }
-    
     private void createAndShowNotification(boolean isPlaying, Bitmap artwork) {
+        Log.d(TAG, "createAndShowNotification called, isPlaying: " + isPlaying);
+        
         Context context = getReactApplicationContext();
-        
-        // Create intents for notification actions
-        Intent playPauseIntent = new Intent(isPlaying ? ACTION_PAUSE : ACTION_PLAY);
-        Intent nextIntent = new Intent(ACTION_NEXT);
-        Intent prevIntent = new Intent(ACTION_PREV);
-        Intent stopIntent = new Intent(ACTION_STOP);
-        
-        // Create pending intents for notification actions
-        PendingIntent playPausePendingIntent = PendingIntent.getBroadcast(
-            context, 
-            0, 
-            playPauseIntent, 
-            PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-        );
-        
-        PendingIntent nextPendingIntent = PendingIntent.getBroadcast(
-            context, 
-            0, 
-            nextIntent, 
-            PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-        );
-        
-        PendingIntent prevPendingIntent = PendingIntent.getBroadcast(
-            context, 
-            0, 
-            prevIntent, 
-            PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-        );
-        
-        PendingIntent stopPendingIntent = PendingIntent.getBroadcast(
-            context, 
-            0, 
-            stopIntent, 
-            PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-        );
         
         // Get app icon
         int appIcon = context.getResources().getIdentifier(
@@ -356,7 +462,7 @@ public void updateTrackData(ReadableMap trackData, Promise promise) {
             "drawable", 
             context.getPackageName()
         );
-        
+    
         if (appIcon == 0) {
             appIcon = android.R.drawable.ic_media_play; // Default icon
         }
@@ -366,28 +472,35 @@ public void updateTrackData(ReadableMap trackData, Promise promise) {
             android.R.drawable.ic_media_pause : 
             android.R.drawable.ic_media_play;
         
-        // Build notification
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
-            .setContentTitle(currentTitle)
-            .setContentText(currentArtist)
-            .setSubText(currentAlbum)
-            .setSmallIcon(appIcon)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setOnlyAlertOnce(true)
-            .setOngoing(isPlaying)
-            // Add media style
-            .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
-                .setMediaSession(mediaSession.getSessionToken())
-                .setShowActionsInCompactView(0, 1, 2))
-            // Add actions
-            .addAction(android.R.drawable.ic_media_previous, "Previous", prevPendingIntent)
-            .addAction(playPauseIcon, isPlaying ? "Pause" : "Play", playPausePendingIntent)
-            .addAction(android.R.drawable.ic_media_next, "Next", nextPendingIntent);
-        
-        // Set large icon (artwork) if available
-        if (artwork != null) {
-            builder.setLargeIcon(artwork);
+        // Thread-safe builder creation
+        synchronized (builderLock) {
+            // Build notification
+            builder = new NotificationCompat.Builder(context, CHANNEL_ID)
+                .setContentTitle(currentTitle)
+                .setContentText(currentArtist)
+                .setSubText(currentAlbum)
+                .setSmallIcon(appIcon)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setOnlyAlertOnce(true)
+                .setOngoing(isPlaying)
+                .setProgress(maxProgress, currentProgress, false)  // Use stored progress
+                // Add media style
+                .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
+                    .setMediaSession(mediaSession.getSessionToken())
+                    .setShowActionsInCompactView(0, 1, 2))
+                // Add actions
+                .addAction(android.R.drawable.ic_media_previous, "Previous", createPendingIntent(ACTION_PREV, 3))
+                .addAction(playPauseIcon, isPlaying ? "Pause" : "Play", createPendingIntent(isPlaying ? ACTION_PAUSE : ACTION_PLAY, 1))
+                .addAction(android.R.drawable.ic_media_next, "Next", createPendingIntent(ACTION_NEXT, 2));
+            
+            // Set large icon (artwork) if available
+            if (artwork != null) {
+                builder.setLargeIcon(artwork);
+            }
+            
+            isNotificationBuilt = true;
+            Log.d(TAG, "Builder created and ready, progress: " + currentProgress + "/" + maxProgress);
         }
         
         // Start foreground service to keep notification even when app is in background
