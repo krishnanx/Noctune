@@ -10,11 +10,12 @@ import { useTheme } from "@react-navigation/native";
 import MusicNote from "../../Components/Icons/MusicNote"
 import Collab from "../../Components/Icons/Collab"
 import icon from "../../../assets/LikedSongs/heart.png"
+import normicon from "../../../assets/LikedSongs/playlist.png";
 import { addPlaylist } from '../../../Store/PlaylistSlice';
 import { useNavigation } from '@react-navigation/native';
 import { AddNewPlaylist } from '../../../Store/PlaylistSlice';
 import { Dimensions } from 'react-native';
-import normIcon from "../../../assets/LikedSongs/heart.png"
+
 const Library = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -485,7 +486,7 @@ const DisplayPlaylist = ({ item, index, styles, navigation }) => {
                 >
                     <Image
                         source={item.id == 0 ? item.image ? { uri: item.image } : item.songs.length > 0 ? { uri: item.songs[0].image } : icon :
-                            item.image ? { uri: item.image } : item.songs.length > 0 ? { uri: item.songs[0].image } : normIcon}
+                            item.image ? { uri: item.image } : item.songs.length > 0 ? { uri: item.songs[0].image } : normicon}
                         style={{ width: 50, height: 50 }}
                     // fallback if user image fails to load
                     />

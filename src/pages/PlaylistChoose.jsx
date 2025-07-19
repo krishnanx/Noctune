@@ -18,6 +18,7 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { addMusicinPlaylist } from "../../Store/PlaylistSlice";
 import { LinearGradient } from "expo-linear-gradient";
 import icon from "../../assets/LikedSongs/heart.png";
+import normicon from "../../assets/LikedSongs/playlist.png";
 import { addPlaylist } from "../../Store/PlaylistSlice";
 import { useTheme } from "@react-navigation/native";
 import { AddNewPlaylist } from "../../Store/PlaylistSlice";
@@ -422,7 +423,7 @@ const DisplayPlaylist = ({
                   ? { uri: item.image }
                   : item.songs?.[0]?.image
                     ? { uri: item.songs[0].image }
-                    : index == 0 ? icon : icon
+                    : index == 0 ? icon : normicon
               }
               style={{ width: 50, height: 50 }}
             />
