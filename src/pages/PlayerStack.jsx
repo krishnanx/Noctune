@@ -1,3 +1,4 @@
+// THIS IS EXTENDED PLAYER PAGE (BIG)
 import React, { useState, useEffect, useRef } from "react";
 import {
   View,
