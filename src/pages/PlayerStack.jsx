@@ -702,7 +702,6 @@ const Metadata = ({
 
   return (
     <>  
-    {/* <View style={styles.overlay}> */}
       <Image source={{ uri: data?.image }} style={styles.albumArt} />
       <View style={styles.container}>
         <View style={{ height: "100%" }}>
@@ -721,8 +720,6 @@ const Metadata = ({
           />
         </TouchableOpacity>
       </View>
-      {/* </View> */}
-
     </>
   );
 };
