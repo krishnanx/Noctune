@@ -117,7 +117,7 @@ export const unloadAudio = async () => {
   }
 };
 const onPlaybackStatusUpdate = (status, dispatch, getSeek, data, pos, playlistNo,queueLoad,playLoad) => {
-
+  console.error("STATUS:",status)
   if (status.didJustFinish) {
     const currentSeek = getSeek?.();
     console.warn("finished......")
@@ -137,6 +137,9 @@ const onPlaybackStatusUpdate = (status, dispatch, getSeek, data, pos, playlistNo
     if (status.isPlaying) {
       dispatch(progress(+1));
     }
+    if(status.durationMillis == status.positionMillis){
+
+    }
 
 
   } else if (status.error) {
@@ -149,7 +152,7 @@ const tailFill = async (data,pos,currentSec, dispatch, skipToNext,queueLoad,play
   console.error("0",skipToNext)
   
   console.error("1:",skipToNext)
-  const stop = checkNext(pos, data, dispatch, playlistNo)
+  const stop = await checkNext(pos, data, dispatch, playlistNo)
   if(stop){
     console.error("byeee")
     return
@@ -181,7 +184,7 @@ const tailFill = async (data,pos,currentSec, dispatch, skipToNext,queueLoad,play
   return;
 };
 
-const checkNext = (pos, data, dispatch, playlistNo) => {
+const checkNext = async(pos, data, dispatch, playlistNo) => {
   console.warn("pos:", pos)
   console.warn("data length", data.length)
   if (pos + 1 >= data.length) {
@@ -191,6 +194,8 @@ const checkNext = (pos, data, dispatch, playlistNo) => {
       // await soundRef.current.unloadAsync();
       //soundRef.current = null;
       dispatch(setIsPlaying(false))
+      await soundRef.current.setStatusAsync({ shouldPlay: false });
+      await soundRef.current.setPositionAsync(0)
     }
     if (playRef.current && playlistNo != -1) {
       console.warn("pausing playlist")
@@ -199,6 +204,8 @@ const checkNext = (pos, data, dispatch, playlistNo) => {
       // playRef.current = null;
       dispatch(setPlaylistplaying({ action: false, id: playlistNo }));
       dispatch(setIsPlaying(false))
+      await playRef.current.setStatusAsync({ shouldPlay: false });
+      await playRef.current.setPositionAsync(0)
     }
     dispatch(progress(0))
     return true
