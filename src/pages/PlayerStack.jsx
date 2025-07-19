@@ -143,19 +143,19 @@ const PlayerStack = () => {
 
   const replaySound = async () => {
     
-      if (soundRef.current) {
-        await soundRef.current.setPositionAsync(0);
-        dispatch(setIsPlaying(true))
-        await soundRef.current.playAsync();
-        
-      }
-      else if (playRef.current) {
-        await playRef.current.setPositionAsync(0);
-        dispatch(setPlaylistplaying({ action:true, id: playlistNo }))
-        await playRef.current.playAsync();
-        
-      }
-      dispatch(progress(0));
+    if (soundRef.current) {
+      await soundRef.current.setPositionAsync(0);
+      dispatch(setIsPlaying(true))
+      await soundRef.current.playAsync();
+      
+    }
+    else if (playRef.current) {
+      await playRef.current.setPositionAsync(0);
+      dispatch(setPlaylistplaying({ action:true, id: playlistNo }))
+      await playRef.current.playAsync();
+      
+    }
+    dispatch(progress(0));
     
   };
 
