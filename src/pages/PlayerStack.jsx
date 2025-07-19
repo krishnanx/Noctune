@@ -142,18 +142,21 @@ const PlayerStack = () => {
   };
 
   const replaySound = async () => {
-    // if (isplaying) {
-      if (soundRef.current) {
-        await soundRef.current.setPositionAsync(0);
-        await soundRef.current.playAsync();
-      }
-      else if (playRef.current) {
-        await playRef.current.setPositionAsync(0);
-        await playRef.current.playAsync();
-      }
-      dispatch(progress(0));
-      togglePlayPause()
-    // }
+    
+    if (soundRef.current) {
+      await soundRef.current.setPositionAsync(0);
+      dispatch(setIsPlaying(true))
+      await soundRef.current.playAsync();
+      
+    }
+    else if (playRef.current) {
+      await playRef.current.setPositionAsync(0);
+      dispatch(setPlaylistplaying({ action:true, id: playlistNo }))
+      await playRef.current.playAsync();
+      
+    }
+    dispatch(progress(0));
+    
   };
 
   const formatTime = (seconds) => {
@@ -189,19 +192,35 @@ const PlayerStack = () => {
       if (soundRef.previous) {
         console.error("prev ref exsists")
         await soundRef.previous.playAsync()
-
       }
       else {
+        
         dispatch(changePos(value));
+        dispatch(setSearchedMusic(true))
         dispatch(load(false));
         dispatch(load(true));
+        
       }
     } else {
       // Set timeout for single press
       singlePressTimeoutRef.current = setTimeout(async () => {
         console.warn("Single press detected");
-        dispatch(progress(0));
-        await soundRef.current.playFromPositionAsync(0);
+        if(value == 1){
+          dispatch(changePos(value));
+          dispatch(setSearchedMusic(true))
+          dispatch(load(false));
+          dispatch(load(true));
+        }
+        else{
+          dispatch(progress(0));
+          if(soundRef.current){
+            await soundRef.current.playFromPositionAsync(0);
+          }
+          else{
+            await playRef.current.playFromPositionAsync(0)
+          }
+        }
+        
       }, DOUBLE_PRESS_DELAY);
     }
 
