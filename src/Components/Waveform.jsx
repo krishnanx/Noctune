@@ -89,6 +89,7 @@ const Waveform = () => {
             //const ws = initWebSocket(`ws://192.168.1.7:8000/download-progress`);
 
             const ws = initWebSocket(`${Constants.expoConfig.extra.WEBSOC}/download-progress`);
+            //const ws = initWebSocket(`ws://192.168.1.107:3000/download-progress`);
             //const ws = getWebSocket();
             if (!ws) {
               console.error("WebSocket failed to initialize.");

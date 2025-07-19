@@ -27,6 +27,7 @@ import eventBus from '../functions/eventBus.js';
 import MediaNotificationManager from "../functions/MediaNotification";
 import { showNotification } from "../functions/MediaNotification";
 import { setPlaylistplaying } from "../../Store/PlaylistSlice";
+import NotificationSync from "../functions/NotificationSync.js";
 
 
 const Player = () => {
@@ -45,35 +46,6 @@ const Player = () => {
 
   //const mediaListenersInitialized = useRef(false);
   const currentSong = data[pos] || {};
-
-  useEffect(() => {
-    if (currentTrack) {
-      console.warn("Track changed, resetting notification state");
-      // First hide any existing notification
-      MediaNotificationManager.hideNotification().then(() => {
-        // Short delay to ensure complete reset
-        setTimeout(() => {
-          MediaNotificationManager.showNotification(
-            {
-              title: currentTrack.title || "Unknown Title",
-              artist:
-                currentTrack.artist ||
-                currentTrack.uploader ||
-                "Unknown Artist",
-              album: currentTrack.album || "",
-              artwork: currentTrack.image || "",
-            },
-            {
-              showNextPrev: data.length > 1, // Only show next/prev if we have multiple tracks
-              showStop: true,
-            }
-          ).then(() => {
-            MediaNotificationManager.updatePlaybackStatus(isplaying);
-          });
-        }, 100);
-      });
-    }
-  }, [currentTrack]);
 
   const togglePlayPauseRef = useRef(null);
 
@@ -456,6 +428,7 @@ const Player = () => {
           zIndex: 0,
         }}
       >
+        <NotificationSync/>
         {/* Apply TouchableWithoutFeedback only to the mini player */}
         <TouchableWithoutFeedback onPress={togglePlayerSize}>
           <View style={styles.miniPlayer} activeOpacity={0.9}>

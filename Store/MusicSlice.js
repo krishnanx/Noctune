@@ -62,9 +62,11 @@ const MusicSlice = createSlice({
         image: upscaledUrl || null,
         duration: action.payload.duration || null,
         url: action.payload.url || null,
-        duration: action.payload.duration || 0,
+        //duration: action.payload.duration || 0,
       };
       console.log("Music data:", newMusic);
+      console.error(state.data[state.pos]?.duration);
+
       const insertPos = state.pos + 1;
       const newArray = [
         ...state.data.slice(0, insertPos),
