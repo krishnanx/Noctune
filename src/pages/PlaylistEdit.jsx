@@ -222,54 +222,53 @@ const getImageSource = () => {
 
 
   // Render item for the draggable list
-  const renderSongItem = ({ item, drag, isActive }) => {
-    return (
-      <View style={[styles.songItem, isActive && styles.songItemActive]}>
-        {/* Drag Handle */}
-        <TouchableOpacity 
-          style={styles.dragHandle}
-          onLongPress={drag}
-          delayLongPress={0}
-        >
-          <Text style={styles.dragHandleText}>≡</Text>
-        </TouchableOpacity>
-        
-        <Image 
-          source={{ uri: item.image }} 
-          style={styles.songImage}
-          defaultSource={require('../../assets/favicon.png')}
-        />
-        
-        <View style={styles.songDetails}>
-          <Text numberOfLines={1} style={styles.songTitle}>
-            {item.title}
-          </Text>
-          <Text numberOfLines={1} style={styles.songArtist}>
-            {item.uploader || item.artist}
-          </Text>
-        </View>
-        
-        <TouchableOpacity 
-          style={styles.removeButton}
-          onPress={() => removeSong(item.id)}
-        >
-          <Text style={styles.removeButtonText}>×</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  };
+const renderSongItem = ({ item, drag, isActive }) => (
+  <View style={[styles.songItem, isActive && styles.songItemActive]}>
+    {/* Drag handle */}
+    <TouchableOpacity 
+      style={styles.dragHandle}
+      onLongPress={drag}
+      delayLongPress={0}
+    >
+      <Text style={styles.dragHandleText}>≡</Text>
+    </TouchableOpacity>
+
+    <Image 
+      source={{ uri: item.image }} 
+      style={styles.songImage}
+      defaultSource={require('../../assets/favicon.png')}
+    />
+
+    <View style={styles.songDetails}>
+      <Text numberOfLines={1} style={styles.songTitle}>
+        {item.title}
+      </Text>
+      <Text numberOfLines={1} style={styles.songArtist}>
+        {item.uploader || item.artist}
+      </Text>
+    </View>
+
+    <TouchableOpacity 
+      style={styles.removeButton}
+      onPress={() => removeSong(item.id)}
+    >
+      <Text style={styles.removeButtonText}>×</Text>
+    </TouchableOpacity>
+  </View>
+);
 
   // Manual drag and drop implementation (fallback if no library works)
-const DraggableSongsList = () => (
-  <DraggableFlatList
-    data={editedSongs}
-    keyExtractor={(item) => item.id.toString()}
-    onDragEnd={({ data }) => setEditedSongs(data)}
-    renderItem={({ item, drag, isActive }) => renderSongItem({ item, drag, isActive })}
-    activationDistance={0}
-    containerStyle={styles.sortableContainer}
-  />
-);
+// const DraggableSongsList = () => (
+//   <DraggableFlatList
+//     data={editedSongs}
+//     keyExtractor={(item) => item.id.toString()}
+//     onDragEnd={({ data }) => setEditedSongs(data)}
+//     renderItem={({ item, drag, isActive }) => renderSongItem({ item, drag, isActive })}
+//     activationDistance={0}
+//     containerStyle={styles.sortableContainer}
+//      ListHeaderComponent={renderHeader} 
+//   />
+// );
 
 
   // Header component for the main content
@@ -343,57 +342,45 @@ const DraggableSongsList = () => (
             multiline
             maxLength={200}
           />
+             <Text style={styles.sectionTitle}>
+                Songs ({editedSongs.length}) - Use arrows to reorder
+              </Text>
         </View>
       </View>
     </View>
   );
 
-  return (
-    <>
-      <StatusBar backgroundColor="#000" />
-      <KeyboardAvoidingView 
-        style={styles.container} 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
-      >
-        <GestureHandlerRootView style={styles.gestureContainer}>
-          {isLoading && (
-            <View style={styles.loadingOverlay}>
-              <ActivityIndicator size="large" color="#1DB954" />
-              <Text style={{ color: "white", marginTop: 10 }}>Saving changes...</Text>
-            </View>
-          )}
-          
-          <ScrollView 
-            style={styles.scrollView}
-            contentContainerStyle={styles.scrollContainer}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-          >
-            {renderHeader()}
-            
-            {/* Songs Section */}
-            <View style={styles.songsSection}>
-              <Text style={styles.sectionTitle}>
-                Songs ({editedSongs.length}) - Use arrows to reorder
-              </Text>
-              
-              {editedSongs.length === 0 ? (
-                <View style={styles.emptyState}>
-                  <Text style={styles.emptyStateText}>
-                    No songs in this playlist.{'\n'}Add some songs to get started!
-                  </Text>
-                </View>
-              ) : (
-                <DraggableSongsList />
+return (
+  <>
+    <StatusBar backgroundColor="#000" />
+    <KeyboardAvoidingView 
+      style={styles.container} 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+    >
+      <GestureHandlerRootView style={styles.gestureContainer}>
+        {isLoading && (
+          <View style={styles.loadingOverlay}>
+            <ActivityIndicator size="large" color="#1DB954" />
+            <Text style={{ color: "white", marginTop: 10 }}>Saving changes...</Text>
+          </View>
+        )}
+        
 
-              )}
-            </View>
-          </ScrollView>
-        </GestureHandlerRootView>
-      </KeyboardAvoidingView>
-    </>
-  );
+        <DraggableFlatList
+          data={editedSongs}
+          keyExtractor={(item) => item.id.toString()}
+          onDragEnd={({ data }) => setEditedSongs(data)}
+          renderItem={renderSongItem}
+          activationDistance={0}
+          containerStyle={styles.sortableContainer}
+          contentContainerStyle={{ paddingBottom: 40 }}
+          ListHeaderComponent={renderHeader} // 👈 your header goes here
+        />
+      </GestureHandlerRootView>
+    </KeyboardAvoidingView>
+  </>
+);
 };
 
 const styles = StyleSheet.create({
@@ -487,13 +474,13 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   detailsSection: {
-    marginBottom: 30,
+    marginBottom: 0,
   },
   sectionTitle: {
     color: "white",
     fontSize: 18,
     fontWeight: "600",
-    marginBottom: 15,
+    marginTop: 25,
   },
   inputContainer: {
     marginBottom: 20,
@@ -564,11 +551,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   dragHandleText: {
-    fontSize: 20,
-    color: "#ccc", 
-  },
-  dragHandleText: {
-    fontSize: 20,
+    fontSize: 26,
     color: "#ccc", 
   },
   songImage: {

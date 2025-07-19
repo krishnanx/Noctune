@@ -142,7 +142,7 @@ const PlayerStack = () => {
   };
 
   const replaySound = async () => {
-    if (isplaying) {
+    // if (isplaying) {
       if (soundRef.current) {
         await soundRef.current.setPositionAsync(0);
         await soundRef.current.playAsync();
@@ -152,7 +152,8 @@ const PlayerStack = () => {
         await playRef.current.playAsync();
       }
       dispatch(progress(0));
-    }
+      togglePlayPause()
+    // }
   };
 
   const formatTime = (seconds) => {
