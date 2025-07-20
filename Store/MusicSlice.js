@@ -1,7 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import Constants from "expo-constants";
-
 // In your MusicSlice.js
 const MusicSlice = createSlice({
   name: "Music",
@@ -13,9 +12,13 @@ const MusicSlice = createSlice({
     canLoad: false,
     isLoadedFromAsyncStorage: false, //NOTE: true | false will always evaluate to true in JavaScript (because of bitwise OR). isLoadedFromAsyncStorage: true | false,
     searchedMusic: false,
-    searchedMusicHistory:[]
+    searchedMusicHistory:[],
+    checkOnceNext:true
   },
   reducers: {
+    setCheckOnceNext(state,action){
+      state.checkOnceNext = action.payload
+    },
     setSearchedMusicHistory(state,action){
       if(state.searchedMusicHistory.count == 15){
         state.searchedMusicHistory.splice(state.searchedMusicHistory.count-1, 1); 
@@ -129,30 +132,33 @@ const MusicSlice = createSlice({
     }
   },
 
-  // extraReducers: (builder) => {
-  //   builder
-  //     .addCase(FetchMetadata.pending, (state) => {
-  //       state.status = "loading";
-  //     })
-  //     .addCase(FetchMetadata.fulfilled, (state, action) => {
-  //       state.status = "succeeded";
-  //       // Store the metadata explicitly
-  // const newMusic = {
-  //   id:action.payload.id,
-  //   title: action.payload.title,
-  //   uploader: action.payload.uploader,
-  //   image: action.payload.thumbnail,
-  //   duration: action.payload.duration,
-  //   url: action.payload.url || null,
-  // };
-  // state.data = [...state.data,newMusic];
-  //       console.log("Metadata stored in state:", action.payload);
-  //     })
-  //     .addCase(FetchMetadata.rejected, (state, action) => {
-  //       state.status = "failed";
-  //       state.error = action.payload;
-  //     });
-  // },
+  extraReducers: (builder) => {
+          builder
+              .addCase(getPersistSearch.fulfilled, (state, action) => {
+                  try {
+                      const raw = action.payload;
+                      const response = typeof raw === "string" ? JSON.parse(raw) : raw;
+
+                      console.log("PULLING SEARCHED MUSIC", response);
+                      state.searchedMusicHistory = Array.isArray(response) ? response : [];
+                  } catch (err) {
+                      console.error("Error parsing searched music:", err);
+                      state.searchedMusicHistory = [];
+                  }
+              })
+
+              .addCase(getPersistSearch.pending, (state, action) => {
+  
+  
+              })
+              .addCase(getPersistSearch.rejected, (state, action) => {
+  
+              })
+              
+  
+  
+  
+      }
 });
 export const {
   addMusic,
@@ -163,9 +169,42 @@ export const {
   setIsLoadedFromAsyncStorage,
   changeDATA,
   setSearchedMusic,
-  setSearchedMusicHistory
+  setSearchedMusicHistory,
+  setCheckOnceNext
 } = MusicSlice.actions;
 export default MusicSlice.reducer;
+
+
+export const PersistSearch = createAsyncThunk("/persistSearch",async(song, { dispatch, getState })=>{
+  try{
+    dispatch(setSearchedMusicHistory(song))
+    const history = getState().data.searchedMusicHistory;
+    const user = getState().user.user
+    console.warn("History: ",history)
+    //${Constants.expoConfig.extra.SERVER}
+    const response = await axios.post( `http://192.168.1.36/api/persistsearch`,{searched:history,user:user?.id})
+    return response.data
+  }
+  catch(error){
+    console.warn("Persist queue error ",error)
+  }
+
+})
+
+export const getPersistSearch = createAsyncThunk("/getpersistSearch",async(_,{ dispatch, getState })=>{
+  try{
+    const user = getState().user.user
+    console.warn("GETTING SEARCHED MUSICSS")
+    //${Constants.expoConfig.extra.SERVER}
+    const response = await axios.post( `http://192.168.1.36/api/getpersistsearch`,{user:user?.id})
+    return response.data
+  }
+  catch(error){
+    console.warn("get search error ",error)
+  }
+
+})
+
 
 // export const FetchMetadata = createAsyncThunk(
 //   "/FetchMetadata",

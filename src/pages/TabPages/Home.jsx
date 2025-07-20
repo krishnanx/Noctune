@@ -45,7 +45,7 @@ const RecommendationCard = ({ title, subtitle, bgColor }) => (
 );
 
 const Home = () => {
-  const {searchedMusicHistory} = useSelector((state)=>state.data)
+  const searchedMusicHistory = useSelector((state)=>state.data.searchedMusicHistory)
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}

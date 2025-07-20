@@ -23,7 +23,7 @@ import { changeState } from "../../../Store/KeyboardSlice.js";
 //import ytdl from "react-native-ytdl";
 //import YTSearch from "youtube-search-api";
 import YoutubeMusicApi from "youtube-music-api";
-import { DownloadMusic } from "../../../Store/MusicSlice.js";
+import { DownloadMusic, PersistSearch } from "../../../Store/MusicSlice.js";
 import { ScrollView } from "react-native";
 import { FetchMetadata } from "../../../Store/MusicSlice.js";
 import {
@@ -112,7 +112,7 @@ const Search = () => {
     unloadAudio();
     console.log("Card pressed with URL:", song.url);
     dispatch(setSearchedMusic(true))
-    dispatch(setSearchedMusicHistory(song))
+    dispatch(PersistSearch(song))
     // dispatch(FetchMetadata({ text: song.url }));
     console.log(song);
     dispatch(addMusic(song));

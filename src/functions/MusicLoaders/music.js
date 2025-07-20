@@ -119,7 +119,7 @@ export const unloadAudio = async () => {
   }
 };
 const onPlaybackStatusUpdate = (status, dispatch, getSeek, data, pos, playlistNo,queueLoad,playLoad) => {
-  console.error("STATUS:",status)
+  //console.error("STATUS:",status)
   if (status.didJustFinish) {
     const currentSeek = getSeek?.();
     console.warn("finished......")
@@ -134,8 +134,8 @@ const onPlaybackStatusUpdate = (status, dispatch, getSeek, data, pos, playlistNo
     
   }
   if (status.isLoaded) {
-    console.warn("hi?");
-    console.warn("positionMillis:", status.positionMillis / 1000);
+    //console.warn("hi?");
+    //console.warn("positionMillis:", status.positionMillis / 1000);
     if (status.isPlaying) {
       dispatch(progress(+1));
     }
