@@ -37,8 +37,24 @@ import { showToast } from "./Store/ToastSlice";
 import eventBus from './src/functions/eventBus.js';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import store from "./Store/store.js";
+import * as Notifications from 'expo-notifications';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
+
 
 export default function App() {
+
+  useEffect(() => {
+  Notifications.requestPermissionsAsync();
+}, []);
+
+
   const { Mode } = useSelector((state) => state.theme);
   const { user, loading, waveload } = useSelector((state) => state.user || {});
   const { data: array, id, playlistNo, migrateSliceSucess, migratedPlaylist } = useSelector((state) => state.playlist);
