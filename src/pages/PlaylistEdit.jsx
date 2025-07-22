@@ -157,40 +157,48 @@ const pickImage = async () => {
     );
   };
 
-  const saveChanges = async () => {
+const saveChanges = async () => {
     if (!hasChanges) return;
     
     setIsLoading(true);
     try {
-      const updatedPlaylist = {
-        ...playlistData,
-        name: editedName,
-        desc: editedDescription,
-        image: selectedImage || editedImage || playlistData.image,
-        songs: editedSongs,
-        Time: editedSongs.reduce((total, song) => total + (song.duration || 0), 0)
-      };
+        const totalTime = editedSongs.reduce((total, song) => total + (song.duration || 0), 0);
+        
+        const updatedPlaylist = {
+            ...playlistData,
+            name: editedName,
+            desc: editedDescription,
+            image: selectedImage || editedImage || playlistData.image,
+            songs: editedSongs,
+            Time: totalTime
+        };
 
-      dispatch(updatePlaylistData({
-        index: index,
-        updatedData: updatedPlaylist
-      }));
+        console.warn("Saving playlist:", updatedPlaylist);
+        console.warn("Original playlist name:", playlistData.name);
+        console.warn("User ID:", user.id);
 
-      //Use unwrap() to get the actual result or throw on rejection
-    const result = await dispatch(editPlaylist({
-      data: updatedPlaylist,
-      userid: user
-    })).unwrap();
+        const result = await dispatch(editPlaylist({
+            data: updatedPlaylist,
+            originalName: playlistData.name,
+            userid: user.id
+        })).unwrap();
 
-    console.log('Playlist updated successfully:', result);
-    navigation.goBack();
-
-  } catch (error) {
-    console.error('Error saving playlist:', error);
-    Alert.alert('Error', `Failed to save changes: ${error.message}`);
-  } finally {
-    setIsLoading(false);
-  }
+        console.log('Playlist updated successfully:', result);
+        console.log('Result response:', result.response); // Add this for debugging
+        
+        // Fix: Check for 'type' instead of 'status'
+        if (result.response?.type === "success") {
+            navigation.goBack();
+        } else {
+            throw new Error(`Backend returned unsuccessful status: ${result.response?.message || 'Unknown error'}`);
+        }
+        
+    } catch (error) {
+        console.error('Error saving playlist:', error);
+        Alert.alert('Error', `Failed to save changes: ${error.message || error}`);
+    } finally {
+        setIsLoading(false);
+    }
 };
 
   const discardChanges = () => {
