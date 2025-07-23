@@ -17,6 +17,7 @@ import { signIn } from "../../../Store/AuthThunk";
 import { setUser } from "../../../Store/UserSlice";
 import Icon from "react-native-vector-icons/Ionicons";
 import { showToast,hideToast } from "../../../Store/ToastSlice";
+import { pullPlaylists } from "../../../Store/PlaylistSlice";
 
 const SignIn = () => {
   const { colors } = useTheme();
@@ -47,6 +48,7 @@ const handleSignIn = async () => {
       if (result.success) {
         const { user, session } = result;
         dispatch(setUser(user));
+        dispatch(pullPlaylists({user:user.id}))
       } else {
         const errorMessage = result.error || "Failed to sign in";
         dispatch(showToast(errorMessage));

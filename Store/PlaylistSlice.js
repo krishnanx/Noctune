@@ -34,11 +34,11 @@ const PlaylistSlice = createSlice({
         },
         addMusicinPlaylist(state, action) {
             let bool = true;
-            if (state.data[action.payload.id].songs.length === 0) {
+            if (state.data[action.payload.id]?.songs?.length === 0) {
                 console.warn(action.payload.music.image)
                 state.data[action.payload.id].image = action.payload.music.image
             }
-            state.data[action.payload.id].songs.forEach(element => {
+            state.data[action.payload.id].songs?.forEach(element => {
                 if (element.id === action.payload.music.id) {
                     bool = false
                 }
