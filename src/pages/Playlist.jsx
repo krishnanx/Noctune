@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, {useState, useEffect, useCallback, useMemo, useRef  } from "react";
 import {
   View,
   StyleSheet,
@@ -48,7 +48,7 @@ const Playlist = () => {
 
   const goToNewPage = () => {
     console.warn("DATA: ", JSON.stringify(data, null, 2));
-    data[0].songs.forEach((song, idx) => {
+    data[0].songs?.forEach((song, idx) => {
       console.warn(`Song ${idx + 1}:`, song);
     });
     navigation.navigate('PlaylistEdit', { index });
@@ -307,7 +307,7 @@ const Playlist = () => {
         paddingBottom: 100,
         paddingHorizontal: 20,
         paddingTop: 20,
-        height: 620 + (data[index].songs.length * 90),
+        height: 620 + (data[index].songs?.length * 90),
         //backgroundColor: "white"
       }}
     >
@@ -391,8 +391,8 @@ const Information = ({
       <View style={styles.metadata}>
         <View style={styles.imageContainer}>
           <Image
-            source={index == 0 ? data.songs.length > 0 ? data.image ? { uri: data.image } : { uri: data.songs[0].image } :
-              icon : data.songs.length > 0 ? data.image ? { uri: data.image } : { uri: data.songs[0].image } : normIcon}
+            source={index == 0 ? data.songs?.length > 0 ? data.image ? { uri: data.image } : { uri: data.songs[0]?.image } :
+              icon : data.songs?.length > 0 ? data.image ? { uri: data.image } : { uri: data.songs[0]?.image } : normIcon}
             style={styles.albumArt}
           // fallback if user image fails to load
           />
@@ -435,7 +435,7 @@ const Information = ({
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.funcbutton, { marginRight: 15 }]}
-                onPress={() => navigation.navigate("InviteCollab")}
+                // onPress={() => navigation.navigate("InviteCollab")}
 
 
               >

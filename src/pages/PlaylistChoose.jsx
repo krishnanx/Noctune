@@ -95,7 +95,7 @@ const PlaylistChoose = () => {
     const musicToAdd = song || value[pos];
 
     // Add the song to all selected playlists
-    selectedIndices.forEach((playlistIndex) => {
+    selectedIndices?.forEach((playlistIndex) => {
       dispatch(addMusicinPlaylist({ id: playlistIndex, music: musicToAdd }));
       console.error(data[playlistIndex])
       dispatch(addMusictoPlaylist({ playlist: data[playlistIndex], user: user?.id, music: musicToAdd }))
