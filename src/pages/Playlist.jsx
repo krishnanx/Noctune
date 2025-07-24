@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, {useState, useEffect, useCallback, useMemo, useRef  } from "react";
 import {
   View,
   StyleSheet,
@@ -435,7 +435,7 @@ const Information = ({
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.funcbutton, { marginRight: 15 }]}
-                onPress={() => navigation.navigate("InviteCollab")}
+                // onPress={() => navigation.navigate("InviteCollab")}
 
 
               >

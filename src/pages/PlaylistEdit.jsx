@@ -61,6 +61,7 @@ const PlaylistEdit = () => {
   // Get playlist data from Redux store
   const { data } = useSelector((state) => state.playlist);
   const userState = useSelector((state) => state.user || {});
+  const searchTextHistory = useSelector(state => state.data);
   const { user, session, loading, error, clientID } = userState;
   
   // Get the specific playlist using the index
@@ -393,7 +394,7 @@ return (
           activationDistance={0}
           containerStyle={styles.sortableContainer}
           contentContainerStyle={{ paddingBottom: 40 }}
-          ListHeaderComponent={renderHeader} // 👈 your header goes here
+          ListHeaderComponent={renderHeader} 
         />
       </GestureHandlerRootView>
     </KeyboardAvoidingView>
