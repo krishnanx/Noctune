@@ -11,6 +11,7 @@ import {
   Modal,
   TextInput,
   Switch,
+  ImageBackground
 } from "react-native";
 import BackArrow from "../Components/Icons/BackArrow";
 import { useDispatch, useSelector } from "react-redux";
@@ -29,6 +30,7 @@ const PlaylistChoose = () => {
   const { user } = useSelector((state) => state.user || {});
   const route = useRoute();
   const { index, song } = route.params;
+
   const dispatch = useDispatch();
   const { data, id } = useSelector((state) => state.playlist);
   const { data: value, pos } = useSelector((state) => state.data);
@@ -39,6 +41,10 @@ const PlaylistChoose = () => {
   const [playlistName, setPlaylistName] = useState("");
   const [description, setDescription] = useState("");
   const { colors } = useTheme();
+
+
+  
+  //const backgroundImage = song?.image || index?.image;
 
   const handlePress = () => {
     toggleModal();
@@ -80,6 +86,7 @@ const PlaylistChoose = () => {
     //   "w500-h500"
     // );
     // song.image = upscaledUrl
+
     if (song?.image) {
       const upscaledUrl = song.image.replace(/w\d+-h\d+/, "w500-h500");
       song.image = upscaledUrl;
@@ -88,7 +95,7 @@ const PlaylistChoose = () => {
     const musicToAdd = song || value[pos];
 
     // Add the song to all selected playlists
-    selectedIndices.forEach((playlistIndex) => {
+    selectedIndices?.forEach((playlistIndex) => {
       dispatch(addMusicinPlaylist({ id: playlistIndex, music: musicToAdd }));
       console.error(data[playlistIndex])
       dispatch(addMusictoPlaylist({ playlist: data[playlistIndex], user: user?.id, music: musicToAdd }))
@@ -240,14 +247,21 @@ const PlaylistChoose = () => {
       color: "white",
       fontSize: 14,
     },
+    imageStyle: {
+      opacity: 0.3,
+    },
   });
 
+
+const bg = index?.image || song?.image;
+
   return (
-    <LinearGradient
-      colors={["#141414", "#1c2c32"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
+    
+    <ImageBackground
+      source={{uri :bg}}
       style={{ flex: 1 }}
+      imageStyle={styles.imageStyle}
+      blurRadius={50}
     >
       <ScrollView
         style={styles.Main}
@@ -378,7 +392,7 @@ const PlaylistChoose = () => {
       >
         <Text style={styles.doneButtonText}>Done</Text>
       </TouchableOpacity>
-    </LinearGradient>
+    </ImageBackground>
   );
 };
 

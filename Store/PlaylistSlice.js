@@ -34,11 +34,11 @@ const PlaylistSlice = createSlice({
         },
         addMusicinPlaylist(state, action) {
             let bool = true;
-            if (state.data[action.payload.id].songs.length === 0) {
+            if (state.data[action.payload.id]?.songs?.length === 0) {
                 console.warn(action.payload.music.image)
                 state.data[action.payload.id].image = action.payload.music.image
             }
-            state.data[action.payload.id].songs.forEach(element => {
+            state.data[action.payload.id].songs?.forEach(element => {
                 if (element.id === action.payload.music.id) {
                     bool = false
                 }
@@ -155,8 +155,32 @@ const PlaylistSlice = createSlice({
             .addCase(AddNewPlaylist.rejected, (state, action) => {
 
                 const response = action.payload;
-
             })
+.addCase(editPlaylist.fulfilled, (state, action) => {
+    const { playlist, response } = action.payload;
+    
+    // Fix: Check for 'type' instead of 'status' to match your backend response
+    if (response.type === "success") {
+        // Find the playlist in state and update it
+        const playlistIndex = state.data.findIndex(p => p.id === playlist.id);
+        if (playlistIndex !== -1) {
+            state.data[playlistIndex] = {
+                ...state.data[playlistIndex],
+                ...playlist,
+                Time: playlist.songs.reduce((total, song) => total + (song.duration || 0), 0)
+            };
+        }
+        console.warn("Playlist updated successfully in Redux");
+    } else {
+        console.error("Backend returned unsuccessful response:", response);
+    }
+})
+.addCase(editPlaylist.pending, (state, action) => {
+    console.warn("Editing playlist...");
+})
+.addCase(editPlaylist.rejected, (state, action) => {
+    console.error("Failed to edit playlist:", action.payload);
+})
             .addCase(pullPlaylists.fulfilled, (state, action) => {
 
                 const response = action.payload;
@@ -203,7 +227,8 @@ export const AddNewPlaylist = createAsyncThunk('/newplaylist', async ({ data: pl
     try {
         console.warn("adding new playlist");
         //const response = await axios.post("http://192.168.1.7:8000/playlist/NewPlaylists", { playlist: playlist, user: userid })
-        const response = await axios.post(`http://192.168.1.44/playlist/NewPlaylists`, { playlist: playlist, user: userid })
+        const response = await axios.post(`${Constants.expoConfig.extra.SERVER
+            }/playlist/NewPlaylists`, { playlist: playlist, user: userid })
 
         return response.data
     }
@@ -212,18 +237,36 @@ export const AddNewPlaylist = createAsyncThunk('/newplaylist', async ({ data: pl
     }
 })
 
-export const editPlaylist = createAsyncThunk('/editPlaylist', async ({data: playlist, userid: userid}) => {
-    try {
-        console.warn("Editing Playlist: ", playlist.name);
-        const response = await axios.post(
-            `${Constants.expoConfig.extra.SERVER}/playlist/editPlaylist`,
-            { playlist: playlist, user: userid }  // ✅ Match Express.js expectations
-        );
-        return response.data
-    } catch (e) {
-        console.error("ERROR FROM EDIT PLAYLIST: ", e)
+export const editPlaylist = createAsyncThunk(
+    '/editPlaylist',
+    async ({ data: playlist, originalName, userid }, { rejectWithValue }) => {
+        try {
+            console.warn("Editing Playlist: ", playlist.name);
+            console.warn("Original Name: ", originalName);
+            console.warn("User ID: ", userid);
+
+            const response = await axios.post(
+                `${Constants.expoConfig.extra.SERVER
+            }/playlist/editPlaylist`,
+                {
+                    playlist: playlist,
+                    originalName: originalName,
+                    user: userid
+                }
+            );
+
+            console.warn("Edited Playlist Response: ", response.data);
+            return {
+                playlist: playlist,
+                response: response.data
+            };
+        } catch (e) {
+            console.error("ERROR FROM EDIT PLAYLIST: ", e);
+            return rejectWithValue(e.response?.data || e.message);
+        }
     }
-})
+);
+
 
 export const pullPlaylists = createAsyncThunk('/pullPlaylists', async ({ user: user }) => {
     try {
@@ -252,3 +295,11 @@ export const addMusictoPlaylist = createAsyncThunk('/addMusic', async ({ playlis
         console.error(e)
     }
 })
+     /**const response = await axios.post(
+                `http://192.168.1.7/playlist/editPlaylist`,
+                {
+                    playlist: playlist,
+                    originalName: originalName,
+                    user: userid
+                }
+            );*/

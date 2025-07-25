@@ -13,11 +13,43 @@ const MusicSlice = createSlice({
     isLoadedFromAsyncStorage: false, //NOTE: true | false will always evaluate to true in JavaScript (because of bitwise OR). isLoadedFromAsyncStorage: true | false,
     searchedMusic: false,
     searchedMusicHistory:[],
+    searchTextHistory: [], // New: Store search query strings
     checkOnceNext:true
   },
   reducers: {
     setCheckOnceNext(state,action){
       state.checkOnceNext = action.payload
+    },
+    // New reducer for search text history
+    addSearchTextHistory(state, action) {
+      const searchText = action.payload.trim();
+      if (!searchText) return;
+      
+      // Remove if already exists to avoid duplicates
+      const existingIndex = state.searchTextHistory.findIndex(
+        item => item.toLowerCase() === searchText.toLowerCase()
+      );
+      if (existingIndex !== -1) {
+        state.searchTextHistory.splice(existingIndex, 1);
+      }
+      
+      // Add to beginning of array (most recent first)
+      state.searchTextHistory.unshift(searchText);
+      
+      // Keep only last 10 searches
+      if (state.searchTextHistory.length > 10) {
+        state.searchTextHistory = state.searchTextHistory.slice(0, 10);
+      }
+    },
+    
+    // New reducer to clear search text history
+    clearSearchTextHistory(state) {
+      state.searchTextHistory = [];
+    },
+    
+    // New reducer to set search text history (for loading from storage)
+    setSearchTextHistory(state, action) {
+      state.searchTextHistory = Array.isArray(action.payload) ? action.payload : [];
     },
     setSearchedMusicHistory(state,action){
       if(state.searchedMusicHistory.count == 15){
@@ -170,7 +202,11 @@ export const {
   changeDATA,
   setSearchedMusic,
   setSearchedMusicHistory,
-  setCheckOnceNext
+  setCheckOnceNext,
+  addSearchTextHistory,
+  clearSearchTextHistory,
+  setSearchTextHistory
+
 } = MusicSlice.actions;
 export default MusicSlice.reducer;
 

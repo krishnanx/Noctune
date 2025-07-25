@@ -8,6 +8,7 @@ import { setPlaylistplaying } from "../../../Store/PlaylistSlice.js";
 import { current } from "@reduxjs/toolkit";
 import eventBus from '../eventBus.js';
 import { changeLoad, changePlaylistPos } from "../../../Store/Playdataslice.js";
+import { sendSongFinishedNotification } from "../../functions/LocalNotification.js"
 export const soundRef = {
   previous: null,
   current: null,
@@ -123,6 +124,8 @@ const onPlaybackStatusUpdate = (status, dispatch, getSeek, data, pos, playlistNo
   if (status.didJustFinish) {
     const currentSeek = getSeek?.();
     console.warn("finished......")
+    console.warn("Sned");
+    sendSongFinishedNotification("Lover - Taylor Swift");
     
     if(currentSeek != data[pos]?.duration && currentSeek != 0) {
     console.warn("finishing up!!");

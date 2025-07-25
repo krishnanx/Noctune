@@ -10,7 +10,6 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   Keyboard,
-  
   Platform,
 } from "react-native";
 import { useTheme } from "@react-navigation/native";
@@ -23,7 +22,7 @@ import { changeState } from "../../../Store/KeyboardSlice.js";
 //import ytdl from "react-native-ytdl";
 //import YTSearch from "youtube-search-api";
 import YoutubeMusicApi from "youtube-music-api";
-import { DownloadMusic, PersistSearch } from "../../../Store/MusicSlice.js";
+import { DownloadMusic, PersistSearch,addSearchTextHistory, clearSearchTextHistory, setSearchTextHistory } from "../../../Store/MusicSlice.js";
 import { ScrollView } from "react-native";
 import { FetchMetadata } from "../../../Store/MusicSlice.js";
 import {
@@ -51,13 +50,11 @@ const Search = () => {
   const [error, setError] = useState(null);
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const { data, pos, seek, isplaying, canLoad, isLoadedFromAsyncStorage } = useSelector((state) => state.data);
+  const { data, pos, seek, isplaying, canLoad, isLoadedFromAsyncStorage,searchTextHistory } = useSelector((state) => state.data);
   const [shouldLoad, setShouldLoad] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedSong, setSelectedSong] = useState(null);
   const status = useSelector((state)=>state.key.status)
-
- 
 
   
   // useFocusEffect(
@@ -239,6 +236,7 @@ const Search = () => {
           onSubmitEditing={() => {
             //dispatch(DownloadMusic({ text }));
             //setFetchSong(sampleSongs);
+            dispatch(addSearchTextHistory(query)); 
             searchMusic(query);
           }}
           icon={() => (
@@ -275,7 +273,78 @@ const Search = () => {
         />
       </View>
       <View style={{ flexGrow: 1,paddingTop:status?18:0 }}>
-       
+
+ {!isLoading && songs.length === 0 && searchTextHistory.length > 0 && (
+  <View style={{ paddingHorizontal: 10, marginTop: 0 }}>
+
+      {/* <Text style={{ color: 'white', fontSize: 20, marginBottom: 20 }}>
+      Recent Searches
+    </Text> */}
+    <View style={{ width: '100%', alignItems: 'flex-end', marginVertical: 10 }}>
+    <TouchableOpacity
+  onPress={async () => {
+    dispatch(clearSearchTextHistory());
+    await AsyncStorage.removeItem('searchTextHistory');
+  }}
+>
+  <Text style={{color:'white', marginLeft: 10  }}>Clear History</Text>
+</TouchableOpacity>
+</View>
+
+
+    {searchTextHistory.map((text, idx) => (
+      <TouchableOpacity
+        key={idx}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingVertical: 12,
+          borderBottomColor: 'rgba(255,255,255,0.1)',
+          borderBottomWidth: 1,
+        }}
+        onPress={() => {
+          setText(text);
+          dispatch(addSearchTextHistory(text));
+          searchMusic(text);
+        }}
+      >
+        
+        <View
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            backgroundColor: 'rgba(255,255,255,0.08)',
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginRight: 12,
+          }}
+        >
+          <Entypo name="magnifying-glass" size={20} color="white" />
+        </View>
+
+        <Text
+          style={{
+            flex: 1,
+            color: 'white',
+            fontSize: 16,
+          }}
+          numberOfLines={1}
+          ellipsizeMode="tail"
+        >
+          {text}
+        </Text>
+
+        <Entypo
+          name="chevron-left"
+          size={20}
+          color="white"
+          style={{ marginLeft: 10 }}
+        />
+      </TouchableOpacity>
+    ))}
+  </View>
+)}
           {isLoading ? (
             <View style={{ padding: 20 }}>
               <ActivityIndicator size="large" color="white" />

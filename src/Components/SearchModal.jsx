@@ -18,6 +18,8 @@ const SearchModal = ({
 }) => {
   const { data, pos } = useSelector((state) => state.data);
 
+  
+
   return (
     <Modal
       animationType="fade"
