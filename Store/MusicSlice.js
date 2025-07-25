@@ -139,7 +139,7 @@ const MusicSlice = createSlice({
                       const raw = action.payload;
                       const response = typeof raw === "string" ? JSON.parse(raw) : raw;
 
-                      console.log("PULLING SEARCHED MUSIC", response);
+                      console.error("PULLING SEARCHED MUSIC", response);
                       state.searchedMusicHistory = Array.isArray(response) ? response : [];
                   } catch (err) {
                       console.error("Error parsing searched music:", err);

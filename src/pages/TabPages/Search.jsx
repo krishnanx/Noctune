@@ -83,7 +83,7 @@ const Search = () => {
 
     try {
       const results = await api.search(searchText, "song");
-      console.log("Search results:", results);
+      //console.error("Search results:", results);
 
       if (results && results.content && results.content.length > 0) {
         //Process top5 results only
@@ -324,7 +324,7 @@ const Search = () => {
                   </View>
                 </TouchableOpacity>
               )}
-              contentContainerStyle={{ paddingBottom: 100 }}
+              // contentContainerStyle={{ paddingBottom: 100 }}
               keyboardShouldPersistTaps="handled"
             />
           )}
