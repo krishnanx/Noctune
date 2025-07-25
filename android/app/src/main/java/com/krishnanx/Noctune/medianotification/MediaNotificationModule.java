@@ -73,13 +73,14 @@ public class MediaNotificationModule extends ReactContextBaseJavaModule {
     private String currentArtist = "";
     private String currentAlbum = "";
     private String currentArtwork = "";
+    private long currentDuration = 0; // Store duration in milliseconds
+
+    private long currentPosition = 0;
 
     // Thread safety and builder management
     private NotificationCompat.Builder builder;
     private final Object builderLock = new Object();
     private volatile boolean isNotificationBuilt = false;
-    private int currentProgress = 0;
-    private int maxProgress = 1000;
     private Handler mainHandler;
 
     public MediaNotificationModule(ReactApplicationContext reactContext) {
@@ -129,7 +130,8 @@ public class MediaNotificationModule extends ReactContextBaseJavaModule {
                 PlaybackStateCompat.ACTION_PAUSE |
                 PlaybackStateCompat.ACTION_SKIP_TO_NEXT |
                 PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
-                PlaybackStateCompat.ACTION_STOP
+                PlaybackStateCompat.ACTION_STOP |
+                PlaybackStateCompat.ACTION_SEEK_TO
             );
             
         mediaSession.setPlaybackState(stateBuilder.build());
@@ -242,11 +244,17 @@ public class MediaNotificationModule extends ReactContextBaseJavaModule {
         try {
             Log.d(TAG, "updateProgress called: " + position + "ms / " + duration + "ms");
             
-            // Update MediaSession with milliseconds
+            // Store duration for metadata
+            if (duration > 0) {
+                currentDuration = duration;
+            }
+            
+            // Update MediaSession with position and playback state
+            // This is what actually drives the progress bar in MediaStyle notifications
             PlaybackStateCompat playbackState = new PlaybackStateCompat.Builder()
                 .setState(
                     isPlaying ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED,
-                    position, // position in milliseconds
+                    position, // position in milliseconds - THIS drives the progress bar
                     1.0f // playback speed
                 )
                 .setActions(
@@ -254,34 +262,43 @@ public class MediaNotificationModule extends ReactContextBaseJavaModule {
                     PlaybackStateCompat.ACTION_PAUSE |
                     PlaybackStateCompat.ACTION_SKIP_TO_NEXT |
                     PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
-                    PlaybackStateCompat.ACTION_STOP
+                    PlaybackStateCompat.ACTION_STOP |
+                    PlaybackStateCompat.ACTION_SEEK_TO
                 )
                 .build();
-
+            
             mediaSession.setPlaybackState(playbackState);
-
-            // Update notification progress bar
-            if (duration > 0 && isNotificationActive) {
-                int maxProg = 1000;
-                int currentProg = (int) ((long) position * maxProg / duration);
-                currentProg = Math.max(0, Math.min(maxProg, currentProg));
+            
+            // Update MediaSession metadata with duration
+            // Both position (from playback state) and duration (from metadata) are needed for progress bar
+            if (currentDuration > 0) {
+                MediaMetadataCompat.Builder metadataBuilder = new MediaMetadataCompat.Builder()
+                    .putString(MediaMetadataCompat.METADATA_KEY_TITLE, currentTitle)
+                    .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, currentArtist)
+                    .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, currentAlbum)
+                    .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, currentDuration); // Duration in milliseconds
                 
-                Log.d(TAG, "Progress bar: " + currentProg + "/" + maxProg);
-                
-                synchronized (builderLock) {
-                    // Store progress values
-                    this.currentProgress = currentProg;
-                    this.maxProgress = maxProg;
-                    
-                    if (builder != null && isNotificationBuilt) {
-                        Log.d(TAG, "Updating notification progress");
-                        builder.setProgress(maxProg, currentProg, false);
-                        notificationManager.notify(NOTIFICATION_ID, builder.build());
-                    } else {
-                        Log.d(TAG, "Builder not ready, stored progress: " + currentProg + "/" + maxProg);
-                    }
+                // Add artwork if we have it loaded
+                if (currentArtwork != null && !currentArtwork.isEmpty()) {
+                    // Load artwork in background and update metadata
+                    new Thread(() -> {
+                        try {
+                            Bitmap artwork = getBitmapFromURL(currentArtwork);
+                            if (artwork != null) {
+                                metadataBuilder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, artwork);
+                            }
+                            mediaSession.setMetadata(metadataBuilder.build());
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error loading artwork for metadata", e);
+                            mediaSession.setMetadata(metadataBuilder.build());
+                        }
+                    }).start();
+                } else {
+                    mediaSession.setMetadata(metadataBuilder.build());
                 }
             }
+            
+            Log.d(TAG, "MediaSession updated with position: " + position + "ms, duration: " + currentDuration + "ms");
             
             promise.resolve(true);
         } catch (Exception e) {
@@ -345,6 +362,11 @@ public class MediaNotificationModule extends ReactContextBaseJavaModule {
             .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, currentArtist)
             .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, currentAlbum);
         
+        // Add duration if we have it
+        if (currentDuration > 0) {
+            metadataBuilder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, currentDuration);
+        }
+        
         // Load artwork if available
         if (currentArtwork != null && !currentArtwork.isEmpty()) {
             new Thread(() -> {
@@ -374,7 +396,7 @@ public class MediaNotificationModule extends ReactContextBaseJavaModule {
         // Update playback state
         updatePlaybackState(isPlaying);
     }
-
+    
     private void updatePlaybackState(boolean isPlaying) {
         int playbackState = isPlaying ? 
             PlaybackStateCompat.STATE_PLAYING : 
@@ -474,7 +496,7 @@ public class MediaNotificationModule extends ReactContextBaseJavaModule {
         
         // Thread-safe builder creation
         synchronized (builderLock) {
-            // Build notification
+            // Build notification WITHOUT setProgress - MediaStyle handles progress automatically
             builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setContentTitle(currentTitle)
                 .setContentText(currentArtist)
@@ -484,7 +506,7 @@ public class MediaNotificationModule extends ReactContextBaseJavaModule {
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setOnlyAlertOnce(true)
                 .setOngoing(isPlaying)
-                .setProgress(maxProgress, currentProgress, false)  // Use stored progress
+                // REMOVED setProgress - MediaStyle gets progress from MediaSession automatically
                 // Add media style
                 .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
                     .setMediaSession(mediaSession.getSessionToken())
@@ -500,7 +522,7 @@ public class MediaNotificationModule extends ReactContextBaseJavaModule {
             }
             
             isNotificationBuilt = true;
-            Log.d(TAG, "Builder created and ready, progress: " + currentProgress + "/" + maxProgress);
+            Log.d(TAG, "Builder created and ready - MediaStyle will handle progress automatically");
         }
         
         // Start foreground service to keep notification even when app is in background
@@ -574,6 +596,16 @@ public class MediaNotificationModule extends ReactContextBaseJavaModule {
         @Override
         public void onStop() {
             sendEvent(getReactApplicationContext(), EVENT_STOP, null);
+        }
+
+        @Override
+        public void onSeekTo(long position) {
+            // Handle seek events from the progress bar
+            Log.d(TAG, "onSeekTo called with position: " + position);
+            // You can send this to JavaScript if needed
+            WritableMap params = Arguments.createMap();
+            params.putDouble("position", position);
+            sendEvent(getReactApplicationContext(), "onSeekEvent", params);
         }
     }
 }

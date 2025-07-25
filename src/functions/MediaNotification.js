@@ -132,7 +132,7 @@ class MediaNotificationManager {
       console.warn("MediaNotification is not available or method not defined");
       return Promise.resolve(false);
     }
-
+    console.warn("Position MS:", positionMs)
     return MediaNotification.updateProgress(positionMs, durationMs);
   }
 
