@@ -119,7 +119,7 @@ const Player = () => {
 
   //Update notification when playback state changes
   useEffect(() => {
-    MediaNotificationManager.updatePlaybackStatus(isplaying);
+    MediaNotificationManager.updatePlaybackStatus(isplaying,seek);
   }, [isplaying]);
 
 

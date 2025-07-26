@@ -91,7 +91,7 @@ const PlayerStack = () => {
               showStop: true,
             }
           ).then(() => {
-            MediaNotificationManager.updatePlaybackStatus(isplaying);
+            MediaNotificationManager.updatePlaybackStatus(isplaying,seek);
           });
         }, 100);
       });
@@ -263,7 +263,7 @@ const PlayerStack = () => {
 
   //Update notification when playback state changes
   useEffect(() => {
-    MediaNotificationManager.updatePlaybackStatus(isplaying);
+    MediaNotificationManager.updatePlaybackStatus(isplaying,seek);
   }, [isplaying]);
 
 

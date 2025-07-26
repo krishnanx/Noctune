@@ -182,7 +182,7 @@ public class MediaNotificationModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void showNotification(ReadableMap trackData, Promise promise) {
+    public void showNotification(ReadableMap trackData, int position, Promise promise) {
         try {
             Log.d(TAG, "showNotification called");
             
@@ -225,49 +225,53 @@ public class MediaNotificationModule extends ReactContextBaseJavaModule {
         }
     }
 
-    @ReactMethod
-    public void updatePlaybackStatus(boolean isPlaying, Promise promise) {
-        try {
-            Log.d(TAG, "updatePlaybackStatus: " + isPlaying);
-            this.isPlaying = isPlaying;
-            if (isNotificationActive) {
-                updateNotificationPlaybackState();
-            }
-            promise.resolve(true);
-        } catch (Exception e) {
-            promise.reject("ERROR", "Failed to update notification: " + e.getMessage());
-        }
-    }
+    // @ReactMethod
+    // public void updatePlaybackStatus(boolean isPlaying, int position,Promise promise) {
+    //     try {
+    //         Log.d(TAG, "updatePlaybackStatus: " + isPlaying);
+    //         this.isPlaying = isPlaying;
+    //         if (isNotificationActive) {
+    //             updateNotificationPlaybackState();
+    //         }
+    //         promise.resolve(true);
+    //     } catch (Exception e) {
+    //         promise.reject("ERROR", "Failed to update notification: " + e.getMessage());
+    //     }
+    // }
 
     @ReactMethod
     public void updateProgress(int position, int duration, Promise promise) {
         try {
             Log.d(TAG, "updateProgress called: " + position + "ms / " + duration + "ms");
             
+            this.currentPosition = position;
+
             // Store duration for metadata
             if (duration > 0) {
                 currentDuration = duration;
             }
+
+            updateMediaSessionPlaybackState();
+
+            // // Update MediaSession with position and playback state
+            // // This is what actually drives the progress bar in MediaStyle notifications
+            // PlaybackStateCompat playbackState = new PlaybackStateCompat.Builder()
+            //     .setState(
+            //         isPlaying ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED,
+            //         position, // position in milliseconds - THIS drives the progress bar
+            //         1.0f // playback speed
+            //     )
+            //     .setActions(
+            //         PlaybackStateCompat.ACTION_PLAY |
+            //         PlaybackStateCompat.ACTION_PAUSE |
+            //         PlaybackStateCompat.ACTION_SKIP_TO_NEXT |
+            //         PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
+            //         PlaybackStateCompat.ACTION_STOP |
+            //         PlaybackStateCompat.ACTION_SEEK_TO
+            //     )
+            //     .build();
             
-            // Update MediaSession with position and playback state
-            // This is what actually drives the progress bar in MediaStyle notifications
-            PlaybackStateCompat playbackState = new PlaybackStateCompat.Builder()
-                .setState(
-                    isPlaying ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED,
-                    position, // position in milliseconds - THIS drives the progress bar
-                    1.0f // playback speed
-                )
-                .setActions(
-                    PlaybackStateCompat.ACTION_PLAY |
-                    PlaybackStateCompat.ACTION_PAUSE |
-                    PlaybackStateCompat.ACTION_SKIP_TO_NEXT |
-                    PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
-                    PlaybackStateCompat.ACTION_STOP |
-                    PlaybackStateCompat.ACTION_SEEK_TO
-                )
-                .build();
-            
-            mediaSession.setPlaybackState(playbackState);
+            // mediaSession.setPlaybackState(playbackState);
             
             // Update MediaSession metadata with duration
             // Both position (from playback state) and duration (from metadata) are needed for progress bar
@@ -326,12 +330,32 @@ public class MediaNotificationModule extends ReactContextBaseJavaModule {
             }
 
             if (isNotificationActive) {
-                updateNotification(isPlaying);
+                updateNotification(isPlaying,0);
             }
             
             promise.resolve(true);
         } catch (Exception e) {
             promise.reject("UPDATE_FAILED", e.getMessage());
+        }
+    }
+
+    @ReactMethod
+    public void updatePlaybackStatus(boolean isPlaying, int position, Promise promise) {
+        try {
+            Log.d(TAG, "updatePlaybackStatus: " + isPlaying + ", position: " + position);
+            this.isPlaying = isPlaying;
+            this.currentPosition = position; // Store the position HERE
+            
+            if (isNotificationActive) {
+                updateNotificationPlaybackState();
+            }
+            
+            // MOST IMPORTANT: Update the MediaSession state with the correct position
+            updateMediaSessionPlaybackState();
+            
+            promise.resolve(true);
+        } catch (Exception e) {
+            promise.reject("ERROR", "Failed to update notification: " + e.getMessage());
         }
     }
 
@@ -353,8 +377,11 @@ public class MediaNotificationModule extends ReactContextBaseJavaModule {
         }
     }
 
-    private void updateNotification(boolean isPlaying) {
+    private void updateNotification(boolean isPlaying, int position) {
         Log.d(TAG, "updateNotification called, isPlaying: " + isPlaying);
+        
+        // Store the position
+        this.currentPosition = position;
         
         // Set media session metadata
         MediaMetadataCompat.Builder metadataBuilder = new MediaMetadataCompat.Builder()
@@ -393,19 +420,44 @@ public class MediaNotificationModule extends ReactContextBaseJavaModule {
             createAndShowNotification(isPlaying, null);
         }
         
-        // Update playback state
-        updatePlaybackState(isPlaying);
+        // Update playback state with stored position
+        updateMediaSessionPlaybackState();
     }
     
-    private void updatePlaybackState(boolean isPlaying) {
-        int playbackState = isPlaying ? 
-            PlaybackStateCompat.STATE_PLAYING : 
-            PlaybackStateCompat.STATE_PAUSED;
+    // private void updatePlaybackState(boolean isPlaying, int position) {
+    //     int playbackState = isPlaying ? 
+    //         PlaybackStateCompat.STATE_PLAYING : 
+    //         PlaybackStateCompat.STATE_PAUSED;
             
-        stateBuilder.setState(playbackState, PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN, 1.0f);
-        mediaSession.setPlaybackState(stateBuilder.build());
-    }
+    //     stateBuilder.setState(playbackState,position, 1.0f);
+    //     mediaSession.setPlaybackState(stateBuilder.build());
+    // }
 
+    private void updateMediaSessionPlaybackState() {
+            int state = isPlaying ? 
+                PlaybackStateCompat.STATE_PLAYING : 
+                PlaybackStateCompat.STATE_PAUSED;
+                
+            Log.d(TAG, "Setting MediaSession playback state - Playing: " + isPlaying + ", Position: " + currentPosition);
+            
+            // Create a NEW PlaybackStateCompat.Builder each time to ensure clean state
+            PlaybackStateCompat playbackState = new PlaybackStateCompat.Builder()
+                .setState(state, currentPosition, 1.0f)
+                .setActions(
+                    PlaybackStateCompat.ACTION_PLAY |
+                    PlaybackStateCompat.ACTION_PAUSE |
+                    PlaybackStateCompat.ACTION_SKIP_TO_NEXT |
+                    PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
+                    PlaybackStateCompat.ACTION_STOP |
+                    PlaybackStateCompat.ACTION_SEEK_TO
+                )
+                .build();
+                
+            mediaSession.setPlaybackState(playbackState);
+        }
+
+    
+    // Simplified method - no position parameter needed since we store it in the class
     private void updateNotificationPlaybackState() {
         synchronized (builderLock) {
             if (builder != null && isNotificationBuilt) {
@@ -435,8 +487,6 @@ public class MediaNotificationModule extends ReactContextBaseJavaModule {
                 Log.d(TAG, "Updated playback state in notification");
             }
         }
-        
-        updatePlaybackState(isPlaying);
     }
 
     private void updateNotificationWithArtwork(Bitmap artwork) {
@@ -602,7 +652,11 @@ public class MediaNotificationModule extends ReactContextBaseJavaModule {
         public void onSeekTo(long position) {
             // Handle seek events from the progress bar
             Log.d(TAG, "onSeekTo called with position: " + position);
-            // You can send this to JavaScript if needed
+            
+            // Update stored position when user seeks
+            currentPosition = position;
+            
+            // Send to JavaScript
             WritableMap params = Arguments.createMap();
             params.putDouble("position", position);
             sendEvent(getReactApplicationContext(), "onSeekEvent", params);

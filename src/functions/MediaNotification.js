@@ -72,7 +72,7 @@ class MediaNotificationManager {
     }
 
     this.currentTrack = { ...trackData }; //added
-    return MediaNotification.showNotification(trackData);
+    return MediaNotification.showNotification(trackData,0);
   }
 
   /**
@@ -80,13 +80,13 @@ class MediaNotificationManager {
    * @param {boolean} isPlaying - Whether audio is currently playing
    * @returns {Promise} - Promise that resolves when notification is updated
    */
-  updatePlaybackStatus(isPlaying) {
+  updatePlaybackStatus(isPlaying,position) {
     if (!this.isAvailable) {
       console.warn("MediaNotification is not available on this platform");
       return Promise.resolve(false);
     }
-
-    return MediaNotification.updatePlaybackStatus(isPlaying);
+    console.error("position in java bridge:",position)
+    return MediaNotification.updatePlaybackStatus(isPlaying,position);
   }
 
   /**
