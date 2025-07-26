@@ -40,9 +40,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import SearchModal from "../../Components/SearchModal.jsx";
 import { changeLoad } from "../../../Store/Playdataslice.js";
 import { YtMusicRef } from "../../functions/YtMusicRef.js";
-
+import Constants from "expo-constants";
 const Search = () => {
-  const { colors } = useTheme(); // Get theme colors
+   const { colors } = useTheme(); // Get theme colors
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [songs, setSongs] = useState({});
   const [query, setText] = useState("");
@@ -56,17 +56,6 @@ const Search = () => {
   const [selectedSong, setSelectedSong] = useState(null);
   const status = useSelector((state)=>state.key.status)
 
-  
-  // useFocusEffect(
-  //   React.useCallback(() => {
-  //     // When screen is focused
-  //     return () => {
-  //       // When screen is unfocused (like going to another page)
-  //       dispatch(load(false));
-  //       console.log("it is false");
-  //     };
-  //   }, [])
-  // );
   const searchMusic = async (searchText) => {
     if (!searchText || !searchText.trim()) return;
 
@@ -156,125 +145,88 @@ const Search = () => {
   };
 
 
+  const fetchRecent = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/music/recent?user=${user}`);
+      if (response.data.success) setRecentSearches(response.data.searched);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
-  const styles = StyleSheet.create({
-    Main: {
-      //backgroundColor: colors.background,
-      width: "100%",
-      paddingHorizontal:15,
-      flex: 1, //added
-      //zIndex: 1000,
-      //paddingTop:30
-      //height: "100%", //had to comment this
-    },
-    input: {
-      width: "70%",
-      height: 40,
-      borderWidth: 1,
-      borderColor: "white",
-      padding: 10,
-      borderRadius: 20,
-    },
-    InputView: {
-      width: "100%",
-      justifyContent: "center",
-      alignItems: "center",
-      height: "15%",
-      //paddingTop: 40,
-      //marginBottom: 20,
-    },
-    card: {
-      width: "98%", //95
-      alignSelf: "center",
-      borderRadius: 20,
-      padding: 15,
-      paddingLeft: 15,
-      marginVertical: 10,
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 10,
-      backgroundColor: "rgba(50,50,50,0.5)",
-    },
-    cardImage: {
-      width: 50,
-      height: 50,
-      borderRadius: 8,
-      marginRight: 15,
-    },
-    artistName: {
-      color: "white",
-      fontSize: 13,
-    },
-    songName: {
-      color: "white",
-      fontSize: 16,
-      fontWeight: "bold",
-    },
-    textContainer: {
-      flex: 1,
-      paddingRight: 10,
-    },
-    dotsContainer: {
-      marginLeft: "auto",
-    },
-  });
+  useEffect(() => {
+    fetchRecent();
+  }, []);
+
+  const handleSearch = async () => {
+    if (!searched.trim()) return;
+    setLoading(true);
+    try {
+      const response = await axios.get(`${API_BASE_URL}/music/search?query=${searched}&user=${user}`);
+      if (response.data.success) setSongs(response.data.songs);
+    } catch (error) {
+      console.error(error);
+    }
+    setLoading(false);
+  };
+
+  
 
   return (
-   
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-    <View style={[styles.Main,{paddingTop:status?18:0}]}>
-      {/* <Input
-          placeholder='Place your Text'
-          value={""}
-          onChangeText={nextValue => { }}
-      />*/}
-
-      <View style={styles.InputView}>
-        <Searchbar
-          style={{ padding: 0, margin: 0, width: 350 }}
-          placeholder="Search for music..."
-          onSubmitEditing={() => {
-            //dispatch(DownloadMusic({ text }));
-            //setFetchSong(sampleSongs);
-            dispatch(addSearchTextHistory(query)); 
-            searchMusic(query);
-          }}
-          icon={() => (
-            <View
-              style={{
-                width: 40,
-                height: 40,
-                backgroundColor: "black",
-                borderRadius: 0,
-                justifyContent: "center",
-                alignItems: "center",
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView
+          contentContainerStyle={styles.Main}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.SearchBar}>
+            <Searchbar
+              style={{ padding: 0, margin: 0, width: 350 }}
+              placeholder="Search for music..."
+              onSubmitEditing={() => {
+                //dispatch(DownloadMusic({ text }));
+                //setFetchSong(sampleSongs);
+                dispatch(addSearchTextHistory(query)); 
+                searchMusic(query);
               }}
-            >
-              <Svg width={30} height={30} viewBox="0 -960 960 960">
-                <Path
-                  d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"
-                  fill="white"
-                />
-              </Svg>
-            </View>
-          )}
-          onClearIconPress={() => {
-            setText("");
-            setSongs([]);
-          }}
-          onChangeText={(value) => {
-            setText(value);
-            if (value === "") {
-              setSongs([]);
-            }
-          }}
-          //value={text}
-          value={query}
-        />
-      </View>
-      <View style={{ flexGrow: 1,paddingTop:status?18:0 }}>
-
- {!isLoading && songs.length === 0 && searchTextHistory.length > 0 && (
+              icon={() => (
+                <View
+                  style={{
+                    width: 40,
+                    height: 40,
+                    backgroundColor: "black",
+                    borderRadius: 0,
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Svg width={30} height={30} viewBox="0 -960 960 960">
+                    <Path
+                      d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"
+                      fill="white"
+                    />
+                  </Svg>
+                </View>
+              )}
+              onClearIconPress={() => {
+                setText("");
+                setSongs([]);
+              }}
+              onChangeText={(value) => {
+                setText(value);
+                if (value === "") {
+                  setSongs([]);
+                }
+              }}
+              //value={text}
+              value={query}
+            />
+            
+          </View>
+          {!isLoading && songs.length === 0 && searchTextHistory.length > 0 && (
   <View style={{ paddingHorizontal: 10, marginTop: 0 }}>
 
       {/* <Text style={{ color: 'white', fontSize: 20, marginBottom: 20 }}>
@@ -406,11 +358,110 @@ const Search = () => {
           navigation={navigation}
           song={selectedSong}
         />
-      </View>
-    </View>
-    </TouchableWithoutFeedback>
-   
+         
+
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 };
 
 export default Search;
+
+const styles = StyleSheet.create({
+  Main: {
+    flexGrow: 1,
+    paddingTop: Constants.statusBarHeight,
+    paddingHorizontal: 16,
+    //backgroundColor: "#000"
+  },
+  SearchBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    //backgroundColor: "#1e1e1e",
+    borderRadius: 8,
+    padding: 8,
+    marginBottom: 12
+  },
+  SearchInput: {
+    flex: 1,
+    color: "#fff",
+    paddingHorizontal: 8
+  },
+  SearchIcon: {
+    padding: 6
+  },
+  SongsList: {
+    marginTop: 12
+  },
+  SongItem: {
+    color: "#fff",
+    paddingVertical: 8,
+    borderBottomWidth: 0.5,
+    borderColor: "#333"
+  },
+  RecentContainer: {
+    marginTop: 20
+  },
+  RecentTitle: {
+    color: "#aaa",
+    fontSize: 16,
+    marginBottom: 8
+  },
+  RecentItem: {
+    color: "#fff",
+    paddingVertical: 6,
+    borderBottomWidth: 0.3,
+    borderColor: "#444"
+  },
+  input: {
+      width: "70%",
+      height: 40,
+      borderWidth: 1,
+      borderColor: "white",
+      padding: 10,
+      borderRadius: 20,
+    },
+    InputView: {
+      width: "100%",
+      justifyContent: "center",
+      alignItems: "center",
+      height: "15%",
+      //paddingTop: 40,
+      //marginBottom: 20,
+    },
+    card: {
+      width: "98%", //95
+      alignSelf: "center",
+      borderRadius: 20,
+      padding: 15,
+      paddingLeft: 15,
+      marginVertical: 10,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 10,
+      backgroundColor: "rgba(50,50,50,0.5)",
+    },
+    cardImage: {
+      width: 50,
+      height: 50,
+      borderRadius: 8,
+      marginRight: 15,
+    },
+    artistName: {
+      color: "white",
+      fontSize: 13,
+    },
+    songName: {
+      color: "white",
+      fontSize: 16,
+      fontWeight: "bold",
+    },
+    textContainer: {
+      flex: 1,
+      paddingRight: 10,
+    },
+    dotsContainer: {
+      marginLeft: "auto",
+    },
+});

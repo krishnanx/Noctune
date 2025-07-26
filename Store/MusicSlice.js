@@ -218,11 +218,11 @@ export const PersistSearch = createAsyncThunk("/persistSearch",async(song, { dis
     const user = getState().user.user
     console.warn("History: ",history)
     //${Constants.expoConfig.extra.SERVER}
-    const response = await axios.post( `http://192.168.1.36/api/persistsearch`,{searched:history,user:user?.id})
+    const response = await axios.post( `${Constants.expoConfig.extra.SERVER}/api/persistsearch`,{searched:history,user:user?.id})
     return response.data
   }
   catch(error){
-    console.warn("Persist queue error ",error)
+    console.warn("Persist search error ",error)
   }
 
 })
@@ -232,7 +232,7 @@ export const getPersistSearch = createAsyncThunk("/getpersistSearch",async(_,{ d
     const user = getState().user.user
     console.warn("GETTING SEARCHED MUSICSS")
     //${Constants.expoConfig.extra.SERVER}
-    const response = await axios.post( `http://192.168.1.36/api/getpersistsearch`,{user:user?.id})
+    const response = await axios.post( `${Constants.expoConfig.extra.SERVER}/api/getpersistsearch`,{user:user?.id})
     return response.data
   }
   catch(error){

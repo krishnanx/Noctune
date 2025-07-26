@@ -7,7 +7,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Image,
-  Text, Animated
+  Text, Animated,AppState
 } from "react-native";
 import React, { useState, useEffect, useRef } from "react";
 import { NavigationContainer } from "@react-navigation/native";
@@ -38,6 +38,7 @@ import eventBus from './src/functions/eventBus.js';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import store from "./Store/store.js";
 import * as Notifications from 'expo-notifications';
+import { soundRef } from "./src/functions/MusicLoaders/music.js";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -59,7 +60,7 @@ export default function App() {
   const { user, loading, waveload } = useSelector((state) => state.user || {});
   const { data: array, id, playlistNo, migrateSliceSucess, migratedPlaylist } = useSelector((state) => state.playlist);
   const dispatch = useDispatch();
-
+  const [appState, setAppState] = useState(AppState.currentState);
   const { data, pos, seek, isplaying, canLoad,isLoadedFromAsyncStorage,searchedMusic } = useSelector(
     (state) => state.data
   );
@@ -68,7 +69,26 @@ export default function App() {
   );
   //const [status, setStatus] = useState("loading");
 
-   useEffect(() => {
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      console.error('App State changed to:', nextAppState);
+      setAppState(nextAppState);
+      if(nextAppState == "active" && soundRef.current == null){
+        console.error("ITSS ACTIVEE");
+        dispatch(load(false))
+        //dispatch(load(true))
+        setTimeout(() => {
+          dispatch(load(true))
+            // musics queue
+        }, 1)
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+  useEffect(() => {
       const loadLastSong = async () => {
         try {
           const jsonValue = await AsyncStorage.getItem("lastPlayedSong");
@@ -112,6 +132,7 @@ export default function App() {
     }, []);
 
 
+ 
   useEffect(() => {
       const autoPlayIfUserSearched = async (sound) => {
         console.warn("Sound changed event received", sound);
