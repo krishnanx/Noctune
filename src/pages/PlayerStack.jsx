@@ -370,10 +370,12 @@ const PlayerStack = () => {
       color: colors.text,
     },
     controlsContainer: {
+      paddingTop:50,
       width: "100%",
-      height: 100,
+      height: 120,
       flexDirection: "row",
       alignItems: "center",
+      //backgroundColor:"pink"
     },
     controls: {
       width: "100%",
@@ -487,7 +489,7 @@ const PlayerStack = () => {
       top: 20,
       fontSize: 18,
       fontWeight: "300",
-      color: "gray",
+      color: "white",
       marginTop: 2,
     },
     albumArt: {
@@ -621,7 +623,7 @@ const PlayerStack = () => {
             <ThreeDots height={28} width={28} />
           </TouchableOpacity>
         </View>
-        <WaveformVisualizer ytUrl={currentTrack?.url}/>
+        <WaveformVisualizer ytUrl={currentTrack?.url} seconds={seek} />
         <Metadata
           data={
             canLoad ? data && data[pos]
@@ -716,7 +718,7 @@ const Metadata = ({
           <Icon
             name={liked ? "heart" : "heart-o"}
             size={28}
-            color={liked ? colors.text : "gray"}
+            color={liked ? colors.text : "white"}
           />
         </TouchableOpacity>
       </View>

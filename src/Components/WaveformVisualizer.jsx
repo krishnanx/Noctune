@@ -1,6 +1,6 @@
 
 import React, { useEffect, useMemo, useState, useRef } from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
+import { View, StyleSheet, Dimensions ,Text} from 'react-native';
 import Constants from "expo-constants"
 import Svg, { Rect } from 'react-native-svg';
 import { useSelector } from 'react-redux';
@@ -12,7 +12,7 @@ const BAR_WIDTH = 7;
 const SPACING = 5;
 const HEIGHT = 100;
 
-const WaveformVisualizer = ({ ytUrl }) => {
+const WaveformVisualizer = ({ ytUrl,seconds }) => {
   const [waveformData, setWaveformData] = useState([]);
   const [loading, setLoading] = useState(true);
   const scrollViewRef = useRef();
@@ -148,8 +148,23 @@ const WaveformVisualizer = ({ ytUrl }) => {
     return null;
   }
 
+  const formatTime = (seconds) => {
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${s < 10 ? '0' + s : s}`;
+};
+
+
   return (
+  
+
     <View style={styles.wrapper}>
+      <View style={{flexDirection:"row",alignItems:"center",justifyContent:"space-between",paddingHorizontal:5}}>
+        <Text style={styles.timeText}>
+      {formatTime(smoothPosition / pixelsPerSecond)}
+      </Text>
+      <Text style={styles.timeText}>{formatTime(duration)}</Text>
+      </View>
       <ScrollView
         ref={scrollViewRef}
         horizontal
@@ -182,8 +197,10 @@ const WaveformVisualizer = ({ ytUrl }) => {
           ))}
         </Svg>
       </ScrollView>
+
     </View>
-  );
+
+);
 };
 
 const styles = StyleSheet.create({
@@ -195,6 +212,24 @@ const styles = StyleSheet.create({
     zIndex: 0,
     opacity: 1,
   },
+  container: {
+  position: 'absolute',
+  top: '80%',
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  width: SCREEN_WIDTH,
+  paddingHorizontal: 16,
+  zIndex: 0,
+},
+
+timeText: {
+  color: 'white',
+  fontSize: 12,
+  width: 50,
+  textAlign: 'center',
+  fontWeight:"600"
+},
 });
 
 export default WaveformVisualizer;
