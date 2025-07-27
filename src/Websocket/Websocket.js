@@ -29,7 +29,17 @@ import { initWebSocket, getWebSocket } from "./websocketfunc";
 //     },
 //   },
 // });
-
+export const wsRef = {
+  current:null
+}
+let reconnectTimeout;
+let pingInterval;
+export const manuallyCloseWebSocket = () => {
+      isManualClose = true;
+      clearTimeout(reconnectTimeout);
+      clearInterval(pingInterval);
+      wsRef.current?.close();
+};
 const Websocket = () => {
   const [deviceName, setDeviceName] = useState(null);
   const dispatch = useDispatch();
@@ -40,7 +50,7 @@ const Websocket = () => {
     (state) => state.download
   );
   const { isConnected, nettype } = useDispatch((state) => state.network)
-  const wsRef = useRef(null);
+  
 
   // Process the queue with a specific path
   const processQueueWithPath = async (folderPath) => {
@@ -191,75 +201,77 @@ const Websocket = () => {
   useEffect(() => {
     // hasConnected.current = true; // Prevent reconnecting on deviceName change
     // let ws;
-    let reconnectTimeout;
-    let pingInterval;
+   
     const id = Math.random().toString(36).slice(2, 8);
+    let isManualClose = false;
 
     const connectWebSocket = () => {
       
       //Constants.expoConfig.extra.WEBSOC
       //ws://192.168.1.44:80
 
-      const ws = getWebSocket() 
-      wsRef.current = ws;
-
-      pingInterval = setInterval(() => {
-        if (ws.readyState === WebSocket.OPEN) {
-          ws.send(
-            JSON.stringify({
-              type: "ping",
-              clientId: id,
-              value: "hi",
-            })
-          );
-          console.error("pinged");
-        }
-      }, 25000);
-      wsRef.current.onmessage = (event) => {
-        try {
-
-          const parsed = JSON.parse(event.data);
-          if (parsed.type == "progress") {
-            console.error(parsed.value.percent);
-            dispatch(
-              changeProgress({
-                progress: parsed.value.percent,
-                index: parsed.value.index,
+      console.error("===============================websocket===================================-")
+      if(wsRef.current){
+        pingInterval = setInterval(() => {
+          if (wsRef.current.readyState === WebSocket.OPEN) {
+            wsRef.current.send(
+              JSON.stringify({
+                type: "ping",
+                clientId: id,
+                value: "hi",
               })
             );
+            console.error("pinged");
           }
-          if (parsed.type == "file") {
-            console.warn("file is ready");
+        }, 25000);
+        wsRef.current.onmessage = (event) => {
+          try {
 
-            // We have a path, proceed normally
-            console.warn(path);
-            console.error("starting....");
-            addDownloadTask(parsed.value, () => {
-              console.warn("Download Complete");
-            });
-            dispatch(addData({ final: parsed.value }));
+            const parsed = JSON.parse(event.data);
+            if (parsed.type == "progress") {
+              console.error(parsed.value.percent);
+              dispatch(
+                changeProgress({
+                  progress: parsed.value.percent,
+                  index: parsed.value.index,
+                })
+              );
+            }
+            if (parsed.type == "file") {
+              console.warn("file is ready");
+
+              // We have a path, proceed normally
+              console.warn(path);
+              console.error("starting....");
+              addDownloadTask(parsed.value, () => {
+                console.warn("Download Complete");
+              });
+              dispatch(addData({ final: parsed.value }));
+            }
+          } catch (e) {
+            console.error("Non-JSON message received:", event.data);
           }
-        } catch (e) {
-          console.error("Non-JSON message received:", event.data);
-        }
-      };
+        };
 
-      wsRef.current.onerror = (error) => {
-        console.error("WebSocket Error:", error.message);
-        attemptReconnect();
-      };
+        wsRef.current.onerror = (error) => {
+          console.error("WebSocket Error:", error.message);
+          attemptReconnect();
+        };
 
-      wsRef.current.onclose = (event) => {
-        console.error(
-          `WebSocket closed: code=${event.code} reason=${event.reason} wasClean=${event.wasClean}`
-        );
-        clearInterval(pingInterval);
-        attemptReconnect();
-      };
+        wsRef.current.onclose = (event) => {
+          console.error(
+            `WebSocket closed: code=${event.code} reason=${event.reason} wasClean=${event.wasClean}`
+          );
+          clearInterval(pingInterval);
+          attemptReconnect();
+        };
+      }
+
     };
 
     let reconnectAttempts = 0;
     const attemptReconnect = () => {
+      if (isManualClose) return;
       if (reconnectAttempts < 5) {
         reconnectAttempts++;
         console.error(`Reconnect attempt ${reconnectAttempts}...`);
@@ -271,6 +283,8 @@ const Websocket = () => {
         console.error("Max reconnection attempts reached.");
       }
     };
+    
+
 
     connectWebSocket();
 
@@ -278,7 +292,7 @@ const Websocket = () => {
       clearTimeout(reconnectTimeout);
       clearInterval(pingInterval);
     };
-  }, [deviceName]);
+  }, [deviceName,wsRef.current]);
 
   return null;
 };

@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios, { Axios } from "axios";
 import Constants from "expo-constants";
 import { progress } from "./MusicSlice";
+import { manuallyCloseWebSocket } from "../src/Websocket/Websocket";
 const DownloadSlice = createSlice({
   name: "download",
   initialState: {
@@ -48,6 +49,7 @@ const DownloadSlice = createSlice({
       })
       .addCase(download.fulfilled, (state, action) => {
         state.status = "idle"
+        manuallyCloseWebSocket()
       })
       .addCase(download.rejected, (state, action) => {
         state.status = "error"
@@ -66,7 +68,6 @@ export const download = createAsyncThunk(
     console.warn("Data type:", typeof data);
     console.warn("Is array?", Array.isArray(data));
     console.warn("Data length:", data?.length);
-
     // Validation
     if (!data || !Array.isArray(data)) {
       const error = "Data must be an array";
@@ -131,7 +132,11 @@ export const download = createAsyncThunk(
 
       console.warn("Response status:", response.status);
       console.warn("Response data:", response.data);
-
+      if(response.data.message == "All downloads complete"){
+        console.error("=============close=============")
+        manuallyCloseWebSocket()
+        
+      }
       return response.data;
     } catch (error) {
       console.error("=== REDUX THUNK ERROR ===");

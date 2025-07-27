@@ -70,7 +70,7 @@ const Waveform = () => {
       console.log("Connection type:", state.type);
       if (state.isConnected) {
         const runAsyncLogic = async () => {
-          const id = Math.random().toString(36).slice(2, 8);
+          
           console.error("HI")
           try {
             const loadedUser = await dispatch(loadUser()).unwrap(); // Await loadUser thunk
@@ -84,32 +84,8 @@ const Waveform = () => {
             // `${Constants.expoConfig.extra.WEBSOC}
             console.error("loader user over")
             console.error(isConnected)
-
-            console.error("reached websocket connection")
-            //const ws = initWebSocket(`ws://192.168.1.7:8000/download-progress`);
-
-            const ws = initWebSocket(`${Constants.expoConfig.extra.WEBSOC}/download-progress`);
-            //const ws = initWebSocket(`ws://192.168.1.107:3000/download-progress`);
-            //const ws = getWebSocket();
-            if (!ws) {
-              console.error("WebSocket failed to initialize.");
-              return;
-            }
-
-            ws.onopen = () => {
-              console.error("Connected to WebSocket server");
-              dispatch(setClientID({ id }));
-
-
-              ws.send(JSON.stringify({
-                type: "register",
-                clientId: id,
-                value: "hi"
-
-              }));
-              dispatch(setwaveLoad(false));    //set it to false
-            };
-
+            
+            
 //             ws.onerror = (e) => {
 //   console.error("WebSocket error:", e.message);
 //   Alert.alert(
@@ -128,7 +104,9 @@ const Waveform = () => {
           } catch (error) {
             console.error("Failed to load user:", error);
           }
-
+          finally{
+            dispatch(setwaveLoad(false));
+          }
         }
         runAsyncLogic();
       } else {
