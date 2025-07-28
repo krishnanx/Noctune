@@ -8,6 +8,7 @@ import Account from "../src/pages/Account";
 import PlaylistEdit from "../src/pages/PlaylistEdit"
 import PlayerStack from "../src/pages/PlayerStack"
 import InviteCollab from "../src/pages/InviteCollab"
+import Notification from "../src/pages/Notification";
 const Stack = createNativeStackNavigator();
 
 const RootNavigator = () => {
@@ -22,6 +23,7 @@ const RootNavigator = () => {
       <Stack.Screen name="PlaylistEdit" component={PlaylistEdit} />
       <Stack.Screen name="PlayerStack" component={PlayerStack} />
       <Stack.Screen name="InviteCollab" component={InviteCollab} />
+      <Stack.Screen name="Notification" component={Notification} />
       {/* You can add more screens here */}
     </Stack.Navigator>
   );
