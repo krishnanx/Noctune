@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   statValue: {
-    color: "#1DB954",
+    color: "wheat",
     fontSize: 22,
     fontWeight: "bold",
   },
