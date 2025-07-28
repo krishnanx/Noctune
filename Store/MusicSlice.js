@@ -20,12 +20,11 @@ const MusicSlice = createSlice({
     setCheckOnceNext(state,action){
       state.checkOnceNext = action.payload
     },
-    // New reducer for search text history
+       // Search text history reducers
     addSearchTextHistory(state, action) {
       const searchText = action.payload.trim();
       if (!searchText) return;
       
-      // Remove if already exists to avoid duplicates
       const existingIndex = state.searchTextHistory.findIndex(
         item => item.toLowerCase() === searchText.toLowerCase()
       );
@@ -42,12 +41,10 @@ const MusicSlice = createSlice({
       }
     },
     
-    // New reducer to clear search text history
     clearSearchTextHistory(state) {
       state.searchTextHistory = [];
     },
     
-    // New reducer to set search text history (for loading from storage)
     setSearchTextHistory(state, action) {
       state.searchTextHistory = Array.isArray(action.payload) ? action.payload : [];
     },
@@ -205,8 +202,7 @@ export const {
   setCheckOnceNext,
   addSearchTextHistory,
   clearSearchTextHistory,
-  setSearchTextHistory
-
+  setSearchTextHistory,
 } = MusicSlice.actions;
 export default MusicSlice.reducer;
 
