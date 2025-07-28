@@ -471,7 +471,8 @@ const DisplayPlaylist = ({ item, index, styles, navigation }) => {
                 marginBottom: 5,
                 height: 80,
                 paddingLeft: 15,
-                paddingVertical: 5
+                paddingVertical: 0,
+                justifyContent:"center"
             }}
             underlayColor="rgba(128,128,128,0.2)"
             activeOpacity={0.7}
@@ -488,7 +489,7 @@ const DisplayPlaylist = ({ item, index, styles, navigation }) => {
                     <Image
                         source={item.id == 0 ? item.image ? { uri: item.image } : item.songs?.length > 0 ? { uri: item.songs[0].image } : icon :
                             item.image ? { uri: item.image } : item.songs?.length > 0 ? { uri: item.songs[0].image } : normicon}
-                        style={{ width: 50, height: 50 }}
+                        style={{ width: 50, height: 50 , borderRadius:10 }}
                     // fallback if user image fails to load
                     />
                 </View>

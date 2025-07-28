@@ -50,7 +50,7 @@ const PlaylistSlice = createSlice({
             // state.data[action.payload.id].songs.forEach(element => {
             //     state.data[action.payload.id].Time += element.duration
             // });
-            console.log("Time", state.data[action.payload.id].Time)
+            console.warn("Time", state.data[action.payload.id].Time)
 
 
         },
