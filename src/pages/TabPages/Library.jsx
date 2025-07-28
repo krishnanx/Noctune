@@ -306,7 +306,7 @@ const Custom_modal = ({ isModalVisible, styles, toggleModal, handlePress, naviga
                         onPress={() => handlePress()}
                     >
                         <View style={styles.modal1L}>
-                            <MusicNote width={40} height={40} fill="green" />
+                            <MusicNote width={40} height={40} fill="violet" />
                         </View>
                         <View style={styles.modal1R}>
                             <View
@@ -329,7 +329,7 @@ const Custom_modal = ({ isModalVisible, styles, toggleModal, handlePress, naviga
 
                     <TouchableOpacity style={styles.modal1}>
                         <View style={styles.modal1L}>
-                            <Collab width={40} height={40} fill="green" />
+                            <Collab width={40} height={40} fill="violet" />
                         </View>
                         <View style={styles.modal1R}>
                             <View
@@ -357,7 +357,7 @@ const Custom_modal = ({ isModalVisible, styles, toggleModal, handlePress, naviga
                         }}
                     >
                         <View style={styles.modal1L}>
-                            <Migrate width={40} height={40} fill="green" />
+                            <Migrate width={40} height={40} fill="violet" />
                         </View>
                         <View style={styles.modal1R}>
                             <View
