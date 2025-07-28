@@ -13,6 +13,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import PlayIcon from '../../Components/Icons/PlayIcon';
+import { useNavigation } from '@react-navigation/native';
 const { width } = Dimensions.get('window');
 import { changeLoad } from "../../../Store/Playdataslice.js";
 import { addMusic,load, setSearchedMusic } from '../../../Store/MusicSlice';
@@ -48,6 +49,7 @@ const RecommendationCard = ({ title, subtitle, bgColor }) => (
 );
 
 const Home = () => {
+  const navigation = useNavigation()
   const searchedMusicHistory = useSelector((state)=>state.data.searchedMusicHistory)
   const { data, pos, seek, isplaying, canLoad, isLoadedFromAsyncStorage,searchTextHistory } = useSelector((state) => state.data);
   const navigation = useNavigation();
@@ -81,7 +83,7 @@ const handlePlay = (item) => {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Noctune</Text>
         <View style={styles.headerIcons}>
-          <TouchableOpacity style={styles.headerIcon}>
+          <TouchableOpacity style={styles.headerIcon} onPress={()=>navigation.navigate("Notification")}>
             <Ionicons name="notifications-outline" size={24} color="white" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.headerIcon}>
