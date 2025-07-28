@@ -10,7 +10,7 @@ import { useTheme } from "@react-navigation/native";
 import MusicNote from "../../Components/Icons/MusicNote"
 import Collab from "../../Components/Icons/Collab"
 import icon from "../../../assets/LikedSongs/heart.png"
-import normicon from "../../../assets/LikedSongs/playlist.png";
+import normicon from "../../../assets/LikedSongs/Frame 4.png";
 import { addPlaylist } from '../../../Store/PlaylistSlice';
 import { useNavigation } from '@react-navigation/native';
 import { AddNewPlaylist } from '../../../Store/PlaylistSlice';

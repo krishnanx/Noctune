@@ -19,7 +19,7 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { addMusicinPlaylist } from "../../Store/PlaylistSlice";
 import { LinearGradient } from "expo-linear-gradient";
 import icon from "../../assets/LikedSongs/heart.png";
-import normicon from "../../assets/LikedSongs/playlist.png";
+import normicon from "../../assets/LikedSongs/Frame 4.png";
 import { addPlaylist } from "../../Store/PlaylistSlice";
 import { useTheme } from "@react-navigation/native";
 import { AddNewPlaylist } from "../../Store/PlaylistSlice";

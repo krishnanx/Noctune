@@ -16,7 +16,7 @@ import ThreeDots from "../Components/Icons/ThreeDots";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import icon from "../../assets/LikedSongs/heart.png"
-import normIcon from "../../assets/LikedSongs/heart.png"
+import normIcon from "../../assets/LikedSongs/Frame 4.png";
 import { playRef, soundRef } from "../functions/MusicLoaders/music";
 import { load, progress, setIsPlaying } from "../../Store/MusicSlice";
 import { changePlaylist, setPlaylistplaying } from "../../Store/PlaylistSlice";
@@ -425,6 +425,7 @@ const Information = ({
         </View> */}
       <View style={styles.metadata}>
         <View style={styles.imageContainer}>
+          {console.error(index)}
           <Image
             source={index == 0 ? data.songs?.length > 0 ? data.image ? { uri: data.image } : { uri: data.songs[0]?.image } :
               icon : data.songs?.length > 0 ? data.image ? { uri: data.image } : { uri: data.songs[0]?.image } : normIcon}
