@@ -22,7 +22,7 @@ import { changeState } from "../../../Store/KeyboardSlice.js";
 //import ytdl from "react-native-ytdl";
 //import YTSearch from "youtube-search-api";
 import YoutubeMusicApi from "youtube-music-api";
-import { DownloadMusic, PersistSearch,addSearchTextHistory, clearSearchTextHistory, setSearchTextHistory } from "../../../Store/MusicSlice.js";
+import { DownloadMusic, PersistSearch, addSearchTextHistory, clearSearchTextHistory, setSearchTextHistory } from "../../../Store/MusicSlice.js";
 import { ScrollView } from "react-native";
 import { FetchMetadata } from "../../../Store/MusicSlice.js";
 import {
@@ -41,8 +41,9 @@ import SearchModal from "../../Components/SearchModal.jsx";
 import { changeLoad } from "../../../Store/Playdataslice.js";
 import { YtMusicRef } from "../../functions/YtMusicRef.js";
 import Constants from "expo-constants";
+
 const Search = () => {
-   const { colors } = useTheme(); // Get theme colors
+  const { colors } = useTheme(); // Get theme colors
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [songs, setSongs] = useState({});
   const [query, setText] = useState("");
@@ -50,11 +51,16 @@ const Search = () => {
   const [error, setError] = useState(null);
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const { data, pos, seek, isplaying, canLoad, isLoadedFromAsyncStorage,searchTextHistory } = useSelector((state) => state.data);
+  const { data, pos, seek, isplaying, canLoad, isLoadedFromAsyncStorage, searchTextHistory } = useSelector((state) => state.data);
   const [shouldLoad, setShouldLoad] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedSong, setSelectedSong] = useState(null);
-  const status = useSelector((state)=>state.key.status)
+  const [historyLoaded, setHistoryLoaded] = useState(false);
+  const status = useSelector((state) => state.key.status)
+  
+  // Add user selector to get userId
+  const user = useSelector((state) => state.user || {});
+  const userId = useSelector((state) => state.user?.user?.id);
 
   const searchMusic = async (searchText) => {
     if (!searchText || !searchText.trim()) return;
@@ -94,7 +100,8 @@ const Search = () => {
       setIsLoading(false);
     }
   };
-  const handleCardPress = (song) => {
+
+  const handleCardPress = async (song) => {
     unloadAudio();
     console.log("Card pressed with URL:", song.url);
     dispatch(setSearchedMusic(true))
@@ -125,9 +132,15 @@ const Search = () => {
     //dispatch(toggleMinimized());
     // Add this line to save the song metadata to AsyncStorage
     saveLastPlayedSong(song);
-    navigation.navigate('PlayerStack');
+   
     
-
+    // Save search history when playing a song
+    if (userId) {
+      await saveSearchHistory(userId, searchTextHistory);
+      await loadSearchHistory(userId, dispatch);
+    }
+    
+    navigation.navigate('PlayerStack');
   };
 
   const saveLastPlayedSong = async (song) => {
@@ -138,6 +151,45 @@ const Search = () => {
       console.error("Error saving song metadata", e);
     }
   };
+
+  // Add the search history persistence functions
+  const saveSearchHistory = async (userId, searchTextHistory) => {
+    try {
+      console.warn("1111111111111111111111111111")
+      console.warn("USERID ", userId)
+      await AsyncStorage.setItem(`searchHistory_${userId}`, JSON.stringify(searchTextHistory));
+      console.warn('Search history saved for user:', userId, searchTextHistory);
+    } catch (e) {
+      console.error("Error saving search history", e);
+    }
+  };
+
+  const loadSearchHistory = async (userId, dispatch) => {
+    try {
+      const stored = await AsyncStorage.getItem(`searchHistory_${userId}`);
+      if (stored) {
+        const historyArray = JSON.parse(stored);
+        dispatch(setSearchTextHistory(historyArray));
+        console.warn('Search history loaded for user:', userId, historyArray);
+      }
+    } catch (e) {
+      console.error("Error loading search history", e);
+    } finally {
+      setHistoryLoaded(true);
+    }
+  };
+
+  // Add useEffect to load search history when component mounts
+  useEffect(() => {
+    const loadHistory = async () => {
+      if (userId) {
+        await loadSearchHistory(userId, dispatch);
+      } else {
+        setHistoryLoaded(true);
+      }
+    };
+    loadHistory();
+  }, [userId, dispatch]);
 
   const toggleModal = (song) => {
     setSelectedSong(song);
@@ -171,7 +223,6 @@ const Search = () => {
   };
 
   
-
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -189,8 +240,10 @@ const Search = () => {
               onSubmitEditing={() => {
                 //dispatch(DownloadMusic({ text }));
                 //setFetchSong(sampleSongs);
-                dispatch(addSearchTextHistory(query)); 
-                searchMusic(query);
+                if (query.trim()) {
+                  dispatch(addSearchTextHistory(query)); 
+                  searchMusic(query);
+                }
               }}
               icon={() => (
                 <View
@@ -226,77 +279,79 @@ const Search = () => {
             />
             
           </View>
-          {!isLoading && songs.length === 0 && searchTextHistory.length > 0 && (
-  <View style={{ paddingHorizontal: 10, marginTop: 0 }}>
+          {/* Updated condition to check historyLoaded and handle both array and object cases */}
+          {historyLoaded && !isLoading && (Array.isArray(songs) ? songs.length === 0 : Object.keys(songs).length === 0) && searchTextHistory.length > 0 && (
+            <View style={{ paddingHorizontal: 10, marginTop: 0 }}>
 
-      {/* <Text style={{ color: 'white', fontSize: 20, marginBottom: 20 }}>
-      Recent Searches
-    </Text> */}
-    <View style={{ width: '100%', alignItems: 'flex-end', marginVertical: 10 }}>
-    <TouchableOpacity
-  onPress={async () => {
-    dispatch(clearSearchTextHistory());
-    await AsyncStorage.removeItem('searchTextHistory');
-  }}
->
-  <Text style={{color:'white', marginLeft: 10  }}>Clear History</Text>
-</TouchableOpacity>
-</View>
+                {/* <Text style={{ color: 'white', fontSize: 20, marginBottom: 20 }}>
+                Recent Searches
+              </Text> */}
+              <View style={{ width: '100%', alignItems: 'flex-end', marginVertical: 10 }}>
+              <TouchableOpacity
+                onPress={async () => {
+                  dispatch(clearSearchTextHistory());
+                  if (userId) {
+                    await AsyncStorage.removeItem(`searchHistory_${userId}`);
+                  }
+                }}
+              >
+                <Text style={{color:'white', marginLeft: 10  }}>Clear History</Text>
+              </TouchableOpacity>
+              </View>
 
+              {searchTextHistory.map((text, idx) => (
+                <TouchableOpacity
+                  key={idx}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    paddingVertical: 12,
+                    borderBottomColor: 'rgba(255,255,255,0.1)',
+                    borderBottomWidth: 1,
+                  }}
+                  onPress={() => {
+                    setText(text);
+                    dispatch(addSearchTextHistory(text));
+                    searchMusic(text);
+                  }}
+                >
+                  
+                  <View
+                    style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: 20,
+                      backgroundColor: 'rgba(255,255,255,0.08)',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      marginRight: 12,
+                    }}
+                  >
+                    <Entypo name="magnifying-glass" size={20} color="white" />
+                  </View>
 
-    {searchTextHistory.map((text, idx) => (
-      <TouchableOpacity
-        key={idx}
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingVertical: 12,
-          borderBottomColor: 'rgba(255,255,255,0.1)',
-          borderBottomWidth: 1,
-        }}
-        onPress={() => {
-          setText(text);
-          dispatch(addSearchTextHistory(text));
-          searchMusic(text);
-        }}
-      >
-        
-        <View
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: 20,
-            backgroundColor: 'rgba(255,255,255,0.08)',
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginRight: 12,
-          }}
-        >
-          <Entypo name="magnifying-glass" size={20} color="white" />
-        </View>
+                  <Text
+                    style={{
+                      flex: 1,
+                      color: 'white',
+                      fontSize: 16,
+                    }}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {text}
+                  </Text>
 
-        <Text
-          style={{
-            flex: 1,
-            color: 'white',
-            fontSize: 16,
-          }}
-          numberOfLines={1}
-          ellipsizeMode="tail"
-        >
-          {text}
-        </Text>
-
-        <Entypo
-          name="chevron-left"
-          size={20}
-          color="white"
-          style={{ marginLeft: 10 }}
-        />
-      </TouchableOpacity>
-    ))}
-  </View>
-)}
+                  <Entypo
+                    name="chevron-left"
+                    size={20}
+                    color="white"
+                    style={{ marginLeft: 10 }}
+                  />
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
           {isLoading ? (
             <View style={{ padding: 20 }}>
               <ActivityIndicator size="large" color="white" />
