@@ -23,6 +23,7 @@ const Library = () => {
     const [isPrivate, setIsPrivate] = useState(false);
     const [playlistName, setPlaylistName] = useState("");
     const [description, setDescription] = useState("")
+    const [PlaceHolder,setPlaceHolder] = useState("Playlist Name")
     const { colors } = useTheme();
     const { data, id: playid } = useSelector((state) => state.playlist);
     //const { user, id } = useSelector((state) => state.user)
@@ -197,20 +198,25 @@ const Library = () => {
         togglePlaylistadd();
     }
     const handlePlaylist = () => {
-        togglePlaylistadd();
-        const playlist = {
-            id: playid + 1,
-            image: null,
-            name: playlistName,
-            desc: description,
-            songs: [],
-            Time: 0,
-            isPlaying: false
+        if(playlistName!=""){
+            togglePlaylistadd();
+            const playlist = {
+                id: playid + 1,
+                image: null,
+                name: playlistName,
+                desc: description,
+                songs: [],
+                Time: 0,
+                isPlaying: false
+            }
+            dispatch(addPlaylist({ playlist: playlist }));
+            dispatch(AddNewPlaylist({ data: playlist, userid: user?.id }))
+            setDescription("");
+            setPlaylistName("");
         }
-        dispatch(addPlaylist({ playlist: playlist }));
-        dispatch(AddNewPlaylist({ data: playlist, userid: user?.id }))
-        setDescription("");
-        setPlaylistName("");
+        else{
+            setPlaceHolder("Enter a valid name")
+        }
     }
     return (
         <ScrollView
@@ -272,7 +278,7 @@ const Library = () => {
                     setDescription={setDescription}
                     setPlaylistName={setPlaylistName}
                     playlistName={playlistName}
-
+                    PlaceHolder = {PlaceHolder}
 
                 />
 
@@ -397,7 +403,8 @@ const Playlistadd = ({ isPlaylistaddVisible,
     playlistName,
     setPlaylistName,
     description,
-    setDescription
+    setDescription,
+    PlaceHolder
 }) => {
     return (
         <Modal
@@ -412,10 +419,10 @@ const Playlistadd = ({ isPlaylistaddVisible,
                 <View style={styles.PlaylistModal}>
                     <Text style={{ fontSize: 20, color: "white" }}>Create Playlist</Text>
                     <TextInput
-                        placeholder="Playlist Name"
+                        placeholder={PlaceHolder}
                         value={playlistName}
                         onChangeText={setPlaylistName}
-                        placeholderTextColor="white"
+                        placeholderTextColor={PlaceHolder == "Enter a valid name" ? "red":"white"}
                         style={styles.input}
                     />
 
