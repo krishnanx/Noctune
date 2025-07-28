@@ -11,12 +11,15 @@ import {
   ImageBackground
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import PlayIcon from '../../Components/Icons/PlayIcon';
 const { width } = Dimensions.get('window');
+import { changeLoad } from "../../../Store/Playdataslice.js";
+import { addMusic,load, setSearchedMusic } from '../../../Store/MusicSlice';
+import { useNavigation } from '@react-navigation/native';
 
-const QuickPickCard = ({ title, imageUrl }) => (
-  <TouchableOpacity style={styles.quickPickCard}>
+const QuickPickCard = ({ title, imageUrl,item,handlePlay }) => (
+  <TouchableOpacity style={styles.quickPickCard} onPress={()=>handlePlay(item)}>
     <ImageBackground
       source={{ uri: imageUrl }}
       style={styles.imageBackground}
@@ -46,6 +49,32 @@ const RecommendationCard = ({ title, subtitle, bgColor }) => (
 
 const Home = () => {
   const searchedMusicHistory = useSelector((state)=>state.data.searchedMusicHistory)
+  const { data, pos, seek, isplaying, canLoad, isLoadedFromAsyncStorage,searchTextHistory } = useSelector((state) => state.data);
+  const navigation = useNavigation();
+  const dispatch = useDispatch()
+
+const handlePlay = (item) => {
+  console.error(item)
+  dispatch(addMusic(item));
+  dispatch(setSearchedMusic(true))
+  if (canLoad) {
+        dispatch(load(false))
+        //dispatch(load(true))
+        setTimeout(() => {
+          dispatch(load(true))
+           // musics queue
+        }, 1)
+      }
+      else {
+        
+        dispatch(load(true))
+        
+      }
+      dispatch(changeLoad(false)) //playlist
+  navigation.navigate('PlayerStack');
+}
+
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -74,7 +103,7 @@ const Home = () => {
           <FlatList
             data={searchedMusicHistory.slice().reverse()}
             keyExtractor={(item) => item.id}
-            renderItem={({ item }) => <QuickPickCard title={item.title} imageUrl={item.image} />}
+            renderItem={({ item }) => <QuickPickCard title={item.title} imageUrl={item.image} item = {item} handlePlay={handlePlay}/>}
             horizontal={true} // 👈 Make it horizontal
             showsHorizontalScrollIndicator={false}
             style={{ height: 170 }} // 👈 Hide scroll bar (optional)
