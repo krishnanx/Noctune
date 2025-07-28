@@ -419,7 +419,7 @@ const DisplayPlaylist = ({
   return (
     <TouchableHighlight
       onPress={handleSelect}
-      style={{ borderRadius: 3,justifyContent:"center",alignItems:"center" }}
+      style={{ borderRadius: 25,justifyContent:"center",alignItems:"center" }}
       underlayColor="rgba(245,222,179,0.2)"
       activeOpacity={0.7}
     >
@@ -439,7 +439,7 @@ const DisplayPlaylist = ({
                     ? { uri: item.songs[0].image }
                     : index == 0 ? icon : normicon
               }
-              style={{ width: 50, height: 50 }}
+              style={{ width: 50, height: 50 , borderRadius:10 }}
             />
           </View>
           <View style={[styles.Name]}>
