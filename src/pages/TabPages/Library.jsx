@@ -37,7 +37,7 @@ const Library = () => {
     const togglePlaylistadd = () => {
         setisPlaylistaddVisible((prev) => !prev);
     };
-    useEffect(() => { console.warn(data) }, [])
+    // useEffect(() => { //console.warn(data) }, [])
     const dispatch = useDispatch();
     const styles = StyleSheet.create({
         Main: {
@@ -492,7 +492,7 @@ const DisplayPlaylist = ({ item, index, styles, navigation }) => {
                 <View
                     style={styles.ImageContainer}
                 >
-                    {console.warn("SONG ARRAY, ", item)}
+                    {/* {//console.warn("SONG ARRAY, ", item)} */}
                     <Image
                         source={item.id == 0 ? item.image ? { uri: item.image } : item.songs?.length > 0 ? { uri: item.songs[0].image } : icon :
                             item.image ? { uri: item.image } : item.songs?.length > 0 ? { uri: item.songs[0].image } : normicon}

@@ -13,7 +13,7 @@ const Playdataslice = createSlice({
             state.pos = 0;
         },
         changePlaylistPos(state, action) {
-            console.warn(state.pos);
+            //console.warn(state.pos);
             if (action.payload == +1) {
                 if (state.pos !== state.song.length - 1) {
                     state.pos = state.pos + 1;

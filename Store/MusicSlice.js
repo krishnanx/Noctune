@@ -97,7 +97,7 @@ const MusicSlice = createSlice({
         //duration: action.payload.duration || 0,
       };
       console.log("Music data:", newMusic);
-      console.error(state.data[state.pos]?.duration);
+      //console.error(state.data[state.pos]?.duration);
 
       const insertPos = state.pos + 1;
       const newArray = [
@@ -118,9 +118,9 @@ const MusicSlice = createSlice({
     },
 
     changePos(state, action) {
-      console.error("pos is being changed")
-      console.warn(state.pos);
-      console.warn(state.data.length - 1);
+      //console.error("pos is being changed")
+      //console.warn(state.pos);
+      //console.warn(state.data.length - 1);
       if (action.payload == +1) {
         if (state.pos !== state.data.length - 1) {
           state.pos = state.pos + 1;
@@ -142,7 +142,7 @@ const MusicSlice = createSlice({
       }
     },
     setIsPlaying(state, action) {
-      console.warn("Is playing called")
+      //console.warn("Is playing called")
       if (typeof action.payload === "boolean") {
         state.isplaying = action.payload; // Set specific value
       } else if (action.payload === "toggle") {
@@ -168,10 +168,10 @@ const MusicSlice = createSlice({
                       const raw = action.payload;
                       const response = typeof raw === "string" ? JSON.parse(raw) : raw;
 
-                      console.error("PULLING SEARCHED MUSIC", response);
+                      //console.error("PULLING SEARCHED MUSIC", response);
                       state.searchedMusicHistory = Array.isArray(response) ? response : [];
                   } catch (err) {
-                      console.error("Error parsing searched music:", err);
+                      //console.error("Error parsing searched music:", err);
                       state.searchedMusicHistory = [];
                   }
               })
@@ -212,13 +212,13 @@ export const PersistSearch = createAsyncThunk("/persistSearch",async(song, { dis
     dispatch(setSearchedMusicHistory(song))
     const history = getState().data.searchedMusicHistory;
     const user = getState().user.user
-    console.warn("History: ",history)
+    //console.warn("History: ",history)
     //${Constants.expoConfig.extra.SERVER}
     const response = await axios.post( `${Constants.expoConfig.extra.SERVER}/api/persistsearch`,{searched:history,user:user?.id})
     return response.data
   }
   catch(error){
-    console.warn("Persist search error ",error)
+    //console.warn("Persist search error ",error)
   }
 
 })
@@ -226,13 +226,13 @@ export const PersistSearch = createAsyncThunk("/persistSearch",async(song, { dis
 export const getPersistSearch = createAsyncThunk("/getpersistSearch",async(_,{ dispatch, getState })=>{
   try{
     const user = getState().user.user
-    console.warn("GETTING SEARCHED MUSICSS")
+    //console.warn("GETTING SEARCHED MUSICSS")
     //${Constants.expoConfig.extra.SERVER}
     const response = await axios.post( `${Constants.expoConfig.extra.SERVER}/api/getpersistsearch`,{user:user?.id})
     return response.data
   }
   catch(error){
-    console.warn("get search error ",error)
+    //console.warn("get search error ",error)
   }
 
 })
@@ -262,7 +262,7 @@ export const getPersistSearch = createAsyncThunk("/getpersistSearch",async(_,{ d
 //       console.log(metadata);
 //       return metadata; // Metadata (title, duration, etc.)
 //     } catch (error) {
-//       console.error("Metadata fetch error:", error.message);
+//       //console.error("Metadata fetch error:", error.message);
 //       return rejectWithValue(error.response?.data || "Something went wrong");
 //     }
 //   }

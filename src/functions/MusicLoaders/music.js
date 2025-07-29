@@ -27,7 +27,7 @@ export const loadAudio = async (
   playLoad,
   playlistNo = -1
 ) => {
-  console.warn("song url", data[pos].url);
+  //console.warn("song url", data[pos].url);
 
   try {
     if (!data[pos]) {
@@ -40,12 +40,12 @@ export const loadAudio = async (
 
     const audioUri = `${Constants.expoConfig.extra.SERVER}/api/stream?url=${encodeURIComponent(data[pos].url)}`
     //const audioUri = http://192.168.1.107:3000/api/stream?url=${encodeURIComponent(data[pos].url)}
-    console.warn("Audio URI:", audioUri); // Check if the URL is correct
+    //console.warn("Audio URI:", audioUri); // Check if the URL is correct
     dispatch(progress(0));
     if (soundRef.current) {
       // soundRef.previous = soundRef.current;
-      console.error("newwwwww")
-      console.warn("...")
+      //console.error("newwwwww")
+      //console.warn("...")
       await soundRef.current.pauseAsync();
       await soundRef.current.unloadAsync();
       soundRef.current = null;
@@ -55,9 +55,9 @@ export const loadAudio = async (
       await playRef.current.unloadAsync();
       playRef.current = null;
     }
-    console.warn("i am here before dispatch");
+    //console.warn("i am here before dispatch");
     dispatch(progress(0));
-    console.warn("i am here after dispatch");
+    //console.warn("i am here after dispatch");
     try {
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: false,
@@ -78,11 +78,11 @@ export const loadAudio = async (
     );  
 
 
-    console.warn(queueLoad, playLoad)
+    //console.warn(queueLoad, playLoad)
     if (queueLoad) {
       soundRef.current = sound;
       playRef.current = null
-      console.warn("Audio Loaded");
+      //console.warn("Audio Loaded");
       // Wherever you set the sound
       eventBus.emit("soundChanged", soundRef.current);
 
@@ -90,7 +90,7 @@ export const loadAudio = async (
     if (playLoad) {
       playRef.current = sound
       soundRef.current = null
-      console.warn("Audio Loaded from playref")
+      //console.warn("Audio Loaded from playref")
       playRef.current.playAsync()
     }
     sound.setOnPlaybackStatusUpdate((status) => {
@@ -120,15 +120,15 @@ export const unloadAudio = async () => {
   }
 };
 const onPlaybackStatusUpdate = (status, dispatch, getSeek, data, pos, playlistNo,queueLoad,playLoad) => {
-  //console.error("STATUS:",status)
+  ////console.error("STATUS:",status)
   if (status.didJustFinish) {
     const currentSeek = getSeek?.();
-    console.warn("finished......")
-    console.warn("Sned");
+    //console.warn("finished......")
+    //console.warn("Sned");
     sendSongFinishedNotification("Lover - Taylor Swift");
     
     if(currentSeek != data[pos]?.duration && currentSeek != 0) {
-    console.warn("finishing up!!");
+    //console.warn("finishing up!!");
     dispatch(progress(data[pos]?.duration))
   }
       
@@ -137,8 +137,8 @@ const onPlaybackStatusUpdate = (status, dispatch, getSeek, data, pos, playlistNo
     
   }
   if (status.isLoaded) {
-    //console.warn("hi?");
-    //console.warn("positionMillis:", status.positionMillis / 1000);
+    ////console.warn("hi?");
+    ////console.warn("positionMillis:", status.positionMillis / 1000);
     if (status.isPlaying) {
       dispatch(progress(+1));
     }
@@ -148,26 +148,26 @@ const onPlaybackStatusUpdate = (status, dispatch, getSeek, data, pos, playlistNo
 
 
   } else if (status.error) {
-    console.warn(`Playback error:" ${status.error}`);
+    //console.warn(`Playback error:" ${status.error}`);
   }
 };
 
 const tailFill = async (data,pos,currentSec, dispatch, skipToNext,queueLoad,playLoad,currentSeek,playlistNo) => {
-  console.error("came inside")
-  console.error("0",skipToNext)
+  //console.error("came inside")
+  //console.error("0",skipToNext)
   
-  console.error("1:",skipToNext)
+  //console.error("1:",skipToNext)
   const stop = await checkNext(pos, data, dispatch, playlistNo)
   if(stop){
-    console.error("byeee")
+    //console.error("byeee")
     return
   }
-  console.error(":",skipToNext)
+  //console.error(":",skipToNext)
   
   if (skipToNext) {
-    console.error("skip next is true")
+    //console.error("skip next is true")
     if (queueLoad) {
-      console.error("NEXT queue")
+      //console.error("NEXT queue")
       dispatch(changePos(1));
       dispatch(load(false));
       setTimeout(() => {
@@ -175,7 +175,7 @@ const tailFill = async (data,pos,currentSec, dispatch, skipToNext,queueLoad,play
       }, 1)
     }
     if (playLoad) {
-      console.error("NEXT playlist song")
+      //console.error("NEXT playlist song")
       dispatch(changePlaylistPos(1))
       dispatch(changeLoad(false))
       setTimeout(() => {
@@ -190,11 +190,11 @@ const tailFill = async (data,pos,currentSec, dispatch, skipToNext,queueLoad,play
 };
 
 const checkNext = async(pos, data, dispatch, playlistNo) => {
-  console.warn("pos:", pos)
-  console.warn("data length", data.length)
+  //console.warn("pos:", pos)
+  //console.warn("data length", data.length)
   if (pos + 1 >= data.length) {
     if (soundRef.current) {
-      console.warn("pausing player")
+      //console.warn("pausing player")
       // await soundRef.current.pauseAsync();
       // await soundRef.current.unloadAsync();
       //soundRef.current = null;
@@ -203,7 +203,7 @@ const checkNext = async(pos, data, dispatch, playlistNo) => {
       await soundRef.current.setPositionAsync(0)
     }
     if (playRef.current && playlistNo != -1) {
-      console.warn("pausing playlist")
+      //console.warn("pausing playlist")
       // await playRef.current.pauseAsync();
       // await playRef.current.unloadAsync();
       // playRef.current = null;

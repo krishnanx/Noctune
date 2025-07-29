@@ -17,7 +17,7 @@ import { useNavigation } from '@react-navigation/native';
 const { width } = Dimensions.get('window');
 import { changeLoad } from "../../../Store/Playdataslice.js";
 import { addMusic,load, setSearchedMusic } from '../../../Store/MusicSlice';
-import { useNavigation } from '@react-navigation/native';
+
 
 const QuickPickCard = ({ title, imageUrl,item,handlePlay }) => (
   <TouchableOpacity style={styles.quickPickCard} onPress={()=>handlePlay(item)}>
@@ -52,11 +52,11 @@ const Home = () => {
   const navigation = useNavigation()
   const searchedMusicHistory = useSelector((state)=>state.data.searchedMusicHistory)
   const { data, pos, seek, isplaying, canLoad, isLoadedFromAsyncStorage,searchTextHistory } = useSelector((state) => state.data);
-  const navigation = useNavigation();
+  
   const dispatch = useDispatch()
 
 const handlePlay = (item) => {
-  console.error(item)
+  //console.error(item)
   dispatch(addMusic(item));
   dispatch(setSearchedMusic(true))
   if (canLoad) {

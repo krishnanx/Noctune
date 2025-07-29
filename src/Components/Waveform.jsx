@@ -47,7 +47,7 @@ const Waveform = () => {
         );
 
       } catch (err) {
-        console.error("Error fetching device name:", err);
+        //console.error("Error fetching device name:", err);
         setDeviceName(`${Device.manufacturer ?? "Unknown"} ${Device.modelName ?? "Device"}`);
       }
     };
@@ -71,10 +71,10 @@ const Waveform = () => {
       if (state.isConnected) {
         const runAsyncLogic = async () => {
           
-          console.error("HI")
+          //console.error("HI")
           try {
             const loadedUser = await dispatch(loadUser()).unwrap(); // Await loadUser thunk
-            console.warn("data:", loadedUser === null);
+            //console.warn("data:", loadedUser === null);
             //let ws;
             loadedUser === null ? null : await dispatch(pullPlaylists({ user: loadedUser.id })).unwrap()
             dispatch(updataID())
@@ -82,12 +82,12 @@ const Waveform = () => {
             // 192.168.85.33 K
             // 192.168.1.44 krish
             // `${Constants.expoConfig.extra.WEBSOC}
-            console.error("loader user over")
-            console.error(isConnected)
+            //console.error("loader user over")
+            //console.error(isConnected)
             
             
 //             ws.onerror = (e) => {
-//   console.error("WebSocket error:", e.message);
+//   //console.error("WebSocket error:", e.message);
 //   Alert.alert(
 //     "Connection Issue",
 //     "Couldn't connect to server services. You'll be using offline mode.",
@@ -98,11 +98,11 @@ const Waveform = () => {
 
 // // Also outside
 // ws.onclose = () => {
-//   console.warn("WebSocket closed");
+//   //console.warn("WebSocket closed");
 //   dispatch(setwaveLoad(false));
 // };
           } catch (error) {
-            console.error("Failed to load user:", error);
+            //console.error("Failed to load user:", error);
           }
           finally{
             dispatch(setwaveLoad(false));

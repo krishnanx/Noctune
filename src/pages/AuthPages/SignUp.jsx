@@ -62,11 +62,11 @@ const SignUp = () => {
 
 
       const result = await dispatch(signUp({ email, password, username })).unwrap();
-      console.warn(result)
+      //console.warn(result)
 
       if (result.success) {
         alert("Account created successfully! Please sign in");
-        console.warn(result)
+        //console.warn(result)
         const userid = result.user.id
         const playlist = {
 
@@ -92,7 +92,7 @@ const SignUp = () => {
           dispatch(showToast(errorMessage));
       }
     } catch (error) {
-      console.error("Sign-up error:", error);
+      //console.error("Sign-up error:", error);
         dispatch(showToast(error.message || "An unexpected error occurred"));
     }
 

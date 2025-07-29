@@ -7,7 +7,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Image,
-  Text, Animated,AppState
+  Text, Animated,AppState,DeviceEventEmitter
 } from "react-native";
 import React, { useState, useEffect, useRef } from "react";
 import { NavigationContainer } from "@react-navigation/native";
@@ -53,7 +53,28 @@ export default function App() {
 
   useEffect(() => {
   Notifications.requestPermissionsAsync();
-}, []);
+  }, []);
+// Fixed DeviceEventEmitter listeners with proper cleanup
+  useEffect(() => {
+    const appKilledListener = DeviceEventEmitter.addListener('AppWasKilled', () => {
+      // Save any critical state before app dies
+      console.error('App is being killed');
+      // Add your cleanup logic here
+    });
+
+    const appStartedFreshListener = DeviceEventEmitter.addListener('AppStartedFresh', () => {
+      // Reset to initial state, clear navigation stack, etc.
+      console.error('App started fresh after being killed');
+      // Add your reset logic here
+      // For example: dispatch actions to reset state, navigate to home screen, etc.
+    });
+
+    // Cleanup function
+    return () => {
+      appKilledListener.remove();
+      appStartedFreshListener.remove();
+    };
+  }, []); // Empty dependency array to run only once
 
 
   const { Mode } = useSelector((state) => state.theme);
@@ -114,17 +135,17 @@ export default function App() {
                   // should handle this since it watches for changes to pos
                   dispatch(load(true)); // This should trigger your Audioloader component
                 } else {
-                  console.warn(
-                    "Data or position not valid after loading saved song"
-                  );
+                  // //console.warn(
+                  //   "Data or position not valid after loading saved song"
+                  // );
                 }
               }, 100);
             } else {
-              console.warn("No valid song data found in AsyncStorage");
+              //console.warn("No valid song data found in AsyncStorage");
             }
           }
         } catch (e) {
-          console.error("Error loading last song", e);
+          //console.error("Error loading last song", e);
         }
       };
   
@@ -135,18 +156,18 @@ export default function App() {
  
   useEffect(() => {
       const autoPlayIfUserSearched = async (sound) => {
-        console.warn("Sound changed event received", sound);
+        //console.warn("Sound changed event received", sound);
         //if (!sound) return;
-        console.error("hi: ")
-        console.warn(searchedMusic)
+        //console.error("hi: ")
+        //console.warn(searchedMusic)
         if (searchedMusic && data[pos]) {
           try {
             dispatch(setSearchedMusic(false))
-            console.warn("auto play")
+            //console.warn("auto play")
             await sound.playAsync();
             dispatch(setIsPlaying(true));
           } catch (error) {
-            console.error("Error auto-playing after search", error);
+            //console.error("Error auto-playing after search", error);
           }
         } else {
           console.log(
@@ -162,8 +183,8 @@ export default function App() {
     }, [searchedMusic]);
   useEffect(() => {
     const unsubscribe = addEventListener(state => {
-      console.error('Connection type', state.type);
-      console.error('Is connected?', state.isConnected);
+      //console.error('Connection type', state.type);
+      //console.error('Is connected?', state.isConnected);
       dispatch(connection(state.isConnected))
       dispatch(type(state.type))
     });
@@ -174,13 +195,13 @@ export default function App() {
 
   }, []);
   useEffect(() => {
-    console.error("queue loader", canLoad)
-    console.error("playlist loader", load)
+    //console.error("queue loader", canLoad)
+    //console.error("playlist loader", load)
   }, [canLoad, load])
   useEffect(() => {
     if (migrateSliceSucess) {
-      console.warn("pushing migrated playlist")
-      console.warn(migratedPlaylist)
+      //console.warn("pushing migrated playlist")
+      //console.warn(migratedPlaylist)
       dispatch(showToast("Migration Completed"));
       dispatch(AddNewPlaylist({ data: migratedPlaylist, userid: user?.id }))
       dispatch(updatemigrateSliceSucess(false))
@@ -206,12 +227,12 @@ export default function App() {
         const api = new YoutubeMusicApi();
         await api.initalize();
         YtMusicRef.current = api;
-        console.warn("YTMusic API initialized successfully");
+        //console.warn("YTMusic API initialized successfully");
       } catch (err) {
-        console.error("YTMusic API init failed:", err.message);
+        //console.error("YTMusic API init failed:", err.message);
         if (err.response) {
-          console.error("Status:", err.response.status);
-          console.error("Data:", err.response.data);
+          //console.error("Status:", err.response.status);
+          //console.error("Data:", err.response.data);
         }
       }
     };

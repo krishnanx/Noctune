@@ -16,8 +16,8 @@ const NotificationSync = () => {
       const positionMillis = Math.floor(seek * 1000);
       const durationMillis = Math.floor(duration * 1000);
 
-      console.error(positionMillis);
-      console.error(durationMillis);
+      //console.error(positionMillis);
+      //console.error(durationMillis);
       MediaNotificationManager.updateProgress(positionMillis, durationMillis);
     }
   }, [seek ,duration, pos]);

@@ -37,7 +37,7 @@ let BackArrow;
 try {
   BackArrow = require("../Components/BackArrow").default;
 } catch (error) {
-  console.warn('BackArrow component not found, using fallback');
+  //console.warn('BackArrow component not found, using fallback');
   BackArrow = () => <Text style={{ color: 'white', fontSize: 18 }}>←</Text>;
 }
 
@@ -136,7 +136,7 @@ const pickImage = async () => {
       setHasChanges(true);
     }
   } catch (e) {
-    console.error('Error picking image:', e);
+    //console.error('Error picking image:', e);
     Alert.alert('Error', 'Could not pick image.');
   }
 };
@@ -174,9 +174,9 @@ const saveChanges = async () => {
             Time: totalTime
         };
 
-        console.warn("Saving playlist:", updatedPlaylist);
-        console.warn("Original playlist name:", playlistData.name);
-        console.warn("User ID:", user.id);
+        //console.warn("Saving playlist:", updatedPlaylist);
+        //console.warn("Original playlist name:", playlistData.name);
+        //console.warn("User ID:", user.id);
 
         const result = await dispatch(editPlaylist({
             data: updatedPlaylist,
@@ -195,7 +195,7 @@ const saveChanges = async () => {
         }
         
     } catch (error) {
-        console.error('Error saving playlist:', error);
+        //console.error('Error saving playlist:', error);
         Alert.alert('Error', `Failed to save changes: ${error.message || error}`);
     } finally {
         setIsLoading(false);

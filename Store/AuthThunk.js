@@ -18,11 +18,11 @@ export const loadUser = createAsyncThunk(
       //dispatch(setLoading(true));
       const userData = await AsyncStorage.getItem("user");
       const sessionData = await AsyncStorage.getItem("session");
-      console.warn("session: ", sessionData)
-      console.warn("user data: ", userData)
+      //console.warn("session: ", sessionData)
+      //console.warn("user data: ", userData)
       if (userData && sessionData) {
         const parsedUser = JSON.parse(userData);
-        console.error(parsedUser)
+        //console.error(parsedUser)
         dispatch(setUser(parsedUser));
         dispatch(setSession(JSON.parse(sessionData)));
         return parsedUser;
@@ -30,7 +30,7 @@ export const loadUser = createAsyncThunk(
 
       return null;
     } catch (error) {
-      console.error(error)
+      //console.error(error)
       dispatch(setError("Failed to load userdata"));
       throw error;
     }
@@ -53,7 +53,7 @@ export const signUp = createAsyncThunk(
       );
 
       const { user } = response.data;
-      console.warn(response.data)
+      //console.warn(response.data)
       // Store in AsyncStorage
 
       //--------------------------------------------------
@@ -70,7 +70,7 @@ export const signUp = createAsyncThunk(
       dispatch(setError(false))
       return { success: true, user: user };
     } catch (error) {
-      console.error(error)
+      //console.error(error)
       const errorMessage = error.response?.data?.error || "Failed to sign up";
       dispatch(setError(true));
       return { success: false, error: errorMessage };
@@ -86,7 +86,7 @@ export const signIn = createAsyncThunk(
   async ({ email, password }, { dispatch, rejectWithValue }) => {
 
     try {
-      console.warn("sign in reached")
+      //console.warn("sign in reached")
       dispatch(setLoading(true));
 
       const response = await axios.post(
@@ -114,13 +114,13 @@ export const signIn = createAsyncThunk(
           session: response.data.session,
         };
       } else {
-        console.error("Invalid response format:", response.data);
+        //console.error("Invalid response format:", response.data);
         return rejectWithValue({ error: "Invalid response from server" });
       }
     } catch (error) {
-      console.error("Auth API error:", error.message);
+      //console.error("Auth API error:", error.message);
       if (error.response) {
-        console.error("Error response:", error.response.data);
+        //console.error("Error response:", error.response.data);
       }
       return rejectWithValue({
         error: error.response?.data?.error || "Connection failed",

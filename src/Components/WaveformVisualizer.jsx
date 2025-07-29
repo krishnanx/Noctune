@@ -44,19 +44,19 @@ const WaveformVisualizer = ({ ytUrl,seconds }) => {
         const placeholderData = Array(100).fill(0);
         setWaveformData(placeholderData);
 
-        console.error("Request made");
+        //console.error("Request made");
         const res = await fetch(`${Constants.expoConfig.extra.SERVER}/yt/waveform`, {
         //const res = await fetch(`http://192.168.1.107:3000/yt/waveform`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ data: ytUrl }),
         });
-        console.error("Status:", res.status);        
+        //console.error("Status:", res.status);        
         const json = await res.json();
-        console.error("Waveform JSON response:", json);
+        //console.error("Waveform JSON response:", json);
         setWaveformData(json?.waveform || []);
       } catch (err) {
-        console.error("Waveform fetch error:", err);
+        //console.error("Waveform fetch error:", err);
       } finally {
         setLoading(false);
       }

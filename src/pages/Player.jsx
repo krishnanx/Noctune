@@ -51,29 +51,29 @@ const Player = () => {
 
   const changePlayPause = async () => {
     if (!soundRef.current) {
-      console.warn("sound ref is null")
-      console.warn(soundRef.current)
+      //console.warn("sound ref is null")
+      //console.warn(soundRef.current)
       if (playRef.current) {
         if (isplaying) {
-          console.error("secomd")
+          //console.error("secomd")
           await playRef.current.pauseAsync();
           dispatch(progress(-1));
         } else {
           await playRef.current.playAsync(); // resumes from last position
           dispatch(progress(-1));
-          console.error("second")
+          //console.error("second")
         }
         dispatch(setIsPlaying("toggle"));
         dispatch(setPlaylistplaying({ action: "toggle", id: playlistNo }));
       }
     }
     else if (isplaying) {
-      console.warn("paused")
+      //console.warn("paused")
       await soundRef.current.pauseAsync();
       dispatch(progress(-1));
       dispatch(setIsPlaying(false));
     } else {
-      console.warn("resumed")
+      //console.warn("resumed")
       await soundRef.current.playAsync(); // resumes from last position
       dispatch(progress(-1));
       dispatch(setIsPlaying(true));
@@ -104,7 +104,7 @@ const Player = () => {
         if (togglePlayPauseRef.current) {
           togglePlayPauseRef.current();
         } else {
-          console.warn("togglePlayPauseRef is not available");
+          //console.warn("togglePlayPauseRef is not available");
         }
       });
 

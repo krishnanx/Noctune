@@ -14,7 +14,7 @@ export async function saveBase64AsMp3ToSAF(
         console.log('MP3 file saved at:', fileUri);
         return fileUri; // You can return the full URI of the saved file
     } catch (error) {
-        console.error('Error saving file in SAF:', error);
+        //console.error('Error saving file in SAF:', error);
         return null;
     }
 }

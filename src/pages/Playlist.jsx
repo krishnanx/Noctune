@@ -45,14 +45,14 @@ const Playlist = () => {
     seek,
     isplaying,
   } = useSelector((state) => state.data);
-
+  // const user = useSelector((state)=>state.user.user)
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
   const goToNewPage = () => {
-    console.warn("DATA: ", JSON.stringify(data, null, 2));
+    //console.warn("DATA: ", JSON.stringify(data, null, 2));
     data[0].songs?.forEach((song, idx) => {
-      console.warn(`Song ${idx + 1}:`, song);
+      //console.warn(`Song ${idx + 1}:`, song);
     });
     navigation.navigate('PlaylistEdit', { index });
   };
@@ -239,16 +239,16 @@ const Playlist = () => {
   });
   const Pname = data[index].name;
   const Description = data[index].desc;
-  const Uname = "Krishnan E";
+  const Uname = user?.user_metadata.username;
   const minHeight = 1000
   const togglePlayPause = async () => {
 
     if (!playRef.current) {
-      console.warn("no current songs")
+      //console.warn("no current songs")
       if (playlistNo != index) {
         dispatch(changePlaylist(index))
       }
-      console.warn(data[index].songs)
+      //console.warn(data[index].songs)
       dispatch(addType(data[index].songs))
       dispatch(changeLoad(false))
       dispatch(load(false));
@@ -259,8 +259,8 @@ const Playlist = () => {
       dispatch(setIsPlaying(true));
 
     } else {
-      console.warn("reached playlist toggle");
-      console.warn(playlistNo, index);
+      //console.warn("reached playlist toggle");
+      //console.warn(playlistNo, index);
       if (playlistNo != index) {
         dispatch(changePlaylist(index))
         dispatch(addType(data[index].songs))
@@ -275,13 +275,13 @@ const Playlist = () => {
         //await playRef.current.playAsync();
       }
       else if (isplaying) {
-        console.warn("isplaying", isplaying)
+        //console.warn("isplaying", isplaying)
         await playRef.current.pauseAsync();
         dispatch(setPlaylistplaying({ action: false, id: index }));
         dispatch(progress(-1));
         //updatePlaybackState(false, seek); //added
       } else {
-        console.warn("isplaying", isplaying)
+        //console.warn("isplaying", isplaying)
         await playRef.current.playAsync(); // resumes from last position
         dispatch(setPlaylistplaying({ action: true, id: index }));
         dispatch(progress(-1));
@@ -293,19 +293,19 @@ const Playlist = () => {
   };
 
   const initialiseWebsocket = (id) => {
-    try{ console.error("reached websocket connection")
+    try{ //console.error("reached websocket connection")
      
       //const ws = initWebSocket(`ws://192.168.1.7:8000/download-progress`);
       const ws = initWebSocket(`${Constants.expoConfig.extra.WEBSOC}/download-progress`);
       //const ws = initWebSocket(`ws://192.168.1.107:3000/download-progress`);
       //const ws = getWebSocket();
       if (!ws) {
-        console.error("WebSocket failed to initialize.");
+        //console.error("WebSocket failed to initialize.");
         return;
       }
 
       ws.onopen = () => {
-        console.error("Connected to WebSocket server");
+        //console.error("Connected to WebSocket server");
         dispatch(setClientID({ id }));
         ws.send(JSON.stringify({
           type: "register",
@@ -317,18 +317,18 @@ const Playlist = () => {
       //const ws = getWebSocket() 
       wsRef.current = ws
     }catch(error){
-      console.error(error)
+      //console.error(error)
     }
 
   }
 
   const handleDownload = async () => {
-    console.warn("reached download function");
+    //console.warn("reached download function");
     const id = Math.random().toString(36).slice(2, 8);
-    console.warn(data[index]?.songs, clientID);
+    //console.warn(data[index]?.songs, clientID);
     initialiseWebsocket(id);
     const path = await folderPicker();
-    console.warn(path);
+    //console.warn(path);
     dispatch(addPath({ path: path }));
     dispatch(addSong({ data: data[index]?.songs }));
     dispatch(download({ data: data[index]?.songs, ClientId: id }));
@@ -425,7 +425,7 @@ const Information = ({
         </View> */}
       <View style={styles.metadata}>
         <View style={styles.imageContainer}>
-          {console.error(index)}
+          
           <Image
             source={index == 0 ? data.songs?.length > 0 ? data.image ? { uri: data.image } : { uri: data.songs[0]?.image } :
               icon : data.songs?.length > 0 ? data.image ? { uri: data.image } : { uri: data.songs[0]?.image } : normIcon}

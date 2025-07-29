@@ -21,7 +21,7 @@ class MediaNotificationManager {
     if (this.isAvailable) {
       this._registerEventListeners();
     } else {
-      console.warn("MediaNotification module not available");
+      //console.warn("MediaNotification module not available");
     }
   }
 
@@ -31,7 +31,7 @@ class MediaNotificationManager {
    */
   registerPlayPauseHandler(callback) {
     if (!this.isAvailable) {
-      console.warn("MediaNotification is not available on this platform");
+      //console.warn("MediaNotification is not available on this platform");
       return;
     }
 
@@ -67,7 +67,7 @@ class MediaNotificationManager {
    */
   showNotification(trackData) {
     if (!this.isAvailable) {
-      console.warn("MediaNotification is not available on this platform");
+      //console.warn("MediaNotification is not available on this platform");
       return Promise.resolve(false);
     }
 
@@ -82,10 +82,10 @@ class MediaNotificationManager {
    */
   updatePlaybackStatus(isPlaying,position) {
     if (!this.isAvailable) {
-      console.warn("MediaNotification is not available on this platform");
+      //console.warn("MediaNotification is not available on this platform");
       return Promise.resolve(false);
     }
-    console.error("position in java bridge:",position)
+    //console.error("position in java bridge:",position)
     return MediaNotification.updatePlaybackStatus(isPlaying,position);
   }
 
@@ -95,7 +95,7 @@ class MediaNotificationManager {
    */
   hideNotification() {
     if (!this.isAvailable) {
-      console.warn("MediaNotification is not available on this platform");
+      //console.warn("MediaNotification is not available on this platform");
       return Promise.resolve(false);
     }
 
@@ -110,7 +110,7 @@ class MediaNotificationManager {
    */
   updateTrackData(trackData) {
     if (!this.isAvailable) {
-      console.warn("MediaNotification is not available on this platform");
+      //console.warn("MediaNotification is not available on this platform");
       return Promise.resolve(false);
     }
 
@@ -129,10 +129,10 @@ class MediaNotificationManager {
    */
   updateProgress(positionMs, durationMs) {
     if (!this.isAvailable || !MediaNotification.updateProgress) {
-      console.warn("MediaNotification is not available or method not defined");
+      //console.warn("MediaNotification is not available or method not defined");
       return Promise.resolve(false);
     }
-    console.warn("Position MS:", positionMs)
+    //console.warn("Position MS:", positionMs)
     return MediaNotification.updateProgress(positionMs, durationMs);
   }
 
@@ -145,7 +145,7 @@ class MediaNotificationManager {
    */
   addEventListener(event, callback) {
     if (!this.isAvailable || !MediaNotificationEmitter) {
-      console.warn("MediaNotification is not available on this platform");
+      //console.warn("MediaNotification is not available on this platform");
       return () => {};
     }
 
@@ -160,9 +160,9 @@ class MediaNotificationManager {
 
     const nativeEvent = eventMap[event];
     if (!nativeEvent) {
-      console.warn(
-        `Unknown event: ${event}. Supported events are: play, pause, next, previous, stop`
-      );
+      // //console.warn(
+      //   `Unknown event: ${event}. Supported events are: play, pause, next, previous, stop`
+      // );
       return () => {};
     }
 

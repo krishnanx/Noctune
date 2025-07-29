@@ -62,22 +62,22 @@ export default DownloadSlice.reducer;
 export const download = createAsyncThunk(
   "download/music",
   async ({ data, ClientId }, { rejectWithValue }) => {
-    console.warn("=== REDUX THUNK DEBUG ===");
-    console.warn("Input data:", data);
-    console.warn("ClientId:", ClientId);
-    console.warn("Data type:", typeof data);
-    console.warn("Is array?", Array.isArray(data));
-    console.warn("Data length:", data?.length);
+    //console.warn("=== REDUX THUNK DEBUG ===");
+    //console.warn("Input data:", data);
+    //console.warn("ClientId:", ClientId);
+    //console.warn("Data type:", typeof data);
+    //console.warn("Is array?", Array.isArray(data));
+    //console.warn("Data length:", data?.length);
     // Validation
     if (!data || !Array.isArray(data)) {
       const error = "Data must be an array";
-      console.error(error);
+      //console.error(error);
       return rejectWithValue(error);
     }
 
     if (!ClientId) {
       const error = "ClientId is required";
-      console.error(error);
+      //console.error(error);
       return rejectWithValue(error);
     }
 
@@ -96,14 +96,14 @@ export const download = createAsyncThunk(
           image: item.image || item.thumbnail || null
         };
       } else {
-        console.warn(`Invalid item at index ${index}:`, item);
+        //console.warn(`Invalid item at index ${index}:`, item);
         return null;
       }
     }).filter(item => item !== null); // Remove invalid items
 
     if (validatedData.length === 0) {
       const error = "No valid URLs or items found in data";
-      console.error(error);
+      //console.error(error);
       return rejectWithValue(error);
     }
 
@@ -112,8 +112,8 @@ export const download = createAsyncThunk(
       ClientId
     };
 
-    console.warn("Sending payload:", payload);
-    console.warn("Validated data count:", validatedData.length);
+    //console.warn("Sending payload:", payload);
+    //console.warn("Validated data count:", validatedData.length);
 
     try {
       // 192.168.85.33 K
@@ -130,21 +130,21 @@ export const download = createAsyncThunk(
         }
       );
 
-      console.warn("Response status:", response.status);
-      console.warn("Response data:", response.data);
+      //console.warn("Response status:", response.status);
+      //console.warn("Response data:", response.data);
       if(response.data.message == "All downloads complete"){
-        console.error("=============close=============")
+        //console.error("=============close=============")
         manuallyCloseWebSocket()
         
       }
       return response.data;
     } catch (error) {
-      console.error("=== REDUX THUNK ERROR ===");
-      console.error("Request failed:", error.message);
+      //console.error("=== REDUX THUNK ERROR ===");
+      //console.error("Request failed:", error.message);
 
       if (error.response) {
-        console.error("Error response status:", error.response.status);
-        console.error("Error response data:", error.response.data);
+        //console.error("Error response status:", error.response.status);
+        //console.error("Error response data:", error.response.data);
 
         return rejectWithValue({
           status: error.response.status,
@@ -152,14 +152,14 @@ export const download = createAsyncThunk(
           details: error.response.data
         });
       } else if (error.request) {
-        console.error("No response received");
+        //console.error("No response received");
         return rejectWithValue({
           status: 0,
           message: "No response from server",
           details: "Network error or server unavailable"
         });
       } else {
-        console.error("Request setup error:", error.message);
+        //console.error("Request setup error:", error.message);
         return rejectWithValue({
           status: 0,
           message: error.message,

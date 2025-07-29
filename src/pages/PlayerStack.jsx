@@ -71,7 +71,7 @@ const PlayerStack = () => {
 
   useEffect(() => {
     if (currentTrack) {
-      console.warn("Track changed, resetting notification state");
+      //console.warn("Track changed, resetting notification state");
       // First hide any existing notification
       MediaNotificationManager.hideNotification().then(() => {
         // Short delay to ensure complete reset
@@ -116,13 +116,13 @@ const PlayerStack = () => {
     if (!soundRef.current) {
       if (playRef.current) {
         if (isplaying) {
-          console.warn("true->false")
+          //console.warn("true->false")
           await playRef.current.pauseAsync();
           dispatch(progress(-1));
           dispatch(setIsPlaying(false));
           dispatch(setPlaylistplaying({ action: false, id: playlistNo }));
         } else {
-          console.warn("false->true")
+          //console.warn("false->true")
           await playRef.current.playAsync(); // resumes from last position
           dispatch(progress(-1));
           dispatch(setIsPlaying(true));
@@ -191,9 +191,9 @@ const PlayerStack = () => {
         clearTimeout(singlePressTimeoutRef.current);
         singlePressTimeoutRef.current = null;
       }
-      console.warn("Double press detected!");
+      //console.warn("Double press detected!");
       if (soundRef.previous) {
-        console.error("prev ref exsists")
+        //console.error("prev ref exsists")
         await soundRef.previous.playAsync()
       }
       else {
@@ -207,7 +207,7 @@ const PlayerStack = () => {
     } else {
       // Set timeout for single press
       singlePressTimeoutRef.current = setTimeout(async () => {
-        console.warn("Single press detected");
+        //console.warn("Single press detected");
         if(value == 1){
           dispatch(changePos(value));
           dispatch(setSearchedMusic(true))
@@ -248,7 +248,7 @@ const PlayerStack = () => {
         if (togglePlayPauseRef.current) {
           togglePlayPauseRef.current();
         } else {
-          console.warn("togglePlayPauseRef is not available");
+          //console.warn("togglePlayPauseRef is not available");
         }
       });
 

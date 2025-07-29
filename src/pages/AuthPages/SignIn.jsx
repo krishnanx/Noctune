@@ -43,7 +43,7 @@ const handleSignIn = async () => {
       }
       
       const result = await dispatch(signIn({ email, password })).unwrap();
-      console.warn("SignIn Result:", result);
+      //console.warn("SignIn Result:", result);
 
       if (result.success) {
         const { user, session } = result;
@@ -54,7 +54,7 @@ const handleSignIn = async () => {
         dispatch(showToast(errorMessage));
       }
     } catch (error) {
-      console.error("Sign-in error:", error);
+      //console.error("Sign-in error:", error);
       const errorMessage =
         typeof error === "object" && error !== null
           ? error.error || error.message || "An unexpected error occurred"
@@ -64,7 +64,7 @@ const handleSignIn = async () => {
     }
   };
 
-  useEffect(() => { console.error("Loading", loading) }, [])
+  //useEffect(() => {  }, [])
   const styles = StyleSheet.create({
     container: {
       flex: 1,

@@ -28,7 +28,7 @@ const MigratePlaylist = () => {
         }
 
         // Here you would add your actual migration logic
-        console.warn('Migrating playlist:', playlistUrl);
+        //console.warn('Migrating playlist:', playlistUrl);
         dispatch(showToast("Migration Started"))
         dispatch(migrate({ Url: playlistUrl }))
 

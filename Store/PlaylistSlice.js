@@ -17,7 +17,7 @@ const PlaylistSlice = createSlice({
 
             state.data = [...state.data, action.payload.playlist];
             state.id = state.id + 1
-            console.warn(state.id)
+            //console.warn(state.id)
         },
         deleteAllPlaylist(state,action){
             state.data = [],
@@ -35,7 +35,7 @@ const PlaylistSlice = createSlice({
         addMusicinPlaylist(state, action) {
             let bool = true;
             if (state.data[action.payload.id]?.songs?.length === 0) {
-                console.warn(action.payload.music.image)
+                //console.warn(action.payload.music.image)
                 state.data[action.payload.id].image = action.payload.music.image
             }
             state.data[action.payload.id].songs?.forEach(element => {
@@ -50,7 +50,7 @@ const PlaylistSlice = createSlice({
             // state.data[action.payload.id].songs.forEach(element => {
             //     state.data[action.payload.id].Time += element.duration
             // });
-            console.warn("Time", state.data[action.payload.id].Time)
+            //console.warn("Time", state.data[action.payload.id].Time)
 
 
         },
@@ -101,7 +101,7 @@ const PlaylistSlice = createSlice({
                 const response = action.payload;
                 const id = state.id + 1;
                 state.id = id
-                console.warn("id", id)
+                //console.warn("id", id)
                 const playlist = {
                     id: id,
                     image: response[0].cover_url || null,
@@ -144,7 +144,7 @@ const PlaylistSlice = createSlice({
             .addCase(AddNewPlaylist.fulfilled, (state, action) => {
 
                 const response = action.payload;
-                console.warn("New playlist added")
+                //console.warn("New playlist added")
 
             })
             .addCase(AddNewPlaylist.pending, (state, action) => {
@@ -170,16 +170,16 @@ const PlaylistSlice = createSlice({
                 Time: playlist.songs.reduce((total, song) => total + (song.duration || 0), 0)
             };
         }
-        console.warn("Playlist updated successfully in Redux");
+        //console.warn("Playlist updated successfully in Redux");
     } else {
-        console.error("Backend returned unsuccessful response:", response);
+        //console.error("Backend returned unsuccessful response:", response);
     }
 })
 .addCase(editPlaylist.pending, (state, action) => {
-    console.warn("Editing playlist...");
+    //console.warn("Editing playlist...");
 })
 .addCase(editPlaylist.rejected, (state, action) => {
-    console.error("Failed to edit playlist:", action.payload);
+    //console.error("Failed to edit playlist:", action.payload);
 })
             .addCase(pullPlaylists.fulfilled, (state, action) => {
 
@@ -193,13 +193,13 @@ const PlaylistSlice = createSlice({
                 )
                 array.sort((a, b) => a.id - b.id)
                 state.data = array
-                console.warn(response)
-                console.error("Playlists taken")
+                //console.warn(response)
+                //console.error("Playlists taken")
 
             })
             .addCase(addMusictoPlaylist.fulfilled, (state, action) => {
                 const response = action.payload;
-                console.error(response)
+                //console.error(response)
             })
 
 
@@ -213,19 +213,19 @@ export const { addPlaylist, addMusicinPlaylist, setPlaylistplaying, changePlayli
 export default PlaylistSlice.reducer;
 export const migrate = createAsyncThunk('/migratedata', async ({ Url: data }) => {
     try {
-        console.warn(data)
+        //console.warn(data)
         const response = await axios.post(`${Constants.expoConfig.extra.SERVER
             }/api/migrate`, { playlist: data })
-        console.warn("reached back")
+        //console.warn("reached back")
         return response.data
     }
     catch (e) {
-        console.error("error migrating!!", e)
+        //console.error("error migrating!!", e)
     }
 })
 export const AddNewPlaylist = createAsyncThunk('/newplaylist', async ({ data: playlist, userid: userid }) => {
     try {
-        console.warn("adding new playlist");
+        //console.warn("adding new playlist");
         //const response = await axios.post("http://192.168.1.7:8000/playlist/NewPlaylists", { playlist: playlist, user: userid })
         const response = await axios.post(`${Constants.expoConfig.extra.SERVER
             }/playlist/NewPlaylists`, { playlist: playlist, user: userid })
@@ -233,7 +233,7 @@ export const AddNewPlaylist = createAsyncThunk('/newplaylist', async ({ data: pl
         return response.data
     }
     catch (e) {
-        console.error(e)
+        //console.error(e)
     }
 })
 
@@ -241,9 +241,9 @@ export const editPlaylist = createAsyncThunk(
     '/editPlaylist',
     async ({ data: playlist, originalName, userid }, { rejectWithValue }) => {
         try {
-            console.warn("Editing Playlist: ", playlist.name);
-            console.warn("Original Name: ", originalName);
-            console.warn("User ID: ", userid);
+            //console.warn("Editing Playlist: ", playlist.name);
+            //console.warn("Original Name: ", originalName);
+            //console.warn("User ID: ", userid);
 
             const response = await axios.post(
                 `${Constants.expoConfig.extra.SERVER
@@ -255,13 +255,13 @@ export const editPlaylist = createAsyncThunk(
                 }
             );
 
-            console.warn("Edited Playlist Response: ", response.data);
+            //console.warn("Edited Playlist Response: ", response.data);
             return {
                 playlist: playlist,
                 response: response.data
             };
         } catch (e) {
-            console.error("ERROR FROM EDIT PLAYLIST: ", e);
+            //console.error("ERROR FROM EDIT PLAYLIST: ", e);
             return rejectWithValue(e.response?.data || e.message);
         }
     }
@@ -270,8 +270,8 @@ export const editPlaylist = createAsyncThunk(
 
 export const pullPlaylists = createAsyncThunk('/pullPlaylists', async ({ user: user }) => {
     try {
-        console.warn("pulling playlist");
-        console.warn("user reached pull: ", user)
+        //console.warn("pulling playlist");
+        //console.warn("user reached pull: ", user)
 
         const response = await axios.post(`${Constants.expoConfig.extra.SERVER
             }/playlist/pullPlaylist`
@@ -280,19 +280,19 @@ export const pullPlaylists = createAsyncThunk('/pullPlaylists', async ({ user: u
         return response.data
     }
     catch (e) {
-        console.error(e)
+        //console.error(e)
     }
 })
 export const addMusictoPlaylist = createAsyncThunk('/addMusic', async ({ playlist: playlist, user: user, music: music }) => {
     try {
-        console.warn("pulling playlist");
-        console.warn("user reached pull: ", user)
+        //console.warn("pulling playlist");
+        //console.warn("user reached pull: ", user)
         const response = await axios.post(`${Constants.expoConfig.extra.SERVER
             }/playlist/addMusic`, { playlist: playlist, user: user, music: music })
         return response.data
     }
     catch (e) {
-        console.error(e)
+        //console.error(e)
     }
 })
      /**const response = await axios.post(

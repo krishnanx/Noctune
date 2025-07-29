@@ -75,7 +75,7 @@ const Search = () => {
 
     try {
       const results = await api.search(searchText, "song");
-      //console.error("Search results:", results);
+      ////console.error("Search results:", results);
 
       if (results && results.content && results.content.length > 0) {
         //Process top5 results only
@@ -94,7 +94,7 @@ const Search = () => {
         setError("No songs found");
       }
     } catch (err) {
-      console.error("Search error:", err);
+      //console.error("Search error:", err);
       setError("Failed to search for music. Please try again.");
     } finally {
       setIsLoading(false);
@@ -111,7 +111,7 @@ const Search = () => {
     dispatch(addMusic(song));
     dispatch(setIsLoadedFromAsyncStorage(false));
     
-    console.warn("canLoad", canLoad)
+    //console.warn("canLoad", canLoad)
     if (canLoad) {
       dispatch(load(false))
       //dispatch(load(true))
@@ -126,7 +126,7 @@ const Search = () => {
       
     }
     dispatch(changeLoad(false)) //playlist
-    console.warn(isLoadedFromAsyncStorage)
+    //console.warn(isLoadedFromAsyncStorage)
     
     console.log("Dispatches complete");
     //dispatch(toggleMinimized());
@@ -148,7 +148,7 @@ const Search = () => {
       const jsonValue = JSON.stringify(song);
       await AsyncStorage.setItem("lastPlayedSong", jsonValue);
     } catch (e) {
-      console.error("Error saving song metadata", e);
+      //console.error("Error saving song metadata", e);
     }
   };
 
@@ -202,7 +202,7 @@ const Search = () => {
       const response = await axios.get(`${API_BASE_URL}/music/recent?user=${user}`);
       if (response.data.success) setRecentSearches(response.data.searched);
     } catch (e) {
-      console.error(e);
+      //console.error(e);
     }
   };
 
@@ -217,7 +217,7 @@ const Search = () => {
       const response = await axios.get(`${API_BASE_URL}/music/search?query=${searched}&user=${user}`);
       if (response.data.success) setSongs(response.data.songs);
     } catch (error) {
-      console.error(error);
+      //console.error(error);
     }
     setLoading(false);
   };

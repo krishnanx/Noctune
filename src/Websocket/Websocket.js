@@ -54,13 +54,13 @@ const Websocket = () => {
 
   // Process the queue with a specific path
   const processQueueWithPath = async (folderPath) => {
-    console.warn("Processing queue with path:", folderPath);
+    //console.warn("Processing queue with path:", folderPath);
     if (isDownloading || downloadQueue.length === 0) return;
 
     setIsdownloading(true);
     const { encodedData, onComplete } = downloadQueue[0];
     try {
-      console.warn("Using path for download:", folderPath);
+      //console.warn("Using path for download:", folderPath);
 
       // Pass the songs array from your Redux state
       await handleBase64Data({
@@ -72,7 +72,7 @@ const Websocket = () => {
       dispatch(setCompleted(1));
       onComplete(); // Callback to notify when the download is complete
     } catch (error) {
-      console.error("Error during download:", error);
+      //console.error("Error during download:", error);
 
       // If permission error, try to request permission again
       if (error.message && error.message.includes("Permission Denial")) {
@@ -90,24 +90,24 @@ const Websocket = () => {
     // Use the selected path if available, otherwise fall back to Redux path
     const currentPath = path;
 
-    console.warn("Process queue with current path:", currentPath);
+    //console.warn("Process queue with current path:", currentPath);
 
     processQueueWithPath(currentPath);
   };
 
   const handleBase64Data = async ({ folderUri, encodedData, songs }) => {
     try {
-      console.warn("Starting handleBase64Data with folderUri:", folderUri);
+      //console.warn("Starting handleBase64Data with folderUri:", folderUri);
 
       // Check if folderUri has a trailing space - this might cause the issue
       if (folderUri.endsWith(" ")) {
-        console.warn("Folder URI has trailing space, trimming it");
+        //console.warn("Folder URI has trailing space, trimming it");
         folderUri = folderUri.trim();
       }
 
       // Validate folderUri
       if (!folderUri || folderUri.trim() === "") {
-        console.error("Invalid folder URI");
+        //console.error("Invalid folder URI");
         throw new Error("Invalid folder URI");
       }
 
@@ -117,13 +117,13 @@ const Websocket = () => {
         !encodedData.data ||
         typeof encodedData.index !== "number"
       ) {
-        console.error("Invalid encoded data provided:");
+        //console.error("Invalid encoded data provided:");
         return null;
       }
 
       // // Validate songs array
       // if (!Array.isArray(songs) || !songs[encodedData.index]) {
-      //     console.error('Invalid songs data or index:');
+      //     //console.error('Invalid songs data or index:');
 
       //     // Create a fallback title if songs data is not available
       //     const fallbackFileName = `download_${encodedData.index}_${Date.now()}.mp3`;
@@ -133,7 +133,7 @@ const Websocket = () => {
       // Get song title
       const song = songs[encodedData.index];
       if (!song.title) {
-        console.warn("Song has no title, using fallback");
+        //console.warn("Song has no title, using fallback");
         // Use fallback title if missing
         song.title = `song_${encodedData.index}`;
       }
@@ -151,14 +151,14 @@ const Websocket = () => {
         base64Data: encodedData.data,
       });
     } catch (error) {
-      console.error("Error in handleBase64Data:", error);
+      //console.error("Error in handleBase64Data:", error);
       throw error; // Re-throw to handle in the calling function
     }
   };
 
   // Add download task to the queue
   const addDownloadTask = (encodedData, onComplete) => {
-    console.warn("reached addDownloadTask");
+    //console.warn("reached addDownloadTask");
 
     // Add to the queue
     setDownloadQueue((prev) => {
@@ -170,7 +170,7 @@ const Websocket = () => {
   // Monitor queue changes
   useEffect(() => {
     if (downloadQueue.length > 0 && !isDownloading) {
-      console.warn("Queue has items and not downloading, starting process");
+      //console.warn("Queue has items and not downloading, starting process");
       processQueue(); // Process queue when items are added and not currently downloading
     }
   }, [downloadQueue, isDownloading]);
@@ -189,7 +189,7 @@ const Websocket = () => {
           }`
         );
       } catch (err) {
-        console.error("Error fetching device name:", err);
+        //console.error("Error fetching device name:", err);
         setDeviceName(
           `${Device.manufacturer ?? "Unknown"} ${Device.modelName ?? "Device"}`
         );
@@ -210,7 +210,7 @@ const Websocket = () => {
       //Constants.expoConfig.extra.WEBSOC
       //ws://192.168.1.44:80
 
-      console.error("===============================websocket===================================-")
+      //console.error("===============================websocket===================================-")
       if(wsRef.current){
         pingInterval = setInterval(() => {
           if (wsRef.current.readyState === WebSocket.OPEN) {
@@ -221,7 +221,7 @@ const Websocket = () => {
                 value: "hi",
               })
             );
-            console.error("pinged");
+            //console.error("pinged");
           }
         }, 25000);
         wsRef.current.onmessage = (event) => {
@@ -229,7 +229,7 @@ const Websocket = () => {
 
             const parsed = JSON.parse(event.data);
             if (parsed.type == "progress") {
-              console.error(parsed.value.percent);
+              //console.error(parsed.value.percent);
               dispatch(
                 changeProgress({
                   progress: parsed.value.percent,
@@ -238,30 +238,30 @@ const Websocket = () => {
               );
             }
             if (parsed.type == "file") {
-              console.warn("file is ready");
+              //console.warn("file is ready");
 
               // We have a path, proceed normally
-              console.warn(path);
-              console.error("starting....");
+              //console.warn(path);
+              //console.error("starting....");
               addDownloadTask(parsed.value, () => {
-                console.warn("Download Complete");
+                //console.warn("Download Complete");
               });
               dispatch(addData({ final: parsed.value }));
             }
           } catch (e) {
-            console.error("Non-JSON message received:", event.data);
+            //console.error("Non-JSON message received:", event.data);
           }
         };
 
         wsRef.current.onerror = (error) => {
-          console.error("WebSocket Error:", error.message);
+          //console.error("WebSocket Error:", error.message);
           attemptReconnect();
         };
 
         wsRef.current.onclose = (event) => {
-          console.error(
-            `WebSocket closed: code=${event.code} reason=${event.reason} wasClean=${event.wasClean}`
-          );
+          // //console.error(
+          //   `WebSocket closed: code=${event.code} reason=${event.reason} wasClean=${event.wasClean}`
+          // );
           clearInterval(pingInterval);
           attemptReconnect();
         };
@@ -274,13 +274,13 @@ const Websocket = () => {
       if (isManualClose) return;
       if (reconnectAttempts < 5) {
         reconnectAttempts++;
-        console.error(`Reconnect attempt ${reconnectAttempts}...`);
+        //console.error(`Reconnect attempt ${reconnectAttempts}...`);
         reconnectTimeout = setTimeout(
           connectWebSocket,
           2000 * reconnectAttempts
         );
       } else {
-        console.error("Max reconnection attempts reached.");
+        //console.error("Max reconnection attempts reached.");
       }
     };
     

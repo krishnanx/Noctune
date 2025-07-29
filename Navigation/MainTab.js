@@ -45,13 +45,13 @@ const MainTab = () => {
   };
 }, []);
 
-  console.warn("isLoaded",isLoadedFromAsyncStorage)
-  console.warn("keyboard: ",isKeyboardVisible)
-  console.warn("displayPlayer", displayPlayer)
-  console.warn("data:",data)
-  console.warn("playlistData",playlistData)
-  // console.warn("isKeyboardVisible", isKeyboardVisible)
-  // console.warn("isLoadedFromAsyncStorage", isLoadedFromAsyncStorage)
+  //console.warn("isLoaded",isLoadedFromAsyncStorage)
+  //console.warn("keyboard: ",isKeyboardVisible)
+  //console.warn("displayPlayer", displayPlayer)
+  //console.warn("data:",data)
+  //console.warn("playlistData",playlistData)
+  // //console.warn("isKeyboardVisible", isKeyboardVisible)
+  // //console.warn("isLoadedFromAsyncStorage", isLoadedFromAsyncStorage)
   return (
     <>
       <Tab.Navigator
