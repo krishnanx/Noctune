@@ -188,13 +188,14 @@ const PlayerStack = () => {
       if(soundRef.current==null){
           dispatch(changePlaylistPos({value:value,jump:-1}));
           dispatch(setSearchedMusic(true))
-          dispatch(load(false));
-          dispatch(load(true));
+          dispatch(changeLoad(false));
+          dispatch(changeLoad(true));
       }else{
         dispatch(changePos(value));
         dispatch(setSearchedMusic(true))
-        dispatch(changeLoad(false));
-        dispatch(changeLoad(true));
+        dispatch(load(false));
+        dispatch(load(true));
+        
         }
 
   
