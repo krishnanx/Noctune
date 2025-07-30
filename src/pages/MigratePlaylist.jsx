@@ -16,10 +16,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useDispatch } from 'react-redux';
 import { migrate } from '../../Store/PlaylistSlice';
 import { showToast } from '../../Store/ToastSlice';
-
+import BackArrow from '../Components/Icons/BackArrow';
+import { useNavigation } from '@react-navigation/native';
 const MigratePlaylist = () => {
     const [playlistUrl, setPlaylistUrl] = useState('');
     const dispatch = useDispatch()
+    const navigation = useNavigation()
     const handleSubmit = () => {
         if (!playlistUrl.trim()) {
             //dispatch(showToast({Title:"Migration started",message:"Please keep Noctune open until it completes."}));
@@ -30,7 +32,7 @@ const MigratePlaylist = () => {
         // Here you would add your actual migration logic
         //console.warn('Migrating playlist:', playlistUrl);
         dispatch(showToast({Title:"Migration started",message:"Please keep Noctune open until it completes."}));
-
+        setPlaylistUrl("")
         dispatch(migrate({ Url: playlistUrl }))
 
     };
@@ -49,8 +51,22 @@ const MigratePlaylist = () => {
                         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                         style={styles.keyboardAvoid}
                     >
+                        <View
+                            style={{width:"100%",flexDirection:"row",height:80,alignItems:"center",marginBottom:25}}
+                            >
+                                <TouchableOpacity
+                                    style={styles.backButton}
+                                    onPress={() => navigation.goBack()}
+                                >
+                                    <BackArrow />
+                                </TouchableOpacity>
+                                <Text
+                                    style={{color:"white",fontSize:25,fontWeight:"500",marginLeft:30}}
+                                >
+                                    Noctune Sync
+                                </Text>
+                            </View>
                         <View style={styles.header}>
-                            <Text style={styles.smallHeader}>SPOTIFY PLAYLIST</Text>
                             <Text style={styles.mainHeader}>Migrate Playlists</Text>
                             <Text style={styles.mainHeader}>Spotify to the Noctune App</Text>
                         </View>
@@ -58,7 +74,7 @@ const MigratePlaylist = () => {
                         <View style={styles.infoBox}>
                             <View style={styles.infoContent}>
                                 <Text style={styles.infoTitle}>Spotify Playlist</Text>
-                                <Text style={styles.infoUrl}>spotifys.coth.noctune.app</Text>
+                                {/* <Text style={styles.infoUrl}>spotifys.coth.noctune.app</Text> */}
                             </View>
                             <View style={styles.musicIconContainer}>
                                 <Text style={styles.musicIcon}>♪</Text>
@@ -90,7 +106,7 @@ const MigratePlaylist = () => {
                         </TouchableOpacity>
 
                         <View style={styles.optionsContainer}>
-                            <TouchableOpacity style={styles.optionItem}>
+                            {/* <TouchableOpacity style={styles.optionItem}>
                                 <View style={styles.optionIconContainer}>
                                     <Image
                                         source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Spotify_icon.svg/1024px-Spotify_icon.svg.png' }}
@@ -99,7 +115,7 @@ const MigratePlaylist = () => {
                                 </View>
                                 <Text style={styles.optionText}>Spotify Playlist</Text>
                                 <Text style={styles.arrowIcon}>›</Text>
-                            </TouchableOpacity>
+                            </TouchableOpacity> */}
 
                             {/* <TouchableOpacity style={styles.optionItem}>
                                 <View style={[styles.optionIconContainer, styles.noctuneBg]}>
@@ -128,7 +144,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     header: {
-        marginTop: 60,
+        //marginTop: 60,
         marginBottom: 24,
     },
     smallHeader: {
