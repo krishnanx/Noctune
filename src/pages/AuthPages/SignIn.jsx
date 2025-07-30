@@ -38,7 +38,7 @@ const handleSignIn = async () => {
     try {
       if (!email || !password) {
         //dispatch(setError(null));
-        dispatch(showToast("Email and password are required"));
+        dispatch(showToast({Title:"Email and password are required",message:""}));
         return;
       }
       
@@ -51,7 +51,7 @@ const handleSignIn = async () => {
         dispatch(pullPlaylists({user:user.id}))
       } else {
         const errorMessage = result.error || "Failed to sign in";
-        dispatch(showToast(errorMessage));
+        dispatch(showToast({Title:errorMessage,message:""}));
       }
     } catch (error) {
       //console.error("Sign-in error:", error);
@@ -59,7 +59,7 @@ const handleSignIn = async () => {
         typeof error === "object" && error !== null
           ? error.error || error.message || "An unexpected error occurred"
           : "An unexpected error occurred";
-      dispatch(showToast(errorMessage));
+      dispatch(showToast({Title:errorMessage,message:""}));
 
     }
   };

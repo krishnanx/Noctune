@@ -40,7 +40,7 @@ const InviteCollab = () => {
 
     const handleDone = () => {
         const selectedFriends = friends.filter(friend => friend.selected);
-        dispatch(showToast('Hello from Redux toast!'))
+        //dispatch(showToast('Hello from Redux toast!'))
         // Handle the done action here
     };
 

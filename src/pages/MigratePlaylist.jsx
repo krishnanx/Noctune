@@ -22,14 +22,15 @@ const MigratePlaylist = () => {
     const dispatch = useDispatch()
     const handleSubmit = () => {
         if (!playlistUrl.trim()) {
-
-            dispatch(showToast("Please enter a Spotify playlist URL"))
+            //dispatch(showToast({Title:"Migration started",message:"Please keep Noctune open until it completes."}));
+            dispatch(showToast({Title:"Please enter a Spotify playlist URL",message:""}))
             return;
         }
 
         // Here you would add your actual migration logic
         //console.warn('Migrating playlist:', playlistUrl);
-        dispatch(showToast("Migration Started"))
+        dispatch(showToast({Title:"Migration started",message:"Please keep Noctune open until it completes."}));
+
         dispatch(migrate({ Url: playlistUrl }))
 
     };

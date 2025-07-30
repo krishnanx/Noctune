@@ -38,7 +38,7 @@ import eventBus from './src/functions/eventBus.js';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import store from "./Store/store.js";
 import * as Notifications from 'expo-notifications';
-import { soundRef } from "./src/functions/MusicLoaders/music.js";
+import { playRef, soundRef } from "./src/functions/MusicLoaders/music.js";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -94,7 +94,7 @@ export default function App() {
     const subscription = AppState.addEventListener('change', nextAppState => {
       console.error('App State changed to:', nextAppState);
       setAppState(nextAppState);
-      if(nextAppState == "active" && soundRef.current == null){
+      if(nextAppState == "active" && soundRef.current == null && playRef.current == null){
         console.error("ITSS ACTIVEE");
         dispatch(load(false))
         //dispatch(load(true))
@@ -202,7 +202,7 @@ export default function App() {
     if (migrateSliceSucess) {
       //console.warn("pushing migrated playlist")
       //console.warn(migratedPlaylist)
-      dispatch(showToast("Migration Completed"));
+      dispatch(showToast({Title:"Migration Completed",message:""}));
       dispatch(AddNewPlaylist({ data: migratedPlaylist, userid: user?.id }))
       dispatch(updatemigrateSliceSucess(false))
     }

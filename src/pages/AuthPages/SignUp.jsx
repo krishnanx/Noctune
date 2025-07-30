@@ -49,13 +49,13 @@ const SignUp = () => {
   const handleSignUp = async () => {
     try {
      if (!username || !email || !password || !confirmpass) {
-        dispatch(showToast("Please fill in all the fields"));
+        dispatch(showToast({Title:"Please fill in all the fields",message:""}));
         return;
       }
 
 
      if (password !== confirmpass) {
-        dispatch(showToast("Passwords do not match"));
+        dispatch(showToast({Title:"Passwords do not match",message:""}));
         return;
       }
 
@@ -89,11 +89,11 @@ const SignUp = () => {
       else {
         const errorMessage =
           result.error || result.payload?.message || "Failed to create account";
-          dispatch(showToast(errorMessage));
+          dispatch(showToast({Title:errorMessage,message:""}));
       }
     } catch (error) {
       //console.error("Sign-up error:", error);
-        dispatch(showToast(error.message || "An unexpected error occurred"));
+        dispatch(showToast({Title:error.message || "An unexpected error occurred",message:""}));
     }
 
   };

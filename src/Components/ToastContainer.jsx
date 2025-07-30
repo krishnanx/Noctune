@@ -7,7 +7,7 @@ import { hideToast } from "../../Store/ToastSlice";
 const { width } = Dimensions.get('window');
 
 const ToastContainer = () => {
-  const { visible, message } = useSelector((state) => state.toast);
+  const { visible, message,Title } = useSelector((state) => state.toast);
   const dispatch = useDispatch();
 
   const opacity = new Animated.Value(0);
@@ -36,7 +36,8 @@ const ToastContainer = () => {
 
   return (
     <Animated.View style={[styles.toastContainer, { opacity }]}>
-      <Text style={styles.toastText}>{message}</Text>
+      <Text style={styles.toastText}>{Title}</Text>
+      {message!=""?<Text style={{color:"white",textAlign:"center"}}>{message}</Text>:<></>}
     </Animated.View>
   );
 };
