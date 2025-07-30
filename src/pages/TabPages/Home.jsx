@@ -83,7 +83,7 @@ const handlePlay = (item) => {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Noctune</Text>
         <View style={styles.headerIcons}>
-          <TouchableOpacity style={styles.headerIcon} onPress={()=>navigation.navigate("Notification")}>
+          <TouchableOpacity style={styles.headerIcon}>
             <Ionicons name="notifications-outline" size={24} color="white" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.headerIcon}>

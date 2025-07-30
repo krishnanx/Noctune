@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
   header: {
     color: '#fff',
     fontSize: 28,
-    fontWeight: 'bold',
+    
   },
   profileButton: {
     padding: 5,
