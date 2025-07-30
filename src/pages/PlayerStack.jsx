@@ -186,7 +186,7 @@ const PlayerStack = () => {
   const handlePress = async (value) => {
 
       if(soundRef.current==null){
-          dispatch(changePlaylistPos(value));
+          dispatch(changePlaylistPos({value:value,jump:-1}));
           dispatch(setSearchedMusic(true))
           dispatch(load(false));
           dispatch(load(true));

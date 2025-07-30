@@ -176,7 +176,7 @@ const tailFill = async (data,pos,currentSec, dispatch, skipToNext,queueLoad,play
     }
     if (playLoad) {
       //console.error("NEXT playlist song")
-      dispatch(changePlaylistPos(1))
+       dispatch(changePlaylistPos({value:1,jump:-1}));
       dispatch(changeLoad(false))
       setTimeout(() => {
         dispatch(changeLoad(true))
