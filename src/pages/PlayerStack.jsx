@@ -39,11 +39,12 @@ import ChevronForward from "../Components/Icons/ChevronForward";
 import Replay from "../Components/Icons/Replay";
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
-
+import { changePlaylistPos } from "../../Store/Playdataslice.js";
 import MediaNotificationManager from "../functions/MediaNotification";
 import { showNotification } from "../functions/MediaNotification";
 import { setPlaylistplaying } from "../../Store/PlaylistSlice";
 import WaveformVisualizer from "../Components/WaveformVisualizer";
+import { changeLoad } from "../../Store/Playdataslice.js";
 //import { BlurView } from "expo-blur";
 
 const PlayerStack = () => {
@@ -183,51 +184,82 @@ const PlayerStack = () => {
   let singlePressTimeout = null;
 
   const handlePress = async (value) => {
-    const timeNow = Date.now();
 
-    if (timeNow - lastPressRef.current < DOUBLE_PRESS_DELAY) {
-      // Double press detected
-      if (singlePressTimeoutRef.current) {
-        clearTimeout(singlePressTimeoutRef.current);
-        singlePressTimeoutRef.current = null;
-      }
-      //console.warn("Double press detected!");
-      if (soundRef.previous) {
-        //console.error("prev ref exsists")
-        await soundRef.previous.playAsync()
-      }
-      else {
-        
-        dispatch(changePos(value));
-        dispatch(setSearchedMusic(true))
-        dispatch(load(false));
-        dispatch(load(true));
-        
-      }
-    } else {
-      // Set timeout for single press
-      singlePressTimeoutRef.current = setTimeout(async () => {
-        //console.warn("Single press detected");
-        if(value == 1){
-          dispatch(changePos(value));
+      if(soundRef.current==null){
+          dispatch(changePlaylistPos(value));
           dispatch(setSearchedMusic(true))
           dispatch(load(false));
           dispatch(load(true));
+      }else{
+        dispatch(changePos(value));
+        dispatch(setSearchedMusic(true))
+        dispatch(changeLoad(false));
+        dispatch(changeLoad(true));
         }
-        else{
-          dispatch(progress(0));
-          if(soundRef.current){
-            await soundRef.current.playFromPositionAsync(0);
-          }
-          else{
-            await playRef.current.playFromPositionAsync(0)
-          }
-        }
-        
-      }, DOUBLE_PRESS_DELAY);
-    }
 
-    lastPressRef.current = timeNow;
+  
+    // const timeNow = Date.now();
+
+    // if (timeNow - lastPressRef.current < DOUBLE_PRESS_DELAY) {
+    //   // Double press detected
+    //   if (singlePressTimeoutRef.current) {
+    //     clearTimeout(singlePressTimeoutRef.current);
+    //     singlePressTimeoutRef.current = null;
+    //   }
+    //   //console.warn("Double press detected!");
+    //   if (soundRef.previous) {
+    //     //console.error("prev ref exsists")
+    //     await soundRef.previous.playAsync()
+    //   }
+    //   else {
+        
+    //     if(soundRef.current == null){
+          
+    //       dispatch(changePlaylistPos(value));
+    //       dispatch(setSearchedMusic(true))
+    //       dispatch(load(false));
+    //       dispatch(load(true));
+    //     }
+    //     else{
+    //      dispatch(changePos(value));
+    //       dispatch(setSearchedMusic(true))
+    //       dispatch(changeLoad(false));
+    //       dispatch(changeLoad(true));
+    //     }
+        
+    //   }
+    // } else {
+    //   // Set timeout for single press
+    //   singlePressTimeoutRef.current = setTimeout(async () => {
+    //     //console.warn("Single press detected");
+    //     if(value == 1){
+    //        if(soundRef.current == null){
+    //           dispatch(changePlaylistPos(value));
+    //           dispatch(setSearchedMusic(true))
+    //           dispatch(load(false));
+    //           dispatch(load(true));
+    //         }
+    //         else{
+    //           dispatch(changePos(value));
+    //           dispatch(setSearchedMusic(true))
+    //           dispatch(changeLoad(false));
+    //           dispatch(changeLoad(true));
+    //         }
+    //     }
+    //     else{
+    //       dispatch(progress(0));
+    //       if(soundRef.current){
+    //         await soundRef.current.playFromPositionAsync(0);
+    //       }
+    //       else{
+    //         await playRef.current.playFromPositionAsync(0)
+    //       }
+    //     }
+        
+    //   }, DOUBLE_PRESS_DELAY);
+    // }
+
+    // lastPressRef.current = timeNow;
   };
 
   const TOTAL_DURATION = data ? data[pos]?.duration : 0;
