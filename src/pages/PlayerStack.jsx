@@ -76,7 +76,7 @@ const PlayerStack = () => {
   const [lyrics, setLyrics] = useState(null);
   const [lyricsLoading, setLyricsLoading] = useState(true);
 
-  // Redux selectors for full lyrics
+  
   const fullLyrics = useSelector(state => state.lyrics?.fullLyrics);
   //const currentSongId = useSelector(state => state.lyrics?.currentSongId);
 
@@ -111,7 +111,7 @@ const PlayerStack = () => {
       console.error("Lyrics Request made:");
       
       
-      const response = await fetch(`http://192.168.1.107:3000/api/lyrics`, {
+      const response = await fetch(`${Constants.expoConfig.extra.SERVER}/api/lyrics`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

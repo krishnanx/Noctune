@@ -46,7 +46,6 @@ const WaveformVisualizer = ({ ytUrl,seconds }) => {
 
         //console.error("Request made");
         const res = await fetch(`${Constants.expoConfig.extra.SERVER}/yt/waveform`, {
-        //const res = await fetch(`http://192.168.1.107:3000/yt/waveform`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ data: ytUrl }),
