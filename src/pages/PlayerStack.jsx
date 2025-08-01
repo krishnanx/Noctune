@@ -160,36 +160,6 @@ const handleFetchFullLyrics = async () => {
     return lyrics || 'Lyrics not available';
   };
 
-  useEffect(() => {
-    if (currentTrack) {
-      //console.warn("Track changed, resetting notification state");
-      // First hide any existing notification
-      MediaNotificationManager.hideNotification().then(() => {
-        // Short delay to ensure complete reset
-        setTimeout(() => {
-          MediaNotificationManager.showNotification(
-            {
-              title: currentTrack.title || "Unknown Title",
-              artist:
-                currentTrack.artist ||
-                currentTrack.uploader ||
-                "Unknown Artist",
-              album: currentTrack.album || "",
-              artwork: currentTrack.image || "",
-            },
-            {
-              showNextPrev: data.length > 1, // Only show next/prev if we have multiple tracks
-              showStop: true,
-            }
-          ).then(() => {
-            MediaNotificationManager.updatePlaybackStatus(isplaying,seek);
-          });
-        }, 100);
-      });
-    }
-  }, [currentTrack]);
-
-  
   {
     /**If you ever want it even safer (rare), you can do [pos, data[pos]?.url]
     (so it depends on the exact song url changing).

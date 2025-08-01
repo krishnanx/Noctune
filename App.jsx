@@ -39,6 +39,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import store from "./Store/store.js";
 import * as Notifications from 'expo-notifications';
 import { playRef, soundRef } from "./src/functions/MusicLoaders/music.js";
+import MediaNotificationManager from "./src/functions/MediaNotification.js";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -88,6 +89,10 @@ export default function App() {
   const { song, load:playload } = useSelector(
     (state) => state.playlistload
   );
+
+   const currentTrack = canLoad ? data && pos >= 0 && pos < data.length ? data[pos] : null : playload? song && position >= 0 && position < song.length ? song[position] : null :
+      !canLoad? data && pos >= 0 && pos < data.length ? data[pos] : null : song && position >= 0 && position < song.length ? song[position] : null
+
   //const [status, setStatus] = useState("loading");
 
   useEffect(() => {
@@ -238,6 +243,35 @@ export default function App() {
     };
     setup();
   }, []);
+
+  useEffect(() => {
+      if (currentTrack) {
+        //console.warn("Track changed, resetting notification state");
+        // First hide any existing notification
+        MediaNotificationManager.hideNotification().then(() => {
+          // Short delay to ensure complete reset
+          setTimeout(() => {
+            MediaNotificationManager.showNotification(
+              {
+                title: currentTrack.title || "Unknown Title",
+                artist:
+                  currentTrack.artist ||
+                  currentTrack.uploader ||
+                  "Unknown Artist",
+                album: currentTrack.album || "",
+                artwork: currentTrack.image || "",
+              },
+              {
+                showNextPrev: data.length > 1, // Only show next/prev if we have multiple tracks
+                showStop: true,
+              }
+            ).then(() => {
+              MediaNotificationManager.updatePlaybackStatus(isplaying,seek);
+            });
+          }, 100);
+        });
+      }
+    }, [currentTrack]);
 
 
   if (waveload) {
