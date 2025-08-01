@@ -39,7 +39,7 @@ const Playlist = () => {
 
 
   const { data, id, playlistNo } = useSelector((state) => state.playlist);
-
+  const [isDisabled,setIsDisabled] =useState(false)
   const userState = useSelector((state) => state.user || {});
   const { user, session, loading, error, clientID } = userState;
 
@@ -63,6 +63,8 @@ const Playlist = () => {
   };
 
   const handlePressLogic = async(item,pos) => {
+    if(isDisabled) return;
+    setIsDisabled(true)
     console.warn(item)
     if (!playRef.current) {
       //console.warn("no current songs")
@@ -111,10 +113,14 @@ const Playlist = () => {
       //   dispatch(progress(-1));
       //   //updatePlaybackState(true, seek); //added
       // }
-
+      
       
     }
     dispatch(setIsPlaying(true));
+    
+    setTimeout(()=>{
+      setIsDisabled(false)
+    },5000)
 }
 
   const styles = StyleSheet.create({
@@ -255,7 +261,7 @@ const Playlist = () => {
       alignSelf: "center",
       borderRadius: 20,
       paddingVertical: 10,
-      paddingHorizontal:10,
+      //paddingHorizontal:0,
       height:80,
       marginVertical: 5,
       flexDirection: "row",
@@ -590,7 +596,7 @@ const DataList = ({ styles, item ,handleCardPress,index}) => {
       activeOpacity={0.7}
     >
       <View
-        style={{width:"100%",height:80,flexDirection:"row",justifyContent:"center",alignItems:"center"}}
+        style={{width:"100%",height:80,flexDirection:"row",justifyContent:"center",alignItems:"center",paddingHorizontal:5}}
       >
         <Image source={{ uri: item.image }} style={styles.cardImage} />
         <View style={styles.textContainer}>
