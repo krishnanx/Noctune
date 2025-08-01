@@ -280,7 +280,7 @@ export default function App() {
             />
 
 
-            <NavigationContainer
+          <NavigationContainer
               theme={Mode === "light" ? lightTheme : darkTheme}
             >
               <UniversalNavi />

@@ -14,8 +14,151 @@ import {
 } from 'react-native';
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from "@react-navigation/native";
 
 const Account = ({ navigation }) => {
+   const { colors } = useTheme(); 
+   const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+
+  },
+  container: {
+    flex: 1,
+    paddingTop: 20,
+  },
+  scrollView: {
+    flex: 1,
+    paddingHorizontal: 16,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginBottom: 20,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerTitle: {
+    color: colors.text,
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  editButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: '#1DB954',
+    borderRadius: 8,
+  },
+  editButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  profileSection: {
+    alignItems: 'center',
+    marginVertical: 30,
+  },
+  profilePictureContainer: {
+    position: 'relative',
+    marginBottom: 15,
+  },
+  editableProfilePicture: {
+    opacity: 0.8,
+  },
+  profilePicture: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 3,
+    borderColor: '#1DB954',
+  },
+  editOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  profileName: {
+    color: colors.text,
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  infoSection: {
+    backgroundColor: colors.card,
+    borderRadius: 15,
+    padding: 20,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  sectionTitle: {
+    color: colors.text,
+    fontSize: 20,
+    marginBottom: 20,
+    textTransform: 'uppercase',
+  },
+  fieldContainer: {
+    marginBottom: 20,
+  },
+  fieldLabel: {
+    color: colors.text,
+    fontSize: 16,
+    marginBottom: 8,
+    textTransform: 'uppercase',
+  },
+  fieldValue: {
+    color: colors.text,
+    fontSize: 14,
+  },
+  fieldNote: {
+    color: '#8b9da5',
+    fontSize: 12,
+    marginTop: 4,
+    fontStyle: 'italic',
+  },
+  textInput: {
+    backgroundColor: colors.border,
+    color: colors.text,
+    padding: 12,
+    borderRadius: 8,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  verificationNote: {
+    color: '#FFA500',
+    fontSize: 12,
+    marginTop: 4,
+    fontStyle: 'italic',
+  },
+  saveButton: {
+    backgroundColor: '#1DB954',
+    paddingVertical: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginBottom: 20,
+  },
+  disabledButton: {
+    opacity: 0.6,
+  },
+  saveButtonText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+});
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [userData, setUserData] = useState({
@@ -103,17 +246,12 @@ const Account = ({ navigation }) => {
   return (
     <>
       <StatusBar barStyle="light-content" />
-      <LinearGradient
-        colors={["#141414", "#1c2c32"]}
-        style={styles.background}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      >
+      
         <SafeAreaView style={styles.container}>
           {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-              <Ionicons name="arrow-back" size={24} color="#fff" />
+              <Ionicons name="arrow-back" size={24} color={colors.text} />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Account</Text>
             <TouchableOpacity onPress={isEditing ? handleCancel : handleEdit} style={styles.editButton}>
@@ -222,149 +360,10 @@ const Account = ({ navigation }) => {
             )}
           </ScrollView>
         </SafeAreaView>
-      </LinearGradient>
+    
     </>
   );
 };
 
-const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-    paddingTop: 20,
-  },
-  scrollView: {
-    flex: 1,
-    paddingHorizontal: 16,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    marginBottom: 20,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  headerTitle: {
-    color: '#ffffff',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  editButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    backgroundColor: '#1DB954',
-    borderRadius: 8,
-  },
-  editButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  profileSection: {
-    alignItems: 'center',
-    marginVertical: 30,
-  },
-  profilePictureContainer: {
-    position: 'relative',
-    marginBottom: 15,
-  },
-  editableProfilePicture: {
-    opacity: 0.8,
-  },
-  profilePicture: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    borderWidth: 3,
-    borderColor: '#1DB954',
-  },
-  editOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    borderRadius: 60,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  profileName: {
-    color: '#ffffff',
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  infoSection: {
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    borderRadius: 15,
-    padding: 20,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-  },
-  sectionTitle: {
-    color: '#8b9da5',
-    fontSize: 14,
-    marginBottom: 20,
-    textTransform: 'uppercase',
-  },
-  fieldContainer: {
-    marginBottom: 20,
-  },
-  fieldLabel: {
-    color: '#8b9da5',
-    fontSize: 14,
-    marginBottom: 8,
-    textTransform: 'uppercase',
-  },
-  fieldValue: {
-    color: '#ffffff',
-    fontSize: 16,
-  },
-  fieldNote: {
-    color: '#8b9da5',
-    fontSize: 12,
-    marginTop: 4,
-    fontStyle: 'italic',
-  },
-  textInput: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    color: '#ffffff',
-    padding: 12,
-    borderRadius: 8,
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
-  },
-  verificationNote: {
-    color: '#FFA500',
-    fontSize: 12,
-    marginTop: 4,
-    fontStyle: 'italic',
-  },
-  saveButton: {
-    backgroundColor: '#1DB954',
-    paddingVertical: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginHorizontal: 16,
-    marginBottom: 20,
-  },
-  disabledButton: {
-    opacity: 0.6,
-  },
-  saveButtonText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-});
+
 export default Account;

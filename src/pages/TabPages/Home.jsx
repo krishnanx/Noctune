@@ -78,16 +78,18 @@ const handlePlay = (item) => {
 
 
   return (
+     
+
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Noctune</Text>
         <View style={styles.headerIcons}>
           <TouchableOpacity style={styles.headerIcon}>
-            <Ionicons name="notifications-outline" size={24} color="white" />
+            <Ionicons name="notifications-outline" style={styles.homeicons} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.headerIcon}>
-            <Ionicons name="time-outline" size={24} color="white" />
+            <Ionicons name="time-outline" size={24} style={styles.homeicons} />
           </TouchableOpacity>
           
         </View>
