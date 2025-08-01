@@ -19,30 +19,26 @@ class MainActivity : ReactActivity() {
     private lateinit var prefs: SharedPreferences
     
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Set the theme to AppTheme BEFORE onCreate to support
-        // coloring the background, status bar, and navigation bar.
-        // This is required for expo-splash-screen.
-        setTheme(R.style.AppTheme)
-        
-        prefs = getSharedPreferences("app_state", MODE_PRIVATE)
-        
-        // Check if app was killed/removed from recents
-        val wasAppKilled = prefs.getBoolean("was_killed", false)
-        if (wasAppKilled) {
-            Log.d("Lifecycle", "App was previously killed, starting fresh")
-            // Clear the flag
-            prefs.edit().putBoolean("was_killed", false).apply()
-            
-            // Signal to React Native to start fresh
-            val reactContext = getReactInstanceManager().currentReactContext
-            reactContext?.runOnUiQueueThread {
-                reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-                    .emit("AppStartedFresh", null)
-            }
+    setTheme(R.style.AppTheme)
+
+    prefs = getSharedPreferences("app_state", MODE_PRIVATE)
+
+    super.onCreate(null)  // MUST come before accessing ReactInstanceManager
+
+    // Now safe to access React context
+    val wasAppKilled = prefs.getBoolean("was_killed", false)
+    if (wasAppKilled) {
+        Log.d("Lifecycle", "App was previously killed, starting fresh")
+        prefs.edit().putBoolean("was_killed", false).apply()
+
+        val reactContext = getReactInstanceManager().currentReactContext
+        reactContext?.runOnUiQueueThread {
+            reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                .emit("AppStartedFresh", null)
         }
-        
-        super.onCreate(null)
     }
+}
+
     
     override fun onDestroy() {
         Log.d("Lifecycle", "onDestroy called - marking app as killed")

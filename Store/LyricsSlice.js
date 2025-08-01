@@ -1,5 +1,25 @@
 
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import axios from 'axios';
+import Constants from 'expo-constants';
+export const fetchFullLyrics = createAsyncThunk(
+  'lyrics/fetchFull',
+  async (songId, { getState, rejectWithValue }) => {
+    const state = getState();
+    
+    // Check if lyrics already loaded for the song
+    if (state.lyrics.fullLyrics && state.lyrics.currentSongId === songId) {
+      return state.lyrics.fullLyrics;
+    }
+    
+   try {
+      const response = await axios.get(`${Constants.expoConfig.extra.SERVER}/api/lyrics/full/${songId}`);
+      return response.data.lyrics;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
 
 const LyricsSlice = createSlice({
   name: 'lyrics',

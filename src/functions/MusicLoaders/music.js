@@ -36,13 +36,10 @@ export const loadAudio = async (
     if (!data[pos]) {
       throw new Error("Data at the given position is undefined or invalid.");
     }
-    //http://192.168.1.44
-    //Constants.expoConfig.extra.SERVER
-
+    //const audioUri = `http://192.168.1.7:8000/api/stream?url=${encodeURIComponent(data[pos].url)}`;
     const audioUri = `${Constants.expoConfig.extra.SERVER}/api/stream?url=${encodeURIComponent(data[pos].url)}`
-   
-
-    //console.warn("Audio URI:", audioUri); // Check if the URL is correct
+    //const audioUri = `http://192.168.1.107:3000/api/stream?url=${encodeURIComponent(data[pos].url)}`
+    console.warn("Audio URI:", audioUri); // Check if the URL is correct
     dispatch(progress(0));
     if (soundRef.current) {
       // soundRef.previous = soundRef.current;
