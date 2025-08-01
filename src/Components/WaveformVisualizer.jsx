@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
     color: "white",
     position: 'absolute',
     alignSelf: 'center',
-    top: '80%',
+    top: '77%',
     zIndex: 0,
     opacity: 1,
   },

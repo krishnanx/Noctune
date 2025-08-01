@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ScrollView,
   FlatList,
+  TouchableHighlight,
 } from "react-native";
 import BackArrow from "../Components/Icons/BackArrow";
 import Download from "../Components/Icons/Download";
@@ -25,11 +26,15 @@ import DownloadButton from "../Components/Icons/DownloadButton";
 import { folderPicker } from "../functions/FileFunctions/StoragePicker";
 import Info from "../Components/Icons/Info";
 import InfoModal from "../Components/InfoModal";
-import { addType, changeLoad } from "../../Store/Playdataslice";
+import { addType, changeLoad, changePlaylistPos } from "../../Store/Playdataslice";
 import Constants from "expo-constants"
 import { setClientID } from "../../Store/UserSlice";
 import { initWebSocket } from "../Websocket/websocketfunc";
 import { wsRef } from "../Websocket/Websocket";
+
+
+
+
 const Playlist = () => {
 
 
@@ -56,6 +61,61 @@ const Playlist = () => {
     });
     navigation.navigate('PlaylistEdit', { index });
   };
+
+  const handlePressLogic = async(item,pos) => {
+    console.warn(item)
+    if (!playRef.current) {
+      //console.warn("no current songs")
+      if (playlistNo != index) {
+        dispatch(changePlaylist(index))
+      }
+      //console.warn(data[index].songs)
+      dispatch(addType(data[index].songs))
+      dispatch(changePlaylistPos({value:0,jump:pos}));
+      dispatch(changeLoad(false))
+      dispatch(load(false));
+      setTimeout(() => {
+        dispatch(changeLoad(true))
+      }, 500);
+      dispatch(setPlaylistplaying({ action: true, id: index }));
+      dispatch(setIsPlaying(true));
+
+    } else {
+      //console.warn("reached playlist toggle");
+      //console.warn(playlistNo, index);
+      if (playlistNo != index) {
+        dispatch(changePlaylist(index))  
+        //await playRef.current.playAsync();
+      }
+      dispatch(addType(data[index].songs))
+      dispatch(changePlaylistPos({value:0,jump:pos}));
+      dispatch(changeLoad(false))
+      dispatch(load(false));
+      dispatch(setPlaylistplaying({ action: true, id: index }));
+
+      setTimeout(() => {
+        dispatch(changeLoad(true))
+      }, 500);
+
+      
+      // else if (isplaying) {
+      //   //console.warn("isplaying", isplaying)
+      //   await playRef.current.pauseAsync();
+      //   dispatch(setPlaylistplaying({ action: false, id: index }));
+      //   dispatch(progress(-1));
+      //   //updatePlaybackState(false, seek); //added
+      // } else {
+      //   //console.warn("isplaying", isplaying)
+      //   await playRef.current.playAsync(); // resumes from last position
+      //   dispatch(setPlaylistplaying({ action: true, id: index }));
+      //   dispatch(progress(-1));
+      //   //updatePlaybackState(true, seek); //added
+      // }
+
+      
+    }
+    dispatch(setIsPlaying(true));
+}
 
   const styles = StyleSheet.create({
     Main: {
@@ -195,11 +255,17 @@ const Playlist = () => {
       alignSelf: "center",
       borderRadius: 20,
       paddingVertical: 10,
-
+      paddingHorizontal:10,
+      height:80,
       marginVertical: 5,
       flexDirection: "row",
       alignItems: "center",
-
+      //borderRadius: 25,
+          // /backgroundColor: "rgba(128,128,128,0.2)",
+         
+         
+          
+      // justifyContent:"center"
       // backgroundColor: "rgba(50,50,50,0.5)",
     },
     cardImage: {
@@ -342,9 +408,12 @@ const Playlist = () => {
         paddingBottom: 100,
         paddingHorizontal: 20,
         paddingTop: 20,
-        height: 620 + (data[index].songs?.length * 90),
+        height: 630 + (data[index].songs?.length * 90),
         //backgroundColor: "white"
       }}
+      showsVerticalScrollIndicator={false}
+      showsHorizontalScrollIndicator={false}
+      overScrollMode="never"
     >
       <Information
         styles={styles}
@@ -359,7 +428,11 @@ const Playlist = () => {
         goToNewPage={goToNewPage}
         index={index}
       />
-      <Flatlist data={data[index].songs || []} styles={styles} />
+      <Flatlist data={data[index].songs || []} 
+          styles={styles} 
+          handleCardPress={handlePressLogic} 
+          
+      />
     </ScrollView>
   );
 };
@@ -506,33 +579,44 @@ const Information = ({
     </View>
   );
 };
-const DataList = ({ styles, item }) => {
-  console.log("item", item);
+const DataList = ({ styles, item ,handleCardPress,index}) => {
+  //console.warn("item", item,index);
   return (
-    <View
+    <TouchableHighlight
       style={styles.card}
-    // onTouchEnd={() => handleCardPress(item)}
+      onPress={() => handleCardPress(item,index)}
+
+      underlayColor="rgba(128,128,128,0.2)"
+      activeOpacity={0.7}
     >
-      <Image source={{ uri: item.image }} style={styles.cardImage} />
-      <View style={styles.textContainer}>
-        <Text numberOfLines={1} ellipsizeMode="tail" style={styles.songName}>
-          {item.title}
-        </Text>
-        <Text style={styles.artistName}>{item.uploader || item.artist}</Text>
+      <View
+        style={{width:"100%",height:80,flexDirection:"row",justifyContent:"center",alignItems:"center"}}
+      >
+        <Image source={{ uri: item.image }} style={styles.cardImage} />
+        <View style={styles.textContainer}>
+          <Text numberOfLines={1} ellipsizeMode="tail" style={styles.songName}>
+            {item.title}
+          </Text>
+          <Text style={styles.artistName}>{item.uploader || item.artist}</Text>
+        </View>
+        <View style={styles.dotsContainer}>
+          <ThreeDots />
+        </View>
       </View>
-      <View style={styles.dotsContainer}>
-        <ThreeDots />
-      </View>
-    </View>
+    </TouchableHighlight>
   );
 };
-const Flatlist = ({ data, styles }) => {
+const Flatlist = ({ data, styles,handleCardPress }) => {
   return (
     <FlatList
       data={data}
       keyExtractor={(item) => item.id.toString()}
       scrollEnabled={false}
-      renderItem={(item) => <DataList styles={styles} item={item.item} />}
+      renderItem={({item,index}) => <DataList styles={styles} item={item} handleCardPress={handleCardPress} index={index} />
+
+      }
+      showsVerticalScrollIndicator={false}
+        showsHorizontalScrollIndicator={false}
     />
   );
 };

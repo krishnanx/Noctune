@@ -38,9 +38,9 @@ export const loadAudio = async (
 
     //const audioUri = `http://192.168.1.7:8000/api/stream?url=${encodeURIComponent(data[pos].url)}`;
 
-    const audioUri = `${Constants.expoConfig.extra.SERVER}/api/stream?url=${encodeURIComponent(data[pos].url)}`
-    //const audioUri = http://192.168.1.107:3000/api/stream?url=${encodeURIComponent(data[pos].url)}
-    //console.warn("Audio URI:", audioUri); // Check if the URL is correct
+    // const audioUri = `${Constants.expoConfig.extra.SERVER}/api/stream?url=${encodeURIComponent(data[pos].url)}`
+    const audioUri = `http://192.168.1.107:3000/api/stream?url=${encodeURIComponent(data[pos].url)}`
+    console.warn("Audio URI:", audioUri); // Check if the URL is correct
     dispatch(progress(0));
     if (soundRef.current) {
       // soundRef.previous = soundRef.current;
@@ -176,7 +176,7 @@ const tailFill = async (data,pos,currentSec, dispatch, skipToNext,queueLoad,play
     }
     if (playLoad) {
       //console.error("NEXT playlist song")
-      dispatch(changePlaylistPos(1))
+       dispatch(changePlaylistPos({value:1,jump:-1}));
       dispatch(changeLoad(false))
       setTimeout(() => {
         dispatch(changeLoad(true))

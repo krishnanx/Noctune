@@ -12,6 +12,7 @@ import {
   TouchableWithoutFeedback,
   Button,
   ImageBackground,
+  ScrollView
 } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { SkipBack, SkipForward } from "react-native-feather";
@@ -39,11 +40,14 @@ import ChevronForward from "../Components/Icons/ChevronForward";
 import Replay from "../Components/Icons/Replay";
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
-
+import { changePlaylistPos } from "../../Store/Playdataslice.js";
 import MediaNotificationManager from "../functions/MediaNotification";
 import { showNotification } from "../functions/MediaNotification";
 import { setPlaylistplaying } from "../../Store/PlaylistSlice";
 import WaveformVisualizer from "../Components/WaveformVisualizer";
+import Lyrics from "./Lyrics.jsx";
+import {setFullLyrics,setCurrentSongId} from "../../Store/LyricsSlice.js";
+import { changeLoad } from "../../Store/Playdataslice.js";
 //import { BlurView } from "expo-blur";
 
 const PlayerStack = () => {
@@ -68,6 +72,93 @@ const PlayerStack = () => {
       !canLoad? data && pos >= 0 && pos < data.length ? data[pos] : null : song && position >= 0 && position < song.length ? song[position] : null
 
   //const mediaListenersInitialized = useRef(false);
+
+  const [lyrics, setLyrics] = useState(null);
+  const [lyricsLoading, setLyricsLoading] = useState(true);
+
+  // Redux selectors for full lyrics
+  const fullLyrics = useSelector(state => state.lyrics?.fullLyrics);
+  //const currentSongId = useSelector(state => state.lyrics?.currentSongId);
+
+  // Function to generate a unique song ID
+  const generateSongId = (track) => {
+    if (!track) return null;
+    const artist = track.uploader || 'Unknown Artist';
+    const title = track.title || 'Unknown Song';
+    return `${artist}-${title}`.toLowerCase().replace(/[^\w\s]/gi, '').replace(/\s+/g, '-');
+  };
+
+  
+
+ useEffect(() => {
+  const fetchLyrics = async () => {
+    setLyricsLoading(true);
+    setLyrics(null); // Clear previous lyrics
+    
+    try {
+      
+      const artist = currentTrack.uploader;
+      const title = currentTrack.title;
+
+      
+      // Clean up the search terms (remove special characters, extra spaces)
+      const cleanArtist = artist.replace(/[^\w\s]/gi, '').replace(/\s+/g, '-').toLowerCase();
+      const cleanTitle = title.replace(/[^\w\s]/gi, '').replace(/\s+/g, '-').toLowerCase();
+      
+      // Construct Genius URL
+      const geniusUrl = `https://genius.com/${cleanArtist}-${cleanTitle}-lyrics`;
+      console.warn(geniusUrl)
+      console.error("Lyrics Request made:");
+      
+      
+      const response = await fetch(`http://192.168.1.107:3000/api/lyrics`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          url: geniusUrl,
+          artist: artist,
+          title: title
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch lyrics');
+      }
+
+      const lyricsData = await response.text();
+      console.error(lyricsData);
+      
+      if (lyricsData && lyricsData.trim()) {
+          const songId = generateSongId(currentTrack);
+          dispatch(setCurrentSongId(songId));
+          dispatch(setFullLyrics(lyricsData));     //store full lyrics data to redux
+          const previewLyrics = lyricsData.split('\n').slice(0, 8).join('\n') + '\n...';   //preview only first 8 lines
+        setLyrics(previewLyrics);             //to see preview lyrics
+      } else {
+        setLyrics("Lyrics not found for this song");
+      }
+      
+    } catch (error) {
+      console.error('Error fetching lyrics:', error);
+      setLyrics("Unable to load lyrics at this time");
+    } finally {
+      setLyricsLoading(false);
+    }
+  };
+
+  fetchLyrics();
+}, [canLoad, data, pos, song, position]); 
+
+
+const handleFetchFullLyrics = async () => {
+
+    if (fullLyrics) {
+      return fullLyrics;
+    }
+    return lyrics || 'Lyrics not available';
+  };
 
   useEffect(() => {
     if (currentTrack) {
@@ -183,51 +274,83 @@ const PlayerStack = () => {
   let singlePressTimeout = null;
 
   const handlePress = async (value) => {
-    const timeNow = Date.now();
 
-    if (timeNow - lastPressRef.current < DOUBLE_PRESS_DELAY) {
-      // Double press detected
-      if (singlePressTimeoutRef.current) {
-        clearTimeout(singlePressTimeoutRef.current);
-        singlePressTimeoutRef.current = null;
-      }
-      //console.warn("Double press detected!");
-      if (soundRef.previous) {
-        //console.error("prev ref exsists")
-        await soundRef.previous.playAsync()
-      }
-      else {
-        
+      if(soundRef.current==null){
+          dispatch(changePlaylistPos({value:value,jump:-1}));
+          dispatch(setSearchedMusic(true))
+          dispatch(changeLoad(false));
+          dispatch(changeLoad(true));
+      }else{
         dispatch(changePos(value));
         dispatch(setSearchedMusic(true))
         dispatch(load(false));
         dispatch(load(true));
         
-      }
-    } else {
-      // Set timeout for single press
-      singlePressTimeoutRef.current = setTimeout(async () => {
-        //console.warn("Single press detected");
-        if(value == 1){
-          dispatch(changePos(value));
-          dispatch(setSearchedMusic(true))
-          dispatch(load(false));
-          dispatch(load(true));
         }
-        else{
-          dispatch(progress(0));
-          if(soundRef.current){
-            await soundRef.current.playFromPositionAsync(0);
-          }
-          else{
-            await playRef.current.playFromPositionAsync(0)
-          }
-        }
-        
-      }, DOUBLE_PRESS_DELAY);
-    }
 
-    lastPressRef.current = timeNow;
+  
+    // const timeNow = Date.now();
+
+    // if (timeNow - lastPressRef.current < DOUBLE_PRESS_DELAY) {
+    //   // Double press detected
+    //   if (singlePressTimeoutRef.current) {
+    //     clearTimeout(singlePressTimeoutRef.current);
+    //     singlePressTimeoutRef.current = null;
+    //   }
+    //   //console.warn("Double press detected!");
+    //   if (soundRef.previous) {
+    //     //console.error("prev ref exsists")
+    //     await soundRef.previous.playAsync()
+    //   }
+    //   else {
+        
+    //     if(soundRef.current == null){
+          
+    //       dispatch(changePlaylistPos(value));
+    //       dispatch(setSearchedMusic(true))
+    //       dispatch(load(false));
+    //       dispatch(load(true));
+    //     }
+    //     else{
+    //      dispatch(changePos(value));
+    //       dispatch(setSearchedMusic(true))
+    //       dispatch(changeLoad(false));
+    //       dispatch(changeLoad(true));
+    //     }
+        
+    //   }
+    // } else {
+    //   // Set timeout for single press
+    //   singlePressTimeoutRef.current = setTimeout(async () => {
+    //     //console.warn("Single press detected");
+    //     if(value == 1){
+    //        if(soundRef.current == null){
+    //           dispatch(changePlaylistPos(value));
+    //           dispatch(setSearchedMusic(true))
+    //           dispatch(load(false));
+    //           dispatch(load(true));
+    //         }
+    //         else{
+    //           dispatch(changePos(value));
+    //           dispatch(setSearchedMusic(true))
+    //           dispatch(changeLoad(false));
+    //           dispatch(changeLoad(true));
+    //         }
+    //     }
+    //     else{
+    //       dispatch(progress(0));
+    //       if(soundRef.current){
+    //         await soundRef.current.playFromPositionAsync(0);
+    //       }
+    //       else{
+    //         await playRef.current.playFromPositionAsync(0)
+    //       }
+    //     }
+        
+    //   }, DOUBLE_PRESS_DELAY);
+    // }
+
+    // lastPressRef.current = timeNow;
   };
 
   const TOTAL_DURATION = data ? data[pos]?.duration : 0;
@@ -270,7 +393,7 @@ const PlayerStack = () => {
   const styles = StyleSheet.create({
     Main: {
       //backgroundColor: colors.background,
-      flex:1,
+      //flex:1,
       width: "100%",
       alignItems: "center",
       justifyContent: "space-between",
@@ -567,17 +690,17 @@ const PlayerStack = () => {
     alignItems: "center",
     padding: 20,
   },
+  scrollViewContent: {
+    paddingBottom: 80,
+    flexGrow: 1,
+  },
   });
 
   // Render the full player
   return (
+    <View style ={{flex:1}}>
     <Animated.View
       style={{
-        position: "absolute",
-        bottom: 0,
-        width: "100%",
-        height: windowHeight,
-        // transform: [{ translateY: slideY }],
         backgroundColor: "white", // or your styling
         borderTopLeftRadius: 16,
         borderTopRightRadius: 16,
@@ -592,7 +715,10 @@ const PlayerStack = () => {
         >
         <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.1)' }]} />
       </ImageBackground>
-
+       <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollViewContent}
+      >
       <View style={styles.Main}>
         <View
           style={{
@@ -623,7 +749,7 @@ const PlayerStack = () => {
             <ThreeDots height={28} width={28} />
           </TouchableOpacity>
         </View>
-        <WaveformVisualizer ytUrl={currentTrack?.url} seconds={seek} />
+        {/* <WaveformVisualizer ytUrl={currentTrack?.url} seconds={seek} /> */}
         <Metadata
           data={
             canLoad ? data && data[pos]
@@ -639,26 +765,34 @@ const PlayerStack = () => {
           styles={styles}
           dispatch={dispatch}
         />
+        <View>
+           <View style={{ height: 550 }} />
+            <WaveformVisualizer ytUrl={currentTrack?.url} seconds={seek}/>
+            <Controls
+              togglePlayPause={togglePlayPause}
+              isPlaying={isplaying}
+              styles={styles}
+              colors={colors}
+              dispatch={dispatch}
+              changePos={changePos}
+              handlePress={handlePress}
+              Replay={Replay}
+              TimerIcon={TimerIcon}
+              replaySound={replaySound}
+              setSleepTimerVisible={setSleepTimerVisible}
+              isTimerActive={isTimerActive}
+            />
+        </View>
+        <View paddingTop="60">
+          {lyrics && lyrics !== "Lyrics not found for this song" && lyrics !== "Unable to load lyrics at this time" && (
+            <Lyrics lyrics={lyrics} loading={lyricsLoading} onFetchFullLyrics={handleFetchFullLyrics}/>
+          )}
+        </View>
 
         <SleepTimerModal
           visible={sleepTimerVisible}
           onClose={() => setSleepTimerVisible(false)}
           soundRef={soundRef}
-        />
-
-        <Controls
-          togglePlayPause={togglePlayPause}
-          isPlaying={isplaying}
-          styles={styles}
-          colors={colors}
-          dispatch={dispatch}
-          changePos={changePos}
-          handlePress={handlePress}
-          Replay={Replay}
-          TimerIcon={TimerIcon}
-          replaySound={replaySound}
-          setSleepTimerVisible={setSleepTimerVisible}
-          isTimerActive={isTimerActive}
         />
 
         <Custom_modal
@@ -673,7 +807,9 @@ const PlayerStack = () => {
           navigation={navigation}
         />
       </View>
+      </ScrollView>
     </Animated.View>
+    </View>
   );
 };
 

@@ -9,6 +9,8 @@ import DownloadSlice from "./DownloadSlice.js"
 import NetworkSlice from "./NetworkSlice.js"
 import ToastReducer from './ToastSlice.js'
 import Playdataslice from "./Playdataslice.js"
+import LyricsSlice from "./LyricsSlice.js"
+
 const store = configureStore({
     reducer: {
         theme: ThemeSlice,
@@ -21,6 +23,7 @@ const store = configureStore({
         network: NetworkSlice,
         playlistload: Playdataslice,
         toast: ToastReducer,
+        lyrics: LyricsSlice
     }
 })
 export default store;
