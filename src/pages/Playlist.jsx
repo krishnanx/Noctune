@@ -40,6 +40,7 @@ const Playlist = () => {
 
   const { data, id, playlistNo } = useSelector((state) => state.playlist);
   const [isDisabled,setIsDisabled] =useState(false)
+  const [songid,setSongId] =useState(null)
   const userState = useSelector((state) => state.user || {});
   const { user, session, loading, error, clientID } = userState;
 
@@ -63,8 +64,9 @@ const Playlist = () => {
   };
 
   const handlePressLogic = async(item,pos) => {
-    if(isDisabled) return;
+    if(isDisabled && songid===item.id) return;
     setIsDisabled(true)
+    setSongId(item.id);
     console.warn(item)
     if (!playRef.current) {
       //console.warn("no current songs")

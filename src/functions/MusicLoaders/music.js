@@ -9,6 +9,7 @@ import { current } from "@reduxjs/toolkit";
 import eventBus from '../eventBus.js';
 import { changeLoad, changePlaylistPos } from "../../../Store/Playdataslice.js";
 import { sendSongFinishedNotification } from "../../functions/LocalNotification.js"
+let currentLoadToken = null;
 export const soundRef = {
   previous: null,
   current: null,
@@ -30,6 +31,8 @@ export const loadAudio = async (
   //console.warn("song url", data[pos].url);
 
   try {
+    const thisToken = Symbol("loadToken");
+    currentLoadToken = thisToken;
     if (!data[pos]) {
       throw new Error("Data at the given position is undefined or invalid.");
     }
@@ -76,7 +79,11 @@ export const loadAudio = async (
       { shouldPlay: false, progressUpdateIntervalMillis: 1060 },
       onPlaybackStatusUpdate
     );  
-
+    if (currentLoadToken !== thisToken) {
+      console.warn("Stale load, cancelling...");
+      await sound.unloadAsync();
+      return;
+    }
 
     //console.warn(queueLoad, playLoad)
     if (queueLoad) {
