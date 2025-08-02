@@ -10,7 +10,7 @@ import {
   setError,
 } from "./UserSlice";
 import { deleteAllPlaylist } from "./PlaylistSlice";
-import { deleteSearchedMusicHistory } from "./MusicSlice";
+import { deletePersistSearch, deleteSearchedMusicHistory } from "./MusicSlice";
 
 export const loadUser = createAsyncThunk(
   "user/loadUser",
@@ -28,6 +28,9 @@ export const loadUser = createAsyncThunk(
         dispatch(setSession(JSON.parse(sessionData)));
         return parsedUser;
       }
+
+
+
 
       return null;
     } catch (error) {
@@ -139,6 +142,9 @@ export const signOut = createAsyncThunk(
     try {
       dispatch(deleteAllPlaylist())
       dispatch(deleteSearchedMusicHistory())
+
+      await dispatch(deletePersistSearch())
+
       await AsyncStorage.removeItem("user");
       //-----------------------
       await AsyncStorage.removeItem("session");

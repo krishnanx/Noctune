@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import Constants from "expo-constants";
+import { use } from "react";
 // In your MusicSlice.js
 const MusicSlice = createSlice({
   name: "Music",
@@ -165,7 +166,7 @@ const MusicSlice = createSlice({
     setSearchedMusic(state, action) {
       state.searchedMusic = action.payload
     }
-  },
+  },  
 
   extraReducers: (builder) => {
           builder
@@ -242,6 +243,18 @@ export const getPersistSearch = createAsyncThunk("/getpersistSearch",async(_,{ d
     //console.warn("get search error ",error)
   }
 
+})
+
+export const deletePersistSearch = createAsyncThunk("/deletepersist",async(_,{dispatch,getState}) => {
+  try{
+    const user = getState().user.user
+    const response = await axios.post( `${Constants.expoConfig.extra.SERVER}/api/deletepersist`, {user:user?.id})
+    return response.data
+  }
+  catch(error){
+    console.warn("Delete persistign music error");
+    return { success: false, error: error.message };
+  }
 })
 
 
