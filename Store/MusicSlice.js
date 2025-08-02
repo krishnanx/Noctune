@@ -75,6 +75,9 @@ const MusicSlice = createSlice({
 
       state.searchedMusicHistory.push(newMusic);
     },
+    deleteSearchedMusicHistory(state,action){
+      state.searchedMusicHistory = [];
+    },
     addMusic(state, action) {
       state.data = state.data.filter((item) => item.id !== action.payload.id);
       if (state.pos > state.data.length - 1) {
@@ -203,6 +206,7 @@ export const {
   addSearchTextHistory,
   clearSearchTextHistory,
   setSearchTextHistory,
+  deleteSearchedMusicHistory
 } = MusicSlice.actions;
 export default MusicSlice.reducer;
 

@@ -9,49 +9,97 @@ import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnable
 import com.facebook.react.defaults.DefaultReactActivityDelegate
 import com.krishnanx.Noctune.medianotification.MediaNotificationPackage
 import com.facebook.react.modules.core.DeviceEventManagerModule
+import com.facebook.react.bridge.ReactContext
 import android.content.Intent
 import android.content.SharedPreferences
+import android.os.Handler
+import android.os.Looper
 
 import expo.modules.ReactActivityDelegateWrapper
 
 class MainActivity : ReactActivity() {
     
     private lateinit var prefs: SharedPreferences
+    private val handler = Handler(Looper.getMainLooper())
     
     override fun onCreate(savedInstanceState: Bundle?) {
-    setTheme(R.style.AppTheme)
+        setTheme(R.style.AppTheme)
+        prefs = getSharedPreferences("app_state", MODE_PRIVATE)
+        super.onCreate(null)  // MUST come before accessing ReactInstanceManager
 
-    prefs = getSharedPreferences("app_state", MODE_PRIVATE)
-
-    super.onCreate(null)  // MUST come before accessing ReactInstanceManager
-
-    // Now safe to access React context
-    val wasAppKilled = prefs.getBoolean("was_killed", false)
-    if (wasAppKilled) {
-        Log.d("Lifecycle", "App was previously killed, starting fresh")
-        prefs.edit().putBoolean("was_killed", false).apply()
-
-        val reactContext = getReactInstanceManager().currentReactContext
-        reactContext?.runOnUiQueueThread {
-            reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-                .emit("AppStartedFresh", null)
+        // Check if app was killed and emit event when React context is ready
+        val wasAppKilled = prefs.getBoolean("was_killed", false)
+        if (wasAppKilled) {
+            Log.d("Lifecycle", "App was previously killed, starting fresh")
+            prefs.edit().putBoolean("was_killed", false).apply()
+            
+            // Wait for React context to be ready before emitting event
+            waitForReactContextAndEmit("AppStartedFresh")
         }
     }
-}
-
+    
+    private fun waitForReactContextAndEmit(eventName: String) {
+        handler.post(object : Runnable {
+            override fun run() {
+                try {
+                    val reactInstanceManager = getReactInstanceManager()
+                    val reactContext = reactInstanceManager?.currentReactContext
+                    
+                    if (reactContext != null) {
+                        // React context is ready, emit the event
+                        reactContext.runOnUiQueueThread {
+                            try {
+                                reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                                    ?.emit(eventName, null)
+                            } catch (e: Exception) {
+                                Log.e("Lifecycle", "Error emitting event $eventName", e)
+                            }
+                        }
+                    } else {
+                        // React context not ready yet, try again after a delay
+                        handler.postDelayed(this, 100)
+                    }
+                } catch (e: Exception) {
+                    Log.e("Lifecycle", "Error waiting for React context", e)
+                }
+            }
+        })
+    }
+    
+    private fun safeEmitEvent(eventName: String) {
+        try {
+            val reactInstanceManager = getReactInstanceManager()
+            val reactContext = reactInstanceManager?.currentReactContext
+            
+            if (reactContext != null) {
+                reactContext.runOnUiQueueThread {
+                    try {
+                        reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                            ?.emit(eventName, null)
+                    } catch (e: Exception) {
+                        Log.e("Lifecycle", "Error emitting event $eventName", e)
+                    }
+                }
+            } else {
+                Log.w("Lifecycle", "React context not available for event: $eventName")
+            }
+        } catch (e: Exception) {
+            Log.e("Lifecycle", "Error in safeEmitEvent", e)
+        }
+    }
     
     override fun onDestroy() {
         Log.d("Lifecycle", "onDestroy called - marking app as killed")
         
         // Mark that the app was killed
-        prefs.edit().putBoolean("was_killed", true).apply()
-        
-        // Emit event to React Native
-        val reactContext = getReactInstanceManager().currentReactContext
-        reactContext?.runOnUiQueueThread {
-            reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-                .emit("AppWasKilled", null)
+        try {
+            prefs.edit().putBoolean("was_killed", true).apply()
+        } catch (e: Exception) {
+            Log.e("Lifecycle", "Error saving app state", e)
         }
+        
+        // Emit event to React Native safely
+        safeEmitEvent("AppWasKilled")
         
         super.onDestroy()
     }
@@ -59,7 +107,11 @@ class MainActivity : ReactActivity() {
     override fun onResume() {
         super.onResume()
         // Clear the killed flag when app is actively being used
-        prefs.edit().putBoolean("was_killed", false).apply()
+        try {
+            prefs.edit().putBoolean("was_killed", false).apply()
+        } catch (e: Exception) {
+            Log.e("Lifecycle", "Error clearing killed flag", e)
+        }
     }
 
     /**

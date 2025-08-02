@@ -86,7 +86,7 @@ export default function App() {
   const { data, pos, seek, isplaying, canLoad,isLoadedFromAsyncStorage,searchedMusic } = useSelector(
     (state) => state.data
   );
-  const { song, load:playload } = useSelector(
+  const { song,pos:position ,load:playload } = useSelector(
     (state) => state.playlistload
   );
 
@@ -99,7 +99,7 @@ export default function App() {
     const subscription = AppState.addEventListener('change', nextAppState => {
       console.error('App State changed to:', nextAppState);
       setAppState(nextAppState);
-      if(nextAppState == "active" && soundRef.current == null && playRef.current == null){
+      if(nextAppState == "active" && soundRef.current == null && playRef.current == null && pos>=0){
         console.error("ITSS ACTIVEE");
         dispatch(load(false))
         //dispatch(load(true))
@@ -121,7 +121,7 @@ export default function App() {
   
           if (jsonValue != null) {
             const lastSong = JSON.parse(jsonValue);
-  
+            console.warn(lastSong)
             if (lastSong && lastSong.url) {
               // First, dispatch action to add song to store
               dispatch(addMusic(lastSong));
@@ -155,7 +155,7 @@ export default function App() {
       };
   
       loadLastSong();
-    }, []);
+  }, []);
 
 
  
