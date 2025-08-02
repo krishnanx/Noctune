@@ -178,6 +178,8 @@ const loadSearchHistory = async (userId, dispatch) => {
       if (userId) {
         await loadSearchHistory(userId, dispatch);
       } else {
+        // Clear Redux state when no user is logged in
+        dispatch(clearSearchTextHistory());
         setHistoryLoaded(true);
       }
     };
