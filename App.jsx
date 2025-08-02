@@ -203,15 +203,20 @@ export default function App() {
     //console.error("queue loader", canLoad)
     //console.error("playlist loader", load)
   }, [canLoad, load])
+  
   useEffect(() => {
-    if (migrateSliceSucess) {
-      //console.warn("pushing migrated playlist")
-      //console.warn(migratedPlaylist)
-      dispatch(showToast({Title:"Migration Completed",message:""}));
-      dispatch(AddNewPlaylist({ data: migratedPlaylist, userid: user?.id }))
-      dispatch(updatemigrateSliceSucess(false))
-    }
-
+    const handleMigrationOutput = async() => {
+      if (migrateSliceSucess) {
+        console.warn("pushing migrated playlist")
+        console.warn(migratedPlaylist)
+        dispatch(showToast({Title:"Migration Completed",message:""}));
+        dispatch(AddNewPlaylist({ data: migratedPlaylist, userid: user?.id }))
+        dispatch(updatemigrateSliceSucess(false))
+        await AsyncStorage.setItem("migration","true")
+        console.error("migration is now true")
+      }
+  }
+  handleMigrationOutput()
   }, [migrateSliceSucess])
   // useEffect(() => {
   //   const fetchData = async () => {
