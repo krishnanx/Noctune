@@ -57,6 +57,7 @@ const Home = () => {
 
 const handlePlay = (item) => {
   //console.error(item)
+  //console.error(item.uploader)
   dispatch(addMusic(item));
   dispatch(setSearchedMusic(true))
   if (canLoad) {

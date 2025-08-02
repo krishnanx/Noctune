@@ -810,6 +810,7 @@ const Metadata = ({
 
   return (
     <>  
+    {/* {console.warn(data)} */}
       <Image source={{ uri: data?.image }} style={styles.albumArt} />
       <View style={styles.container}>
         <View style={{ height: "100%" }}>
