@@ -4,6 +4,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { LinearGradient } from "expo-linear-gradient"
 import { useNavigation } from '@react-navigation/native'
 import { StatusBar } from 'expo-status-bar'
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width, height } = Dimensions.get('window')
 
@@ -55,9 +56,17 @@ const GetStarted = () => {
         ).start()
     }, [])
 
-    const handleGetStarted = () => {
-        navigation.navigate("signin")
-    }
+    const handleGetStarted = async () => {
+        try {
+        await AsyncStorage.setItem('hasSeenGetStarted', 'true');
+        } catch (e) {
+        console.error("Error saving GetStarted flag", e);
+        }
+        navigation.reset({
+            index: 0,
+            routes: [{ name: 'signin' }],
+        });
+    };
 
     const spin = rotateAnim.interpolate({
         inputRange: [0, 1],
