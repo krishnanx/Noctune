@@ -33,9 +33,38 @@ import { initWebSocket } from "../Websocket/websocketfunc";
 import { wsRef } from "../Websocket/Websocket";
 
 
+export const initialiseWebsocket = ({id,dispatch,value}) => {
+    try{ 
+      console.error("reached websocket connection")
+      
+      const ws = initWebSocket(`ws://192.168.1.43:80/download-progress`);
+      //const ws = initWebSocket(`${Constants.expoConfig.extra.WEBSOC}/download-progress`);
+      //const ws = initWebSocket(`ws://192.168.1.107:3000/download-progress`);
+      //const ws = getWebSocket();
+      if (!ws) {
+        //console.error("WebSocket failed to initialize.");
+        return;
+      }
 
+      ws.onopen = () => {
+        //console.error("Connected to WebSocket server");
+        dispatch(setClientID({ id }));
+        ws.send(JSON.stringify({
+          type: "register",
+          clientId: id,
+          value: value
+          
+        }));
+      };
+      //const ws = getWebSocket() 
+      wsRef.current = ws
+    }catch(error){
+      //console.error(error)
+    }
 
-const Playlist = () => {
+  }
+
+const Playlist = ({}) => {
 
 
   const { data, id, playlistNo } = useSelector((state) => state.playlist);
@@ -367,41 +396,13 @@ const Playlist = () => {
     }
   };
 
-  const initialiseWebsocket = (id) => {
-    try{ //console.error("reached websocket connection")
-     
-      //const ws = initWebSocket(`ws://192.168.1.7:8000/download-progress`);
-      const ws = initWebSocket(`${Constants.expoConfig.extra.WEBSOC}/download-progress`);
-      //const ws = initWebSocket(`ws://192.168.1.107:3000/download-progress`);
-      //const ws = getWebSocket();
-      if (!ws) {
-        //console.error("WebSocket failed to initialize.");
-        return;
-      }
-
-      ws.onopen = () => {
-        //console.error("Connected to WebSocket server");
-        dispatch(setClientID({ id }));
-        ws.send(JSON.stringify({
-          type: "register",
-          clientId: id,
-          value: "hi"
-          
-        }));
-      };
-      //const ws = getWebSocket() 
-      wsRef.current = ws
-    }catch(error){
-      //console.error(error)
-    }
-
-  }
+  
 
   const handleDownload = async () => {
     //console.warn("reached download function");
     const id = Math.random().toString(36).slice(2, 8);
     //console.warn(data[index]?.songs, clientID);
-    initialiseWebsocket(id);
+    initialiseWebsocket({id:user?.id,dispatch:dispatch,value:"download"});
     const path = await folderPicker();
     //console.warn(path);
     dispatch(addPath({ path: path }));

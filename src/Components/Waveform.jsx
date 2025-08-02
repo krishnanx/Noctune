@@ -16,6 +16,7 @@ import NetInfo from "@react-native-community/netinfo";
 import TypewriterText from "../Components/TypeWriter";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getPersistSearch, setIsLoadedFromAsyncStorage } from "../../Store/MusicSlice";
+import { initialiseWebsocket } from "../pages/Playlist";
 
 const Waveform = () => {
   const { Mode } = useSelector((state) => state.theme)
@@ -64,7 +65,7 @@ const Waveform = () => {
     if (!deviceName || hasConnected.current) return;
 
     hasConnected.current = true;
-
+    console.warn("Loading....")
     NetInfo.fetch().then(state => {
       console.log("Is connected?", state.isConnected);
       console.log("Connection type:", state.type);
@@ -79,6 +80,11 @@ const Waveform = () => {
             loadedUser === null ? null : await dispatch(pullPlaylists({ user: loadedUser.id })).unwrap()
             dispatch(updataID())
             dispatch(getPersistSearch())
+            const status = await AsyncStorage.getItem("migration");
+            if(status != "true" ){
+              console.warn("MIGRATED MUSIC NOT REACHED")
+              initialiseWebsocket({id:loadedUser.id,dispatch:dispatch,value:"migrateCheck"})
+            }
             // 192.168.85.33 K
             // 192.168.1.44 krish
             // `${Constants.expoConfig.extra.WEBSOC}
