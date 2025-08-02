@@ -12,6 +12,7 @@ import { useDispatch } from "react-redux";
 import { signOut } from "../../../Store/AuthThunk";
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { clearSearchTextHistory } from '../../../Store/MusicSlice';
 
 const Settings = ({ navigation }) => {
   const [darkMode, setDarkMode] = useState(true);
@@ -26,6 +27,10 @@ const Settings = ({ navigation }) => {
   const handleSignOut = async () => {
     await AsyncStorage.clear()
     dispatch(signOut());
+    if (userId) {
+    await AsyncStorage.removeItem(`searchHistory_${userId}`);
+  }
+  dispatch(clearSearchTextHistory());
   };
 
   const navigateToAccount = () => {

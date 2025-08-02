@@ -56,6 +56,7 @@ const Search = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedSong, setSelectedSong] = useState(null);
   const [historyLoaded, setHistoryLoaded] = useState(false);
+  const [recentSearches, setRecentSearches] = useState([]);
   const status = useSelector((state) => state.key.status)
   
   // Add user selector to get userId
@@ -132,14 +133,6 @@ const Search = () => {
     //dispatch(toggleMinimized());
     // Add this line to save the song metadata to AsyncStorage
     saveLastPlayedSong(song);
-   
-    
-    // Save search history when playing a song
-    if (userId) {
-      await saveSearchHistory(userId, searchTextHistory);
-      await loadSearchHistory(userId, dispatch);
-    }
-    
     navigation.navigate('PlayerStack');
   };
 
@@ -164,20 +157,20 @@ const Search = () => {
     }
   };
 
-  const loadSearchHistory = async (userId, dispatch) => {
-    try {
-      const stored = await AsyncStorage.getItem(`searchHistory_${userId}`);
-      if (stored) {
-        const historyArray = JSON.parse(stored);
-        dispatch(setSearchTextHistory(historyArray));
-        console.warn('Search history loaded for user:', userId, historyArray);
-      }
-    } catch (e) {
-      console.error("Error loading search history", e);
-    } finally {
-      setHistoryLoaded(true);
+const loadSearchHistory = async (userId, dispatch) => {
+  try {
+    const stored = await AsyncStorage.getItem(`searchHistory_${userId}`);
+    if (stored) {
+      const historyArray = JSON.parse(stored);
+      dispatch(setSearchTextHistory(historyArray));
+      console.warn('Search history loaded for user:', userId, historyArray);
     }
-  };
+  } catch (e) {
+    console.error("Error loading search history", e);
+  } finally {
+    setHistoryLoaded(true);
+  }
+};
 
   // Add useEffect to load search history when component mounts
   useEffect(() => {
@@ -185,6 +178,8 @@ const Search = () => {
       if (userId) {
         await loadSearchHistory(userId, dispatch);
       } else {
+        // Clear Redux state when no user is logged in
+        dispatch(clearSearchTextHistory());
         setHistoryLoaded(true);
       }
     };
@@ -195,6 +190,16 @@ const Search = () => {
     setSelectedSong(song);
     setModalVisible(true);
   };
+
+useEffect(() => {
+  if (userId && historyLoaded && searchTextHistory.length > 0) {
+    const timeoutId = setTimeout(() => {
+      saveSearchHistory(userId, searchTextHistory);
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }
+}, [searchTextHistory, userId, historyLoaded]);
 
 
   const fetchRecent = async () => {
