@@ -144,6 +144,7 @@ export const signOut = createAsyncThunk(
       await AsyncStorage.removeItem("session");
       await AsyncStorage.removeItem("isFirstTime");
       //----------------------
+      await AsyncStorage.setItem("hasSeenGetStarted", "true");
       dispatch(clearUser());
       return { success: true };
     } catch (error) {

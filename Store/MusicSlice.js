@@ -86,6 +86,7 @@ const MusicSlice = createSlice({
         state.pos -= 1; // Decrement pos if item is before the current pos
       }
       console.log(action.payload.image);
+      //console.warn("artist:",action.payload.artist)
       const upscaledUrl = action.payload.image.replace(
         /w\d+-h\d+/,
         "w500-h500"
@@ -93,7 +94,7 @@ const MusicSlice = createSlice({
       const newMusic = {
         id: action.payload.id,
         title: action.payload.title || null,
-        uploader: action.payload.artist || null,
+        uploader: action.payload.uploader || action.payload.artist ||  null,
         image: upscaledUrl || null,
         duration: action.payload.duration || null,
         url: action.payload.url || null,
