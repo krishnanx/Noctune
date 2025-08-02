@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import React, { useState, useEffect, useRef } from "react";
 import { NavigationContainer } from "@react-navigation/native";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider, SafeAreaView,useSafeAreaInsets } from "react-native-safe-area-context";
 import UniversalNavi from "./Navigation/Universal";
 import { darkTheme } from "./Theme/darkTheme";
 import { lightTheme } from "./Theme/lightTheme";
@@ -51,6 +51,7 @@ Notifications.setNotificationHandler({
 
 
 export default function App() {
+    const insets = useSafeAreaInsets();
 
   useEffect(() => {
   Notifications.requestPermissionsAsync();
@@ -76,6 +77,14 @@ export default function App() {
       appStartedFreshListener.remove();
     };
   }, []); // Empty dependency array to run only once
+
+    useEffect(() => {
+    if (Platform.OS === 'android') {
+      // Make sure StatusBar is translucent
+      StatusBar.setTranslucent(true);
+      StatusBar.setBackgroundColor('transparent', true);
+    }
+  }, []);
 
 
   const { Mode } = useSelector((state) => state.theme);
@@ -301,39 +310,38 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView
+      <View
         style={{
           flex: 1,
           backgroundColor: Mode === "light" ? "#ffffff" : "#141414",
         }}
       >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
-          style={{ flex: 1 }}
-        >
-          <View style={styles.container}>
-            <StatusBar
-              barStyle={Mode === "light" ? "dark-content" : "light-content"}
-              backgroundColor={Mode === "light" ? "#ffffff" : "#141414"}
-              translucent={false}
-            />
+        <StatusBar
+          barStyle={Mode === "light" ? "dark-content" : "light-content"}
+          backgroundColor="transparent"
+          translucent={true}
+        />
+        
+        <View style={{ paddingTop: insets.top, flex: 1 }}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : undefined}
+            style={{ flex: 1 }}
+          >
+            <View style={styles.container}>
+              <NavigationContainer
+                theme={Mode === "light" ? lightTheme : darkTheme}
+              >
+                <UniversalNavi />
+              </NavigationContainer>
+              <ToastContainer />
+            </View>
 
-
-            <NavigationContainer
-              theme={Mode === "light" ? lightTheme : darkTheme}
-            >
-              <UniversalNavi />
-            </NavigationContainer>
-            <ToastContainer />
-
-          </View>
-
-          <Websocket />
-          {canLoad && <Audioloader />}
-
-          {playload && <PlaylistLoader />}
-        </KeyboardAvoidingView>
-      </SafeAreaView>
+            <Websocket />
+            {canLoad && <Audioloader />}
+            {playload && <PlaylistLoader />}
+          </KeyboardAvoidingView>
+        </View>
+      </View>
     </SafeAreaProvider>
   );
 }
