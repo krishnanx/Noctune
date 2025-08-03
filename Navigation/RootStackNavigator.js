@@ -1,6 +1,9 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import MainTab from "./MainTab"; // this is your entry point, so keep it loaded normally
-
+import {
+  TransitionPresets,
+  createStackNavigator
+} from '@react-navigation/stack';
 const Stack = createNativeStackNavigator();
 
 const RootNavigator = () => {
@@ -12,38 +15,47 @@ const RootNavigator = () => {
       {/* Lazy-loaded screens */}
       <Stack.Screen
         name="Playlist"
+        options={{animation:"fade"}}
         getComponent={() => require("../src/pages/Playlist").default}
       />
       <Stack.Screen
         name="Playchoose"
+        options={{animation:"fade"}}
         getComponent={() => require("../src/pages/PlaylistChoose").default}
       />
       <Stack.Screen
         name="Migrate"
+        options={{animation:"fade"}}
         getComponent={() => require("../src/pages/MigratePlaylist").default}
       />
       <Stack.Screen
         name="Download"
+        options={{animation:"fade"}}
         getComponent={() => require("../src/pages/DownloadPage").default}
       />
       <Stack.Screen
         name="Account"
+        options={{animation:"fade"}}
         getComponent={() => require("../src/pages/Account").default}
       />
       <Stack.Screen
         name="PlaylistEdit"
+        options={{animation:"fade"}}
         getComponent={() => require("../src/pages/PlaylistEdit").default}
       />
       <Stack.Screen
         name="PlayerStack"
+        options={{animation:"fade"}}
         getComponent={() => require("../src/pages/PlayerStack").default}
       />
       <Stack.Screen
         name="InviteCollab"
+        options={{animation:"fade"}}
         getComponent={() => require("../src/pages/InviteCollab").default}
       />
       <Stack.Screen
         name="Notification"
+        options={{animation:"fade"}}
         getComponent={() => require("../src/pages/Notification").default}
       />
     </Stack.Navigator>
