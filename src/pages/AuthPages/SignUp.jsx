@@ -76,7 +76,6 @@ const SignUp = () => {
           songs: [],
           Time: 0,
           isPlaying: false
-
         }
         await dispatch(AddNewPlaylist({ data: playlist, userid: userid })).unwrap()
         dispatch(addPlaylist({ playlist: playlist }))

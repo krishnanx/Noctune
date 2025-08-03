@@ -45,8 +45,9 @@ const PlaylistSlice = createSlice({
             });
             if (bool) {
                 state.data[action.payload.id].songs = [...state.data[action.payload.id].songs, action.payload.music]
+                state.data[action.payload.id].Time += action.payload.music.duration
             }
-            state.data[action.payload.id].Time += action.payload.music.duration
+            
             // state.data[action.payload.id].songs.forEach(element => {
             //     state.data[action.payload.id].Time += element.duration
             // });
@@ -124,7 +125,29 @@ const PlaylistSlice = createSlice({
             state.data[id].songs = song
             state.migratedPlaylist = state.data[id]
             state.migrateSliceSucess = true
-        }
+        },
+        removeMusicFromPlaylist: (state, action) => {
+            const { id, musicId } = action.payload;
+            const playlistIndex = state.data.findIndex(playlist => playlist.id === id);
+            if (playlistIndex !== -1) {
+                const playlist = state.data[playlistIndex]
+
+                const songToRemove = playlist.songs.find(song => song.id === musicId);
+                if (songToRemove) {
+                    playlist.Time -= songToRemove.duration || 0;
+                }
+
+                playlist.songs = playlist.songs.filter(
+                song => song.id !== musicId
+                );
+            
+            if (playlist.songs.length === 0) {
+                playlist.image = '';
+            }
+            }
+        },
+
+            
     },
     extraReducers: (builder) => {
         builder
@@ -241,7 +264,7 @@ const PlaylistSlice = createSlice({
 })
 
 export const { addPlaylist, addMusicinPlaylist, setPlaylistplaying, changePlaylist, updataID, updatemigrateSliceSucess, updatePlaylistData,  
-    resetPlaylists,deleteAllPlaylist,migrateSuccess  } = PlaylistSlice.actions;
+    resetPlaylists,deleteAllPlaylist,migrateSuccess,removeMusicFromPlaylist  } = PlaylistSlice.actions;
 
 export default PlaylistSlice.reducer;
 export const migrate = createAsyncThunk('/migratedata', async ({ Url: data ,user:userID}) => {

@@ -48,6 +48,7 @@ import WaveformVisualizer from "../Components/WaveformVisualizer";
 import Lyrics from "./Lyrics.jsx";
 import {setFullLyrics,setCurrentSongId} from "../../Store/LyricsSlice.js";
 import { changeLoad } from "../../Store/Playdataslice.js";
+import { addMusictoPlaylist,addMusicinPlaylist,addPlaylist ,AddNewPlaylist,removeMusicFromPlaylist} from "../../Store/PlaylistSlice";
 //import { BlurView } from "expo-blur";
 
 const PlayerStack = () => {
@@ -791,8 +792,6 @@ export default PlayerStack;
 const Metadata = ({
   data,
   colors,
-  liked,
-  setLiked,
   seek,
   TOTAL_DURATION,
   formatTime,
@@ -804,13 +803,65 @@ const Metadata = ({
   const [userSeek, setUserSeek] = useState(seek);
   const [userSetPosition, setUserSetPosition] = useState(false);
 
-  useEffect(() => {
+   useEffect(() => {
     if (!isDragging && (!userSetPosition || Math.abs(seek - userSeek) > 5)) {
       setUserSeek(seek);
     }
   }, [seek, isDragging, userSetPosition]);
 
+  
+ const playlists = useSelector(state => state.playlist?.data || []);  //fetch playlists 
+  const {user} = useSelector(state => state.user)
+  const likedPlaylist = playlists.find(p => p.id === 0); // search for playlists with  id:0  ie Liked Songs
+  const likedSongs = likedPlaylist?.songs || [];         //get the song from the liked songs playlist
+  const isLiked = likedSongs.some(song => song.id === data.id); // checking if song is liked already
 
+ 
+const handleLikePress = async () => {
+  const upscaledSong = {
+    ...data,
+    image: data.image?.replace(/w\d+-h\d+/, "w500-h500"),
+  };
+
+  const isAlreadyLiked = likedSongs.some(song => song.id === data.id);
+
+  if (isAlreadyLiked) {   //Unliking a song
+    try {
+      dispatch(removeMusicFromPlaylist({ id: 0, musicId: data.id }));  //remove from redux
+    } catch (error) {
+      console.error("Error removing song from liked playlist:", error);
+    }
+  } else { //Like a soong
+    try {
+      if (!likedPlaylist) {
+        const newLiked = {
+          id: 0,
+          name: "Liked Songs",
+          desc: "Your favorite tracks",
+          songs: [upscaledSong],
+          image: upscaledSong.image || null,
+          Time: upscaledSong.duration || 0,
+          isPlaying: false,
+        };
+
+        await dispatch(AddNewPlaylist({ data: newLiked, userid: user.id }));   //if Liked song playlist doesnt exist,create one with current song
+        dispatch(addPlaylist({ playlist: newLiked }));
+      } else {
+        dispatch(addMusicinPlaylist({ id: 0, music: upscaledSong }));  //if Liked songs playlist exist,add the song
+        
+        dispatch(addMusictoPlaylist({    //send add req to backend
+          playlist: likedPlaylist,
+          user: user.id,
+          music: upscaledSong
+        }));
+      }
+    } catch (error) {
+      console.error("Error adding song to liked playlist:", error);
+      // Optionally revert the Redux state 
+      dispatch(removeMusicFromPlaylist({ id: 0, musicId: data.id }));
+    }
+  }
+};
   return (
     <>  
     {/* {console.warn(data)} */}
@@ -824,13 +875,15 @@ const Metadata = ({
             {data?.uploader || data?.artist || "Unknown Artist"}
           </Text>
         </View>
-        <TouchableOpacity onPress={() => setLiked(!liked)}>
+
+        <TouchableOpacity onPress= {handleLikePress}>
           <Icon
-            name={liked ? "heart" : "heart-o"}
+            name={isLiked ? "heart" : "heart-o"}
             size={28}
-            color={liked ? colors.text : "white"}
+            color={isLiked ? colors.text : "white"}
           />
         </TouchableOpacity>
+        
       </View>
     </>
   );
@@ -946,6 +999,7 @@ const Custom_modal = ({
           <TouchableOpacity style={styles.optionTouch}>
             <Text style={styles.option}>Add to Liked Songs</Text>
           </TouchableOpacity>
+
 
           <TouchableOpacity
             style={styles.optionTouch}

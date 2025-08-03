@@ -127,7 +127,7 @@ const onPlaybackStatusUpdate = (status, dispatch, getSeek, data, pos, playlistNo
     const currentSeek = getSeek?.();
     //console.warn("finished......")
     //console.warn("Sned");
-    sendSongFinishedNotification("Lover - Taylor Swift");
+    // sendSongFinishedNotification("Lover - Taylor Swift");
     
     if(currentSeek != data[pos]?.duration && currentSeek != 0) {
     //console.warn("finishing up!!");
