@@ -6,8 +6,11 @@ const NotificationSync = () => {
   const seek = useSelector((state) => state.data.seek); // current second
   const data = useSelector((state) => state.data.data);
   const pos = useSelector((state) => state.data.pos);   // current song index
-
-  const duration = data?.[pos]?.duration || 0; // fallback if undefined
+  const queueLoad = useSelector((state) => state.data.canLoad);
+  const { song,pos:position ,load:playload } = useSelector(
+      (state) => state.playlistload
+    );
+  const duration = queueLoad?data?.[pos]?.duration || 0 : song?.[position]?.duration // fallback if undefined
 
   useEffect(() => {
     if (typeof seek === "number" && typeof duration === "number") {
