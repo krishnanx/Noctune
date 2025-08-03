@@ -1,15 +1,16 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 import Constants from 'expo-constants';
+import * as Application from 'expo-application';
 
-const CURRENT_VERSION = Constants.manifest.version;
+const CURRENT_VERSION = Application.nativeApplicationVersion;
 
 export const checkAppVersion = createAsyncThunk('/checkAppVersion', async () => {
   try {
     const response = await axios.get(`http://192.168.196.33/api/app-version`);
     const latestVersion = response.data.version;
-    console.warn("00000000000000000000")
-    console.warn("RESPONSE", response)
+    // console.warn("00000000000000000000")
+    // console.warn("RESPONSE", response)
 
     const isOutdated = CURRENT_VERSION !== latestVersion;
 
