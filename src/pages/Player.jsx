@@ -86,7 +86,7 @@ const Player = () => {
     navigation.navigate('PlayerStack');
   };
 
-  const TOTAL_DURATION = data ? data[pos]?.duration : 0;
+  const TOTAL_DURATION = canLoad? data ? data[pos]?.duration : 0 : song ? song[position]?.duration : 0
 
   useEffect(() => {
     togglePlayPauseRef.current = changePlayPause;
