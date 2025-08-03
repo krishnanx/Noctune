@@ -223,6 +223,7 @@ export default function App() {
         dispatch(updatemigrateSliceSucess(false))
         await AsyncStorage.setItem("migration","true")
         console.error("migration is now true")
+        manuallyCloseWebSocket()
       }
   }
   handleMigrationOutput()
