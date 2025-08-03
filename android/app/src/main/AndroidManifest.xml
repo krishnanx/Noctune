@@ -55,6 +55,11 @@
       android:theme="@style/Theme.App.SplashScreen" 
       android:exported="true" 
       android:screenOrientation="portrait">
+    <!-- Add these flags for edge-to-edge -->
+    <meta-data 
+      android:name="android.app.lib.edge_to_edge" 
+      android:value="true" />
+  
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
         <category android:name="android.intent.category.LAUNCHER"/>
