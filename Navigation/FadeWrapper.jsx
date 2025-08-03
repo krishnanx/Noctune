@@ -1,13 +1,20 @@
 // components/FadeWrapper.js
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { Animated } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 
 const FadeWrapper = ({ children }) => {
-  const opacity = useRef(new Animated.Value(0)).current;
+  const opacity = useRef(new Animated.Value(1)).current; // Start fully visible
+  const isFirstFocus = useRef(true); // Track first time screen is focused
 
   useFocusEffect(
     React.useCallback(() => {
+      if (isFirstFocus.current) {
+        // Skip animation on first focus
+        isFirstFocus.current = false;
+        return;
+      }
+
       opacity.setValue(0);
       Animated.timing(opacity, {
         toValue: 1,

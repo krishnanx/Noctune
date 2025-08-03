@@ -1,30 +1,51 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import MainTab from "./MainTab";
-import Playlist from "../src/pages/Playlist";
-import PlaylistChoose from "../src/pages/PlaylistChoose"
-import MigratePlaylist from "../src/pages/MigratePlaylist";
-import DownloadPage from "../src/pages/DownloadPage";
-import Account from "../src/pages/Account";
-import PlaylistEdit from "../src/pages/PlaylistEdit"
-import PlayerStack from "../src/pages/PlayerStack"
-import InviteCollab from "../src/pages/InviteCollab"
-import Notification from "../src/pages/Notification";
+import MainTab from "./MainTab"; // this is your entry point, so keep it loaded normally
+
 const Stack = createNativeStackNavigator();
 
 const RootNavigator = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {/* Entry screen – keep eager */}
       <Stack.Screen name="MainTabs" component={MainTab} />
-      <Stack.Screen name="Playlist" component={Playlist} />
-      <Stack.Screen name="Playchoose" component={PlaylistChoose} />
-      <Stack.Screen name="Migrate" component={MigratePlaylist} />
-      <Stack.Screen name="Download" component={DownloadPage} />
-      <Stack.Screen name="Account" component={Account} />
-      <Stack.Screen name="PlaylistEdit" component={PlaylistEdit} />
-      <Stack.Screen name="PlayerStack" component={PlayerStack} />
-      <Stack.Screen name="InviteCollab" component={InviteCollab} />
-      <Stack.Screen name="Notification" component={Notification} />
-      {/* You can add more screens here */}
+
+      {/* Lazy-loaded screens */}
+      <Stack.Screen
+        name="Playlist"
+        getComponent={() => require("../src/pages/Playlist").default}
+      />
+      <Stack.Screen
+        name="Playchoose"
+        getComponent={() => require("../src/pages/PlaylistChoose").default}
+      />
+      <Stack.Screen
+        name="Migrate"
+        getComponent={() => require("../src/pages/MigratePlaylist").default}
+      />
+      <Stack.Screen
+        name="Download"
+        getComponent={() => require("../src/pages/DownloadPage").default}
+      />
+      <Stack.Screen
+        name="Account"
+        getComponent={() => require("../src/pages/Account").default}
+      />
+      <Stack.Screen
+        name="PlaylistEdit"
+        getComponent={() => require("../src/pages/PlaylistEdit").default}
+      />
+      <Stack.Screen
+        name="PlayerStack"
+        getComponent={() => require("../src/pages/PlayerStack").default}
+      />
+      <Stack.Screen
+        name="InviteCollab"
+        getComponent={() => require("../src/pages/InviteCollab").default}
+      />
+      <Stack.Screen
+        name="Notification"
+        getComponent={() => require("../src/pages/Notification").default}
+      />
     </Stack.Navigator>
   );
 };

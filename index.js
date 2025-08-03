@@ -4,6 +4,8 @@ import { Provider } from 'react-redux';
 import store from "./Store/store";
 import App from './App';
 import { Provider as PaperProvider } from "react-native-paper";
+import { enableScreens } from 'react-native-screens';
+enableScreens();
 // Wrap App inside Provider
 const ReduxApp = () => (
     <Provider store={store}>
