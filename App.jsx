@@ -24,6 +24,8 @@ import { FetchMetadata
   setIsLoadedFromAsyncStorage,
   addMusic,load
 } from "./Store/MusicSlice";
+import { checkAppVersion } from "./Store/VersionSlice.js";
+import UpdateBanner from "./src/Components/UpdateBanner.jsx";
 import Waveform from "./src/Components/Waveform";
 import Audioloader from "./src/functions/MusicLoaders/Audioloader";
 import { addEventListener, useNetInfo } from '@react-native-community/netinfo';
@@ -56,6 +58,13 @@ export default function App() {
   useEffect(() => {
   Notifications.requestPermissionsAsync();
   }, []);
+
+  useEffect(() => {
+    dispatch(checkAppVersion());
+    console.warn("222222222222222222222222222")
+    console.warn("Version State:", version);
+  }, []);
+
 // Fixed DeviceEventEmitter listeners with proper cleanup
   useEffect(() => {
     const appKilledListener = DeviceEventEmitter.addListener('AppWasKilled', () => {
@@ -92,6 +101,7 @@ export default function App() {
   const { data: array, id, playlistNo, migrateSliceSucess, migratedPlaylist } = useSelector((state) => state.playlist);
   const dispatch = useDispatch();
   const [appState, setAppState] = useState(AppState.currentState);
+  const { version, outdated, latest, forceUpdate } = useSelector((state) => state.version);
   const { data, pos, seek, isplaying, canLoad,isLoadedFromAsyncStorage,searchedMusic } = useSelector(
     (state) => state.data
   );
@@ -322,6 +332,8 @@ export default function App() {
           backgroundColor="transparent"
           translucent={true}
         />
+
+        <UpdateBanner />
         
         <View style={{ paddingTop: insets.top, flex: 1 }}>
           <KeyboardAvoidingView
