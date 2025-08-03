@@ -37,8 +37,8 @@ export const initialiseWebsocket = ({id,dispatch,value}) => {
     try{ 
       console.error("reached websocket connection")
       
-      const ws = initWebSocket(`ws://192.168.1.43:80/download-progress`);
-      //const ws = initWebSocket(`${Constants.expoConfig.extra.WEBSOC}/download-progress`);
+      //const ws = initWebSocket(`ws://192.168.1.43:80/download-progress`);
+      const ws = initWebSocket(`${Constants.expoConfig.extra.WEBSOC}/download-progress`);
       //const ws = initWebSocket(`ws://192.168.1.107:3000/download-progress`);
       //const ws = getWebSocket();
       if (!ws) {

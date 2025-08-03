@@ -41,7 +41,7 @@ const MigratePlaylist = () => {
         }
         // Here you would add your actual migration logic
         //console.warn('Migrating playlist:', playlistUrl);
-        dispatch(showToast({Title:"Migration started",message:"Please keep Noctune open until it completes."}));
+        dispatch(showToast({Title:"Migration started",message:"Please wait for a few minutes."}));
         dispatch(migrate({ Url: playlistUrl,user:user?.id }))
         setPlaylistUrl("")
 

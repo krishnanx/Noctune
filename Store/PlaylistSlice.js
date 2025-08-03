@@ -247,9 +247,9 @@ export default PlaylistSlice.reducer;
 export const migrate = createAsyncThunk('/migratedata', async ({ Url: data ,user:userID}) => {
     try {
         console.warn(data)
-        // const response = await axios.post(`${Constants.expoConfig.extra.SERVER
-        //     }/api/migrate`, { playlist: data,user:userID })
-        const response = await axios.post(`http://192.168.1.43:80/api/migrate`, { playlist: data,user:userID })
+        const response = await axios.post(`${Constants.expoConfig.extra.SERVER
+            }/api/migrate`, { playlist: data,user:userID })
+        // const response = await axios.post(`http://192.168.1.43:80/api/migrate`, { playlist: data,user:userID })
         //console.warn("reached back")
         return response.data
     }
