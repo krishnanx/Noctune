@@ -10,6 +10,7 @@ import NetworkSlice from "./NetworkSlice.js"
 import ToastReducer from './ToastSlice.js'
 import Playdataslice from "./Playdataslice.js"
 import LyricsSlice from "./LyricsSlice.js"
+import VersionSlice from "./VersionSlice.js";
 
 const store = configureStore({
     reducer: {
@@ -23,7 +24,8 @@ const store = configureStore({
         network: NetworkSlice,
         playlistload: Playdataslice,
         toast: ToastReducer,
-        lyrics: LyricsSlice
+        lyrics: LyricsSlice,
+        version: VersionSlice
     }
 })
 export default store;

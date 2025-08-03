@@ -83,10 +83,13 @@ const Library = () => {
             height: "30%",
             borderTopLeftRadius: 20,
             borderTopRightRadius: 20,
+            borderBottomLeftRadius: 20,
+            borderBottomRightRadius: 20,
             paddingBottom: 90,
-            backgroundColor: "rgba(0,0,0,1)",
+            backgroundColor: " rgba(0, 0, 0, 0.99)",
             gap: 5,
-            paddingHorizontal: 25
+            paddingHorizontal: 25,
+            marginHorizontal:"3%"
         },
         option: {
             fontSize: 18,
