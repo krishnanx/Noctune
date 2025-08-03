@@ -41,6 +41,7 @@ import SearchModal from "../../Components/SearchModal.jsx";
 import { changeLoad } from "../../../Store/Playdataslice.js";
 import { YtMusicRef } from "../../functions/YtMusicRef.js";
 import Constants from "expo-constants";
+import FadeWrapper from '../../../Navigation/FadeWrapper.jsx';
 
 const Search = () => {
   const { colors } = useTheme(); // Get theme colors
@@ -229,6 +230,7 @@ useEffect(() => {
 
   
   return (
+    <FadeWrapper>
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={{ flex: 1 }}
@@ -423,6 +425,7 @@ useEffect(() => {
         </ScrollView>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
+    </FadeWrapper>
   );
 };
 

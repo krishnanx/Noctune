@@ -17,7 +17,7 @@ import { useNavigation } from '@react-navigation/native';
 const { width } = Dimensions.get('window');
 import { changeLoad } from "../../../Store/Playdataslice.js";
 import { addMusic,load, setSearchedMusic } from '../../../Store/MusicSlice';
-
+import FadeWrapper from '../../../Navigation/FadeWrapper.jsx';
 
 const QuickPickCard = ({ title, imageUrl,item,handlePlay }) => (
   <TouchableOpacity style={styles.quickPickCard} onPress={()=>handlePlay(item)}>
@@ -79,6 +79,7 @@ const handlePlay = (item) => {
 
 
   return (
+     <FadeWrapper>
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
@@ -173,6 +174,7 @@ const handlePlay = (item) => {
 
     
     </SafeAreaView>
+    </FadeWrapper>
   );
 };
 // const DisplaySearchedSongs=({title})=>{

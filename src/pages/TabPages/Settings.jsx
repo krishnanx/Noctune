@@ -13,6 +13,7 @@ import { signOut } from "../../../Store/AuthThunk";
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { clearSearchTextHistory } from '../../../Store/MusicSlice';
+import FadeWrapper from '../../../Navigation/FadeWrapper.jsx';
 
 const Settings = ({ navigation }) => {
   const [darkMode, setDarkMode] = useState(true);
@@ -38,6 +39,7 @@ const Settings = ({ navigation }) => {
   };
 
   return (
+    <FadeWrapper>
     <ScrollView
       style={styles.container}
       contentContainerStyle={{ minHeight: 900 }}
@@ -87,6 +89,7 @@ const Settings = ({ navigation }) => {
         />
       </Section>
     </ScrollView>
+    </FadeWrapper>
   );
 };
 

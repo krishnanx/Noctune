@@ -15,6 +15,7 @@ import { addPlaylist } from '../../../Store/PlaylistSlice';
 import { useNavigation } from '@react-navigation/native';
 import { AddNewPlaylist } from '../../../Store/PlaylistSlice';
 import { Dimensions } from 'react-native';
+import FadeWrapper from '../../../Navigation/FadeWrapper.jsx';
 
 const Library = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -219,6 +220,7 @@ const Library = () => {
         }
     }
     return (
+        <FadeWrapper>
         <ScrollView
             style={styles.Main}
             contentContainerStyle={{ alignItems: 'center', paddingBottom: 100, paddingHorizontal: 20, paddingTop: 30, height: 1000 }}
@@ -285,7 +287,7 @@ const Library = () => {
             </View>
 
         </ScrollView>
-
+        </FadeWrapper>
     )
 }
 
@@ -467,6 +469,7 @@ const Playlistadd = ({ isPlaylistaddVisible,
 
 const DisplayPlaylist = ({ item, index, styles, navigation }) => {
     return (
+
         <TouchableHighlight
             onPress={() => {
                 console.log("Navigating to Playlist");
