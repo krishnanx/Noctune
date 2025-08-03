@@ -609,9 +609,12 @@ const handleFetchFullLyrics = async () => {
       backgroundColor: colors.text,
       borderTopLeftRadius: 20,
       borderTopRightRadius: 20,
+      borderBottomLeftRadius: 20,
+      borderBottomRightRadius: 20,
       padding: 25,
       backgroundColor: "rgba(0,0,0,0.8)",
       gap: 15,
+      marginHorizontal:"4%"
     },
     option: {
       fontSize: 18,
