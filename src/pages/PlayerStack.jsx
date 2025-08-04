@@ -49,6 +49,7 @@ import Lyrics from "./Lyrics.jsx";
 import {setFullLyrics,setCurrentSongId} from "../../Store/LyricsSlice.js";
 import { changeLoad } from "../../Store/Playdataslice.js";
 import { addMusictoPlaylist,addMusicinPlaylist,addPlaylist ,AddNewPlaylist,removeMusicFromPlaylist} from "../../Store/PlaylistSlice";
+import { current } from "@reduxjs/toolkit";
 //import { BlurView } from "expo-blur";
 
 const PlayerStack = () => {
@@ -69,6 +70,7 @@ const PlayerStack = () => {
   const { song, pos: position, seek: seekk, load: newLoad } = useSelector(
     (state) => state.playlistload
   );
+  //console.warn("Load:",load)
   const currentTrack = canLoad ? data && pos >= 0 && pos < data.length ? data[pos] : null : newLoad? song && position >= 0 && position < song.length ? song[position] : null :
       !canLoad? data && pos >= 0 && pos < data.length ? data[pos] : null : song && position >= 0 && position < song.length ? song[position] : null
 
@@ -100,7 +102,8 @@ const PlayerStack = () => {
       
       const artist = currentTrack.uploader;
       const title = currentTrack.title;
-
+      console.warn(artist)
+      console.warn(title)
       
       // Clean up the search terms (remove special characters, extra spaces)
       const cleanArtist = artist.replace(/[^\w\s]/gi, '').replace(/\s+/g, '-').toLowerCase();
@@ -129,7 +132,7 @@ const PlayerStack = () => {
       }
 
       const lyricsData = await response.text();
-      console.error(lyricsData);
+      //console.error(lyricsData);
       
       if (lyricsData && lyricsData.trim()) {
           const songId = generateSongId(currentTrack);
@@ -757,11 +760,11 @@ const handleFetchFullLyrics = async () => {
               isTimerActive={isTimerActive}
             />
         </View>
-        <View paddingTop="60">
+        {/* <View paddingTop="60">
           {lyrics && lyrics !== "Lyrics not found for this song" && lyrics !== "Unable to load lyrics at this time" && (
             <Lyrics lyrics={lyrics} loading={lyricsLoading} onFetchFullLyrics={handleFetchFullLyrics}/>
           )}
-        </View>
+        </View> */}
 
         <SleepTimerModal
           visible={sleepTimerVisible}
