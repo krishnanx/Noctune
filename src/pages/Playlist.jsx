@@ -20,7 +20,7 @@ import icon from "../../assets/LikedSongs/heart.png"
 import normIcon from "../../assets/LikedSongs/Frame 4.png";
 import { playRef, soundRef } from "../functions/MusicLoaders/music";
 import { load, progress, setIsPlaying } from "../../Store/MusicSlice";
-import { changePlaylist, setPlaylistplaying } from "../../Store/PlaylistSlice";
+import { changePlaylist, setPlaylistplaying,deletePlaylist } from "../../Store/PlaylistSlice";
 import { addPath, addSong, download } from "../../Store/DownloadSlice";
 import DownloadButton from "../Components/Icons/DownloadButton";
 import { folderPicker } from "../functions/FileFunctions/StoragePicker";
@@ -32,7 +32,7 @@ import { setClientID } from "../../Store/UserSlice";
 import { initWebSocket } from "../Websocket/websocketfunc";
 import { wsRef } from "../Websocket/Websocket";
 import { useTheme } from "@react-navigation/native";
-
+import Delete from "../Components/Icons/Delete";
 
 export const initialiseWebsocket = ({id,dispatch,value}) => {
     try{ 
@@ -94,6 +94,19 @@ const Playlist = ({}) => {
 
     // navigation.navigate('PlaylistEdit', { index });
   };
+
+    const handleDelete = () => {
+    dispatch(deletePlaylist({ playlistId: index, userid: user.id }));
+  };
+
+  useEffect(()=>{
+  console.warn("0000000000000000000000000000000")
+  console.warn("DATA: ",data)
+    console.warn("USER: ",user.id)
+    console.warn("PlaylistNOOOO: ",id)
+        console.warn("PlaylistIIIDDD: ",index)
+},[])
+
 
   const handlePressLogic = async(item,pos) => {
     if(isDisabled && songid===item.id) return;
@@ -439,6 +452,7 @@ const Playlist = ({}) => {
         DownloadButton={DownloadButton}
         Description={Description}
         goToNewPage={goToNewPage}
+        handleDelete={handleDelete}
         index={index}
         colors={colors}
       />
@@ -466,6 +480,7 @@ const Information = ({
   DownloadButton,
   Description,
   goToNewPage,
+  handleDelete,
   index,
   colors
 }) => {
@@ -572,6 +587,12 @@ const Information = ({
                 onPress={goToNewPage}
               >
                 <ThreeDots  fill = {colors.text} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.funcbutton, { marginRight: 15 }]}
+                onPress={handleDelete}
+              >
+                <Delete  fill = {colors.text} />
               </TouchableOpacity>
             </View>
             <View style={styles.topFuncRight}>

@@ -284,8 +284,7 @@ export const AddNewPlaylist = createAsyncThunk('/newplaylist', async ({ data: pl
     try {
         //console.warn("adding new playlist");
         //const response = await axios.post("http://192.168.1.7:8000/playlist/NewPlaylists", { playlist: playlist, user: userid })
-        const response = await axios.post(`${Constants.expoConfig.extra.SERVER
-            }/playlist/NewPlaylists`, { playlist: playlist, user: userid })
+        const response = await axios.post(`http://192.168.196.33/playlist/NewPlaylists`, { playlist: playlist, user: userid })
 
         return response.data
     }
@@ -303,8 +302,7 @@ export const editPlaylist = createAsyncThunk(
             //console.warn("User ID: ", userid);
 
             const response = await axios.post(
-                `${Constants.expoConfig.extra.SERVER
-            }/playlist/editPlaylist`,
+                `http://192.168.196.33/playlist/editPlaylist`,
                 {
                     playlist: playlist,
                     originalName: originalName,
@@ -330,8 +328,7 @@ export const pullPlaylists = createAsyncThunk('/pullPlaylists', async ({ user: u
         //console.warn("pulling playlist");
         //console.warn("user reached pull: ", user)
 
-        const response = await axios.post(`${Constants.expoConfig.extra.SERVER
-            }/playlist/pullPlaylist`
+        const response = await axios.post(`http://192.168.196.33/playlist/pullPlaylist`
             , { data: user })
 
         return response.data
@@ -344,14 +341,36 @@ export const addMusictoPlaylist = createAsyncThunk('/addMusic', async ({ playlis
     try {
         //console.warn("pulling playlist");
         //console.warn("user reached pull: ", user)
-        const response = await axios.post(`${Constants.expoConfig.extra.SERVER
-            }/playlist/addMusic`, { playlist: playlist, user: user, music: music })
+        const response = await axios.post(`http://192.168.196.33/playlist/addMusic`, { playlist: playlist, user: user, music: music })
         return response.data
     }
     catch (e) {
         //console.error(e)
     }
 })
+
+export const deletePlaylist = createAsyncThunk(
+  '/deleteplaylist',
+  async ({ playlistId, userid }) => {
+    try {
+        
+console.warn("0000000000000000");
+console.warn("Sending delete playlist", { playlistId:playlistId, user: userid });
+
+        
+console.warn("0000000000000000");
+      const response = await axios.post(`http://192.168.196.33/playlist/DeletePlaylist`, {
+        playlistId,
+        user: userid
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error deleting playlist:", error);
+      throw error;
+    }
+  }
+);
+
      /**const response = await axios.post(
                 `http://192.168.1.7/playlist/editPlaylist`,
                 {
