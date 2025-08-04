@@ -8,7 +8,7 @@ import Settings from "../src/pages/TabPages/Settings";
 import Search from "../src/pages/TabPages/Search";
 import { useSelector, useDispatch } from "react-redux";
 import { Keyboard } from "react-native";
-import Playlist from "../src/pages/Playlist";
+import Playlist from "../src/pages/PlaylistChoose";
 import Library from "../src/pages/TabPages/Library";
 import { changeState } from "../Store/KeyboardSlice";
 const Tab = createBottomTabNavigator();

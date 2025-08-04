@@ -111,7 +111,6 @@ const PlaylistChoose = () => {
     modalOverlay: {
       flex: 1,
       justifyContent: "flex-end",
-      backgroundColor: "rgba(85, 85, 85, 0.85)", // backdrop blur
     },
     Main: { flex: 1, width: "100%" },
     Header: {
@@ -187,27 +186,24 @@ const PlaylistChoose = () => {
     },
     input: {
       width: "100%",
-      color: "white",
-      borderWidth: 1,
       padding: 10,
-      backgroundColor: "gray",
+      backgroundColor: colors.border,
       borderRadius: 8,
     },
     Button: {
       color: "white",
       width: 120,
       height: 40,
-      backgroundColor: "green",
+      backgroundColor:  colors.primary,
       borderRadius: 20,
       justifyContent: "center",
       alignItems: "center",
     },
     PlaylistModal: {
       height: 350,
-      backgroundColor: colors.text,
       borderRadius: 20,
       padding: 25,
-      backgroundColor: "rgba(0,0,0,1)",
+      backgroundColor:  colors.card,
       gap: 15,
       width: "80%",
     },
@@ -227,7 +223,7 @@ const PlaylistChoose = () => {
       elevation: 3,
     },
     doneButtonDisabled: {
-      backgroundColor: "#2c3a2f",
+      backgroundColor:  "#1DB954",
     },
     doneButtonText: {
       color: "white",
@@ -238,7 +234,6 @@ const PlaylistChoose = () => {
       position: "absolute",
       bottom: 80,
       alignSelf: "center",
-      backgroundColor: "rgba(0,0,0,0.7)",
       paddingVertical: 6,
       paddingHorizontal: 12,
       borderRadius: 15,
@@ -261,7 +256,7 @@ const bg = index?.image || song?.image;
       source={{uri :bg}}
       style={{ flex: 1 }}
       imageStyle={styles.imageStyle}
-      blurRadius={50}
+      blurRadius={10}
     >
       <ScrollView
         style={styles.Main}
@@ -280,10 +275,10 @@ const bg = index?.image || song?.image;
               style={{ width: "32%" }}
               onPress={() => navigation.goBack()}
             >
-              <BackArrow />
+              <BackArrow fill={colors.text}/>
             </TouchableOpacity>
             <View style={styles.HeaderInsideText}>
-              <Text style={{ fontSize: 20, color: "white" }}>
+              <Text style={{ fontSize: 20, color:  colors.text}}>
                 Add to playlists
               </Text>
             </View>
@@ -300,7 +295,7 @@ const bg = index?.image || song?.image;
               flexDirection: "row",
               marginTop: 20,
               borderRadius: 10,
-              backgroundColor: "rgba(50,50,50,0.5)",
+              backgroundColor:  colors.card,
               paddingHorizontal: 15,
             }}
           >
@@ -310,12 +305,12 @@ const bg = index?.image || song?.image;
             />
             <View style={{ flex: 1, paddingLeft: 15 }}>
               <Text
-                style={{ fontSize: 16, color: "white", fontWeight: "bold" }}
+                style={{ fontSize: 16, color:  colors.text, fontWeight: "bold" }}
                 numberOfLines={1}
               >
                 {song?.title || index?.title}
               </Text>
-              <Text style={{ fontSize: 12, color: "gray" }} numberOfLines={1}>
+              <Text style={{ fontSize: 12, color:  colors.text}} numberOfLines={1}>
                 {song?.artist || index?.uploader}
               </Text>
             </View>
@@ -350,6 +345,7 @@ const bg = index?.image || song?.image;
           setDescription={setDescription}
           setPlaylistName={setPlaylistName}
           playlistName={playlistName}
+          colors={colors}
         />
 
         {/* Playlist List */}
@@ -363,6 +359,7 @@ const bg = index?.image || song?.image;
                 styles={styles}
                 selectedIndices={selectedIndices}
                 setSelectedIndices={setSelectedIndices}
+                colors={colors}
               />
             )}
             keyExtractor={(item, index) => index.toString()}
@@ -405,6 +402,7 @@ const DisplayPlaylist = ({
   styles,
   selectedIndices,
   setSelectedIndices,
+  colors
 }) => {
   const isSelected = selectedIndices.includes(index);
 
@@ -443,8 +441,8 @@ const DisplayPlaylist = ({
             />
           </View>
           <View style={[styles.Name]}>
-            <Text style={{ fontSize: 20, color: "white" }}>{item.name}</Text>
-            <Text style={{ fontSize: 15, color: "white" }}>
+            <Text style={{ fontSize: 20, color: colors.text }}>{item.name}</Text>
+            <Text style={{ fontSize: 15, color: colors.text}}>
               Playlist . Noctune
             </Text>
           </View>
@@ -469,11 +467,11 @@ const DisplayPlaylist = ({
               styles.circle,
               {
                 backgroundColor: isSelected ? "#1DB954" : "transparent",
-                borderColor: isSelected ? "#1DB954" : "white",
+                borderColor: isSelected ? "#1DB954" :  colors.text,
               },
             ]}
           >
-            {isSelected && <Tick name="done" size={20} color="white" />}
+            {isSelected && <Tick name="done" size={20}/>}
           </View>
         </View>
         </View>
@@ -494,6 +492,7 @@ const Playlistadd = ({
   setPlaylistName,
   description,
   setDescription,
+  colors
 }) => {
   return (
     <Modal
@@ -505,14 +504,14 @@ const Playlistadd = ({
       <View style={styles.modalOverlay}>
         <View style={styles.playlistMain}>
           <View style={styles.PlaylistModal}>
-            <Text style={{ fontSize: 20, color: "white" }}>
+            <Text style={{ fontSize: 20, color:  colors.text }}>
               Create Playlist
             </Text>
             <TextInput
               placeholder="Playlist Name"
               value={playlistName}
               onChangeText={setPlaylistName}
-              placeholderTextColor="white"
+              placeholderTextColor={ colors.text}
               style={styles.input}
             />
 
@@ -520,17 +519,17 @@ const Playlistadd = ({
               placeholder="Description (optional)"
               value={description}
               onChangeText={setDescription}
-              placeholderTextColor="white"
+              placeholderTextColor={ colors.text}
               style={[styles.input, { height: 100 }]}
             />
 
             <View style={styles.switchContainer}>
-              <Text style={{ color: "white" }}>Private</Text>
+              <Text style={{ color: colors.primary }}>Private</Text>
               <Switch
                 value={isPrivate}
                 onValueChange={setIsPrivate}
-                trackColor={{ false: "#767577", true: "wheat" }}
-                thumbColor={!isPrivate ? "white" : "wheat"}
+                trackColor={{ false:  colors.border, true:  colors.border }}
+                thumbColor={!isPrivate ?  colors.primary : colors.primary}
               />
             </View>
             <View style={styles.ButtonContainer}>
