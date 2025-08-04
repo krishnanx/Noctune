@@ -7,7 +7,7 @@ const CURRENT_VERSION = Application.nativeApplicationVersion;
 
 export const checkAppVersion = createAsyncThunk('/checkAppVersion', async () => {
   try {
-    const response = await axios.get(`http://192.168.196.33/api/app-version`);
+    const response = await axios.get(`${Constants.expoConfig.extra.SERVER}/api/app-version`);
     //const response = await axios.get(`${Constants.expoConfig.extra.SERVER}/api/app-version`);
     const latestVersion = response.data.version;
     // console.warn("00000000000000000000")
