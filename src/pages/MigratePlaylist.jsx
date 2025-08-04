@@ -13,27 +13,37 @@ import {
     Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useDispatch } from 'react-redux';
+import { useDispatch,useSelector } from 'react-redux';
 import { migrate } from '../../Store/PlaylistSlice';
 import { showToast } from '../../Store/ToastSlice';
 import BackArrow from '../Components/Icons/BackArrow';
 import { useNavigation } from '@react-navigation/native';
+import { wsRef } from '../Websocket/Websocket';
+import { initWebSocket } from '../Websocket/websocketfunc';
+import { initialiseWebsocket } from './Playlist';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const MigratePlaylist = () => {
     const [playlistUrl, setPlaylistUrl] = useState('');
+    const userState = useSelector((state) => state.user || {});
+    const { user, session, loading, error, clientID } = userState;
     const dispatch = useDispatch()
     const navigation = useNavigation()
-    const handleSubmit = () => {
+    const handleSubmit = async() => {
+        await AsyncStorage.setItem("migration","false")
+        if(!wsRef.current){
+            initialiseWebsocket({id:user?.id,dispatch:dispatch,value:"migrate"})
+        }
         if (!playlistUrl.trim()) {
             //dispatch(showToast({Title:"Migration started",message:"Please keep Noctune open until it completes."}));
             dispatch(showToast({Title:"Please enter a Spotify playlist URL",message:""}))
             return;
         }
-
         // Here you would add your actual migration logic
         //console.warn('Migrating playlist:', playlistUrl);
-        dispatch(showToast({Title:"Migration started",message:"Please keep Noctune open until it completes."}));
+        dispatch(showToast({Title:"Migration started",message:"Please wait for a few minutes."}));
+        dispatch(migrate({ Url: playlistUrl,user:user?.id }))
         setPlaylistUrl("")
-        dispatch(migrate({ Url: playlistUrl }))
 
     };
 

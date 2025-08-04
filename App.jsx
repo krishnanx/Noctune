@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import React, { useState, useEffect, useRef } from "react";
 import { NavigationContainer } from "@react-navigation/native";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider, SafeAreaView,useSafeAreaInsets } from "react-native-safe-area-context";
 import UniversalNavi from "./Navigation/Universal";
 import { darkTheme } from "./Theme/darkTheme";
 import { lightTheme } from "./Theme/lightTheme";
@@ -24,6 +24,8 @@ import { FetchMetadata
   setIsLoadedFromAsyncStorage,
   addMusic,load
 } from "./Store/MusicSlice";
+import { checkAppVersion } from "./Store/VersionSlice.js";
+import UpdateBanner from "./src/Components/UpdateBanner.jsx";
 import Waveform from "./src/Components/Waveform";
 import Audioloader from "./src/functions/MusicLoaders/Audioloader";
 import { addEventListener, useNetInfo } from '@react-native-community/netinfo';
@@ -39,6 +41,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import store from "./Store/store.js";
 import * as Notifications from 'expo-notifications';
 import { playRef, soundRef } from "./src/functions/MusicLoaders/music.js";
+import MediaNotificationManager from "./src/functions/MediaNotification.js";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -50,10 +53,18 @@ Notifications.setNotificationHandler({
 
 
 export default function App() {
+    const insets = useSafeAreaInsets();
 
   useEffect(() => {
   Notifications.requestPermissionsAsync();
   }, []);
+
+  useEffect(() => {
+    dispatch(checkAppVersion());
+    console.warn("222222222222222222222222222")
+    console.warn("Version State:", version);
+  }, []);
+
 // Fixed DeviceEventEmitter listeners with proper cleanup
   useEffect(() => {
     const appKilledListener = DeviceEventEmitter.addListener('AppWasKilled', () => {
@@ -76,25 +87,38 @@ export default function App() {
     };
   }, []); // Empty dependency array to run only once
 
+    useEffect(() => {
+    if (Platform.OS === 'android') {
+      // Make sure StatusBar is translucent
+      StatusBar.setTranslucent(true);
+      StatusBar.setBackgroundColor('transparent', true);
+    }
+  }, []);
+
 
   const { Mode } = useSelector((state) => state.theme);
   const { user, loading, waveload } = useSelector((state) => state.user || {});
   const { data: array, id, playlistNo, migrateSliceSucess, migratedPlaylist } = useSelector((state) => state.playlist);
   const dispatch = useDispatch();
   const [appState, setAppState] = useState(AppState.currentState);
+  const { version, outdated, latest, forceUpdate } = useSelector((state) => state.version);
   const { data, pos, seek, isplaying, canLoad,isLoadedFromAsyncStorage,searchedMusic } = useSelector(
     (state) => state.data
   );
-  const { song, load:playload } = useSelector(
+  const { song,pos:position ,load:playload } = useSelector(
     (state) => state.playlistload
   );
+
+   const currentTrack = canLoad ? data && pos >= 0 && pos < data.length ? data[pos] : null : playload? song && position >= 0 && position < song.length ? song[position] : null :
+      !canLoad? data && pos >= 0 && pos < data.length ? data[pos] : null : song && position >= 0 && position < song.length ? song[position] : null
+
   //const [status, setStatus] = useState("loading");
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', nextAppState => {
       console.error('App State changed to:', nextAppState);
       setAppState(nextAppState);
-      if(nextAppState == "active" && soundRef.current == null && playRef.current == null){
+      if(nextAppState == "active" && soundRef.current == null && playRef.current == null && pos>=0){
         console.error("ITSS ACTIVEE");
         dispatch(load(false))
         //dispatch(load(true))
@@ -116,7 +140,7 @@ export default function App() {
   
           if (jsonValue != null) {
             const lastSong = JSON.parse(jsonValue);
-  
+            console.warn(lastSong)
             if (lastSong && lastSong.url) {
               // First, dispatch action to add song to store
               dispatch(addMusic(lastSong));
@@ -150,7 +174,7 @@ export default function App() {
       };
   
       loadLastSong();
-    }, []);
+  }, []);
 
 
  
@@ -198,15 +222,21 @@ export default function App() {
     //console.error("queue loader", canLoad)
     //console.error("playlist loader", load)
   }, [canLoad, load])
+  
   useEffect(() => {
-    if (migrateSliceSucess) {
-      //console.warn("pushing migrated playlist")
-      //console.warn(migratedPlaylist)
-      dispatch(showToast({Title:"Migration Completed",message:""}));
-      dispatch(AddNewPlaylist({ data: migratedPlaylist, userid: user?.id }))
-      dispatch(updatemigrateSliceSucess(false))
-    }
-
+    const handleMigrationOutput = async() => {
+      if (migrateSliceSucess) {
+        console.warn("pushing migrated playlist")
+        console.warn(migratedPlaylist)
+        dispatch(showToast({Title:"Migration Completed",message:""}));
+        dispatch(AddNewPlaylist({ data: migratedPlaylist, userid: user?.id }))
+        dispatch(updatemigrateSliceSucess(false))
+        await AsyncStorage.setItem("migration","true")
+        console.error("migration is now true")
+        manuallyCloseWebSocket()
+      }
+  }
+  handleMigrationOutput()
   }, [migrateSliceSucess])
   // useEffect(() => {
   //   const fetchData = async () => {
@@ -239,6 +269,35 @@ export default function App() {
     setup();
   }, []);
 
+  useEffect(() => {
+      if (currentTrack) {
+        //console.warn("Track changed, resetting notification state");
+        // First hide any existing notification
+        MediaNotificationManager.hideNotification().then(() => {
+          // Short delay to ensure complete reset
+          setTimeout(() => {
+            MediaNotificationManager.showNotification(
+              {
+                title: currentTrack.title || "Unknown Title",
+                artist:
+                  currentTrack.artist ||
+                  currentTrack.uploader ||
+                  "Unknown Artist",
+                album: currentTrack.album || "",
+                artwork: currentTrack.image || "",
+              },
+              {
+                showNextPrev: data.length > 1, // Only show next/prev if we have multiple tracks
+                showStop: true,
+              }
+            ).then(() => {
+              MediaNotificationManager.updatePlaybackStatus(isplaying,seek);
+            });
+          }, 100);
+        });
+      }
+    }, [currentTrack]);
+
 
   if (waveload) {
     return (
@@ -262,39 +321,40 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView
+      <View
         style={{
           flex: 1,
           backgroundColor: Mode === "light" ? "#ffffff" : "#141414",
         }}
       >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
-          style={{ flex: 1 }}
-        >
-          <View style={styles.container}>
-            <StatusBar
-              barStyle={Mode === "light" ? "dark-content" : "light-content"}
-              backgroundColor={Mode === "light" ? "#ffffff" : "#141414"}
-              translucent={false}
-            />
+        <StatusBar
+          barStyle={Mode === "light" ? "dark-content" : "light-content"}
+          backgroundColor="transparent"
+          translucent={true}
+        />
 
+        <UpdateBanner />
+        
+        <View style={{ paddingTop: insets.top, flex: 1 }}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : undefined}
+            style={{ flex: 1 }}
+          >
+            <View style={styles.container}>
+              <NavigationContainer
+                theme={Mode === "light" ? lightTheme : darkTheme}
+              >
+                <UniversalNavi />
+              </NavigationContainer>
+              <ToastContainer />
+            </View>
 
-          <NavigationContainer
-              theme={Mode === "light" ? lightTheme : darkTheme}
-            >
-              <UniversalNavi />
-            </NavigationContainer>
-            <ToastContainer />
-
-          </View>
-
-          <Websocket />
-          {canLoad && <Audioloader />}
-
-          {playload && <PlaylistLoader />}
-        </KeyboardAvoidingView>
-      </SafeAreaView>
+            <Websocket />
+            {canLoad && <Audioloader />}
+            {playload && <PlaylistLoader />}
+          </KeyboardAvoidingView>
+        </View>
+      </View>
     </SafeAreaProvider>
   );
 }

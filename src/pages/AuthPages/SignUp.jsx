@@ -66,7 +66,6 @@ const SignUp = () => {
 
       if (result.success) {
         alert("Account created successfully! Please sign in");
-        //console.warn(result)
         const userid = result.user.id
         const playlist = {
 
@@ -77,11 +76,12 @@ const SignUp = () => {
           songs: [],
           Time: 0,
           isPlaying: false
-
         }
         await dispatch(AddNewPlaylist({ data: playlist, userid: userid })).unwrap()
         dispatch(addPlaylist({ playlist: playlist }))
-        navigation.navigate("signin");
+
+       navigation.navigate("signin");
+        
       }
       // else {
       //   dispatch(showToast(result.payload?.message || "Failed to create account"));

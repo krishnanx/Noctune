@@ -41,6 +41,7 @@ import SearchModal from "../../Components/SearchModal.jsx";
 import { changeLoad } from "../../../Store/Playdataslice.js";
 import { YtMusicRef } from "../../functions/YtMusicRef.js";
 import Constants from "expo-constants";
+import FadeWrapper from '../../../Navigation/FadeWrapper.jsx';
 
 const Search = () => {
   const { colors } = useTheme(); // Get theme colors
@@ -56,6 +57,7 @@ const Search = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedSong, setSelectedSong] = useState(null);
   const [historyLoaded, setHistoryLoaded] = useState(false);
+  const [recentSearches, setRecentSearches] = useState([]);
   const status = useSelector((state) => state.key.status)
   
   // Add user selector to get userId
@@ -132,14 +134,6 @@ const Search = () => {
     //dispatch(toggleMinimized());
     // Add this line to save the song metadata to AsyncStorage
     saveLastPlayedSong(song);
-   
-    
-    // Save search history when playing a song
-    if (userId) {
-      await saveSearchHistory(userId, searchTextHistory);
-      await loadSearchHistory(userId, dispatch);
-    }
-    
     navigation.navigate('PlayerStack');
   };
 
@@ -164,20 +158,20 @@ const Search = () => {
     }
   };
 
-  const loadSearchHistory = async (userId, dispatch) => {
-    try {
-      const stored = await AsyncStorage.getItem(`searchHistory_${userId}`);
-      if (stored) {
-        const historyArray = JSON.parse(stored);
-        dispatch(setSearchTextHistory(historyArray));
-        console.warn('Search history loaded for user:', userId, historyArray);
-      }
-    } catch (e) {
-      console.error("Error loading search history", e);
-    } finally {
-      setHistoryLoaded(true);
+const loadSearchHistory = async (userId, dispatch) => {
+  try {
+    const stored = await AsyncStorage.getItem(`searchHistory_${userId}`);
+    if (stored) {
+      const historyArray = JSON.parse(stored);
+      dispatch(setSearchTextHistory(historyArray));
+      console.warn('Search history loaded for user:', userId, historyArray);
     }
-  };
+  } catch (e) {
+    console.error("Error loading search history", e);
+  } finally {
+    setHistoryLoaded(true);
+  }
+};
 
   // Add useEffect to load search history when component mounts
   useEffect(() => {
@@ -185,6 +179,8 @@ const Search = () => {
       if (userId) {
         await loadSearchHistory(userId, dispatch);
       } else {
+        // Clear Redux state when no user is logged in
+        dispatch(clearSearchTextHistory());
         setHistoryLoaded(true);
       }
     };
@@ -195,6 +191,16 @@ const Search = () => {
     setSelectedSong(song);
     setModalVisible(true);
   };
+
+useEffect(() => {
+  if (userId && historyLoaded && searchTextHistory.length > 0) {
+    const timeoutId = setTimeout(() => {
+      saveSearchHistory(userId, searchTextHistory);
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }
+}, [searchTextHistory, userId, historyLoaded]);
 
 
   const fetchRecent = async () => {
@@ -224,6 +230,7 @@ const Search = () => {
 
   
   return (
+    <FadeWrapper>
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={{ flex: 1 }}
@@ -295,7 +302,7 @@ const Search = () => {
                   }
                 }}
               >
-                <Text style={{color:'white', marginLeft: 10  }}>Clear History</Text>
+                <Text style={{color:colors.text, marginLeft: 10  }}>Clear History</Text>
               </TouchableOpacity>
               </View>
 
@@ -306,7 +313,7 @@ const Search = () => {
                     flexDirection: 'row',
                     alignItems: 'center',
                     paddingVertical: 12,
-                    borderBottomColor: 'rgba(255,255,255,0.1)',
+                    borderBottomColor: colors.border,
                     borderBottomWidth: 1,
                   }}
                   onPress={() => {
@@ -327,13 +334,13 @@ const Search = () => {
                       marginRight: 12,
                     }}
                   >
-                    <Entypo name="magnifying-glass" size={20} color="white" />
+                    <Entypo name="magnifying-glass" size={20} color={colors.text} />
                   </View>
 
                   <Text
                     style={{
                       flex: 1,
-                      color: 'white',
+                      color: colors.text,
                       fontSize: 16,
                     }}
                     numberOfLines={1}
@@ -345,7 +352,7 @@ const Search = () => {
                   <Entypo
                     name="chevron-left"
                     size={20}
-                    color="white"
+                    color={colors.text}
                     style={{ marginLeft: 10 }}
                   />
                 </TouchableOpacity>
@@ -418,6 +425,7 @@ const Search = () => {
         </ScrollView>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
+    </FadeWrapper>
   );
 };
 

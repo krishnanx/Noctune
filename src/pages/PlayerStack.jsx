@@ -48,6 +48,7 @@ import WaveformVisualizer from "../Components/WaveformVisualizer";
 import Lyrics from "./Lyrics.jsx";
 import {setFullLyrics,setCurrentSongId} from "../../Store/LyricsSlice.js";
 import { changeLoad } from "../../Store/Playdataslice.js";
+import { addMusictoPlaylist,addMusicinPlaylist,addPlaylist ,AddNewPlaylist,removeMusicFromPlaylist} from "../../Store/PlaylistSlice";
 //import { BlurView } from "expo-blur";
 
 const PlayerStack = () => {
@@ -76,7 +77,7 @@ const PlayerStack = () => {
   const [lyrics, setLyrics] = useState(null);
   const [lyricsLoading, setLyricsLoading] = useState(true);
 
-  // Redux selectors for full lyrics
+  
   const fullLyrics = useSelector(state => state.lyrics?.fullLyrics);
   //const currentSongId = useSelector(state => state.lyrics?.currentSongId);
 
@@ -111,7 +112,7 @@ const PlayerStack = () => {
       console.error("Lyrics Request made:");
       
       
-      const response = await fetch(`http://192.168.1.107:3000/api/lyrics`, {
+      const response = await fetch(`${Constants.expoConfig.extra.SERVER}/api/lyrics`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -160,36 +161,6 @@ const handleFetchFullLyrics = async () => {
     return lyrics || 'Lyrics not available';
   };
 
-  useEffect(() => {
-    if (currentTrack) {
-      //console.warn("Track changed, resetting notification state");
-      // First hide any existing notification
-      MediaNotificationManager.hideNotification().then(() => {
-        // Short delay to ensure complete reset
-        setTimeout(() => {
-          MediaNotificationManager.showNotification(
-            {
-              title: currentTrack.title || "Unknown Title",
-              artist:
-                currentTrack.artist ||
-                currentTrack.uploader ||
-                "Unknown Artist",
-              album: currentTrack.album || "",
-              artwork: currentTrack.image || "",
-            },
-            {
-              showNextPrev: data.length > 1, // Only show next/prev if we have multiple tracks
-              showStop: true,
-            }
-          ).then(() => {
-            MediaNotificationManager.updatePlaybackStatus(isplaying,seek);
-          });
-        }, 100);
-      });
-    }
-  }, [currentTrack]);
-
-  
   {
     /**If you ever want it even safer (rare), you can do [pos, data[pos]?.url]
     (so it depends on the exact song url changing).
@@ -490,7 +461,7 @@ const handleFetchFullLyrics = async () => {
     },
     timeText: {
       fontSize: 12,
-      color: colors.text,
+      color: "white",
     },
     controlsContainer: {
       paddingTop:50,
@@ -513,7 +484,7 @@ const handleFetchFullLyrics = async () => {
       height: 70,
       // top: 50,
       borderRadius: 35,
-      backgroundColor: colors.text,
+      backgroundColor: "white",
       justifyContent: "center",
       alignItems: "center",
       shadowColor: "#000",
@@ -530,7 +501,7 @@ const handleFetchFullLyrics = async () => {
       width: 36,
       height: 36,
       borderRadius: 18,
-      backgroundColor: colors.text,
+      backgroundColor: "white",
       justifyContent: "center",
       alignItems: "center",
       marginHorizontal: 8,
@@ -635,13 +606,16 @@ const handleFetchFullLyrics = async () => {
       //backgroundColor: "rgba(98, 92, 92, 0.5)", // backdrop blur
     },
     modalContent: {
-      height: "60%", // half the screen
+      height: "50%", // half the screen
       backgroundColor: colors.text,
       borderTopLeftRadius: 20,
       borderTopRightRadius: 20,
+      borderBottomLeftRadius: 20,
+      borderBottomRightRadius: 20,
       padding: 25,
-      backgroundColor: "rgba(0,0,0,0.8)",
+      backgroundColor: colors.card,
       gap: 15,
+      marginHorizontal:"4%"
     },
     option: {
       fontSize: 18,
@@ -818,8 +792,6 @@ export default PlayerStack;
 const Metadata = ({
   data,
   colors,
-  liked,
-  setLiked,
   seek,
   TOTAL_DURATION,
   formatTime,
@@ -831,15 +803,68 @@ const Metadata = ({
   const [userSeek, setUserSeek] = useState(seek);
   const [userSetPosition, setUserSetPosition] = useState(false);
 
-  useEffect(() => {
+   useEffect(() => {
     if (!isDragging && (!userSetPosition || Math.abs(seek - userSeek) > 5)) {
       setUserSeek(seek);
     }
   }, [seek, isDragging, userSetPosition]);
 
+  
+ const playlists = useSelector(state => state.playlist?.data || []);  //fetch playlists 
+  const {user} = useSelector(state => state.user)
+  const likedPlaylist = playlists.find(p => p.id === 0); // search for playlists with  id:0  ie Liked Songs
+  const likedSongs = likedPlaylist?.songs || [];         //get the song from the liked songs playlist
+  const isLiked = likedSongs.some(song => song.id === data.id); // checking if song is liked already
 
+ 
+const handleLikePress = async () => {
+  const upscaledSong = {
+    ...data,
+    image: data.image?.replace(/w\d+-h\d+/, "w500-h500"),
+  };
+
+  const isAlreadyLiked = likedSongs.some(song => song.id === data.id);
+
+  if (isAlreadyLiked) {   //Unliking a song
+    try {
+      dispatch(removeMusicFromPlaylist({ id: 0, musicId: data.id }));  //remove from redux
+    } catch (error) {
+      console.error("Error removing song from liked playlist:", error);
+    }
+  } else { //Like a soong
+    try {
+      if (!likedPlaylist) {
+        const newLiked = {
+          id: 0,
+          name: "Liked Songs",
+          desc: "Your favorite tracks",
+          songs: [upscaledSong],
+          image: upscaledSong.image || null,
+          Time: upscaledSong.duration || 0,
+          isPlaying: false,
+        };
+
+        await dispatch(AddNewPlaylist({ data: newLiked, userid: user.id }));   //if Liked song playlist doesnt exist,create one with current song
+        dispatch(addPlaylist({ playlist: newLiked }));
+      } else {
+        dispatch(addMusicinPlaylist({ id: 0, music: upscaledSong }));  //if Liked songs playlist exist,add the song
+        
+        dispatch(addMusictoPlaylist({    //send add req to backend
+          playlist: likedPlaylist,
+          user: user.id,
+          music: upscaledSong
+        }));
+      }
+    } catch (error) {
+      console.error("Error adding song to liked playlist:", error);
+      // Optionally revert the Redux state 
+      dispatch(removeMusicFromPlaylist({ id: 0, musicId: data.id }));
+    }
+  }
+};
   return (
     <>  
+    {/* {console.warn(data)} */}
       <Image source={{ uri: data?.image }} style={styles.albumArt} />
       <View style={styles.container}>
         <View style={{ height: "100%" }}>
@@ -850,13 +875,15 @@ const Metadata = ({
             {data?.uploader || data?.artist || "Unknown Artist"}
           </Text>
         </View>
-        <TouchableOpacity onPress={() => setLiked(!liked)}>
+
+        <TouchableOpacity onPress= {handleLikePress}>
           <Icon
-            name={liked ? "heart" : "heart-o"}
+            name={isLiked ? "heart" : "heart-o"}
             size={28}
-            color={liked ? colors.text : "white"}
+            color={isLiked ? colors.text : "white"}
           />
         </TouchableOpacity>
+        
       </View>
     </>
   );
@@ -883,7 +910,7 @@ const Controls = ({
           <TouchableOpacity onPress={() => setSleepTimerVisible(true)}>
             <TimerIcon
               name="timer"
-              color={isTimerActive ? "#F5DEB3" : colors.text}
+              color={isTimerActive ? "#F5DEB3" : "white"}
             />
           </TouchableOpacity>
         </View>
@@ -894,7 +921,7 @@ const Controls = ({
               handlePress(-1);
             }}
           >
-            <SkipBack width={35} height={35} stroke={colors.text} />
+            <SkipBack width={35} height={35} stroke={"white"} />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -917,12 +944,12 @@ const Controls = ({
               handlePress(+1);
             }}
           >
-            <SkipForward width={35} height={35} stroke={colors.text} />
+            <SkipForward width={35} height={35} stroke={"white"} />
           </TouchableOpacity>
         </View>
         <View>
           <TouchableOpacity onPress={() => replaySound()}>
-            <Replay height={24} width={24} fill={colors.text} />
+            <Replay height={24} width={24} fill={"white"} />
           </TouchableOpacity>
         </View>
       </View>
@@ -973,6 +1000,7 @@ const Custom_modal = ({
             <Text style={styles.option}>Add to Liked Songs</Text>
           </TouchableOpacity>
 
+
           <TouchableOpacity
             style={styles.optionTouch}
             onPress={() => {
@@ -983,9 +1011,9 @@ const Custom_modal = ({
             <Text style={styles.option}>Add to playlist</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.optionTouch}>
+          {/* <TouchableOpacity style={styles.optionTouch}>
             <Text style={styles.option}>Media Quality</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
           <TouchableOpacity style={styles.optionTouch}>
             <Text style={styles.option}>Share</Text>

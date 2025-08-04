@@ -25,7 +25,11 @@ const WaveformVisualizer = ({ ytUrl,seconds }) => {
   const targetPositionRef = useRef(0);
 
   const { data = [], pos = 0, seek = 0, isPlaying = false } = useSelector((state) => state.data || {});
-  const currentSong = data[pos] || {};
+   const queueLoad = useSelector((state) => state.data.canLoad);
+  const { song,pos:position ,load:playload } = useSelector(
+      (state) => state.playlistload
+    );
+  const currentSong = queueLoad? data[pos] || {} : song[position] || {} 
   const duration = currentSong?.duration || 180;
   const waveWidth = (waveformData?.length || 0) * (BAR_WIDTH + SPACING);
   const leftPadding = SCREEN_WIDTH / 2;
@@ -46,7 +50,6 @@ const WaveformVisualizer = ({ ytUrl,seconds }) => {
 
         //console.error("Request made");
         const res = await fetch(`${Constants.expoConfig.extra.SERVER}/yt/waveform`, {
-        //const res = await fetch(`http://192.168.1.107:3000/yt/waveform`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ data: ytUrl }),

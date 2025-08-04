@@ -9,6 +9,9 @@ export const darkTheme = {
         card: '#1f1f1f',
         text: '#ffffff',
         border: '#333333',
+        section:"#888",
+        line:"#aaa",
+        untext:"black"
     },
 
 };
