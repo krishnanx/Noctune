@@ -44,7 +44,7 @@ const Settings = ({ navigation }) => {
   };
 
   const navigateToAccount = () => {
-    navigation.navigate('Account');
+    //navigation.navigate('Account');
   };
   const styles = StyleSheet.create({
     container: {

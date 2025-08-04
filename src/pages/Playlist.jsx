@@ -96,7 +96,7 @@ const Playlist = ({}) => {
   };
 
     const handleDelete = () => {
-    dispatch(deletePlaylist({ playlistId: index, userid: user.id }));
+    //dispatch(deletePlaylist({ playlistId: index, userid: user.id }));
   };
 
   useEffect(()=>{
