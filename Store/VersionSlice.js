@@ -7,8 +7,8 @@ const CURRENT_VERSION = Application.nativeApplicationVersion;
 
 export const checkAppVersion = createAsyncThunk('/checkAppVersion', async () => {
   try {
-    //const response = await axios.get(`http://192.168.196.33/api/app-version`);
-    const response = await axios.get(`${Constants.expoConfig.extra.SERVER}/api/app-version`);
+    const response = await axios.get(`http://192.168.196.33/api/app-version`);
+    //const response = await axios.get(`${Constants.expoConfig.extra.SERVER}/api/app-version`);
     const latestVersion = response.data.version;
     // console.warn("00000000000000000000")
     // console.warn("RESPONSE", response)
@@ -18,7 +18,6 @@ export const checkAppVersion = createAsyncThunk('/checkAppVersion', async () => 
     return {
       current: CURRENT_VERSION,
       latest: latestVersion,
-      forceUpdate: response.data.forceUpdate,
       updateUrl: response.data.updateUrl,
       outdated: isOutdated
     };
@@ -34,7 +33,6 @@ const VersionSlice = createSlice({
     current: CURRENT_VERSION,
     latest: null,
     outdated: false,
-    forceUpdate: false,
     updateUrl: null,
     showBanner: false,
   },
@@ -47,9 +45,7 @@ const VersionSlice = createSlice({
     builder.addCase(checkAppVersion.fulfilled, (state, action) => {
       state.latest = action.payload.latest;
       state.outdated = action.payload.outdated;
-      state.forceUpdate = action.payload.forceUpdate;
       state.updateUrl = action.payload.updateUrl;
-      // ✅ Set showBanner to true when outdated, regardless of forceUpdate
       state.showBanner = action.payload.outdated;
     });
   },

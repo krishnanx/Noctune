@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useEffect, useRef } from 'react';
 
 export default function UpdateBanner() {
-  const { outdated, updateUrl, forceUpdate, showBanner, latest, current } = useSelector(state => state.version);
+  const { outdated, updateUrl, showBanner, latest, current } = useSelector(state => state.version);
   const insets = useSafeAreaInsets();
   const slideAnim = useRef(new Animated.Value(-100)).current;
 
@@ -21,9 +21,21 @@ export default function UpdateBanner() {
 
   if (!outdated || showBanner === false) return null;
 
-  const isForceUpdate = forceUpdate;
-  const bannerColor = isForceUpdate ? 'black' : 'black';
-  const gradientEnd = isForceUpdate ? 'purple' : 'purple';
+  const parseVersion = (versionStr) => versionStr.split('.').map(Number);
+
+  const isCriticalUpdate = (latest, current) => {
+  const [lMajor, lMinor, lPatch] = parseVersion(latest);
+  const [cMajor, cMinor, cPatch] = parseVersion(current);
+
+  if (lMajor > cMajor) return true; 
+  if (lMajor === cMajor && lMinor > cMinor + 1) return true; 
+  return false; 
+  };
+
+  const isCritical = isCriticalUpdate(latest, current);
+
+  const bannerColor = isCritical ? 'black' : 'black';
+  const gradientEnd = isCritical ? 'red' : 'purple';
 
   return (
     <Modal
@@ -48,15 +60,15 @@ export default function UpdateBanner() {
           <View style={styles.container}>
             <View style={styles.contentWrapper}>
               <View style={[styles.iconContainer, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
-                <Text style={styles.icon}>{isForceUpdate ? '⚠️' : '🚀'}</Text>
+                <Text style={styles.icon}>{isCritical ? '⚠️' : '🚀'}</Text>
               </View>
 
               <View style={styles.textContent}>
                 <Text style={styles.title}>
-                  {isForceUpdate ? 'Critical Update Required' : 'New Update Available'}
+                  {isCritical ? 'Critical Update Required' : 'New Update Available'}
                 </Text>
                 <Text style={styles.subtitle}>
-                  {isForceUpdate
+                  {isCritical
                     ? 'Please update to continue using the app'
                     : `Version ${latest} is now available (current: ${current})`}
                 </Text>
@@ -70,7 +82,7 @@ export default function UpdateBanner() {
                 activeOpacity={0.8}
               >
                 <Text style={[styles.updateButtonText, { color: bannerColor }]}>
-                  {isForceUpdate ? 'Update Now' : 'Update'}
+                  {isCritical ? 'Update Now' : 'Update'}
                 </Text>
                 <Text style={styles.updateIcon}>{">"}</Text>
               </TouchableOpacity>
@@ -165,11 +177,12 @@ const styles = StyleSheet.create({
     fontWeight: '300',
     lineHeight: 20,
   },
-  buttonContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
+buttonContainer: {
+  flexDirection: 'row',
+  justifyContent: 'center', 
+  alignItems: 'center',
+  gap: 12,
+},
   updateButton: {
     flexDirection: 'row',
     alignItems: 'center',
