@@ -8,6 +8,8 @@ import {
   Image,
 } from "react-native";
 import { useSelector } from "react-redux";
+import { useTheme } from "@react-navigation/native";
+import { BlurView } from '@react-native-community/blur';
 
 const SearchModal = ({
   isModalVisible,
@@ -17,8 +19,62 @@ const SearchModal = ({
   song,
 }) => {
   const { data, pos } = useSelector((state) => state.data);
-
+const colors = useTheme()
   
+const styles = StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: colors.colors.background,
+  },
+  modalContent: {
+    width: "80%",
+    backgroundColor: colors.colors.border,
+    borderRadius: 20,
+    padding: 20,
+    elevation: 10,
+  },
+  miniPlayerInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingBottom:20
+  },
+  miniPlayerThumbnail: {
+    width: 50,
+    height: 50,
+    borderRadius: 10,
+    marginRight: 15,
+  },
+  miniPlayerTextContainer: {
+    flex: 1,
+  },
+  miniPlayerTitle: {
+    color: colors.colors.text,
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  miniPlayerArtist: {
+    color: colors.colors.text,
+    fontSize: 14,
+  },
+  optionTouch: {
+    marginTop: 15,
+    paddingVertical: 12,
+    alignItems: "center",
+    backgroundColor: colors.colors.card, 
+    borderRadius: 10,
+  },
+  option: {
+    color: colors.colors.text,
+    fontSize: 16,
+  },
+  line: {
+    height: 1,
+    backgroundColor: colors.colors.text,
+    opacity: 0.4,
+  },
+});
 
   return (
     <Modal
@@ -85,59 +141,6 @@ const SearchModal = ({
   );
 };
 
-const styles = StyleSheet.create({
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(29, 26, 26, 0.9)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalContent: {
-    width: "80%",
-    backgroundColor: "black",
-    borderRadius: 20,
-    padding: 20,
-    elevation: 10,
-  },
-  miniPlayerInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingBottom:20
-  },
-  miniPlayerThumbnail: {
-    width: 50,
-    height: 50,
-    borderRadius: 10,
-    marginRight: 15,
-  },
-  miniPlayerTextContainer: {
-    flex: 1,
-  },
-  miniPlayerTitle: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  miniPlayerArtist: {
-    color: "#aaa",
-    fontSize: 14,
-  },
-  optionTouch: {
-    marginTop: 15,
-    paddingVertical: 12,
-    alignItems: "center",
-    backgroundColor: "rgba(128,128,128,0.3)", // gray with 60% opacity
-    borderRadius: 10,
-  },
-  option: {
-    color: "#f9fafb",
-    fontSize: 16,
-  },
-  line: {
-    height: 1,
-    backgroundColor: "#aaa",
-    opacity: 0.4,
-  },
-});
+
 
 export default SearchModal;
