@@ -1,6 +1,7 @@
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-
+import axios from 'axios';
+import Constants from 'expo-constants';
 export const fetchFullLyrics = createAsyncThunk(
   'lyrics/fetchFull',
   async (songId, { getState, rejectWithValue }) => {
@@ -11,15 +12,11 @@ export const fetchFullLyrics = createAsyncThunk(
       return state.lyrics.fullLyrics;
     }
     
-    try {
-      const response = await fetch(`/api/lyrics/full/${songId}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch lyrics');
-      }
-      const data = await response.json();
-      return data.lyrics;
+   try {
+      const response = await axios.get(`${Constants.expoConfig.extra.SERVER}/api/lyrics/full/${songId}`);
+      return response.data.lyrics;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -54,21 +51,6 @@ const LyricsSlice = createSlice({
       state.currentSongId = null;
       state.error = null;
     },
-  },
-  extraReducers: (builder) => {
-    builder
-      .addCase(fetchFullLyrics.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchFullLyrics.fulfilled, (state, action) => {
-        state.loading = false;
-        state.fullLyrics = action.payload;
-      })
-      .addCase(fetchFullLyrics.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      });
   },
 });
 

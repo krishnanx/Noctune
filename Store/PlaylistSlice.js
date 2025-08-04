@@ -45,8 +45,9 @@ const PlaylistSlice = createSlice({
             });
             if (bool) {
                 state.data[action.payload.id].songs = [...state.data[action.payload.id].songs, action.payload.music]
+                state.data[action.payload.id].Time += action.payload.music.duration
             }
-            state.data[action.payload.id].Time += action.payload.music.duration
+            
             // state.data[action.payload.id].songs.forEach(element => {
             //     state.data[action.payload.id].Time += element.duration
             // });
@@ -85,50 +86,105 @@ const PlaylistSlice = createSlice({
                 state.data[index] = { ...state.data[index], ...updatedData };
             }
         },
-            resetPlaylists(state) {
-        state.data = [];
-        state.id = -1;
-        state.playlistNo = -1;
-        state.migrateSliceSucess = false;
-        state.migratedPlaylist = [];
-    }
+        resetPlaylists(state) {
+            state.data = [];
+            state.id = -1;
+            state.playlistNo = -1;
+            state.migrateSliceSucess = false;
+            state.migratedPlaylist = [];
+        },
+        migrateSuccess(state,action){
+            const response = action.payload;
+            const id = state.id + 1;
+            state.id = id
+            //console.warn("id", id)
+            const playlist = {
+                id: id,
+                image: response[0].cover_url || null,
+                name: response[0].album_name,
+                desc: "imported from spotify",
+                songs: [],
+                Time: 0,
+                isPlaying: false
+            }
+            state.data = [...state.data, playlist];
+            const song = [];
+
+            response.forEach((item) => {
+                song.push({
+                    id: item.song_id,
+                    title: item.name || null,
+                    uploader: item.artist || null,
+                    image: item.cover_url || null,
+                    url: item.url || null,
+                    duration: item.duration || 0,
+                });
+                state.data[id].Time += item.duration;
+            });
+
+            state.data[id].songs = song
+            state.migratedPlaylist = state.data[id]
+            state.migrateSliceSucess = true
+        },
+        removeMusicFromPlaylist: (state, action) => {
+            const { id, musicId } = action.payload;
+            const playlistIndex = state.data.findIndex(playlist => playlist.id === id);
+            if (playlistIndex !== -1) {
+                const playlist = state.data[playlistIndex]
+
+                const songToRemove = playlist.songs.find(song => song.id === musicId);
+                if (songToRemove) {
+                    playlist.Time -= songToRemove.duration || 0;
+                }
+
+                playlist.songs = playlist.songs.filter(
+                song => song.id !== musicId
+                );
+            
+            if (playlist.songs.length === 0) {
+                playlist.image = '';
+            }
+            }
+        },
+
+            
     },
     extraReducers: (builder) => {
         builder
 
             .addCase(migrate.fulfilled, (state, action) => {
 
-                const response = action.payload;
-                const id = state.id + 1;
-                state.id = id
-                //console.warn("id", id)
-                const playlist = {
-                    id: id,
-                    image: response[0].cover_url || null,
-                    name: response[0].album_name,
-                    desc: "imported from spotify",
-                    songs: [],
-                    Time: 0,
-                    isPlaying: false
-                }
-                state.data = [...state.data, playlist];
-                const song = [];
+                // const response = action.payload;
+                // const id = state.id + 1;
+                // state.id = id
+                // //console.warn("id", id)
+                // const playlist = {
+                //     id: id,
+                //     image: response[0].cover_url || null,
+                //     name: response[0].album_name,
+                //     desc: "imported from spotify",
+                //     songs: [],
+                //     Time: 0,
+                //     isPlaying: false
+                // }
+                // state.data = [...state.data, playlist];
+                // const song = [];
 
-                response.forEach((item) => {
-                    song.push({
-                        id: item.song_id,
-                        title: item.name || null,
-                        uploader: item.artist || null,
-                        image: item.cover_url || null,
-                        url: item.url || null,
-                        duration: item.duration || 0,
-                    });
-                    state.data[id].Time += item.duration;
-                });
+                // response.forEach((item) => {
+                //     song.push({
+                //         id: item.song_id,
+                //         title: item.name || null,
+                //         uploader: item.artist || null,
+                //         image: item.cover_url || null,
+                //         url: item.url || null,
+                //         duration: item.duration || 0,
+                //     });
+                //     state.data[id].Time += item.duration;
+                // });
 
-                state.data[id].songs = song
-                state.migratedPlaylist = state.data[id]
-                state.migrateSliceSucess = true
+                // state.data[id].songs = song
+                // state.migratedPlaylist = state.data[id]
+                // state.migrateSliceSucess = true
 
 
             })
@@ -208,14 +264,15 @@ const PlaylistSlice = createSlice({
 })
 
 export const { addPlaylist, addMusicinPlaylist, setPlaylistplaying, changePlaylist, updataID, updatemigrateSliceSucess, updatePlaylistData,  
-    resetPlaylists,deleteAllPlaylist  } = PlaylistSlice.actions;
+    resetPlaylists,deleteAllPlaylist,migrateSuccess,removeMusicFromPlaylist  } = PlaylistSlice.actions;
 
 export default PlaylistSlice.reducer;
-export const migrate = createAsyncThunk('/migratedata', async ({ Url: data }) => {
+export const migrate = createAsyncThunk('/migratedata', async ({ Url: data ,user:userID}) => {
     try {
-        //console.warn(data)
+        console.warn(data)
         const response = await axios.post(`${Constants.expoConfig.extra.SERVER
-            }/api/migrate`, { playlist: data })
+            }/api/migrate`, { playlist: data,user:userID })
+        // const response = await axios.post(`http://192.168.1.43:80/api/migrate`, { playlist: data,user:userID })
         //console.warn("reached back")
         return response.data
     }

@@ -17,10 +17,11 @@ import { useNavigation } from '@react-navigation/native';
 const { width } = Dimensions.get('window');
 import { changeLoad } from "../../../Store/Playdataslice.js";
 import { addMusic,load, setSearchedMusic } from '../../../Store/MusicSlice';
+import FadeWrapper from '../../../Navigation/FadeWrapper.jsx';
 import { useTheme } from "@react-navigation/native";
 
 
-const QuickPickCard = ({ title, imageUrl,item,handlePlay }) => (
+const QuickPickCard = ({ title, imageUrl,item,handlePlay,styles }) => (
   <TouchableOpacity style={styles.quickPickCard} onPress={()=>handlePlay(item)}>
     <ImageBackground
       source={{ uri: imageUrl }}
@@ -40,7 +41,7 @@ const QuickPickCard = ({ title, imageUrl,item,handlePlay }) => (
 );
 
 
-const RecommendationCard = ({ title, subtitle, bgColor }) => (
+const RecommendationCard = ({ title, subtitle, bgColor,styles }) => (
   <TouchableOpacity style={[styles.recommendationCard, { backgroundColor: bgColor }]}>
     <View style={styles.recommendationTextContainer}>
       <Text style={styles.recommendationTitle} numberOfLines={1}>{title}</Text>
@@ -51,7 +52,7 @@ const RecommendationCard = ({ title, subtitle, bgColor }) => (
 
 const Home = () => {
   const navigation = useNavigation()
-   
+  const {colors} = useTheme();
   const searchedMusicHistory = useSelector((state)=>state.data.searchedMusicHistory)
   const { data, pos, seek, isplaying, canLoad, isLoadedFromAsyncStorage,searchTextHistory } = useSelector((state) => state.data);
   
@@ -59,6 +60,7 @@ const Home = () => {
 
 const handlePlay = (item) => {
   //console.error(item)
+  //console.error(item.uploader)
   dispatch(addMusic(item));
   dispatch(setSearchedMusic(true))
   if (canLoad) {
@@ -77,135 +79,133 @@ const handlePlay = (item) => {
       dispatch(changeLoad(false)) //playlist
   navigation.navigate('PlayerStack');
 }
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor:colors.background,
+      paddingHorizontal:15
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      //paddingHorizontal: 15,
+      paddingTop: 25,
+      paddingBottom: 20,
+    },
+    headerTitle: {
+      color: colors.text,
+      fontSize: 24,
+      fontWeight: 'bold',
+    },
+    headerIcons: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    headerIcon: {
+      marginLeft: 15,
+    },
+    scrollViewContent: {
+      paddingBottom: 80,
+    },
+    section: {
+      marginBottom: 20,
+      height:220
+    },
+    sectionTitle: {
+      color: colors.text,
+      fontSize: 20,
+      fontWeight: 'bold',
+      //paddingHorizontal: 15,
+      marginBottom: 10,
+    },
+    searchMusicText:{
+      color: 'violet',
+      fontSize: 16,
+      fontWeight: "300",
+      //paddingHorizontal: 15,
+      marginBottom: 10,
+    },
+    quickPicksContainer: {
+      paddingHorizontal: 15,
+      gap: 10,
+      
+    },
+    imageBackground: {
+      flex: 1,
+      justifyContent: 'center',
+      //padding: 10,
+      justifyContent:"flex-end",
+      paddingVertical:5,
+      //paddingHorizontal:10
+    },
+    imageStyle: {
+      resizeMode: 'cover',
+    },
+    overlay: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: 'rgba(0, 0, 0, 0.4)', // dim effect
+    },
+    quickPickCard: {
+      width: 185,
+      height: 180,
+      borderRadius: 10,
+      justifyContent: 'flex-end',
+      //padding: 10,
+      backgroundColor:"white",
+      overflow: 'hidden',
+      marginRight:10
+    },
+    quickPickTitle: {
+      color: 'white',
+      fontSize: 14,
+      fontWeight: '600',
+    },
+    recommendationsContainer: {
+      //paddingHorizontal: 15,
+      gap: 15,
 
-const {colors} = useTheme();
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor:colors.background,
-    paddingHorizontal:15
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    //paddingHorizontal: 15,
-    paddingTop: 25,
-    paddingBottom: 20,
-  },
-  headerTitle: {
-    color: colors.text,
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  headerIcons: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  headerIcon: {
-    marginLeft: 15,
-  },
-  scrollViewContent: {
-    paddingBottom: 80,
-  },
-  section: {
-    marginBottom: 20,
-    height:220
-  },
-  sectionTitle: {
-    color: colors.text,
-    fontSize: 20,
-    fontWeight: 'bold',
-    //paddingHorizontal: 15,
-    marginBottom: 10,
-  },
-  searchMusicText:{
-    color: 'wheat',
-    fontSize: 16,
-    fontWeight: "300",
-    //paddingHorizontal: 15,
-    marginBottom: 10,
-  },
-  quickPicksContainer: {
-    paddingHorizontal: 15,
-    gap: 10,
-    
-  },
-  imageBackground: {
-    flex: 1,
-    justifyContent: 'center',
-    //padding: 10,
-    justifyContent:"flex-end",
-    paddingVertical:5,
-    //paddingHorizontal:10
-  },
-  imageStyle: {
-    resizeMode: 'cover',
-  },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)', // dim effect
-  },
-  quickPickCard: {
-    width: 185,
-    height: 180,
-    borderRadius: 10,
-    justifyContent: 'flex-end',
-    //padding: 10,
-    backgroundColor:"white",
-    overflow: 'hidden',
-    marginRight:10
-  },
-  quickPickTitle: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  recommendationsContainer: {
-    //paddingHorizontal: 15,
-    gap: 15,
-
-  },
-  recommendationCard: {
-    width: 180,
-    height: 180,
-    borderRadius: 10,
-    justifyContent: 'flex-end',
-    padding: 15,
-  },
-  recommendationTextContainer: {
-    // Position text at the bottom
-  },
-  recommendationTitle: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  recommendationSubtitle: {
-    color: 'rgba(255,255,255,0.7)',
-    fontSize: 14,
-    marginTop: 5,
-  },
-  bottomNavigation: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 10,
-    backgroundColor: '#1E1E1E',
-    borderTopWidth: 1,
-    borderTopColor: '#333',
-  },
-  navItem: {
-    alignItems: 'center',
-  },
-  navItemText: {
-    color: 'white',
-    fontSize: 12,
-    marginTop: 5,
-  },
+    },
+    recommendationCard: {
+      width: 180,
+      height: 180,
+      borderRadius: 10,
+      justifyContent: 'flex-end',
+      padding: 15,
+    },
+    recommendationTextContainer: {
+      // Position text at the bottom
+    },
+    recommendationTitle: {
+      color: 'white',
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    recommendationSubtitle: {
+      color: 'rgba(255,255,255,0.7)',
+      fontSize: 14,
+      marginTop: 5,
+    },
+    bottomNavigation: {
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      paddingVertical: 10,
+      backgroundColor: '#1E1E1E',
+      borderTopWidth: 1,
+      borderTopColor: '#333',
+    },
+    navItem: {
+      alignItems: 'center',
+    },
+    navItemText: {
+      color: 'white',
+      fontSize: 12,
+      marginTop: 5,
+    },
   triangle: {
       width: 0,
       height: 0,
@@ -228,23 +228,21 @@ const styles = StyleSheet.create({
       justifyContent:"space-between",
       paddingHorizontal:6
     }
-});
-
+  });
 
 
   return (
-     
-
+     <FadeWrapper>
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Noctune</Text>
         <View style={styles.headerIcons}>
           <TouchableOpacity style={styles.headerIcon}>
-            <Ionicons name="notifications-outline" size={24} color={colors.text} style={styles.homeicons} />
+            <Ionicons name="notifications-outline" size={24} color={colors.text} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.headerIcon}>
-            <Ionicons name="time-outline" size={24} color={colors.text} style={styles.homeicons} />
+            <Ionicons name="time-outline" size={24} color={colors.text} />
           </TouchableOpacity>
           
         </View>
@@ -262,7 +260,7 @@ const styles = StyleSheet.create({
           <FlatList
             data={searchedMusicHistory.slice().reverse()}
             keyExtractor={(item) => item.id}
-            renderItem={({ item }) => <QuickPickCard title={item.title} imageUrl={item.image} item = {item} handlePlay={handlePlay}/>}
+            renderItem={({ item }) => <QuickPickCard title={item.title} imageUrl={item.image} item = {item} handlePlay={handlePlay} styles={styles}/>}
             horizontal={true} // 👈 Make it horizontal
             showsHorizontalScrollIndicator={false}
             style={{ height: 170 }} // 👈 Hide scroll bar (optional)
@@ -329,9 +327,116 @@ const styles = StyleSheet.create({
 
     
     </SafeAreaView>
+    </FadeWrapper>
   );
-  
 };
+// const DisplaySearchedSongs=({title})=>{
+//   <Cus
+// }
+
+
+
+
+
+  // return (
+     
+
+  //   <SafeAreaView style={styles.container}>
+  //     {/* Header */}
+  //     <View style={styles.header}>
+  //       <Text style={styles.headerTitle}>Noctune</Text>
+  //       <View style={styles.headerIcons}>
+  //         <TouchableOpacity style={styles.headerIcon}>
+  //           <Ionicons name="notifications-outline" size={24} color={colors.text} style={styles.homeicons} />
+  //         </TouchableOpacity>
+  //         <TouchableOpacity style={styles.headerIcon}>
+  //           <Ionicons name="time-outline" size={24} color={colors.text} style={styles.homeicons} />
+  //         </TouchableOpacity>
+          
+  //       </View>
+  //     </View>
+
+  //     <ScrollView
+  //       showsVerticalScrollIndicator={false}
+  //       contentContainerStyle={styles.scrollViewContent}
+  //     >
+  //       {/* Quick Picks Section */}
+  //       <View style={[styles.section]}>
+  //         <Text style={styles.sectionTitle}>Your Quick Picks</Text>
+  //         {searchedMusicHistory.length>0 && 
+          
+  //         <FlatList
+  //           data={searchedMusicHistory.slice().reverse()}
+  //           keyExtractor={(item) => item.id}
+  //           renderItem={({ item }) => <QuickPickCard title={item.title} imageUrl={item.image} item = {item} handlePlay={handlePlay}/>}
+  //           horizontal={true} // 👈 Make it horizontal
+  //           showsHorizontalScrollIndicator={false}
+  //           style={{ height: 170 }} // 👈 Hide scroll bar (optional)
+  //         /> }
+  //         {searchedMusicHistory.length==0 &&
+  //         <View style={{justifyContent:"center",alignItems:"center",height:"90%"}}>
+  //           <Text style={styles.searchMusicText}>It’s quiet here... Search for something to play!</Text> 
+  //         </View>
+          
+          
+  //         }
+  //       </View>
+
+  //       {/* Recommended for You Section */}
+  //       <View style={styles.section}>
+  //         <Text style={styles.sectionTitle}>Recommended for You</Text>
+         
+  //           {/* <RecommendationCard
+  //             title="Daily Mix 1"
+  //             subtitle="Arctic Monkeys, The Strokes, and more"
+  //             bgColor="#C7493A"
+  //           />
+  //           <RecommendationCard
+  //             title="Indie Hits"
+  //             subtitle="Playlist • 50 songs"
+  //             bgColor="#A64942"
+  //           />
+  //           <RecommendationCard
+  //             title="New Release"
+  //             subtitle="Latest tracks you might like"
+  //             bgColor="#FF6B6B"
+  //           /> */}
+  //            <View style={{justifyContent:"center",alignItems:"center",height:"90%"}}>
+  //             <Text style={styles.searchMusicText}>Coming Soon!</Text> 
+  //           </View>
+          
+  //       </View>
+
+  //       {/* Popular Playlists Section */}
+  //       <View style={[styles.section]}>
+  //         <Text style={styles.sectionTitle}>Popular Playlists</Text>
+          
+  //           {/* <RecommendationCard
+  //             title="Top 50 Global"
+  //             subtitle="Most played tracks worldwide"
+  //             bgColor="#4ECDC4"
+  //           />
+  //           <RecommendationCard
+  //             title="Viral Hits"
+  //             subtitle="Today's most viral tracks"
+  //             bgColor="#45B7D1"
+  //           />
+  //           <RecommendationCard
+  //             title="Trending Now"
+  //             subtitle="What's hot right now"
+  //             bgColor="#FF8C42"
+  //           /> */}
+  //           <View style={{justifyContent:"center",alignItems:"center",height:"90%",width:"100%"}}>
+  //             <Text style={styles.searchMusicText}>Coming Soon!</Text> 
+  //           </View>
+          
+  //       </View>
+  //     </ScrollView>
+
+    
+  //   </SafeAreaView>
+  // );
+  
 // const DisplaySearchedSongs=({title})=>{
 //   <Cus
 // }

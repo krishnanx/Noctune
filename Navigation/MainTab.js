@@ -74,7 +74,7 @@ const MainTab = () => {
             
       ? { display: "none",height:0 } // Hides instantly
       : {
-          height: 55,
+          height: 60,
           padding: "auto",
         },
           };

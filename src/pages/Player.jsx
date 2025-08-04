@@ -86,7 +86,7 @@ const Player = () => {
     navigation.navigate('PlayerStack');
   };
 
-  const TOTAL_DURATION = data ? data[pos]?.duration : 0;
+  const TOTAL_DURATION = canLoad? data ? data[pos]?.duration : 0 : song ? song[position]?.duration : 0
 
   useEffect(() => {
     togglePlayPauseRef.current = changePlayPause;
@@ -177,7 +177,7 @@ const Player = () => {
       width: 180,
     },
     miniPlayerArtist: {
-      color: colors.text,
+      color: "white",
       fontSize: 12,
     },
     miniPlayerControls: {
@@ -242,7 +242,7 @@ const Player = () => {
       height: 70,
       // top: 50,
       borderRadius: 35,
-      backgroundColor: colors.text,
+      backgroundColor: "black",
       justifyContent: "center",
       alignItems: "center",
       shadowColor: "#000",
@@ -259,7 +259,7 @@ const Player = () => {
       width: 36,
       height: 36,
       borderRadius: 18,
-      backgroundColor: colors.text,
+      backgroundColor: "white",
       justifyContent: "center",
       alignItems: "center",
       marginHorizontal: 8,
@@ -305,7 +305,7 @@ const Player = () => {
     pauseLine: {
       width: 4,
       height: 20,
-      backgroundColor: "black",
+      backgroundColor: colors.background,
       marginHorizontal: 4,
       borderRadius: 2,
     },

@@ -31,17 +31,49 @@ import Constants from "expo-constants"
 import { setClientID } from "../../Store/UserSlice";
 import { initWebSocket } from "../Websocket/websocketfunc";
 import { wsRef } from "../Websocket/Websocket";
+import { useTheme } from "@react-navigation/native";
 
 
+export const initialiseWebsocket = ({id,dispatch,value}) => {
+    try{ 
+      console.error("reached websocket connection")
+      
+      //const ws = initWebSocket(`ws://192.168.1.43:80/download-progress`);
+      const ws = initWebSocket(`${Constants.expoConfig.extra.WEBSOC}/download-progress`);
+      //const ws = initWebSocket(`ws://192.168.1.107:3000/download-progress`);
+      //const ws = getWebSocket();
+      if (!ws) {
+        //console.error("WebSocket failed to initialize.");
+        return;
+      }
 
+      ws.onopen = () => {
+        //console.error("Connected to WebSocket server");
+        dispatch(setClientID({ id }));
+        ws.send(JSON.stringify({
+          type: "register",
+          clientId: id,
+          value: value
+          
+        }));
+      };
+      //const ws = getWebSocket() 
+      wsRef.current = ws
+    }catch(error){
+      //console.error(error)
+    }
 
-const Playlist = () => {
+  }
+
+const Playlist = ({}) => {
 
 
   const { data, id, playlistNo } = useSelector((state) => state.playlist);
-
+  const [isDisabled,setIsDisabled] =useState(false)
+  const [songid,setSongId] =useState(null)
   const userState = useSelector((state) => state.user || {});
   const { user, session, loading, error, clientID } = userState;
+  const { colors } = useTheme();
 
   const { index } = useRoute().params;
   const {
@@ -55,14 +87,18 @@ const Playlist = () => {
   const dispatch = useDispatch();
 
   const goToNewPage = () => {
-    //console.warn("DATA: ", JSON.stringify(data, null, 2));
-    data[0].songs?.forEach((song, idx) => {
-      //console.warn(`Song ${idx + 1}:`, song);
-    });
-    navigation.navigate('PlaylistEdit', { index });
+    // //console.warn("DATA: ", JSON.stringify(data, null, 2));
+    // data[0].songs?.forEach((song, idx) => {
+    //   //console.warn(`Song ${idx + 1}:`, song);
+    // });
+
+    // navigation.navigate('PlaylistEdit', { index });
   };
 
   const handlePressLogic = async(item,pos) => {
+    if(isDisabled && songid===item.id) return;
+    setIsDisabled(true)
+    setSongId(item.id);
     console.warn(item)
     if (!playRef.current) {
       //console.warn("no current songs")
@@ -111,10 +147,14 @@ const Playlist = () => {
       //   dispatch(progress(-1));
       //   //updatePlaybackState(true, seek); //added
       // }
-
+      
       
     }
     dispatch(setIsPlaying(true));
+    
+    setTimeout(()=>{
+      setIsDisabled(false)
+    },5000)
 }
 
   const styles = StyleSheet.create({
@@ -168,6 +208,7 @@ const Playlist = () => {
     Name: {
       width: "100%",
       height: 80,
+      
       //backgroundColor:"white"
     },
     function: {
@@ -214,8 +255,8 @@ const Playlist = () => {
       borderRightWidth: 0,
       borderBottomWidth: 7,
       borderTopWidth: 7,
-      borderLeftColor: "black",
-      borderTopColor: "transparent",
+      borderLeftColor: colors.untext,
+      borderTopColor:"transparent",
       borderBottomColor: "transparent",
       borderRightColor: "transparent",
       marginLeft: 2,
@@ -224,7 +265,7 @@ const Playlist = () => {
       width: 36,
       height: 36,
       borderRadius: 18,
-      backgroundColor: "white",
+      backgroundColor: colors.text,
       justifyContent: "center",
       alignItems: "center",
       marginHorizontal: 8,
@@ -232,7 +273,7 @@ const Playlist = () => {
     miniPauseLine: {
       width: 3,
       height: 12,
-      backgroundColor: "black",
+      backgroundColor: colors.untext,
       marginHorizontal: 2,
       borderRadius: 1,
     },
@@ -247,7 +288,7 @@ const Playlist = () => {
       justifyContent: "center",
       alignItems: "center", // centers content horizontally
       borderRadius: 25,
-      borderColor: "white",
+      borderColor: colors.text,
       borderWidth: 1,
     },
     card: {
@@ -255,7 +296,7 @@ const Playlist = () => {
       alignSelf: "center",
       borderRadius: 20,
       paddingVertical: 10,
-      paddingHorizontal:10,
+      //paddingHorizontal:0,
       height:80,
       marginVertical: 5,
       flexDirection: "row",
@@ -275,13 +316,13 @@ const Playlist = () => {
       marginRight: 15,
     },
     artistName: {
-      color: "white",
+      color: colors.text,
       fontSize: 12,
       fontWeight: "300",
       marginTop: 2,
     },
     songName: {
-      color: "white",
+      color: colors.text,
       fontSize: 16,
       fontWeight: "bold",
     },
@@ -358,41 +399,13 @@ const Playlist = () => {
     }
   };
 
-  const initialiseWebsocket = (id) => {
-    try{ //console.error("reached websocket connection")
-     
-      //const ws = initWebSocket(`ws://192.168.1.7:8000/download-progress`);
-      const ws = initWebSocket(`${Constants.expoConfig.extra.WEBSOC}/download-progress`);
-      //const ws = initWebSocket(`ws://192.168.1.107:3000/download-progress`);
-      //const ws = getWebSocket();
-      if (!ws) {
-        //console.error("WebSocket failed to initialize.");
-        return;
-      }
-
-      ws.onopen = () => {
-        //console.error("Connected to WebSocket server");
-        dispatch(setClientID({ id }));
-        ws.send(JSON.stringify({
-          type: "register",
-          clientId: id,
-          value: "hi"
-          
-        }));
-      };
-      //const ws = getWebSocket() 
-      wsRef.current = ws
-    }catch(error){
-      //console.error(error)
-    }
-
-  }
+  
 
   const handleDownload = async () => {
     //console.warn("reached download function");
     const id = Math.random().toString(36).slice(2, 8);
     //console.warn(data[index]?.songs, clientID);
-    initialiseWebsocket(id);
+    initialiseWebsocket({id:user?.id,dispatch:dispatch,value:"download"});
     const path = await folderPicker();
     //console.warn(path);
     dispatch(addPath({ path: path }));
@@ -427,10 +440,12 @@ const Playlist = () => {
         Description={Description}
         goToNewPage={goToNewPage}
         index={index}
+        colors={colors}
       />
       <Flatlist data={data[index].songs || []} 
           styles={styles} 
           handleCardPress={handlePressLogic} 
+          colors={colors}
           
       />
     </ScrollView>
@@ -451,7 +466,8 @@ const Information = ({
   DownloadButton,
   Description,
   goToNewPage,
-  index
+  index,
+  colors
 }) => {
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -471,7 +487,7 @@ const Information = ({
     <View style={{ width: "100%" }}>
       <View style={styles.top}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <BackArrow />
+          <BackArrow fill = {colors.text} />
         </TouchableOpacity>
 
         {/* <View style={styles.info}>
@@ -489,7 +505,7 @@ const Information = ({
           onEdit={() => console.log("Edit pressed")}
         />
 
-        <DownloadButton />
+        <DownloadButton fill = {colors.text} />
       </View>
       {/* <View
             style={styles.search}
@@ -511,8 +527,9 @@ const Information = ({
             style={{
               fontSize: 27,
               fontWeight: "600",
-              color: "white",
+              color: colors.text,
               marginBottom: 8,
+              
             }}
           >
             {Pname}
@@ -521,13 +538,13 @@ const Information = ({
             style={{
               fontSize: 15,
               fontWeight: "600",
-              color: "white",
+              color: colors.text,
               marginBottom: 4,
             }}
           >
             {Uname}
           </Text>
-          <Text style={{ fontSize: 10, fontWeight: "600", color: "white" }}>
+          <Text style={{ fontSize: 10, fontWeight: "600", color: colors.text }}>
             {formatTime(data.Time)} min
           </Text>
         </View>
@@ -539,7 +556,7 @@ const Information = ({
                 onPress={() => handleDownload()}
               >
                 <View>
-                  <Download />
+                  <Download fill = {colors.text} />
                 </View>
               </TouchableOpacity>
               <TouchableOpacity
@@ -548,13 +565,13 @@ const Information = ({
 
 
               >
-                <AddFriend />
+                <AddFriend  fill = {colors.text} />
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.funcbutton, { marginRight: 15 }]}
                 onPress={goToNewPage}
               >
-                <ThreeDots />
+                <ThreeDots  fill = {colors.text} />
               </TouchableOpacity>
             </View>
             <View style={styles.topFuncRight}>
@@ -579,7 +596,7 @@ const Information = ({
     </View>
   );
 };
-const DataList = ({ styles, item ,handleCardPress,index}) => {
+const DataList = ({ styles, item ,handleCardPress,index,colors}) => {
   //console.warn("item", item,index);
   return (
     <TouchableHighlight
@@ -590,7 +607,7 @@ const DataList = ({ styles, item ,handleCardPress,index}) => {
       activeOpacity={0.7}
     >
       <View
-        style={{width:"100%",height:80,flexDirection:"row",justifyContent:"center",alignItems:"center"}}
+        style={{width:"100%",height:80,flexDirection:"row",justifyContent:"center",alignItems:"center",paddingHorizontal:5}}
       >
         <Image source={{ uri: item.image }} style={styles.cardImage} />
         <View style={styles.textContainer}>
@@ -600,19 +617,19 @@ const DataList = ({ styles, item ,handleCardPress,index}) => {
           <Text style={styles.artistName}>{item.uploader || item.artist}</Text>
         </View>
         <View style={styles.dotsContainer}>
-          <ThreeDots />
+          <ThreeDots fill ={colors.text} />
         </View>
       </View>
     </TouchableHighlight>
   );
 };
-const Flatlist = ({ data, styles,handleCardPress }) => {
+const Flatlist = ({ data, styles,handleCardPress,colors }) => {
   return (
     <FlatList
       data={data}
       keyExtractor={(item) => item.id.toString()}
       scrollEnabled={false}
-      renderItem={({item,index}) => <DataList styles={styles} item={item} handleCardPress={handleCardPress} index={index} />
+      renderItem={({item,index}) => <DataList styles={styles} item={item} handleCardPress={handleCardPress} index={index} colors={colors} />
 
       }
       showsVerticalScrollIndicator={false}

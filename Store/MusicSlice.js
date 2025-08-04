@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import Constants from "expo-constants";
+import { use } from "react";
 // In your MusicSlice.js
 const MusicSlice = createSlice({
   name: "Music",
@@ -21,26 +22,28 @@ const MusicSlice = createSlice({
       state.checkOnceNext = action.payload
     },
        // Search text history reducers
-    addSearchTextHistory(state, action) {
-      const searchText = action.payload.trim();
-      if (!searchText) return;
-      
-      const existingIndex = state.searchTextHistory.findIndex(
-        item => item.toLowerCase() === searchText.toLowerCase()
-      );
-      if (existingIndex !== -1) {
-        state.searchTextHistory.splice(existingIndex, 1);
-      }
-      
-      // Add to beginning of array (most recent first)
-      state.searchTextHistory.unshift(searchText);
-      
-      // Keep only last 10 searches
-      if (state.searchTextHistory.length > 10) {
-        state.searchTextHistory = state.searchTextHistory.slice(0, 10);
-      }
-    },
-    
+ addSearchTextHistory(state, action) {
+  const searchText = action.payload?.trim?.() || '';
+  if (!searchText) return;
+  
+  // Remove existing entry (case-insensitive)
+  const existingIndex = state.searchTextHistory.findIndex(
+    item => item.toLowerCase() === searchText.toLowerCase()
+  );
+  if (existingIndex !== -1) {
+    state.searchTextHistory.splice(existingIndex, 1);
+  }
+  
+  // Add to beginning of array (most recent first)
+  state.searchTextHistory.unshift(searchText);
+  
+  // Keep only last 10 searches
+  if (state.searchTextHistory.length > 10) {
+    state.searchTextHistory = state.searchTextHistory.slice(0, 10);
+  }
+  
+  console.warn('Search history updated:', state.searchTextHistory);
+},
     clearSearchTextHistory(state) {
       state.searchTextHistory = [];
     },
@@ -75,6 +78,9 @@ const MusicSlice = createSlice({
 
       state.searchedMusicHistory.push(newMusic);
     },
+    deleteSearchedMusicHistory(state,action){
+      state.searchedMusicHistory = [];
+    },
     addMusic(state, action) {
       state.data = state.data.filter((item) => item.id !== action.payload.id);
       if (state.pos > state.data.length - 1) {
@@ -83,6 +89,7 @@ const MusicSlice = createSlice({
         state.pos -= 1; // Decrement pos if item is before the current pos
       }
       console.log(action.payload.image);
+      //console.warn("artist:",action.payload.artist)
       const upscaledUrl = action.payload.image.replace(
         /w\d+-h\d+/,
         "w500-h500"
@@ -90,7 +97,7 @@ const MusicSlice = createSlice({
       const newMusic = {
         id: action.payload.id,
         title: action.payload.title || null,
-        uploader: action.payload.artist || null,
+        uploader: action.payload.uploader || action.payload.artist ||  null,
         image: upscaledUrl || null,
         duration: action.payload.duration || null,
         url: action.payload.url || null,
@@ -159,7 +166,7 @@ const MusicSlice = createSlice({
     setSearchedMusic(state, action) {
       state.searchedMusic = action.payload
     }
-  },
+  },  
 
   extraReducers: (builder) => {
           builder
@@ -203,6 +210,7 @@ export const {
   addSearchTextHistory,
   clearSearchTextHistory,
   setSearchTextHistory,
+  deleteSearchedMusicHistory
 } = MusicSlice.actions;
 export default MusicSlice.reducer;
 
@@ -235,6 +243,18 @@ export const getPersistSearch = createAsyncThunk("/getpersistSearch",async(_,{ d
     //console.warn("get search error ",error)
   }
 
+})
+
+export const deletePersistSearch = createAsyncThunk("/deletepersist",async(_,{dispatch,getState}) => {
+  try{
+    const user = getState().user.user
+    const response = await axios.post( `${Constants.expoConfig.extra.SERVER}/api/deletepersist`, {user:user?.id})
+    return response.data
+  }
+  catch(error){
+    console.warn("Delete persistign music error");
+    return { success: false, error: error.message };
+  }
 })
 
 

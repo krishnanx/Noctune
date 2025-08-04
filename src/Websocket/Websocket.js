@@ -17,6 +17,7 @@ import {
 } from "react-native-saf-x";
 import { saveFile } from "../functions/FileFunctions/SaveFile";
 import { initWebSocket, getWebSocket } from "./websocketfunc";
+import { migrateSuccess } from "../../Store/PlaylistSlice";
 // Action to set the download path in your Redux store
 // You'll need to add this to your DownloadSlice.js
 // export const setDownloadPath = createSlice({
@@ -247,6 +248,10 @@ const Websocket = () => {
                 //console.warn("Download Complete");
               });
               dispatch(addData({ final: parsed.value }));
+            }
+            if(parsed.type == "pendingData" || parsed.type == "migrate"){
+              console.warn(parsed.value)
+              dispatch(migrateSuccess(parsed.value))
             }
           } catch (e) {
             //console.error("Non-JSON message received:", event.data);

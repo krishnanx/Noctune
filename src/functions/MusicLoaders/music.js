@@ -9,6 +9,7 @@ import { current } from "@reduxjs/toolkit";
 import eventBus from '../eventBus.js';
 import { changeLoad, changePlaylistPos } from "../../../Store/Playdataslice.js";
 import { sendSongFinishedNotification } from "../../functions/LocalNotification.js"
+let currentLoadToken = null;
 export const soundRef = {
   previous: null,
   current: null,
@@ -30,16 +31,13 @@ export const loadAudio = async (
   //console.warn("song url", data[pos].url);
 
   try {
+    const thisToken = Symbol("loadToken");
+    currentLoadToken = thisToken;
     if (!data[pos]) {
       throw new Error("Data at the given position is undefined or invalid.");
     }
-    //http://192.168.1.44
-    //Constants.expoConfig.extra.SERVER
-
     //const audioUri = `http://192.168.1.7:8000/api/stream?url=${encodeURIComponent(data[pos].url)}`;
-
-    // const audioUri = `${Constants.expoConfig.extra.SERVER}/api/stream?url=${encodeURIComponent(data[pos].url)}`
-    const audioUri = `http://192.168.1.107:3000/api/stream?url=${encodeURIComponent(data[pos].url)}`
+    const audioUri = `${Constants.expoConfig.extra.SERVER}/api/stream?url=${encodeURIComponent(data[pos].url)}`
     console.warn("Audio URI:", audioUri); // Check if the URL is correct
     dispatch(progress(0));
     if (soundRef.current) {
@@ -76,7 +74,11 @@ export const loadAudio = async (
       { shouldPlay: false, progressUpdateIntervalMillis: 1060 },
       onPlaybackStatusUpdate
     );  
-
+    if (currentLoadToken !== thisToken) {
+      console.warn("Stale load, cancelling...");
+      await sound.unloadAsync();
+      return;
+    }
 
     //console.warn(queueLoad, playLoad)
     if (queueLoad) {
@@ -125,7 +127,7 @@ const onPlaybackStatusUpdate = (status, dispatch, getSeek, data, pos, playlistNo
     const currentSeek = getSeek?.();
     //console.warn("finished......")
     //console.warn("Sned");
-    sendSongFinishedNotification("Lover - Taylor Swift");
+    // sendSongFinishedNotification("Lover - Taylor Swift");
     
     if(currentSeek != data[pos]?.duration && currentSeek != 0) {
     //console.warn("finishing up!!");
