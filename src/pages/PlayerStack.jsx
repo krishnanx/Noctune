@@ -461,7 +461,7 @@ const handleFetchFullLyrics = async () => {
     },
     timeText: {
       fontSize: 12,
-      color: colors.text,
+      color: "white",
     },
     controlsContainer: {
       paddingTop:50,
@@ -484,7 +484,7 @@ const handleFetchFullLyrics = async () => {
       height: 70,
       // top: 50,
       borderRadius: 35,
-      backgroundColor: colors.text,
+      backgroundColor: "white",
       justifyContent: "center",
       alignItems: "center",
       shadowColor: "#000",
@@ -501,7 +501,7 @@ const handleFetchFullLyrics = async () => {
       width: 36,
       height: 36,
       borderRadius: 18,
-      backgroundColor: colors.text,
+      backgroundColor: "white",
       justifyContent: "center",
       alignItems: "center",
       marginHorizontal: 8,
@@ -606,14 +606,14 @@ const handleFetchFullLyrics = async () => {
       //backgroundColor: "rgba(98, 92, 92, 0.5)", // backdrop blur
     },
     modalContent: {
-      height: "60%", // half the screen
+      height: "50%", // half the screen
       backgroundColor: colors.text,
       borderTopLeftRadius: 20,
       borderTopRightRadius: 20,
       borderBottomLeftRadius: 20,
       borderBottomRightRadius: 20,
       padding: 25,
-      backgroundColor: "rgba(0,0,0,0.8)",
+      backgroundColor: colors.card,
       gap: 15,
       marginHorizontal:"4%"
     },
@@ -910,7 +910,7 @@ const Controls = ({
           <TouchableOpacity onPress={() => setSleepTimerVisible(true)}>
             <TimerIcon
               name="timer"
-              color={isTimerActive ? "#F5DEB3" : colors.text}
+              color={isTimerActive ? "#F5DEB3" : "white"}
             />
           </TouchableOpacity>
         </View>
@@ -921,7 +921,7 @@ const Controls = ({
               handlePress(-1);
             }}
           >
-            <SkipBack width={35} height={35} stroke={colors.text} />
+            <SkipBack width={35} height={35} stroke={"white"} />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -944,12 +944,12 @@ const Controls = ({
               handlePress(+1);
             }}
           >
-            <SkipForward width={35} height={35} stroke={colors.text} />
+            <SkipForward width={35} height={35} stroke={"white"} />
           </TouchableOpacity>
         </View>
         <View>
           <TouchableOpacity onPress={() => replaySound()}>
-            <Replay height={24} width={24} fill={colors.text} />
+            <Replay height={24} width={24} fill={"white"} />
           </TouchableOpacity>
         </View>
       </View>
@@ -1011,9 +1011,9 @@ const Custom_modal = ({
             <Text style={styles.option}>Add to playlist</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.optionTouch}>
+          {/* <TouchableOpacity style={styles.optionTouch}>
             <Text style={styles.option}>Media Quality</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
           <TouchableOpacity style={styles.optionTouch}>
             <Text style={styles.option}>Share</Text>

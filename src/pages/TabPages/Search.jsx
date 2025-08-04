@@ -302,7 +302,7 @@ useEffect(() => {
                   }
                 }}
               >
-                <Text style={{color:'white', marginLeft: 10  }}>Clear History</Text>
+                <Text style={{color:colors.text, marginLeft: 10  }}>Clear History</Text>
               </TouchableOpacity>
               </View>
 
@@ -313,7 +313,7 @@ useEffect(() => {
                     flexDirection: 'row',
                     alignItems: 'center',
                     paddingVertical: 12,
-                    borderBottomColor: 'rgba(255,255,255,0.1)',
+                    borderBottomColor: colors.border,
                     borderBottomWidth: 1,
                   }}
                   onPress={() => {
@@ -334,13 +334,13 @@ useEffect(() => {
                       marginRight: 12,
                     }}
                   >
-                    <Entypo name="magnifying-glass" size={20} color="white" />
+                    <Entypo name="magnifying-glass" size={20} color={colors.text} />
                   </View>
 
                   <Text
                     style={{
                       flex: 1,
-                      color: 'white',
+                      color: colors.text,
                       fontSize: 16,
                     }}
                     numberOfLines={1}
@@ -352,7 +352,7 @@ useEffect(() => {
                   <Entypo
                     name="chevron-left"
                     size={20}
-                    color="white"
+                    color={colors.text}
                     style={{ marginLeft: 10 }}
                   />
                 </TouchableOpacity>

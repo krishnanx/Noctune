@@ -17,8 +17,10 @@ import { setCompleted } from "../../Store/DownloadSlice";
 import { Navigation } from "react-native-feather";
 import { useNavigation } from "@react-navigation/native";
 import { useFocusEffect } from "@react-navigation/native";
+import { useTheme } from "@react-navigation/native";
 const DownloadPage = () => {
   // Static data for the download items
+  const colors = useTheme();
   const dispatch = useDispatch();
   const { songs, status, completed } = useSelector((state) => state.download);
 
@@ -67,75 +69,7 @@ const DownloadPage = () => {
     );
   };
 
-  return (
-    <>
-      <StatusBar barStyle="light-content" />
-      <LinearGradient
-        colors={["#141414", "#1c2c32"]}
-        style={styles.background}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      >
-        <SafeAreaView style={styles.container}>
-          <View style={styles.header}>
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={() => navigation.goBack()}
-            >
-              <BackArrow />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Downloads</Text>
-            <View style={styles.headerRight} />
-          </View>
-
-          <View style={styles.downloadStats}>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{songs.length}</Text>
-              <Text style={styles.statLabel}>Songs</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{completed}</Text>
-              <Text style={styles.statLabel}>Complete</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{songs.length - completed}</Text>
-              <Text style={styles.statLabel}>In Progress</Text>
-            </View>
-          </View>
-
-          {/* <ScrollView style={styles.downloadsList}>
-            {songs.map((item) => renderDownloadItem(item))}
-          </ScrollView> */}
-          <FlatList
-            data={songs}
-            renderItem={({ item }) => <RenderDownloadItem song={item} />}
-            keyExtractor={item => item.id}
-          />
-
-          <View style={styles.footer}>
-            {/* <TouchableOpacity style={styles.pauseAllButton}>
-              <Text style={styles.pauseAllText}>Pause All</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.cancelAllButton}>
-              <Text style={styles.cancelAllText}>Cancel All</Text>
-            </TouchableOpacity> */}
-            <Text
-              style={{
-                color: "rgba(255, 255, 255, 0.5)"
-                , textAlign: "center", width: "100%", fontSize: 14,
-              }}
-            >
-              Every download begins a story
-
-            </Text>
-          </View>
-        </SafeAreaView>
-      </LinearGradient>
-    </>
-  );
-};
-
-const styles = StyleSheet.create({
+  const styles = StyleSheet.create({
   background: {
     flex: 1,
   },
@@ -213,12 +147,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   songTitle: {
-    color: "#ffffff",
+    color: colors.text,
     fontSize: 16,
     fontWeight: "500",
   },
   artistName: {
-    color: "#8b9da5",
+    color: colors.text,
     fontSize: 14,
     marginTop: 2,
     marginBottom: 8,
@@ -301,5 +235,75 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
 });
+
+  return (
+    <>
+      <StatusBar barStyle="light-content" />
+      <LinearGradient
+        colors={["#141414", "#1c2c32"]}
+        style={styles.background}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        <SafeAreaView style={styles.container}>
+          <View style={styles.header}>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => navigation.goBack()}
+            >
+              <BackArrow />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Downloads</Text>
+            <View style={styles.headerRight} />
+          </View>
+
+          <View style={styles.downloadStats}>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{songs.length}</Text>
+              <Text style={styles.statLabel}>Songs</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{completed}</Text>
+              <Text style={styles.statLabel}>Complete</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{songs.length - completed}</Text>
+              <Text style={styles.statLabel}>In Progress</Text>
+            </View>
+          </View>
+
+          {/* <ScrollView style={styles.downloadsList}>
+            {songs.map((item) => renderDownloadItem(item))}
+          </ScrollView> */}
+          <FlatList
+            data={songs}
+            renderItem={({ item }) => <RenderDownloadItem song={item} />}
+            keyExtractor={item => item.id}
+          />
+
+          <View style={styles.footer}>
+            {/* <TouchableOpacity style={styles.pauseAllButton}>
+              <Text style={styles.pauseAllText}>Pause All</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.cancelAllButton}>
+              <Text style={styles.cancelAllText}>Cancel All</Text>
+            </TouchableOpacity> */}
+            <Text
+              style={{
+                color: "rgba(255, 255, 255, 0.5)"
+                , textAlign: "center", width: "100%", fontSize: 14,
+              }}
+            >
+              Every download begins a story
+
+            </Text>
+          </View>
+        </SafeAreaView>
+      </LinearGradient>
+    </>
+  );
+};
+
+
 
 export default DownloadPage;

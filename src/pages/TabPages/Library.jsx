@@ -86,7 +86,7 @@ const Library = () => {
             borderBottomLeftRadius: 20,
             borderBottomRightRadius: 20,
             paddingBottom: 90,
-            backgroundColor: " rgba(0, 0, 0, 0.99)",
+            backgroundColor: colors.border,
             gap: 5,
             paddingHorizontal: 25,
             marginHorizontal:"3%"
@@ -120,10 +120,10 @@ const Library = () => {
         },
         PlaylistModal: {
             height: 350,
-            backgroundColor: colors.text,
+            //backgroundColor: colors.text,
             borderRadius: 20,
             padding: 25,
-            backgroundColor: "rgba(0,0,0,1)",
+            backgroundColor:colors.card,
             gap: 15,
             width: "80%"
 
@@ -139,7 +139,7 @@ const Library = () => {
         },
         input: {
             width: "100%",
-            color: "white",
+            color: colors.text,
             borderColor: "wheat",
             borderWidth: 1,
             padding: 10
@@ -163,10 +163,10 @@ const Library = () => {
 
         },
         Button: {
-            color: "white",
+            color: colors.text,
             width: 120,
             height: 40,
-            backgroundColor: "wheat",
+            backgroundColor: colors.primary,
             borderRadius: 20,
             justifyContent: "center",
             alignItems: "center"
@@ -236,7 +236,7 @@ const Library = () => {
                     style={styles.HeaderInside}
                 >
                     <Text
-                        style={{ fontSize: 30, color: "white" }}
+                        style={{ fontSize: 30, color: colors.text }}
                     >
                         Your Library
                     </Text>
@@ -244,11 +244,11 @@ const Library = () => {
                 <View
                     style={[styles.HeaderInside, { width: "25%" }]}
                 >
-                    <SearchIcon width={30} height={30} />
+                    <SearchIcon width={30} height={30} fill={colors.text} />
                     <TouchableOpacity
                         onPress={() => toggleModal()}
                     >
-                        <AddIcon width={30} height={30} />
+                        <AddIcon width={30} height={30} fill={colors.text} />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -261,6 +261,7 @@ const Library = () => {
                         index={index}
                         styles={styles}
                         navigation={navigation}
+                        colors ={colors}
                     />}
                     keyExtractor={(item, index) => index.toString()}
                     scrollEnabled={false}
@@ -271,6 +272,7 @@ const Library = () => {
                     toggleModal={toggleModal}
                     handlePress={handlePress}
                     navigation={navigation}
+                    colors={colors}
                 />
                 <Playlistadd
                     isPlaylistaddVisible={isPlaylistaddVisible}
@@ -284,7 +286,7 @@ const Library = () => {
                     setPlaylistName={setPlaylistName}
                     playlistName={playlistName}
                     PlaceHolder = {PlaceHolder}
-
+                    colors={colors}
                 />
 
             </View>
@@ -296,7 +298,7 @@ const Library = () => {
 
 export default Library
 
-const Custom_modal = ({ isModalVisible, styles, toggleModal, handlePress, navigation }) => {
+const Custom_modal = ({ isModalVisible, styles, toggleModal, handlePress, navigation,colors }) => {
     const { data, pos } = useSelector((state) => state.data);
 
     return (
@@ -328,10 +330,10 @@ const Custom_modal = ({ isModalVisible, styles, toggleModal, handlePress, naviga
                                     flexDirection: "row",
                                 }}
                             >
-                                <Text style={{ fontSize: 20, color: "white" }}>Playlist</Text>
+                                <Text style={{ fontSize: 20, color: colors.text }}>Playlist</Text>
                             </View>
                             <View style={{ width: "100%", height: "30%" }}>
-                                <Text style={{ fontSize: 12, color: "white" }}>
+                                <Text style={{ fontSize: 12, color: colors.text }}>
                                     Build a playlist with songs or episodes
                                 </Text>
                             </View>
@@ -351,10 +353,10 @@ const Custom_modal = ({ isModalVisible, styles, toggleModal, handlePress, naviga
                                     flexDirection: "row",
                                 }}
                             >
-                                <Text style={{ fontSize: 20, color: "white" }}>Collab</Text>
+                                <Text style={{ fontSize: 20, color: colors.text }}>Collab</Text>
                             </View>
                             <View style={{ width: "100%", height: "30%" }}>
-                                <Text style={{ fontSize: 12, color: "white" }}>
+                                <Text style={{ fontSize: 12, color: colors.text }}>
                                     Join forces to make the ultimate playlist
                                 </Text>
                             </View>
@@ -379,13 +381,13 @@ const Custom_modal = ({ isModalVisible, styles, toggleModal, handlePress, naviga
                                     flexDirection: "row",
                                 }}
                             >
-                                <Text style={{ fontSize: 20, color: "white" }}>
+                                <Text style={{ fontSize: 20, color: colors.text }}>
                                     Noctune Sync
                                 </Text>
                             </View>
                             <View style={{ width: "100%", height: "30%" }}>
                                 <Text
-                                    style={{ fontSize: 12, color: "white", lineHeight: 11 }}
+                                    style={{ fontSize: 12, color: colors.text, lineHeight: 11 }}
                                 >
                                     Transfer your Spotify playlists to Noctune in just a few
                                     taps
@@ -409,7 +411,8 @@ const Playlistadd = ({ isPlaylistaddVisible,
     setPlaylistName,
     description,
     setDescription,
-    PlaceHolder
+    PlaceHolder,
+    colors
 }) => {
     return (
         <Modal
@@ -422,12 +425,12 @@ const Playlistadd = ({ isPlaylistaddVisible,
                 style={styles.playlistMain}
             >
                 <View style={styles.PlaylistModal}>
-                    <Text style={{ fontSize: 20, color: "white" }}>Create Playlist</Text>
+                    <Text style={{ fontSize: 20, color: colors.text }}>Create Playlist</Text>
                     <TextInput
                         placeholder={PlaceHolder}
                         value={playlistName}
                         onChangeText={setPlaylistName}
-                        placeholderTextColor={PlaceHolder == "Enter a valid name" ? "red":"white"}
+                        placeholderTextColor={PlaceHolder == "Enter a valid name" ? "red":colors.text}
                         style={styles.input}
                     />
 
@@ -435,19 +438,19 @@ const Playlistadd = ({ isPlaylistaddVisible,
                         placeholder="Description (optional)"
                         value={description}
                         onChangeText={setDescription}
-                        placeholderTextColor="white"
+                        placeholderTextColor={colors.text}
                         style={[styles.input, { height: 100 }]}
                     />
 
                     <View style={styles.switchContainer}>
                         <Text
-                            style={{ color: "white" }}
+                            style={{ color:colors.text }}
                         >Private</Text>
                         <Switch
                             value={isPrivate}
                             onValueChange={setIsPrivate}
-                            trackColor={{ false: "#767577", true: "wheat" }}
-                            thumbColor={!isPrivate ? "white" : "wheat"}
+                            trackColor={{ false: "#767577", true: colors.primary }}
+                            thumbColor={!isPrivate ? colors.primary : colors.primary}
                         />
                     </View>
                     <View
@@ -470,7 +473,7 @@ const Playlistadd = ({ isPlaylistaddVisible,
     )
 }
 
-const DisplayPlaylist = ({ item, index, styles, navigation }) => {
+const DisplayPlaylist = ({ item, index, styles, navigation,colors }) => {
     return (
 
         <TouchableHighlight
@@ -510,12 +513,12 @@ const DisplayPlaylist = ({ item, index, styles, navigation }) => {
                     style={styles.Name}
                 >
                     <Text
-                        style={{ fontSize: 20, color: "white", width: "95%", paddingHorizontal: 5, flexWrap: "wrap" }}
+                        style={{ fontSize: 20, color:colors.text, width: "95%", paddingHorizontal: 5, flexWrap: "wrap" }}
                     >
                         {item.name}
                     </Text>
                     <Text
-                        style={{ fontSize: 15, color: "white", paddingLeft: 5 }}
+                        style={{ fontSize: 15, color:colors.text, paddingLeft: 5 }}
                     >
                         Playlist . Noctune
                     </Text>

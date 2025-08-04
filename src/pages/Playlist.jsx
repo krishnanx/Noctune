@@ -31,6 +31,7 @@ import Constants from "expo-constants"
 import { setClientID } from "../../Store/UserSlice";
 import { initWebSocket } from "../Websocket/websocketfunc";
 import { wsRef } from "../Websocket/Websocket";
+import { useTheme } from "@react-navigation/native";
 
 
 export const initialiseWebsocket = ({id,dispatch,value}) => {
@@ -72,6 +73,7 @@ const Playlist = ({}) => {
   const [songid,setSongId] =useState(null)
   const userState = useSelector((state) => state.user || {});
   const { user, session, loading, error, clientID } = userState;
+  const { colors } = useTheme();
 
   const { index } = useRoute().params;
   const {
@@ -206,6 +208,7 @@ const Playlist = ({}) => {
     Name: {
       width: "100%",
       height: 80,
+      
       //backgroundColor:"white"
     },
     function: {
@@ -252,8 +255,8 @@ const Playlist = ({}) => {
       borderRightWidth: 0,
       borderBottomWidth: 7,
       borderTopWidth: 7,
-      borderLeftColor: "black",
-      borderTopColor: "transparent",
+      borderLeftColor: colors.untext,
+      borderTopColor:"transparent",
       borderBottomColor: "transparent",
       borderRightColor: "transparent",
       marginLeft: 2,
@@ -262,7 +265,7 @@ const Playlist = ({}) => {
       width: 36,
       height: 36,
       borderRadius: 18,
-      backgroundColor: "white",
+      backgroundColor: colors.text,
       justifyContent: "center",
       alignItems: "center",
       marginHorizontal: 8,
@@ -270,7 +273,7 @@ const Playlist = ({}) => {
     miniPauseLine: {
       width: 3,
       height: 12,
-      backgroundColor: "black",
+      backgroundColor: colors.untext,
       marginHorizontal: 2,
       borderRadius: 1,
     },
@@ -285,7 +288,7 @@ const Playlist = ({}) => {
       justifyContent: "center",
       alignItems: "center", // centers content horizontally
       borderRadius: 25,
-      borderColor: "white",
+      borderColor: colors.text,
       borderWidth: 1,
     },
     card: {
@@ -313,13 +316,13 @@ const Playlist = ({}) => {
       marginRight: 15,
     },
     artistName: {
-      color: "white",
+      color: colors.text,
       fontSize: 12,
       fontWeight: "300",
       marginTop: 2,
     },
     songName: {
-      color: "white",
+      color: colors.text,
       fontSize: 16,
       fontWeight: "bold",
     },
@@ -437,10 +440,12 @@ const Playlist = ({}) => {
         Description={Description}
         goToNewPage={goToNewPage}
         index={index}
+        colors={colors}
       />
       <Flatlist data={data[index].songs || []} 
           styles={styles} 
           handleCardPress={handlePressLogic} 
+          colors={colors}
           
       />
     </ScrollView>
@@ -461,7 +466,8 @@ const Information = ({
   DownloadButton,
   Description,
   goToNewPage,
-  index
+  index,
+  colors
 }) => {
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -481,7 +487,7 @@ const Information = ({
     <View style={{ width: "100%" }}>
       <View style={styles.top}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <BackArrow />
+          <BackArrow fill = {colors.text} />
         </TouchableOpacity>
 
         {/* <View style={styles.info}>
@@ -499,7 +505,7 @@ const Information = ({
           onEdit={() => console.log("Edit pressed")}
         />
 
-        <DownloadButton />
+        <DownloadButton fill = {colors.text} />
       </View>
       {/* <View
             style={styles.search}
@@ -521,8 +527,9 @@ const Information = ({
             style={{
               fontSize: 27,
               fontWeight: "600",
-              color: "white",
+              color: colors.text,
               marginBottom: 8,
+              
             }}
           >
             {Pname}
@@ -531,13 +538,13 @@ const Information = ({
             style={{
               fontSize: 15,
               fontWeight: "600",
-              color: "white",
+              color: colors.text,
               marginBottom: 4,
             }}
           >
             {Uname}
           </Text>
-          <Text style={{ fontSize: 10, fontWeight: "600", color: "white" }}>
+          <Text style={{ fontSize: 10, fontWeight: "600", color: colors.text }}>
             {formatTime(data.Time)} min
           </Text>
         </View>
@@ -549,7 +556,7 @@ const Information = ({
                 onPress={() => handleDownload()}
               >
                 <View>
-                  <Download />
+                  <Download fill = {colors.text} />
                 </View>
               </TouchableOpacity>
               <TouchableOpacity
@@ -558,13 +565,13 @@ const Information = ({
 
 
               >
-                <AddFriend />
+                <AddFriend  fill = {colors.text} />
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.funcbutton, { marginRight: 15 }]}
                 onPress={goToNewPage}
               >
-                <ThreeDots />
+                <ThreeDots  fill = {colors.text} />
               </TouchableOpacity>
             </View>
             <View style={styles.topFuncRight}>
@@ -589,7 +596,7 @@ const Information = ({
     </View>
   );
 };
-const DataList = ({ styles, item ,handleCardPress,index}) => {
+const DataList = ({ styles, item ,handleCardPress,index,colors}) => {
   //console.warn("item", item,index);
   return (
     <TouchableHighlight
@@ -610,19 +617,19 @@ const DataList = ({ styles, item ,handleCardPress,index}) => {
           <Text style={styles.artistName}>{item.uploader || item.artist}</Text>
         </View>
         <View style={styles.dotsContainer}>
-          <ThreeDots />
+          <ThreeDots fill ={colors.text} />
         </View>
       </View>
     </TouchableHighlight>
   );
 };
-const Flatlist = ({ data, styles,handleCardPress }) => {
+const Flatlist = ({ data, styles,handleCardPress,colors }) => {
   return (
     <FlatList
       data={data}
       keyExtractor={(item) => item.id.toString()}
       scrollEnabled={false}
-      renderItem={({item,index}) => <DataList styles={styles} item={item} handleCardPress={handleCardPress} index={index} />
+      renderItem={({item,index}) => <DataList styles={styles} item={item} handleCardPress={handleCardPress} index={index} colors={colors} />
 
       }
       showsVerticalScrollIndicator={false}
