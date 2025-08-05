@@ -3,13 +3,13 @@ import { Animated, TouchableOpacity, View, Easing } from 'react-native';
 import { useSelector } from 'react-redux';  // to access the status from Redux
 import AnimatedDownloadIcon from "./AnimatedDownloadIcon"; // Your animated download icon component
 import { useNavigation } from '@react-navigation/native';
-import { useTheme } from 'react-native-paper';
+import { useTheme } from "@react-navigation/native";
 
-const DownloadButton = () => {
+const DownloadButton = ({colors}) => {
     // Accessing the download status from Redux store
     const status = useSelector((state) => state.download.status)
     const navigation = useNavigation()
-    const colors = useTheme()
+    //const colors = useTheme()
     // Animation ref to slide the button in and out
     const translateX = useRef(new Animated.Value(300)).current;  // Start off-screen (slide from right)
 
@@ -33,7 +33,7 @@ const DownloadButton = () => {
             }).start();
         }
     }, [status]);  // Re-run effect on status change
-
+    //console.error(colors.text)
     return (
         <Animated.View style={{ transform: [{ translateX }] }}>
             <TouchableOpacity

@@ -26,6 +26,10 @@ const PlaylistSlice = createSlice({
             state.migrateSliceSucess = false,
             state.migratedPlaylist = []
         },
+        removePlaylist(state, action) { //this is to remove a single playlist from redux done after removing the same from redis too
+  const playlistId = action.payload;
+  state.data = state.data.filter(pl => pl.id !== playlistId);
+},
         updatemigrateSliceSucess(state, action) {
             state.migrateSliceSucess = action.payload.success
         },
@@ -264,14 +268,13 @@ const PlaylistSlice = createSlice({
 })
 
 export const { addPlaylist, addMusicinPlaylist, setPlaylistplaying, changePlaylist, updataID, updatemigrateSliceSucess, updatePlaylistData,  
-    resetPlaylists,deleteAllPlaylist,migrateSuccess,removeMusicFromPlaylist  } = PlaylistSlice.actions;
+    resetPlaylists,deleteAllPlaylist,migrateSuccess,removeMusicFromPlaylist,removePlaylist  } = PlaylistSlice.actions;
 
 export default PlaylistSlice.reducer;
 export const migrate = createAsyncThunk('/migratedata', async ({ Url: data ,user:userID}) => {
     try {
         console.warn(data)
-        const response = await axios.post(`${Constants.expoConfig.extra.SERVER
-            }/api/migrate`, { playlist: data,user:userID })
+        const response = await axios.post(`${Constants.expoConfig.extra.SERVER}/api/migrate`, { playlist: data,user:userID })
         // const response = await axios.post(`http://192.168.1.43:80/api/migrate`, { playlist: data,user:userID })
         //console.warn("reached back")
         return response.data
@@ -284,7 +287,7 @@ export const AddNewPlaylist = createAsyncThunk('/newplaylist', async ({ data: pl
     try {
         //console.warn("adding new playlist");
         //const response = await axios.post("http://192.168.1.7:8000/playlist/NewPlaylists", { playlist: playlist, user: userid })
-        const response = await axios.post(`http://192.168.196.33/playlist/NewPlaylists`, { playlist: playlist, user: userid })
+        const response = await axios.post(`${Constants.expoConfig.extra.SERVER}/playlist/NewPlaylists`, { playlist: playlist, user: userid })
 
         return response.data
     }
@@ -302,7 +305,7 @@ export const editPlaylist = createAsyncThunk(
             //console.warn("User ID: ", userid);
 
             const response = await axios.post(
-                `http://192.168.196.33/playlist/editPlaylist`,
+                `${Constants.expoConfig.extra.SERVER}/playlist/editPlaylist`,
                 {
                     playlist: playlist,
                     originalName: originalName,
@@ -328,7 +331,7 @@ export const pullPlaylists = createAsyncThunk('/pullPlaylists', async ({ user: u
         //console.warn("pulling playlist");
         //console.warn("user reached pull: ", user)
 
-        const response = await axios.post(`http://192.168.196.33/playlist/pullPlaylist`
+        const response = await axios.post(`${Constants.expoConfig.extra.SERVER}/playlist/pullPlaylist`
             , { data: user })
 
         return response.data
@@ -341,7 +344,7 @@ export const addMusictoPlaylist = createAsyncThunk('/addMusic', async ({ playlis
     try {
         //console.warn("pulling playlist");
         //console.warn("user reached pull: ", user)
-        const response = await axios.post(`http://192.168.196.33/playlist/addMusic`, { playlist: playlist, user: user, music: music })
+        const response = await axios.post(`${Constants.expoConfig.extra.SERVER}/playlist/addMusic`, { playlist: playlist, user: user, music: music })
         return response.data
     }
     catch (e) {
@@ -353,16 +356,16 @@ export const deletePlaylist = createAsyncThunk(
   '/deleteplaylist',
   async ({ playlistId, userid }) => {
     try {
-        
-console.warn("0000000000000000");
-console.warn("Sending delete playlist", { playlistId:playlistId, user: userid });
-
-        
-console.warn("0000000000000000");
-      const response = await axios.post(`http://192.168.196.33/playlist/DeletePlaylist`, {
+    //console.warn("0000000000000000");
+    console.warn("Sending delete playlist", { playlistId:playlistId, user: userid });
+    //console.warn("0000000000000000");
+    const response = await axios.post(`${Constants.expoConfig.extra.SERVER}/playlist/DeletePlaylist`, {
         playlistId,
         user: userid
-      });
+    });
+    console.warn("Delete response:", response.data);
+    console.warn("Deleted playlist name:", response.data.playlist_name);
+
       return response.data;
     } catch (error) {
       console.error("Error deleting playlist:", error);
@@ -371,11 +374,4 @@ console.warn("0000000000000000");
   }
 );
 
-     /**const response = await axios.post(
-                `http://192.168.1.7/playlist/editPlaylist`,
-                {
-                    playlist: playlist,
-                    originalName: originalName,
-                    user: userid
-                }
-            );*/
+//const response = await axios.post(`http://192.168.196.33/playlist/DeletePlaylist`,

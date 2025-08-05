@@ -91,11 +91,11 @@ const DownloadPage = () => {
     alignItems: "center",
   },
   backIcon: {
-    color: "#ffffff",
+    color: colors.colors.text,
     fontSize: 24,
   },
   headerTitle: {
-    color: "#ffffff",
+    color: colors.colors.text,
     fontSize: 20,
     fontWeight: "bold",
   },
@@ -114,12 +114,12 @@ const DownloadPage = () => {
     alignItems: "center",
   },
   statValue: {
-    color: "wheat",
+    color: colors.colors.text,
     fontSize: 22,
     fontWeight: "bold",
   },
   statLabel: {
-    color: "#8b9da5",
+    color: colors.colors.text,
     fontSize: 12,
     marginTop: 4,
   },
@@ -147,12 +147,12 @@ const DownloadPage = () => {
     justifyContent: "center",
   },
   songTitle: {
-    color: colors.text,
+    color: colors.colors.text,
     fontSize: 16,
     fontWeight: "500",
   },
   artistName: {
-    color: colors.text,
+    color: colors.colors.text,
     fontSize: 14,
     marginTop: 2,
     marginBottom: 8,
@@ -170,11 +170,11 @@ const DownloadPage = () => {
   },
   progressBarFill: {
     height: "100%",
-    backgroundColor: "#1DB954",
+    backgroundColor: colors.colors.primary,
     borderRadius: 2,
   },
   progressBarCompleted: {
-    backgroundColor: "#1DB954",
+    backgroundColor: colors.colors.primary,
   },
   progressText: {
     color: "#8b9da5",
@@ -197,7 +197,7 @@ const DownloadPage = () => {
     fontSize: 14,
   },
   pauseIcon: {
-    color: "#ffffff",
+    color: colors.colors.text,
     fontSize: 14,
   },
   footer: {
@@ -240,9 +240,9 @@ const DownloadPage = () => {
     <>
       <StatusBar barStyle="light-content" />
       <LinearGradient
-        colors={["#141414", "#1c2c32"]}
+        colors={[colors.colors.background, "#1c2c32"]}
         style={styles.background}
-        start={{ x: 0, y: 0 }}
+        start={{ x: 0, y: 0.5 }}
         end={{ x: 1, y: 1 }}
       >
         <SafeAreaView style={styles.container}>
@@ -251,7 +251,7 @@ const DownloadPage = () => {
               style={styles.backButton}
               onPress={() => navigation.goBack()}
             >
-              <BackArrow />
+              <BackArrow fill={colors.colors.text}/>
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Downloads</Text>
             <View style={styles.headerRight} />

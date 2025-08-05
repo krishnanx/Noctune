@@ -3,7 +3,7 @@ import { Animated, Easing, View } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import Svg, { Path } from 'react-native-svg';
 
-const AnimatedDownloadBurstIcon = ({ height = 50, width = 50, fill = {fill} }) => {
+const AnimatedDownloadBurstIcon = ({ height = 50, width = 50, fill = "white" }) => {
     const translateY = useRef(new Animated.Value(0)).current;
     const opacity = useRef(new Animated.Value(1)).current;
     const scale = useRef(new Animated.Value(1)).current;
@@ -61,7 +61,7 @@ const AnimatedDownloadBurstIcon = ({ height = 50, width = 50, fill = {fill} }) =
                 height={height}
                 width={width}
                 viewBox="0 -960 960 960"
-                fill={colors.text}
+                fill={fill}
             >
                 <Path d="M160-80v-80h640v80H160Zm320-160L200-600h160v-280h240v280h160L480-240Zm0-130 116-150h-76v-280h-80v280h-76l116 150Zm0-150Z" />
             </Svg>
