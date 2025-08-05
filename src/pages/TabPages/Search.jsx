@@ -304,6 +304,7 @@ useEffect(() => {
               </TouchableOpacity>
               </View>
 
+            <View style={{marginBottom:"40%"}}>
               {searchTextHistory.map((text, idx) => (
                 <TouchableOpacity
                   key={idx}
@@ -355,6 +356,7 @@ useEffect(() => {
                   />
                 </TouchableOpacity>
               ))}
+              </View>
             </View>
           )}
           {isLoading ? (
