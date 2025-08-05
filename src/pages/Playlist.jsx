@@ -34,6 +34,7 @@ import { initWebSocket } from "../Websocket/websocketfunc";
 import { wsRef } from "../Websocket/Websocket";
 import { useTheme } from "@react-navigation/native";
 import Delete from "../Components/Icons/Delete";
+import { showToast } from "../../Store/ToastSlice";
 
 export const initialiseWebsocket = ({id,dispatch,value}) => {
     try{ 
@@ -105,7 +106,8 @@ const handleDelete = async () => {
     navigation.goBack();
   } catch (error) {
     console.error("Failed to delete playlist:", error);
-    alert("Could not delete playlist. Please try again.");
+    // alert("Could not delete playlist. Please try again.");
+    dispatch(showToast({Title:"Error",message:"Could not delete playlist. Please try again later!"}))
   }
 };
 
