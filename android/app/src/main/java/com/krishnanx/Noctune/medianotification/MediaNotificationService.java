@@ -65,8 +65,17 @@ public class MediaNotificationService extends Service {
     }
 
     @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        Log.d(TAG, "App removed from recents - stopping service");
+        stopSelf(); 
+    }
+
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "Media Notification Service Destroyed");
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.cancel(NOTIFICATION_ID); 
     }
 }
