@@ -149,8 +149,6 @@ const Search = () => {
   // Add the search history persistence functions
   const saveSearchHistory = async (userId, searchTextHistory) => {
     try {
-      console.warn("1111111111111111111111111111")
-      console.warn("USERID ", userId)
       await AsyncStorage.setItem(`searchHistory_${userId}`, JSON.stringify(searchTextHistory));
       console.warn('Search history saved for user:', userId, searchTextHistory);
     } catch (e) {
@@ -306,6 +304,7 @@ useEffect(() => {
               </TouchableOpacity>
               </View>
 
+            <View style={{marginBottom:"40%"}}>
               {searchTextHistory.map((text, idx) => (
                 <TouchableOpacity
                   key={idx}
@@ -357,6 +356,7 @@ useEffect(() => {
                   />
                 </TouchableOpacity>
               ))}
+              </View>
             </View>
           )}
           {isLoading ? (

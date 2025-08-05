@@ -8,6 +8,7 @@ import {
   ScrollView,
   FlatList,
   TouchableHighlight,
+  Alert,
 } from "react-native";
 import BackArrow from "../Components/Icons/BackArrow";
 import Download from "../Components/Icons/Download";
@@ -20,7 +21,7 @@ import icon from "../../assets/LikedSongs/heart.png"
 import normIcon from "../../assets/LikedSongs/Frame 4.png";
 import { playRef, soundRef } from "../functions/MusicLoaders/music";
 import { load, progress, setIsPlaying } from "../../Store/MusicSlice";
-import { changePlaylist, setPlaylistplaying,deletePlaylist } from "../../Store/PlaylistSlice";
+import { changePlaylist, setPlaylistplaying,deletePlaylist,removePlaylist } from "../../Store/PlaylistSlice";
 import { addPath, addSong, download } from "../../Store/DownloadSlice";
 import DownloadButton from "../Components/Icons/DownloadButton";
 import { folderPicker } from "../functions/FileFunctions/StoragePicker";
@@ -95,17 +96,25 @@ const Playlist = ({}) => {
     // navigation.navigate('PlaylistEdit', { index });
   };
 
-    const handleDelete = () => {
-    //dispatch(deletePlaylist({ playlistId: index, userid: user.id }));
-  };
+const handleDelete = async () => {
+  try {
+    await dispatch(deletePlaylist({ playlistId: index, userid: user.id })).unwrap();
+    dispatch(removePlaylist(index));
+    navigation.goBack();
+  } catch (error) {
+    console.error("Failed to delete playlist:", error);
+    alert("Could not delete playlist. Please try again.");
+  }
+};
 
-  useEffect(()=>{
-  console.warn("0000000000000000000000000000000")
-  console.warn("DATA: ",data)
-    console.warn("USER: ",user.id)
-    console.warn("PlaylistNOOOO: ",id)
-        console.warn("PlaylistIIIDDD: ",index)
-},[])
+
+//   useEffect(()=>{
+//   console.warn("0000000000000000000000000000000")
+//   console.warn("DATA: ",data)
+//     console.warn("USER: ",user.id)
+//     console.warn("PlaylistNOOOO: ",id)
+//         console.warn("PlaylistIIIDDD: ",index)
+// },[])
 
 
   const handlePressLogic = async(item,pos) => {
@@ -582,18 +591,29 @@ const Information = ({
               >
                 <AddFriend  fill = {colors.text} />
               </TouchableOpacity>
-              <TouchableOpacity
+           {/**   <TouchableOpacity
                 style={[styles.funcbutton, { marginRight: 15 }]}
                 onPress={goToNewPage}
               >
                 <ThreeDots  fill = {colors.text} />
-              </TouchableOpacity>
+              </TouchableOpacity> */}
+
               <TouchableOpacity
                 style={[styles.funcbutton, { marginRight: 15 }]}
-                onPress={handleDelete}
+                onPress={() => {
+                  Alert.alert(
+                    "Delete Playlist",
+                    "Are you sure you want to delete this playlist?",
+                    [
+                      { text: "Cancel", style: "cancel" },
+                      { text: "Delete", style: "destructive", onPress: handleDelete }
+                    ]
+                  );
+                }}
               >
-                <Delete  fill = {colors.text} />
+                <Delete fill={colors.text} />
               </TouchableOpacity>
+
             </View>
             <View style={styles.topFuncRight}>
               <TouchableOpacity
