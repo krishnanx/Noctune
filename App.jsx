@@ -42,6 +42,7 @@ import store from "./Store/store.js";
 import * as Notifications from 'expo-notifications';
 import { playRef, soundRef } from "./src/functions/MusicLoaders/music.js";
 import MediaNotificationManager from "./src/functions/MediaNotification.js";
+import { isPending } from "@reduxjs/toolkit";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -112,6 +113,9 @@ export default function App() {
    const currentTrack = canLoad ? data && pos >= 0 && pos < data.length ? data[pos] : null : playload? song && position >= 0 && position < song.length ? song[position] : null :
       !canLoad? data && pos >= 0 && pos < data.length ? data[pos] : null : song && position >= 0 && position < song.length ? song[position] : null
 
+    // console.warn("-----------------------------")
+    // console.warn("current:",currentTrack);
+    // console.warn("-------------------------------")
   //const [status, setStatus] = useState("loading");
 
   useEffect(() => {
@@ -269,7 +273,15 @@ export default function App() {
     setup();
   }, []);
 
+  // console.warn("--------------------------")
+  // console.warn("useEffect curr:",currentTrack);
+  // console.warn("MediaNotificationManager", MediaNotificationManager);
+  // console.warn("--------------------------")
   useEffect(() => {
+    
+    // console.warn("INSIDE useEffect curr:",currentTrack);
+    // console.warn("MediaNotificationManager", MediaNotificationManager);
+
       if (currentTrack) {
         //console.warn("Track changed, resetting notification state");
         // First hide any existing notification

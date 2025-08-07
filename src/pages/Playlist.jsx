@@ -35,6 +35,7 @@ import { wsRef } from "../Websocket/Websocket";
 import { useTheme } from "@react-navigation/native";
 import Delete from "../Components/Icons/Delete";
 import { showToast } from "../../Store/ToastSlice";
+import MediaNotificationManager from "../functions/MediaNotification";
 
 export const initialiseWebsocket = ({id,dispatch,value}) => {
     try{ 
@@ -85,10 +86,18 @@ const Playlist = ({}) => {
     pos,
     seek,
     isplaying,
+     canLoad
   } = useSelector((state) => state.data);
   // const user = useSelector((state)=>state.user.user)
   const navigation = useNavigation();
   const dispatch = useDispatch();
+
+    const { song,pos:position ,load:playload } = useSelector(
+      (state) => state.playlistload
+    );
+    
+  const currentTrack = canLoad ? data && pos >= 0 && pos < data.length ? data[pos] : null : playload? song && position >= 0 && position < song.length ? song[position] : null :
+      !canLoad? data && pos >= 0 && pos < data.length ? data[pos] : null : song && position >= 0 && position < song.length ? song[position] : null
 
   const goToNewPage = () => {
     // //console.warn("DATA: ", JSON.stringify(data, null, 2));
@@ -98,6 +107,17 @@ const Playlist = ({}) => {
 
     // navigation.navigate('PlaylistEdit', { index });
   };
+
+useEffect(() => {
+  if (currentTrack) {
+    //console.warn("Updating notification with currentTrack:", currentTrack);
+    MediaNotificationManager.showNotification({
+      title: currentTrack.title || "Unknown Title",
+      artist: currentTrack.uploader || currentTrack.artist || "Unknown Artist",
+      artwork: currentTrack.image || "", // albumArt
+    });
+  }
+}, [currentTrack]);
 
 const handleDelete = async () => {
   try {
@@ -119,6 +139,12 @@ const handleDelete = async () => {
 //     console.warn("PlaylistNOOOO: ",id)
 //         console.warn("PlaylistIIIDDD: ",index)
 // },[])
+
+// MediaNotificationManager.showNotification({
+//   title: item.title || "Unknown Title",
+//   artist: item.uploader || "Unknown Artist",
+//   artwork: item.image || "",
+// });
 
 
   const handlePressLogic = async(item,pos) => {

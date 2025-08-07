@@ -329,41 +329,6 @@ const handleFetchFullLyrics = async () => {
 
   const TOTAL_DURATION = data ? data[pos]?.duration : 0;
 
-  useEffect(() => {
-    togglePlayPauseRef.current = togglePlayPause;
-    console.log("hola");
-  }, [togglePlayPause]);
-
-  useEffect(() => {
-    let mediaListenersInitialized = false;
-    if (!mediaListenersInitialized) {
-      console.log("Setting up media notification listeners");
-
-
-      MediaNotificationManager.registerPlayPauseHandler(() => {
-        console.log("Play/Pause triggered from notification");
-        if (togglePlayPauseRef.current) {
-          togglePlayPauseRef.current();
-        } else {
-          //console.warn("togglePlayPauseRef is not available");
-        }
-      });
-
-      mediaListenersInitialized = true;
-      return () => {
-        console.log("Cleaning up media notification listeners");
-        MediaNotificationManager.removeAllListeners();
-        MediaNotificationManager.hideNotification();
-      };
-    }
-  }, []);
-
-  //Update notification when playback state changes
-  useEffect(() => {
-    MediaNotificationManager.updatePlaybackStatus(isplaying,seek);
-  }, [isplaying]);
-
-
   const styles = StyleSheet.create({
     Main: {
       //backgroundColor: colors.background,
