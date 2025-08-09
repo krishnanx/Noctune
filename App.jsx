@@ -117,6 +117,9 @@ export default function App() {
     // console.warn("current:",currentTrack);
     // console.warn("-------------------------------")
   //const [status, setStatus] = useState("loading");
+  console.warn("canload:",canLoad);
+  console.warn("playload:",playload);
+  console.warn("currenttrack:",currentTrack);
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', nextAppState => {
