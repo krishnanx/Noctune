@@ -356,15 +356,13 @@ export const deletePlaylist = createAsyncThunk(
   '/deleteplaylist',
   async ({ playlistId, userid }) => {
     try {
-    //console.warn("0000000000000000");
     console.warn("Sending delete playlist", { playlistId:playlistId, user: userid });
-    //console.warn("0000000000000000");
+    
     const response = await axios.post(`${Constants.expoConfig.extra.SERVER}/playlist/DeletePlaylist`, {
         playlistId,
         user: userid
     });
-    console.warn("Delete response:", response.data);
-    console.warn("Deleted playlist name:", response.data.playlist_name);
+    console.warn("DELETED PLAYLIST :", response.data);
 
       return response.data;
     } catch (error) {
@@ -374,4 +372,4 @@ export const deletePlaylist = createAsyncThunk(
   }
 );
 
-//const response = await axios.post(`http://192.168.196.33/playlist/DeletePlaylist`,
+//const response = await axios.post(`http://192.168.98.33/playlist/DeletePlaylist`,

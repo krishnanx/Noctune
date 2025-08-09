@@ -121,8 +121,8 @@ useEffect(() => {
 
 const handleDelete = async () => {
   try {
-    await dispatch(deletePlaylist({ playlistId: index, userid: user.id })).unwrap();
-    dispatch(removePlaylist(index));
+    await dispatch(deletePlaylist({ playlistId: data[index].id, userid: user.id })).unwrap();
+    dispatch(removePlaylist(data[index].id));
     navigation.goBack();
   } catch (error) {
     console.error("Failed to delete playlist:", error);
@@ -136,8 +136,8 @@ const handleDelete = async () => {
 //   console.warn("0000000000000000000000000000000")
 //   console.warn("DATA: ",data)
 //     console.warn("USER: ",user.id)
-//     console.warn("PlaylistNOOOO: ",id)
-//         console.warn("PlaylistIIIDDD: ",index)
+//     console.warn("PlaylistIDDD: ",data[index].id)
+//         console.warn("INDEXXXX: ",index)
 // },[])
 
 // MediaNotificationManager.showNotification({
