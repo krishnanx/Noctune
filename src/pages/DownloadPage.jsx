@@ -242,8 +242,8 @@ const DownloadPage = () => {
       <LinearGradient
         colors={[colors.colors.background, "#1c2c32"]}
         style={styles.background}
-        start={{ x: 0, y: 0.5 }}
-        end={{ x: 1, y: 1 }}
+      start={{ x: 0.2, y: 0.2}}
+        end={{ x: 1.2, y: 1.2}}
       >
         <SafeAreaView style={styles.container}>
           <View style={styles.header}>
