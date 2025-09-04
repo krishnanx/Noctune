@@ -50,8 +50,10 @@ import {setFullLyrics,setCurrentSongId} from "../../Store/LyricsSlice.js";
 import { changeLoad } from "../../Store/Playdataslice.js";
 import { addMusictoPlaylist,addMusicinPlaylist,addPlaylist ,AddNewPlaylist,removeMusicFromPlaylist} from "../../Store/PlaylistSlice";
 import { current } from "@reduxjs/toolkit";
+import TrackPlayer, { State, usePlaybackState } from 'react-native-track-player';
+import { setupPlayer } from "../functions/player.js";
 //import { BlurView } from "expo-blur";
-
+import Constants from "expo-constants"
 const PlayerStack = () => {
   const { colors } = useTheme();
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -65,7 +67,7 @@ const PlayerStack = () => {
   const navigation = useNavigation();
   const lastPressRef = useRef(0);
   const singlePressTimeoutRef = useRef(null);
-   const { data, pos, seek, isplaying, canLoad, isLoadedFromAsyncStorage, searchedMusic } =
+  const { data, pos, seek, isplaying, canLoad, isLoadedFromAsyncStorage, searchedMusic } =
       useSelector((state) => state.data);
   const { song, pos: position, seek: seekk, load: newLoad } = useSelector(
     (state) => state.playlistload
@@ -91,69 +93,68 @@ const PlayerStack = () => {
     return `${artist}-${title}`.toLowerCase().replace(/[^\w\s]/gi, '').replace(/\s+/g, '-');
   };
 
-  
+  const playbackState = usePlaybackState();
+  useEffect(() => {
+    const fetchLyrics = async () => {
+      setLyricsLoading(true);
+      setLyrics(null); // Clear previous lyrics
+      
+      try {
+        
+        const artist = currentTrack.uploader;
+        const title = currentTrack.title;
+        console.warn(artist)
+        console.warn(title)
+        
+        // Clean up the search terms (remove special characters, extra spaces)
+        const cleanArtist = artist.replace(/[^\w\s]/gi, '').replace(/\s+/g, '-').toLowerCase();
+        const cleanTitle = title.replace(/[^\w\s]/gi, '').replace(/\s+/g, '-').toLowerCase();
+        
+        // Construct Genius URL
+        const geniusUrl = `https://genius.com/${cleanArtist}-${cleanTitle}-lyrics`;
+        console.warn(geniusUrl)
+        console.error("Lyrics Request made:");
+        
+        
+        const response = await fetch(`${Constants.expoConfig.extra.SERVER}/api/lyrics`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            url: geniusUrl,
+            artist: artist,
+            title: title
+          })
+        });
 
- useEffect(() => {
-  const fetchLyrics = async () => {
-    setLyricsLoading(true);
-    setLyrics(null); // Clear previous lyrics
-    
-    try {
-      
-      const artist = currentTrack.uploader;
-      const title = currentTrack.title;
-      console.warn(artist)
-      console.warn(title)
-      
-      // Clean up the search terms (remove special characters, extra spaces)
-      const cleanArtist = artist.replace(/[^\w\s]/gi, '').replace(/\s+/g, '-').toLowerCase();
-      const cleanTitle = title.replace(/[^\w\s]/gi, '').replace(/\s+/g, '-').toLowerCase();
-      
-      // Construct Genius URL
-      const geniusUrl = `https://genius.com/${cleanArtist}-${cleanTitle}-lyrics`;
-      console.warn(geniusUrl)
-      console.error("Lyrics Request made:");
-      
-      
-      const response = await fetch(`${Constants.expoConfig.extra.SERVER}/api/lyrics`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          url: geniusUrl,
-          artist: artist,
-          title: title
-        })
-      });
+        if (!response.ok) {
+          throw new Error('Failed to fetch lyrics');
+        }
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch lyrics');
+        const lyricsData = await response.text();
+        //console.error(lyricsData);
+        
+        if (lyricsData && lyricsData.trim()) {
+            const songId = generateSongId(currentTrack);
+            dispatch(setCurrentSongId(songId));
+            dispatch(setFullLyrics(lyricsData));     //store full lyrics data to redux
+            const previewLyrics = lyricsData.split('\n').slice(0, 8).join('\n') + '\n...';   //preview only first 8 lines
+          setLyrics(previewLyrics);             //to see preview lyrics
+        } else {
+          setLyrics("Lyrics not found for this song");
+        }
+        
+      } catch (error) {
+        console.error('Error fetching lyrics:', error);
+        setLyrics("Unable to load lyrics at this time");
+      } finally {
+        setLyricsLoading(false);
       }
+    };
 
-      const lyricsData = await response.text();
-      //console.error(lyricsData);
-      
-      if (lyricsData && lyricsData.trim()) {
-          const songId = generateSongId(currentTrack);
-          dispatch(setCurrentSongId(songId));
-          dispatch(setFullLyrics(lyricsData));     //store full lyrics data to redux
-          const previewLyrics = lyricsData.split('\n').slice(0, 8).join('\n') + '\n...';   //preview only first 8 lines
-        setLyrics(previewLyrics);             //to see preview lyrics
-      } else {
-        setLyrics("Lyrics not found for this song");
-      }
-      
-    } catch (error) {
-      console.error('Error fetching lyrics:', error);
-      setLyrics("Unable to load lyrics at this time");
-    } finally {
-      setLyricsLoading(false);
-    }
-  };
-
-  fetchLyrics();
-}, [canLoad, data, pos, song, position]); 
+    fetchLyrics();
+  }, [canLoad, data, pos, song, position]); 
 
 
 const handleFetchFullLyrics = async () => {
@@ -178,35 +179,14 @@ const handleFetchFullLyrics = async () => {
   const togglePlayPauseRef = useRef(null);
 
   const togglePlayPause = async () => {
-    if (!soundRef.current) {
-      if (playRef.current) {
-        if (isplaying) {
-          //console.warn("true->false")
-          await playRef.current.pauseAsync();
-          dispatch(progress(-1));
-          dispatch(setIsPlaying(false));
-          dispatch(setPlaylistplaying({ action: false, id: playlistNo }));
-        } else {
-          //console.warn("false->true")
-          await playRef.current.playAsync(); // resumes from last position
-          dispatch(progress(-1));
-          dispatch(setIsPlaying(true));
-          dispatch(setPlaylistplaying({ action: true, id: playlistNo }));
-        }
-        
-        
-      }
-    }
-    else if (isplaying) {
-      await soundRef.current.pauseAsync();
-      dispatch(progress(-1));
-      dispatch(setIsPlaying(false));
+    console.warn("toggle")
+    console.warn(playbackState)
+    console.warn(State.Playing)
+    if (playbackState.state === State.Playing) {
+      await TrackPlayer.pause();
     } else {
-      await soundRef.current.playAsync(); // resumes from last position
-      dispatch(progress(-1));
-      dispatch(setIsPlaying(true));
+      await TrackPlayer.play();
     }
-    
   };
 
   const replaySound = async () => {
@@ -712,7 +692,7 @@ const handleFetchFullLyrics = async () => {
             <WaveformVisualizer ytUrl={currentTrack?.url} seconds={seek}/>
             <Controls
               togglePlayPause={togglePlayPause}
-              isPlaying={isplaying}
+              playbackState={playbackState.state}
               styles={styles}
               colors={colors}
               dispatch={dispatch}
@@ -859,7 +839,7 @@ const handleLikePress = async () => {
 
 const Controls = ({
   togglePlayPause,
-  isPlaying,
+  playbackState,
   styles,
   colors,
   dispatch,
@@ -870,6 +850,7 @@ const Controls = ({
   Replay,
   setSleepTimerVisible,
   isTimerActive,
+
 }) => {
   return (
     <View style={styles.controlsContainer}>
@@ -896,7 +877,7 @@ const Controls = ({
             style={styles.playPauseButton}
             onPress={() => togglePlayPause()}
           >
-            {isPlaying ? (
+            {playbackState == State.Playing || playbackState == State.Buffering? (
               <View style={styles.pauseLinesContainer}>
                 <View style={styles.pauseLine} />
                 <View style={styles.pauseLine} />

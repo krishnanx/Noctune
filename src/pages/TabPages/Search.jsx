@@ -42,6 +42,7 @@ import { changeLoad } from "../../../Store/Playdataslice.js";
 import { YtMusicRef } from "../../functions/YtMusicRef.js";
 import Constants from "expo-constants";
 import FadeWrapper from '../../../Navigation/FadeWrapper.jsx';
+import { addMusicIntoRNTP } from "../../functions/RNTP/addMusicIntoRNTP.js";
 
 const Search = () => {
   const { colors } = useTheme(); // Get theme colors
@@ -104,32 +105,15 @@ const Search = () => {
   };
 
   const handleCardPress = async (song) => {
-    unloadAudio();
+    //unloadAudio();
     console.log("Card pressed with URL:", song.url);
-    dispatch(setSearchedMusic(true))
+    //dispatch(setSearchedMusic(true))
     dispatch(PersistSearch(song))
     // dispatch(FetchMetadata({ text: song.url }));
     console.log(song);
     dispatch(addMusic(song));
     dispatch(setIsLoadedFromAsyncStorage(false));
-    
-    //console.warn("canLoad", canLoad)
-    if (canLoad) {
-      dispatch(load(false))
-      //dispatch(load(true))
-      setTimeout(() => {
-        dispatch(load(true))
-         // musics queue
-      }, 1)
-    }
-    else {
-      
-      dispatch(load(true))
-      
-    }
-    dispatch(changeLoad(false)) //playlist
-    //console.warn(isLoadedFromAsyncStorage)
-    
+    addMusicIntoRNTP({tracks:song})
     console.log("Dispatches complete");
     //dispatch(toggleMinimized());
     // Add this line to save the song metadata to AsyncStorage

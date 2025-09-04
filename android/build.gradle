@@ -7,6 +7,7 @@ buildscript {
         targetSdkVersion = Integer.parseInt(findProperty('android.targetSdkVersion') ?: '34')
         kotlinVersion = findProperty('android.kotlinVersion') ?: '1.9.25'
         ndkVersion = "26.1.10909125"
+
     }
     repositories {
         google()
@@ -15,8 +16,8 @@ buildscript {
     dependencies {
        
         classpath('com.facebook.react:react-native-gradle-plugin')
-        classpath('org.jetbrains.kotlin:kotlin-gradle-plugin')
-        classpath("com.android.tools.build:gradle:8.1.2")  // Update if needed
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
+        classpath("com.android.tools.build:gradle:8.6.0") // Update if needed
     }
 }
 
@@ -40,7 +41,10 @@ allprojects {
     configurations.all {
         resolutionStrategy {
             force 'androidx.core:core:1.13.1'
-
+            force "org.jetbrains.kotlin:kotlin-stdlib:1.9.25"
+            force "org.jetbrains.kotlin:kotlin-reflect:1.9.25"
+            force "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.25"
+            force "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.25"
         }
     }
 }

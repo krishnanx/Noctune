@@ -43,7 +43,7 @@ import * as Notifications from 'expo-notifications';
 import { playRef, soundRef } from "./src/functions/MusicLoaders/music.js";
 import MediaNotificationManager from "./src/functions/MediaNotification.js";
 import { isPending } from "@reduxjs/toolkit";
-
+import { setupPlayer } from "./src/functions/player.js";
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -54,10 +54,13 @@ Notifications.setNotificationHandler({
 
 
 export default function App() {
-    const insets = useSafeAreaInsets();
+  const insets = useSafeAreaInsets();
 
+  useEffect(()=>{
+    setupPlayer()
+  },[])
   useEffect(() => {
-  Notifications.requestPermissionsAsync();
+    Notifications.requestPermissionsAsync();
   }, []);
 
   useEffect(() => {

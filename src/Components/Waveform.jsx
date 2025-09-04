@@ -13,7 +13,7 @@ import { pullPlaylists, updataID } from "../../Store/PlaylistSlice";
 import { loadUser } from "../../Store/AuthThunk";
 import Constants from "expo-constants";
 import NetInfo from "@react-native-community/netinfo";
-import TypewriterText from "../Components/TypeWriter";
+// import TypewriterText from "../Components/TypeWriter";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getPersistSearch, setIsLoadedFromAsyncStorage } from "../../Store/MusicSlice";
 import { initialiseWebsocket } from "../pages/Playlist";
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
       </Text>
 
       <View style={styles.container}>
-        <TypewriterText quotes={musicQuotes} style={styles.typewriter} />
+        {/* <TypewriterText quotes={musicQuotes} style={styles.typewriter} /> */}
     </View>
     </Animated.View>
   );
