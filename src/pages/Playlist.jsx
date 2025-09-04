@@ -85,20 +85,14 @@ const Playlist = ({}) => {
   const playbackState = usePlaybackState();
   
   const { index } = useRoute().params;
-  const {
-    data: value,
-    pos,
-    seek,
-    isplaying,
-     canLoad
-  } = useSelector((state) => state.data);
+  const { data: value, pos, seek, isplaying, canLoad} = useSelector((state) => state.data);
   // const user = useSelector((state)=>state.user.user)
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
-    const { song,pos:position ,load:playload } = useSelector(
-      (state) => state.playlistload
-    );
+  const { song,pos:position ,load:playload } = useSelector(
+    (state) => state.playlistload
+  );
     
   const currentTrack = canLoad ? data && pos >= 0 && pos < data.length ? data[pos] : null : playload? song && position >= 0 && position < song.length ? song[position] : null :
       !canLoad? data && pos >= 0 && pos < data.length ? data[pos] : null : song && position >= 0 && position < song.length ? song[position] : null
@@ -135,32 +129,38 @@ const Playlist = ({}) => {
     }
   };
 
-
-//   useEffect(()=>{
-//   console.warn("0000000000000000000000000000000")
-//   console.warn("DATA: ",data)
-//     console.warn("USER: ",user.id)
-//     console.warn("PlaylistIDDD: ",data[index].id)
-//         console.warn("INDEXXXX: ",index)
-// },[])
-
-// MediaNotificationManager.showNotification({
-//   title: item.title || "Unknown Title",
-//   artist: item.uploader || "Unknown Artist",
-//   artwork: item.image || "",
-// });
-
   //This function is used to play a song when a song is clicked from playlist
   const handlePressLogic = async(item,pos) => {
     if(isDisabled && songid===item.id) return;
     setIsDisabled(true)
     setSongId(item.id);
+    if(playlistNo!=index){
+      dispatch(changePlaylist(index))
+      if(playbackState.state == State.Playing){
+        await TrackPlayer.pause()
+      }
+      await TrackPlayer.reset();
+      const Tracks = data[index].songs.map(song => ({
+        id: song.id,
+        url: `${Constants.expoConfig.extra.SERVER}/api/stream?url=${encodeURIComponent(song.url)}`,
+        title: song.title || "Unknown Title",
+        artist: song.artist || "Unknown Artist",
+        artwork: song.image,
+        duration: song.duration
+      }));
+      console.warn(Tracks)
+      await TrackPlayer.add(Tracks);
+      await TrackPlayer.skip(pos);
+      await TrackPlayer.play();
+      dispatch(setPlaylistplaying({id:index,action:true})) // ✅ start right away
+      return;
+    }
     if(!playRef.current){
       console.error("not in playref")
       playRef.current = true;
       await TrackPlayer.reset();
       soundRef.current = false;
-      const Tracks = data.map(song=>{
+      const Tracks = data[index].songs.map(song=>{
         return {
           id: song.id,
           url: `${Constants.expoConfig.extra.SERVER}/api/stream?url=${encodeURIComponent(song.url)}`,
@@ -171,15 +171,17 @@ const Playlist = ({}) => {
         }
       })
       await TrackPlayer.add(Tracks)
-    }
-    if(playbackState == State.Playing){
-      console.error("pausingg....")
-      await TrackPlayer.pause()
-    }
-    else if(playbackState ==  State.Paused){
-      console.error("playing....")
+      
+      await TrackPlayer.skip(pos);
+      
       await TrackPlayer.play()
+      dispatch(setPlaylistplaying({id:index,action:true}))
+      return
     }
+    await TrackPlayer.skip(pos);
+    console.error("playing....")
+    await TrackPlayer.play()
+    dispatch(setPlaylistplaying({id:index,action:true}))
     setTimeout(()=>{
       setIsDisabled(false)
     },5000)
