@@ -182,6 +182,10 @@ const handleFetchFullLyrics = async () => {
     console.warn("toggle")
     console.warn(playbackState)
     console.warn(State.Playing)
+    if(!soundRef.current){
+      soundRef.current = true;
+      playRef.current = false;
+    }
     if (playbackState.state === State.Playing) {
       await TrackPlayer.pause();
     } else {

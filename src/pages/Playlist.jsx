@@ -36,6 +36,7 @@ import { useTheme } from "@react-navigation/native";
 import Delete from "../Components/Icons/Delete";
 import { showToast } from "../../Store/ToastSlice";
 import MediaNotificationManager from "../functions/MediaNotification";
+import TrackPlayer, { State, usePlaybackState } from "react-native-track-player";
 
 export const initialiseWebsocket = ({id,dispatch,value}) => {
     try{ 
@@ -80,6 +81,9 @@ const Playlist = ({}) => {
   const { user, session, loading, error, clientID } = userState;
   const { colors } = useTheme();
 
+  //This constant gives us the current playback state
+  const playbackState = usePlaybackState();
+  
   const { index } = useRoute().params;
   const {
     data: value,
@@ -108,28 +112,28 @@ const Playlist = ({}) => {
     // navigation.navigate('PlaylistEdit', { index });
   };
 
-useEffect(() => {
-  if (currentTrack) {
-    //console.warn("Updating notification with currentTrack:", currentTrack);
-    MediaNotificationManager.showNotification({
-      title: currentTrack.title || "Unknown Title",
-      artist: currentTrack.uploader || currentTrack.artist || "Unknown Artist",
-      artwork: currentTrack.image || "", // albumArt
-    });
-  }
-}, [currentTrack]);
+  useEffect(() => {
+    if (currentTrack) {
+      //console.warn("Updating notification with currentTrack:", currentTrack);
+      MediaNotificationManager.showNotification({
+        title: currentTrack.title || "Unknown Title",
+        artist: currentTrack.uploader || currentTrack.artist || "Unknown Artist",
+        artwork: currentTrack.image || "", // albumArt
+      });
+    }
+  }, [currentTrack]);
 
-const handleDelete = async () => {
-  try {
-    await dispatch(deletePlaylist({ playlistId: data[index].id, userid: user.id })).unwrap();
-    dispatch(removePlaylist(data[index].id));
-    navigation.goBack();
-  } catch (error) {
-    console.error("Failed to delete playlist:", error);
-    // alert("Could not delete playlist. Please try again.");
-    dispatch(showToast({Title:"Error",message:"Could not delete playlist. Please try again later!"}))
-  }
-};
+  const handleDelete = async () => {
+    try {
+      await dispatch(deletePlaylist({ playlistId: data[index].id, userid: user.id })).unwrap();
+      dispatch(removePlaylist(data[index].id));
+      navigation.goBack();
+    } catch (error) {
+      console.error("Failed to delete playlist:", error);
+      // alert("Could not delete playlist. Please try again.");
+      dispatch(showToast({Title:"Error",message:"Could not delete playlist. Please try again later!"}))
+    }
+  };
 
 
 //   useEffect(()=>{
@@ -146,68 +150,40 @@ const handleDelete = async () => {
 //   artwork: item.image || "",
 // });
 
-
+  //This function is used to play a song when a song is clicked from playlist
   const handlePressLogic = async(item,pos) => {
     if(isDisabled && songid===item.id) return;
     setIsDisabled(true)
     setSongId(item.id);
-    console.warn(item)
-    if (!playRef.current) {
-      //console.warn("no current songs")
-      if (playlistNo != index) {
-        dispatch(changePlaylist(index))
-      }
-      //console.warn(data[index].songs)
-      dispatch(addType(data[index].songs))
-      dispatch(changePlaylistPos({value:0,jump:pos}));
-      dispatch(changeLoad(false))
-      dispatch(load(false));
-      setTimeout(() => {
-        dispatch(changeLoad(true))
-      }, 500);
-      dispatch(setPlaylistplaying({ action: true, id: index }));
-      dispatch(setIsPlaying(true));
-
-    } else {
-      //console.warn("reached playlist toggle");
-      //console.warn(playlistNo, index);
-      if (playlistNo != index) {
-        dispatch(changePlaylist(index))  
-        //await playRef.current.playAsync();
-      }
-      dispatch(addType(data[index].songs))
-      dispatch(changePlaylistPos({value:0,jump:pos}));
-      dispatch(changeLoad(false))
-      dispatch(load(false));
-      dispatch(setPlaylistplaying({ action: true, id: index }));
-
-      setTimeout(() => {
-        dispatch(changeLoad(true))
-      }, 500);
-
-      
-      // else if (isplaying) {
-      //   //console.warn("isplaying", isplaying)
-      //   await playRef.current.pauseAsync();
-      //   dispatch(setPlaylistplaying({ action: false, id: index }));
-      //   dispatch(progress(-1));
-      //   //updatePlaybackState(false, seek); //added
-      // } else {
-      //   //console.warn("isplaying", isplaying)
-      //   await playRef.current.playAsync(); // resumes from last position
-      //   dispatch(setPlaylistplaying({ action: true, id: index }));
-      //   dispatch(progress(-1));
-      //   //updatePlaybackState(true, seek); //added
-      // }
-      
-      
+    if(!playRef.current){
+      console.error("not in playref")
+      playRef.current = true;
+      await TrackPlayer.reset();
+      soundRef.current = false;
+      const Tracks = data.map(song=>{
+        return {
+          id: song.id,
+          url: `${Constants.expoConfig.extra.SERVER}/api/stream?url=${encodeURIComponent(song.url)}`,
+          title: song.title || "Unknown Title",
+          artist: song.artist || "Unknown Artist",
+          artwork: song.image,
+          duration: song.duration
+        }
+      })
+      await TrackPlayer.add(Tracks)
     }
-    dispatch(setIsPlaying(true));
-    
+    if(playbackState == State.Playing){
+      console.error("pausingg....")
+      await TrackPlayer.pause()
+    }
+    else if(playbackState ==  State.Paused){
+      console.error("playing....")
+      await TrackPlayer.play()
+    }
     setTimeout(()=>{
       setIsDisabled(false)
     },5000)
-}
+  }
 
   const styles = StyleSheet.create({
     Main: {
@@ -400,56 +376,67 @@ const handleDelete = async () => {
   const Description = data[index].desc;
   const Uname = user?.user_metadata.username;
   const minHeight = 1000
+
+  //This function is used to play a song when Play/pause button is clicked
   const togglePlayPause = async () => {
-
+    console.error("Current state:", playbackState);
+    if(playlistNo!=index){
+      dispatch(changePlaylist(index))
+      if(playbackState.state == State.Playing){
+        await TrackPlayer.pause()
+      }
+      await TrackPlayer.reset();
+      const Tracks = data[index].songs.map(song => ({
+        id: song.id,
+        url: `${Constants.expoConfig.extra.SERVER}/api/stream?url=${encodeURIComponent(song.url)}`,
+        title: song.title || "Unknown Title",
+        artist: song.artist || "Unknown Artist",
+        artwork: song.image,
+        duration: song.duration
+      }));
+      console.warn(Tracks)
+      await TrackPlayer.add(Tracks);
+     
+      await TrackPlayer.play();
+      dispatch(setPlaylistplaying({id:index,action:true})) // ✅ start right away
+      return;
+    }
+    // console.error(data[index].songs)
+    // Initialize playlist once
     if (!playRef.current) {
-      //console.warn("no current songs")
-      if (playlistNo != index) {
-        dispatch(changePlaylist(index))
-      }
-      //console.warn(data[index].songs)
-      dispatch(addType(data[index].songs))
-      dispatch(changeLoad(false))
-      dispatch(load(false));
-      setTimeout(() => {
-        dispatch(changeLoad(true))
-      }, 500);
-      dispatch(setPlaylistplaying({ action: true, id: index }));
-      dispatch(setIsPlaying(true));
-
+      console.error("not in ref...adding")
+      playRef.current = true;
+      await TrackPlayer.reset();
+      soundRef.current = false;
+      
+      const Tracks = data[index].songs.map(song => ({
+        id: song.id,
+        url: `${Constants.expoConfig.extra.SERVER}/api/stream?url=${encodeURIComponent(song.url)}`,
+        title: song.title || "Unknown Title",
+        artist: song.artist || "Unknown Artist",
+        artwork: song.image,
+        duration: song.duration
+      }));
+      console.warn(Tracks)
+      await TrackPlayer.add(Tracks);
+     
+      await TrackPlayer.play();
+      dispatch(setPlaylistplaying({id:index,action:true})) // ✅ start right away
+      return;
+    }
+    
+    // Toggle play/pause depending on current state
+    if (playbackState === State.Playing) {
+      console.log("Pausing...");
+      await TrackPlayer.pause();
+      dispatch(setPlaylistplaying({id:index,action:false}))
     } else {
-      //console.warn("reached playlist toggle");
-      //console.warn(playlistNo, index);
-      if (playlistNo != index) {
-        dispatch(changePlaylist(index))
-        dispatch(addType(data[index].songs))
-        dispatch(changeLoad(false))
-        dispatch(load(false));
-        dispatch(setPlaylistplaying({ action: true, id: index }));
-
-        setTimeout(() => {
-          dispatch(changeLoad(true))
-        }, 500);
-
-        //await playRef.current.playAsync();
-      }
-      else if (isplaying) {
-        //console.warn("isplaying", isplaying)
-        await playRef.current.pauseAsync();
-        dispatch(setPlaylistplaying({ action: false, id: index }));
-        dispatch(progress(-1));
-        //updatePlaybackState(false, seek); //added
-      } else {
-        //console.warn("isplaying", isplaying)
-        await playRef.current.playAsync(); // resumes from last position
-        dispatch(setPlaylistplaying({ action: true, id: index }));
-        dispatch(progress(-1));
-        //updatePlaybackState(true, seek); //added
-      }
-
-      dispatch(setIsPlaying("toggle"));
+      console.log("Playing...");
+      await TrackPlayer.play();
+      dispatch(setPlaylistplaying({id:index,action:true}))
     }
   };
+
 
   
 
@@ -494,6 +481,7 @@ const handleDelete = async () => {
         handleDelete={handleDelete}
         index={index}
         colors={colors}
+        playbackState={playbackState.state}
       />
       <Flatlist data={data[index].songs || []} 
           styles={styles} 
@@ -521,7 +509,8 @@ const Information = ({
   goToNewPage,
   handleDelete,
   index,
-  colors
+  colors,
+  playbackState
 }) => {
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);

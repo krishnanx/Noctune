@@ -32,7 +32,7 @@ import {
   setSearchedMusic,
   setSearchedMusicHistory
 } from "../../../Store/MusicSlice.js";
-import { loadAudio, unloadAudio } from "../../functions/MusicLoaders/music.js";
+import { loadAudio, soundRef, unloadAudio } from "../../functions/MusicLoaders/music.js";
 import Audioloader from "../../functions/MusicLoaders/Audioloader.jsx";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -43,6 +43,7 @@ import { YtMusicRef } from "../../functions/YtMusicRef.js";
 import Constants from "expo-constants";
 import FadeWrapper from '../../../Navigation/FadeWrapper.jsx';
 import { addMusicIntoRNTP } from "../../functions/RNTP/addMusicIntoRNTP.js";
+import TrackPlayer from "react-native-track-player";
 
 const Search = () => {
   const { colors } = useTheme(); // Get theme colors
@@ -113,6 +114,10 @@ const Search = () => {
     console.log(song);
     dispatch(addMusic(song));
     dispatch(setIsLoadedFromAsyncStorage(false));
+    if(!soundRef.current){
+      soundRef.current = true;
+      await TrackPlayer.reset();
+    }
     addMusicIntoRNTP({tracks:song})
     console.log("Dispatches complete");
     //dispatch(toggleMinimized());
