@@ -73,8 +73,9 @@ const PlayerStack = () => {
     (state) => state.playlistload
   );
   //console.warn("Load:",load)
-  const currentTrack = canLoad ? data && pos >= 0 && pos < data.length ? data[pos] : null : newLoad? song && position >= 0 && position < song.length ? song[position] : null :
-      !canLoad? data && pos >= 0 && pos < data.length ? data[pos] : null : song && position >= 0 && position < song.length ? song[position] : null
+  
+  const currentTrack = soundRef.current ? data && pos >= 0 && pos < data.length ? data[pos] : null : playRef.current? song && position >= 0 && position < song.length ? song[position] : null :
+      !soundRef.current? data && pos >= 0 && pos < data.length ? data[pos] : null : song && position >= 0 && position < song.length ? song[position] : null
 
   //const mediaListenersInitialized = useRef(false);
 
@@ -182,10 +183,7 @@ const handleFetchFullLyrics = async () => {
     console.warn("toggle")
     console.warn(playbackState)
     console.warn(State.Playing)
-    if(!soundRef.current){
-      soundRef.current = true;
-      playRef.current = false;
-    }
+    
     if (playbackState.state === State.Playing) {
       await TrackPlayer.pause();
     } else {
@@ -233,18 +231,18 @@ const handleFetchFullLyrics = async () => {
 
   const handlePress = async (value) => {
 
-      if(soundRef.current==null){
-          dispatch(changePlaylistPos({value:value,jump:-1}));
-          dispatch(setSearchedMusic(true))
-          dispatch(changeLoad(false));
-          dispatch(changeLoad(true));
-      }else{
-        dispatch(changePos(value));
+    if(soundRef.current==null){
+        dispatch(changePlaylistPos({value:value,jump:-1}));
         dispatch(setSearchedMusic(true))
-        dispatch(load(false));
-        dispatch(load(true));
-        
-        }
+        dispatch(changeLoad(false));
+        dispatch(changeLoad(true));
+    }else{
+      dispatch(changePos(value));
+      dispatch(setSearchedMusic(true))
+      dispatch(load(false));
+      dispatch(load(true));
+      
+      }
 
   
     // const timeNow = Date.now();

@@ -128,15 +128,7 @@ export default function App() {
     const subscription = AppState.addEventListener('change', nextAppState => {
       console.error('App State changed to:', nextAppState);
       setAppState(nextAppState);
-      if(nextAppState == "active" && soundRef.current == null && playRef.current == null && pos>=0){
-        console.error("ITSS ACTIVEE");
-        dispatch(load(false))
-        //dispatch(load(true))
-        setTimeout(() => {
-          dispatch(load(true))
-            // musics queue
-        }, 1)
-      }
+      
     });
 
     return () => {

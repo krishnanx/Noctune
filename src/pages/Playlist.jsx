@@ -149,6 +149,8 @@ const Playlist = ({}) => {
         duration: song.duration
       }));
       console.warn(Tracks)
+      dispatch(addType(data[index].songs))
+      dispatch(changePlaylistPos(pos))
       await TrackPlayer.add(Tracks);
       await TrackPlayer.skip(pos);
       await TrackPlayer.play();
@@ -171,7 +173,8 @@ const Playlist = ({}) => {
         }
       })
       await TrackPlayer.add(Tracks)
-      
+      dispatch(addType(data[index].songs))
+      dispatch(changePlaylistPos(pos))
       await TrackPlayer.skip(pos);
       
       await TrackPlayer.play()
@@ -179,6 +182,7 @@ const Playlist = ({}) => {
       return
     }
     await TrackPlayer.skip(pos);
+    dispatch(changePlaylistPos(pos))
     console.error("playing....")
     await TrackPlayer.play()
     dispatch(setPlaylistplaying({id:index,action:true}))
