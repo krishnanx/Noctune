@@ -22,7 +22,7 @@ import { changeState } from "../../../Store/KeyboardSlice.js";
 //import ytdl from "react-native-ytdl";
 //import YTSearch from "youtube-search-api";
 import YoutubeMusicApi from "youtube-music-api";
-import { DownloadMusic, PersistSearch, addSearchTextHistory, clearSearchTextHistory, setSearchTextHistory } from "../../../Store/MusicSlice.js";
+import { DownloadMusic, PersistSearch, addSearchTextHistory, clearSearchTextHistory, saveQueue, setSearchTextHistory } from "../../../Store/MusicSlice.js";
 import { ScrollView } from "react-native";
 import { FetchMetadata } from "../../../Store/MusicSlice.js";
 import {
@@ -113,17 +113,19 @@ const Search = () => {
     // dispatch(FetchMetadata({ text: song.url }));
     console.log(song);
     dispatch(addMusic(song));
+    dispatch(saveQueue())
     dispatch(setIsLoadedFromAsyncStorage(false));
     if(!soundRef.current){
       soundRef.current = true;
       await TrackPlayer.reset();
     }
-    addMusicIntoRNTP({tracks:song})
-    console.log("Dispatches complete");
-    //dispatch(toggleMinimized());
-    // Add this line to save the song metadata to AsyncStorage
-    saveLastPlayedSong(song);
-    navigation.navigate('PlayerStack');
+    try {
+      await addMusicIntoRNTP({ tracks: song });
+      console.warn("Dispatches complete");
+      navigation.navigate('PlayerStack');
+    } catch (e) {
+      console.error("Error adding to RNTP:", e);
+    }
   };
 
   const saveLastPlayedSong = async (song) => {

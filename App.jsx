@@ -22,7 +22,8 @@ import { FetchMetadata
   ,setIsPlaying,
   setSearchedMusic,
   setIsLoadedFromAsyncStorage,
-  addMusic,load
+  addMusic,load,
+  changeDATA
 } from "./Store/MusicSlice";
 import { checkAppVersion } from "./Store/VersionSlice.js";
 import UpdateBanner from "./src/Components/UpdateBanner.jsx";
@@ -44,6 +45,7 @@ import { playRef, soundRef } from "./src/functions/MusicLoaders/music.js";
 import MediaNotificationManager from "./src/functions/MediaNotification.js";
 import { isPending } from "@reduxjs/toolkit";
 import { setupPlayer } from "./src/functions/player.js";
+import { addMusicIntoRNTP } from "./src/functions/RNTP/addMusicIntoRNTP.js";
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -113,17 +115,8 @@ export default function App() {
     (state) => state.playlistload
   );
 
-   const currentTrack = canLoad ? data && pos >= 0 && pos < data.length ? data[pos] : null : playload? song && position >= 0 && position < song.length ? song[position] : null :
+  const currentTrack = canLoad ? data && pos >= 0 && pos < data.length ? data[pos] : null : playload? song && position >= 0 && position < song.length ? song[position] : null :
       !canLoad? data && pos >= 0 && pos < data.length ? data[pos] : null : song && position >= 0 && position < song.length ? song[position] : null
-
-    // console.warn("-----------------------------")
-    // console.warn("current:",currentTrack);
-    // console.warn("-------------------------------")
-  //const [status, setStatus] = useState("loading");
-  console.warn("canload:",canLoad);
-  console.warn("playload:",playload);
-  console.warn("currenttrack:",currentTrack);
-
   useEffect(() => {
     const subscription = AppState.addEventListener('change', nextAppState => {
       console.error('App State changed to:', nextAppState);
@@ -138,40 +131,22 @@ export default function App() {
   useEffect(() => {
       const loadLastSong = async () => {
         try {
-          const jsonValue = await AsyncStorage.getItem("lastPlayedSong");
-  
+          const jsonValue = await AsyncStorage.getItem("Queue");
+          
           if (jsonValue != null) {
-            const lastSong = JSON.parse(jsonValue);
-            console.warn(lastSong)
-            if (lastSong && lastSong.url) {
+            const Queue = JSON.parse(jsonValue);
+            console.warn("Queue:",Queue)
+            if (Queue.length > 0) {
               // First, dispatch action to add song to store
-              dispatch(addMusic(lastSong));
+              dispatch(changeDATA(Queue));
               dispatch(setIsLoadedFromAsyncStorage(true));
-  
-              // Then wait for state update
-              setTimeout(() => {
-                const currentState = store.getState();
-                const { data, pos } = currentState.data;
-  
-                if (data && data.length > 0 && pos >= 0) {
-                  console.log(
-                    "Using Audioloader component for previously saved song"
-                  );
-                  // No need to directly call loadAudio - your Audioloader component
-                  // should handle this since it watches for changes to pos
-                  dispatch(load(true)); // This should trigger your Audioloader component
-                } else {
-                  // //console.warn(
-                  //   "Data or position not valid after loading saved song"
-                  // );
-                }
-              }, 100);
+              addMusicIntoRNTP({tracks:Queue})
             } else {
-              //console.warn("No valid song data found in AsyncStorage");
+              console.warn("No valid song data found in AsyncStorage");
             }
           }
         } catch (e) {
-          //console.error("Error loading last song", e);
+          console.error("Error loading last song", e);
         }
       };
   

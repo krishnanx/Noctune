@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import Constants from "expo-constants";
 import { use } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 // In your MusicSlice.js
 const MusicSlice = createSlice({
   name: "Music",
@@ -256,6 +257,16 @@ export const deletePersistSearch = createAsyncThunk("/deletepersist",async(_,{di
     return { success: false, error: error.message };
   }
 })
+
+export const saveQueue = createAsyncThunk("music/saveQueue", async (_, { getState }) => {
+  try {
+    const state = getState().data;
+    const jsonValue = JSON.stringify(state.data);
+    await AsyncStorage.setItem("Queue", jsonValue);
+  } catch (e) {
+    console.error("Error saving song metadata", e);
+  }
+});
 
 
 // export const FetchMetadata = createAsyncThunk(
