@@ -366,11 +366,12 @@ const Playlist = ({}) => {
   //This function is used to play a song when Play/pause button is clicked
   const togglePlayPause = async () => {
     console.error("Current state:", playbackState);
-    if(playlistNo!=index){
-      dispatch(changePlaylist(index))
-      if(playbackState.state === State.Playing){
+    if(playbackState.state === State.Playing){
         await TrackPlayer.pause()
-      }
+    }
+    if(playlistNo!=index){
+      console.warn("moving to diff playlist")
+      dispatch(changePlaylist(index))
       addMusicIntoRNTP({tracks:data[index].songs,resetQueue:true})
       await TrackPlayer.play();
       dispatch(setPlaylistplaying({id:index,action:true})) // ✅ start right away
@@ -388,12 +389,13 @@ const Playlist = ({}) => {
     }
   
     // Toggle play/pause depending on current state
-    if (playbackState === State.Playing) {
+    if (playbackState.state == State.Playing) {
       console.log("Pausing...");
       await TrackPlayer.pause();
       dispatch(setPlaylistplaying({id:index,action:false}))
     } 
-    else if(playbackState === State.Ended){
+    else if(playbackState.state == State.Ended){
+      console.warn("ended state")
       await TrackPlayer.seek(0)
       await TrackPlayer.play()
       dispatch(setPlaylistplaying({id:index,action:false}))
