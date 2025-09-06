@@ -37,6 +37,7 @@ import Delete from "../Components/Icons/Delete";
 import { showToast } from "../../Store/ToastSlice";
 import MediaNotificationManager from "../functions/MediaNotification";
 import TrackPlayer, { State, usePlaybackState } from "react-native-track-player";
+import { addMusicIntoRNTP } from "../functions/RNTP/addMusicIntoRNTP";
 
 export const initialiseWebsocket = ({id,dispatch,value}) => {
     try{ 
@@ -134,24 +135,14 @@ const Playlist = ({}) => {
     if(isDisabled && songid===item.id) return;
     setIsDisabled(true)
     setSongId(item.id);
+    if(playbackState.state == State.Playing){
+        await TrackPlayer.pause()
+    }
     if(playlistNo!=index){
       dispatch(changePlaylist(index))
-      if(playbackState.state == State.Playing){
-        await TrackPlayer.pause()
-      }
-      await TrackPlayer.reset();
-      const Tracks = data[index].songs.map(song => ({
-        id: song.id,
-        url: `${Constants.expoConfig.extra.SERVER}/api/stream?url=${encodeURIComponent(song.url)}`,
-        title: song.title || "Unknown Title",
-        artist: song.artist || "Unknown Artist",
-        artwork: song.image,
-        duration: song.duration
-      }));
-      console.warn(Tracks)
       dispatch(addType(data[index].songs))
       dispatch(changePlaylistPos(pos))
-      await TrackPlayer.add(Tracks);
+      addMusicIntoRNTP({tracks:data[index].songs,resetQueue:true})
       await TrackPlayer.skip(pos);
       await TrackPlayer.play();
       dispatch(setPlaylistplaying({id:index,action:true})) // ✅ start right away
@@ -160,23 +151,12 @@ const Playlist = ({}) => {
     if(!playRef.current){
       console.error("not in playref")
       playRef.current = true;
-      await TrackPlayer.reset();
       soundRef.current = false;
-      const Tracks = data[index].songs.map(song=>{
-        return {
-          id: song.id,
-          url: `${Constants.expoConfig.extra.SERVER}/api/stream?url=${encodeURIComponent(song.url)}`,
-          title: song.title || "Unknown Title",
-          artist: song.artist || "Unknown Artist",
-          artwork: song.image,
-          duration: song.duration
-        }
-      })
-      await TrackPlayer.add(Tracks)
+      
       dispatch(addType(data[index].songs))
       dispatch(changePlaylistPos(pos))
+      addMusicIntoRNTP({tracks:data[index].songs,resetQueue:true})
       await TrackPlayer.skip(pos);
-      
       await TrackPlayer.play()
       dispatch(setPlaylistplaying({id:index,action:true}))
       return
@@ -388,55 +368,37 @@ const Playlist = ({}) => {
     console.error("Current state:", playbackState);
     if(playlistNo!=index){
       dispatch(changePlaylist(index))
-      if(playbackState.state == State.Playing){
+      if(playbackState.state === State.Playing){
         await TrackPlayer.pause()
       }
-      await TrackPlayer.reset();
-      const Tracks = data[index].songs.map(song => ({
-        id: song.id,
-        url: `${Constants.expoConfig.extra.SERVER}/api/stream?url=${encodeURIComponent(song.url)}`,
-        title: song.title || "Unknown Title",
-        artist: song.artist || "Unknown Artist",
-        artwork: song.image,
-        duration: song.duration
-      }));
-      console.warn(Tracks)
-      await TrackPlayer.add(Tracks);
-     
+      addMusicIntoRNTP({tracks:data[index].songs,resetQueue:true})
       await TrackPlayer.play();
       dispatch(setPlaylistplaying({id:index,action:true})) // ✅ start right away
       return;
     }
-    // console.error(data[index].songs)
     // Initialize playlist once
     if (!playRef.current) {
       console.error("not in ref...adding")
       playRef.current = true;
-      await TrackPlayer.reset();
       soundRef.current = false;
-      
-      const Tracks = data[index].songs.map(song => ({
-        id: song.id,
-        url: `${Constants.expoConfig.extra.SERVER}/api/stream?url=${encodeURIComponent(song.url)}`,
-        title: song.title || "Unknown Title",
-        artist: song.artist || "Unknown Artist",
-        artwork: song.image,
-        duration: song.duration
-      }));
-      console.warn(Tracks)
-      await TrackPlayer.add(Tracks);
-     
+      addMusicIntoRNTP({tracks:data[index].songs,resetQueue:true})
       await TrackPlayer.play();
       dispatch(setPlaylistplaying({id:index,action:true})) // ✅ start right away
       return;
     }
-    
+  
     // Toggle play/pause depending on current state
     if (playbackState === State.Playing) {
       console.log("Pausing...");
       await TrackPlayer.pause();
       dispatch(setPlaylistplaying({id:index,action:false}))
-    } else {
+    } 
+    else if(playbackState === State.Ended){
+      await TrackPlayer.seek(0)
+      await TrackPlayer.play()
+      dispatch(setPlaylistplaying({id:index,action:false}))
+    }
+    else {
       console.log("Playing...");
       await TrackPlayer.play();
       dispatch(setPlaylistplaying({id:index,action:true}))
@@ -645,7 +607,7 @@ const Information = ({
                 onPress={() => togglePlayPause()}
                 style={styles.miniPlayPauseButton}
               >
-                {data.isPlaying ? (
+                {data.isPlaying && (playbackState === State.Playing || playbackState === State.Buffering) ? (
                   <View style={styles.pauseLinesContainer}>
                     <View style={styles.miniPauseLine} />
                     <View style={styles.miniPauseLine} />
