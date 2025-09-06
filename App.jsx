@@ -46,6 +46,7 @@ import MediaNotificationManager from "./src/functions/MediaNotification.js";
 import { isPending } from "@reduxjs/toolkit";
 import { setupPlayer } from "./src/functions/player.js";
 import { addMusicIntoRNTP } from "./src/functions/RNTP/addMusicIntoRNTP.js";
+import TrackPlayer from "react-native-track-player";
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -132,15 +133,23 @@ export default function App() {
       const loadLastSong = async () => {
         try {
           const jsonValue = await AsyncStorage.getItem("Queue");
-          
-          if (jsonValue != null) {
+          const jsonPos = await AsyncStorage.getItem("position")
+          console.warn("Queue:",jsonValue)
+          console.warn("position:",jsonPos)
+          if (jsonValue != null && jsonPos != null) {
             const Queue = JSON.parse(jsonValue);
-            console.warn("Queue:",Queue)
+            const QueuePos = JSON.parse(jsonPos)
+            
             if (Queue.length > 0) {
               // First, dispatch action to add song to store
               dispatch(changeDATA(Queue));
               dispatch(setIsLoadedFromAsyncStorage(true));
-              addMusicIntoRNTP({tracks:Queue})
+              await addMusicIntoRNTP({tracks:Queue})
+              await TrackPlayer.skip(QueuePos)
+              const currentIndex = await TrackPlayer.getActiveTrackIndex();
+              const track = await TrackPlayer.getTrack(currentIndex);
+              console.warn("Now playing:", track);
+
             } else {
               console.warn("No valid song data found in AsyncStorage");
             }
