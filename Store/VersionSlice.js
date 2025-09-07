@@ -5,15 +5,29 @@ import * as Application from 'expo-application';
 
 const CURRENT_VERSION = Application.nativeApplicationVersion;
 
+function compareVersions(v1, v2) {
+  const a = v1.split('.').map(Number);
+  const b = v2.split('.').map(Number);
+
+  for (let i = 0; i < Math.max(a.length, b.length); i++) {
+    const num1 = a[i] || 0; // default to 0 if missing
+    const num2 = b[i] || 0;
+
+    if (num1 > num2) return false;
+    if (num1 < num2) return true;
+  }
+  return false; // equal
+}
+
 export const checkAppVersion = createAsyncThunk('/checkAppVersion', async () => {
   try {
     const response = await axios.get(`${Constants.expoConfig.extra.SERVER}/api/app-version`);
     //const response = await axios.get(`${Constants.expoConfig.extra.SERVER}/api/app-version`);
     const latestVersion = response.data.version;
     // console.warn("00000000000000000000")
-    // console.warn("RESPONSE", response)
+    console.warn("RESPONSE", latestVersion)
 
-    const isOutdated = CURRENT_VERSION !== latestVersion;
+    const isOutdated = compareVersions(CURRENT_VERSION, latestVersion)
 
     return {
       current: CURRENT_VERSION,
