@@ -2,9 +2,10 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import Constants from "expo-constants";
 import { use } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 // In your MusicSlice.js
 const MusicSlice = createSlice({
-  name: "Music",
+  name: "data",
   initialState: {
     data: [],
     pos: -1,
@@ -22,28 +23,28 @@ const MusicSlice = createSlice({
       state.checkOnceNext = action.payload
     },
        // Search text history reducers
- addSearchTextHistory(state, action) {
-  const searchText = action.payload?.trim?.() || '';
-  if (!searchText) return;
-  
-  // Remove existing entry (case-insensitive)
-  const existingIndex = state.searchTextHistory.findIndex(
-    item => item.toLowerCase() === searchText.toLowerCase()
-  );
-  if (existingIndex !== -1) {
-    state.searchTextHistory.splice(existingIndex, 1);
-  }
-  
-  // Add to beginning of array (most recent first)
-  state.searchTextHistory.unshift(searchText);
-  
-  // Keep only last 10 searches
-  if (state.searchTextHistory.length > 10) {
-    state.searchTextHistory = state.searchTextHistory.slice(0, 10);
-  }
-  
-  console.warn('Search history updated:', state.searchTextHistory);
-},
+    addSearchTextHistory(state, action) {
+      const searchText = action.payload?.trim?.() || '';
+      if (!searchText) return;
+      
+      // Remove existing entry (case-insensitive)
+      const existingIndex = state.searchTextHistory.findIndex(
+        item => item.toLowerCase() === searchText.toLowerCase()
+      );
+      if (existingIndex !== -1) {
+        state.searchTextHistory.splice(existingIndex, 1);
+      }
+      
+      // Add to beginning of array (most recent first)
+      state.searchTextHistory.unshift(searchText);
+      
+      // Keep only last 10 searches
+      if (state.searchTextHistory.length > 10) {
+        state.searchTextHistory = state.searchTextHistory.slice(0, 10);
+      }
+      
+      console.warn('Search history updated:', state.searchTextHistory);
+    },
     clearSearchTextHistory(state) {
       state.searchTextHistory = [];
     },
@@ -169,31 +170,27 @@ const MusicSlice = createSlice({
   },  
 
   extraReducers: (builder) => {
-          builder
-              .addCase(getPersistSearch.fulfilled, (state, action) => {
-                  try {
-                      const raw = action.payload;
-                      const response = typeof raw === "string" ? JSON.parse(raw) : raw;
+    builder
+        .addCase(getPersistSearch.fulfilled, (state, action) => {
+            try {
+                const raw = action.payload;
+                const response = typeof raw === "string" ? JSON.parse(raw) : raw;
 
-                      //console.error("PULLING SEARCHED MUSIC", response);
-                      state.searchedMusicHistory = Array.isArray(response) ? response : [];
-                  } catch (err) {
-                      //console.error("Error parsing searched music:", err);
-                      state.searchedMusicHistory = [];
-                  }
-              })
+                //console.error("PULLING SEARCHED MUSIC", response);
+                state.searchedMusicHistory = Array.isArray(response) ? response : [];
+            } catch (err) {
+                //console.error("Error parsing searched music:", err);
+                state.searchedMusicHistory = [];
+            }
+        })
 
-              .addCase(getPersistSearch.pending, (state, action) => {
-  
-  
-              })
-              .addCase(getPersistSearch.rejected, (state, action) => {
-  
-              })
-              
-  
-  
-  
+        .addCase(getPersistSearch.pending, (state, action) => {
+
+
+        })
+        .addCase(getPersistSearch.rejected, (state, action) => {
+
+        })
       }
 });
 export const {
@@ -256,6 +253,20 @@ export const deletePersistSearch = createAsyncThunk("/deletepersist",async(_,{di
     return { success: false, error: error.message };
   }
 })
+
+export const saveQueue = createAsyncThunk("music/saveQueue", async (_, { getState }) => {
+  try {
+    const state = getState().data;
+    const jsonValue = JSON.stringify(state.data);
+    console.warn(state.pos)
+    const jsonPos = JSON.stringify(state.pos)
+    console.warn(jsonPos)
+    await AsyncStorage.setItem("Queue", jsonValue);
+    await AsyncStorage.setItem("position",jsonPos)
+  } catch (e) {
+    console.error("Error saving song metadata", e);
+  }
+});
 
 
 // export const FetchMetadata = createAsyncThunk(

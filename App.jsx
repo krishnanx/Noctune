@@ -22,7 +22,8 @@ import { FetchMetadata
   ,setIsPlaying,
   setSearchedMusic,
   setIsLoadedFromAsyncStorage,
-  addMusic,load
+  addMusic,load,
+  changeDATA
 } from "./Store/MusicSlice";
 import { checkAppVersion } from "./Store/VersionSlice.js";
 import UpdateBanner from "./src/Components/UpdateBanner.jsx";
@@ -43,7 +44,9 @@ import * as Notifications from 'expo-notifications';
 import { playRef, soundRef } from "./src/functions/MusicLoaders/music.js";
 import MediaNotificationManager from "./src/functions/MediaNotification.js";
 import { isPending } from "@reduxjs/toolkit";
-
+import { setupPlayer } from "./src/functions/player.js";
+import { addMusicIntoRNTP } from "./src/functions/RNTP/addMusicIntoRNTP.js";
+import TrackPlayer from "react-native-track-player";
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -54,10 +57,13 @@ Notifications.setNotificationHandler({
 
 
 export default function App() {
-    const insets = useSafeAreaInsets();
+  const insets = useSafeAreaInsets();
 
+  useEffect(()=>{
+    setupPlayer()
+  },[])
   useEffect(() => {
-  Notifications.requestPermissionsAsync();
+    Notifications.requestPermissionsAsync();
   }, []);
 
   useEffect(() => {
@@ -110,30 +116,13 @@ export default function App() {
     (state) => state.playlistload
   );
 
-   const currentTrack = canLoad ? data && pos >= 0 && pos < data.length ? data[pos] : null : playload? song && position >= 0 && position < song.length ? song[position] : null :
+  const currentTrack = canLoad ? data && pos >= 0 && pos < data.length ? data[pos] : null : playload? song && position >= 0 && position < song.length ? song[position] : null :
       !canLoad? data && pos >= 0 && pos < data.length ? data[pos] : null : song && position >= 0 && position < song.length ? song[position] : null
-
-    // console.warn("-----------------------------")
-    // console.warn("current:",currentTrack);
-    // console.warn("-------------------------------")
-  //const [status, setStatus] = useState("loading");
-  console.warn("canload:",canLoad);
-  console.warn("playload:",playload);
-  console.warn("currenttrack:",currentTrack);
-
   useEffect(() => {
     const subscription = AppState.addEventListener('change', nextAppState => {
       console.error('App State changed to:', nextAppState);
       setAppState(nextAppState);
-      if(nextAppState == "active" && soundRef.current == null && playRef.current == null && pos>=0){
-        console.error("ITSS ACTIVEE");
-        dispatch(load(false))
-        //dispatch(load(true))
-        setTimeout(() => {
-          dispatch(load(true))
-            // musics queue
-        }, 1)
-      }
+      
     });
 
     return () => {
@@ -143,40 +132,30 @@ export default function App() {
   useEffect(() => {
       const loadLastSong = async () => {
         try {
-          const jsonValue = await AsyncStorage.getItem("lastPlayedSong");
-  
-          if (jsonValue != null) {
-            const lastSong = JSON.parse(jsonValue);
-            console.warn(lastSong)
-            if (lastSong && lastSong.url) {
+          const jsonValue = await AsyncStorage.getItem("Queue");
+          const jsonPos = await AsyncStorage.getItem("position")
+          console.warn("Queue:",jsonValue)
+          console.warn("position:",jsonPos)
+          if (jsonValue != null && jsonPos != null) {
+            const Queue = JSON.parse(jsonValue);
+            const QueuePos = JSON.parse(jsonPos)
+            
+            if (Queue.length > 0) {
               // First, dispatch action to add song to store
-              dispatch(addMusic(lastSong));
+              dispatch(changeDATA(Queue));
               dispatch(setIsLoadedFromAsyncStorage(true));
-  
-              // Then wait for state update
-              setTimeout(() => {
-                const currentState = store.getState();
-                const { data, pos } = currentState.data;
-  
-                if (data && data.length > 0 && pos >= 0) {
-                  console.log(
-                    "Using Audioloader component for previously saved song"
-                  );
-                  // No need to directly call loadAudio - your Audioloader component
-                  // should handle this since it watches for changes to pos
-                  dispatch(load(true)); // This should trigger your Audioloader component
-                } else {
-                  // //console.warn(
-                  //   "Data or position not valid after loading saved song"
-                  // );
-                }
-              }, 100);
+              await addMusicIntoRNTP({tracks:Queue})
+              await TrackPlayer.skip(QueuePos)
+              const currentIndex = await TrackPlayer.getActiveTrackIndex();
+              const track = await TrackPlayer.getTrack(currentIndex);
+              console.warn("Now playing:", track);
+
             } else {
-              //console.warn("No valid song data found in AsyncStorage");
+              console.warn("No valid song data found in AsyncStorage");
             }
           }
         } catch (e) {
-          //console.error("Error loading last song", e);
+          console.error("Error loading last song", e);
         }
       };
   

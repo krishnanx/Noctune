@@ -22,7 +22,7 @@ import { changeState } from "../../../Store/KeyboardSlice.js";
 //import ytdl from "react-native-ytdl";
 //import YTSearch from "youtube-search-api";
 import YoutubeMusicApi from "youtube-music-api";
-import { DownloadMusic, PersistSearch, addSearchTextHistory, clearSearchTextHistory, setSearchTextHistory } from "../../../Store/MusicSlice.js";
+import { DownloadMusic, PersistSearch, addSearchTextHistory, clearSearchTextHistory, saveQueue, setSearchTextHistory } from "../../../Store/MusicSlice.js";
 import { ScrollView } from "react-native";
 import { FetchMetadata } from "../../../Store/MusicSlice.js";
 import {
@@ -32,7 +32,7 @@ import {
   setSearchedMusic,
   setSearchedMusicHistory
 } from "../../../Store/MusicSlice.js";
-import { loadAudio, unloadAudio } from "../../functions/MusicLoaders/music.js";
+import { loadAudio, soundRef, unloadAudio } from "../../functions/MusicLoaders/music.js";
 import Audioloader from "../../functions/MusicLoaders/Audioloader.jsx";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -42,6 +42,8 @@ import { changeLoad } from "../../../Store/Playdataslice.js";
 import { YtMusicRef } from "../../functions/YtMusicRef.js";
 import Constants from "expo-constants";
 import FadeWrapper from '../../../Navigation/FadeWrapper.jsx';
+import { addMusicIntoRNTP } from "../../functions/RNTP/addMusicIntoRNTP.js";
+import TrackPlayer from "react-native-track-player";
 
 const Search = () => {
   const { colors } = useTheme(); // Get theme colors
@@ -104,37 +106,26 @@ const Search = () => {
   };
 
   const handleCardPress = async (song) => {
-    unloadAudio();
+    //unloadAudio();
     console.log("Card pressed with URL:", song.url);
-    dispatch(setSearchedMusic(true))
+    //dispatch(setSearchedMusic(true))
     dispatch(PersistSearch(song))
     // dispatch(FetchMetadata({ text: song.url }));
     console.log(song);
     dispatch(addMusic(song));
+    dispatch(saveQueue())
     dispatch(setIsLoadedFromAsyncStorage(false));
-    
-    //console.warn("canLoad", canLoad)
-    if (canLoad) {
-      dispatch(load(false))
-      //dispatch(load(true))
-      setTimeout(() => {
-        dispatch(load(true))
-         // musics queue
-      }, 1)
+    if(!soundRef.current){
+      soundRef.current = true;
+      await TrackPlayer.reset();
     }
-    else {
-      
-      dispatch(load(true))
-      
+    try {
+      await addMusicIntoRNTP({ tracks: song });
+      console.warn("Dispatches complete");
+      navigation.navigate('PlayerStack');
+    } catch (e) {
+      console.error("Error adding to RNTP:", e);
     }
-    dispatch(changeLoad(false)) //playlist
-    //console.warn(isLoadedFromAsyncStorage)
-    
-    console.log("Dispatches complete");
-    //dispatch(toggleMinimized());
-    // Add this line to save the song metadata to AsyncStorage
-    saveLastPlayedSong(song);
-    navigation.navigate('PlayerStack');
   };
 
   const saveLastPlayedSong = async (song) => {

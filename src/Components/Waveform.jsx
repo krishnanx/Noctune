@@ -13,10 +13,11 @@ import { pullPlaylists, updataID } from "../../Store/PlaylistSlice";
 import { loadUser } from "../../Store/AuthThunk";
 import Constants from "expo-constants";
 import NetInfo from "@react-native-community/netinfo";
-import TypewriterText from "../Components/TypeWriter";
+// import TypewriterText from "../Components/TypeWriter";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getPersistSearch, setIsLoadedFromAsyncStorage } from "../../Store/MusicSlice";
 import { initialiseWebsocket } from "../pages/Playlist";
+import { pingServer } from "../functions/PingRedis/ping";
 
 const Waveform = () => {
   const { Mode } = useSelector((state) => state.theme)
@@ -78,6 +79,7 @@ const Waveform = () => {
             //console.warn("data:", loadedUser === null);
             //let ws;
             loadedUser === null ? null : await dispatch(pullPlaylists({ user: loadedUser.id })).unwrap()
+            pingServer(loadedUser.id)
             dispatch(updataID())
             dispatch(getPersistSearch())
             const status = await AsyncStorage.getItem("migration");
@@ -181,7 +183,7 @@ const styles = StyleSheet.create({
       </Text>
 
       <View style={styles.container}>
-        <TypewriterText quotes={musicQuotes} style={styles.typewriter} />
+        {/* <TypewriterText quotes={musicQuotes} style={styles.typewriter} /> */}
     </View>
     </Animated.View>
   );

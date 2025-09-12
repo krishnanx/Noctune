@@ -36,6 +36,8 @@ import { useTheme } from "@react-navigation/native";
 import Delete from "../Components/Icons/Delete";
 import { showToast } from "../../Store/ToastSlice";
 import MediaNotificationManager from "../functions/MediaNotification";
+import TrackPlayer, { State, usePlaybackState } from "react-native-track-player";
+import { addMusicIntoRNTP } from "../functions/RNTP/addMusicIntoRNTP";
 
 export const initialiseWebsocket = ({id,dispatch,value}) => {
     try{ 
@@ -80,21 +82,18 @@ const Playlist = ({}) => {
   const { user, session, loading, error, clientID } = userState;
   const { colors } = useTheme();
 
+  //This constant gives us the current playback state
+  const playbackState = usePlaybackState();
+  
   const { index } = useRoute().params;
-  const {
-    data: value,
-    pos,
-    seek,
-    isplaying,
-     canLoad
-  } = useSelector((state) => state.data);
+  const { data: value, pos, seek, isplaying, canLoad} = useSelector((state) => state.data);
   // const user = useSelector((state)=>state.user.user)
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
-    const { song,pos:position ,load:playload } = useSelector(
-      (state) => state.playlistload
-    );
+  const { song,pos:position ,load:playload } = useSelector(
+    (state) => state.playlistload
+  );
     
   const currentTrack = canLoad ? data && pos >= 0 && pos < data.length ? data[pos] : null : playload? song && position >= 0 && position < song.length ? song[position] : null :
       !canLoad? data && pos >= 0 && pos < data.length ? data[pos] : null : song && position >= 0 && position < song.length ? song[position] : null
@@ -108,106 +107,69 @@ const Playlist = ({}) => {
     // navigation.navigate('PlaylistEdit', { index });
   };
 
-useEffect(() => {
-  if (currentTrack) {
-    //console.warn("Updating notification with currentTrack:", currentTrack);
-    MediaNotificationManager.showNotification({
-      title: currentTrack.title || "Unknown Title",
-      artist: currentTrack.uploader || currentTrack.artist || "Unknown Artist",
-      artwork: currentTrack.image || "", // albumArt
-    });
-  }
-}, [currentTrack]);
+  useEffect(() => {
+    if (currentTrack) {
+      //console.warn("Updating notification with currentTrack:", currentTrack);
+      MediaNotificationManager.showNotification({
+        title: currentTrack.title || "Unknown Title",
+        artist: currentTrack.uploader || currentTrack.artist || "Unknown Artist",
+        artwork: currentTrack.image || "", // albumArt
+      });
+    }
+  }, [currentTrack]);
 
-const handleDelete = async () => {
-  try {
-    await dispatch(deletePlaylist({ playlistId: data[index].id, userid: user.id })).unwrap();
-    dispatch(removePlaylist(data[index].id));
-    navigation.goBack();
-  } catch (error) {
-    console.error("Failed to delete playlist:", error);
-    // alert("Could not delete playlist. Please try again.");
-    dispatch(showToast({Title:"Error",message:"Could not delete playlist. Please try again later!"}))
-  }
-};
+  const handleDelete = async () => {
+    try {
+      await dispatch(deletePlaylist({ playlistId: data[index].id, userid: user.id })).unwrap();
+      dispatch(removePlaylist(data[index].id));
+      navigation.goBack();
+    } catch (error) {
+      console.error("Failed to delete playlist:", error);
+      // alert("Could not delete playlist. Please try again.");
+      dispatch(showToast({Title:"Error",message:"Could not delete playlist. Please try again later!"}))
+    }
+  };
 
-
-//   useEffect(()=>{
-//   console.warn("0000000000000000000000000000000")
-//   console.warn("DATA: ",data)
-//     console.warn("USER: ",user.id)
-//     console.warn("PlaylistIDDD: ",data[index].id)
-//         console.warn("INDEXXXX: ",index)
-// },[])
-
-// MediaNotificationManager.showNotification({
-//   title: item.title || "Unknown Title",
-//   artist: item.uploader || "Unknown Artist",
-//   artwork: item.image || "",
-// });
-
-
+  //This function is used to play a song when a song is clicked from playlist
   const handlePressLogic = async(item,pos) => {
     if(isDisabled && songid===item.id) return;
     setIsDisabled(true)
     setSongId(item.id);
-    console.warn(item)
-    if (!playRef.current) {
-      //console.warn("no current songs")
-      if (playlistNo != index) {
-        dispatch(changePlaylist(index))
-      }
-      //console.warn(data[index].songs)
-      dispatch(addType(data[index].songs))
-      dispatch(changePlaylistPos({value:0,jump:pos}));
-      dispatch(changeLoad(false))
-      dispatch(load(false));
-      setTimeout(() => {
-        dispatch(changeLoad(true))
-      }, 500);
-      dispatch(setPlaylistplaying({ action: true, id: index }));
-      dispatch(setIsPlaying(true));
-
-    } else {
-      //console.warn("reached playlist toggle");
-      //console.warn(playlistNo, index);
-      if (playlistNo != index) {
-        dispatch(changePlaylist(index))  
-        //await playRef.current.playAsync();
-      }
-      dispatch(addType(data[index].songs))
-      dispatch(changePlaylistPos({value:0,jump:pos}));
-      dispatch(changeLoad(false))
-      dispatch(load(false));
-      dispatch(setPlaylistplaying({ action: true, id: index }));
-
-      setTimeout(() => {
-        dispatch(changeLoad(true))
-      }, 500);
-
-      
-      // else if (isplaying) {
-      //   //console.warn("isplaying", isplaying)
-      //   await playRef.current.pauseAsync();
-      //   dispatch(setPlaylistplaying({ action: false, id: index }));
-      //   dispatch(progress(-1));
-      //   //updatePlaybackState(false, seek); //added
-      // } else {
-      //   //console.warn("isplaying", isplaying)
-      //   await playRef.current.playAsync(); // resumes from last position
-      //   dispatch(setPlaylistplaying({ action: true, id: index }));
-      //   dispatch(progress(-1));
-      //   //updatePlaybackState(true, seek); //added
-      // }
-      
-      
+    if(playbackState.state == State.Playing){
+        await TrackPlayer.pause()
     }
-    dispatch(setIsPlaying(true));
-    
+    if(playlistNo!=index){
+      dispatch(changePlaylist(index))
+      dispatch(addType(data[index].songs))
+      dispatch(changePlaylistPos(pos))
+      addMusicIntoRNTP({tracks:data[index].songs,resetQueue:true})
+      await TrackPlayer.skip(pos);
+      await TrackPlayer.play();
+      dispatch(setPlaylistplaying({id:index,action:true})) // ✅ start right away
+      return;
+    }
+    if(!playRef.current){
+      console.error("not in playref")
+      playRef.current = true;
+      soundRef.current = false;
+      
+      dispatch(addType(data[index].songs))
+      dispatch(changePlaylistPos(pos))
+      addMusicIntoRNTP({tracks:data[index].songs,resetQueue:true})
+      await TrackPlayer.skip(pos);
+      await TrackPlayer.play()
+      dispatch(setPlaylistplaying({id:index,action:true}))
+      return
+    }
+    await TrackPlayer.skip(pos);
+    dispatch(changePlaylistPos(pos))
+    console.error("playing....")
+    await TrackPlayer.play()
+    dispatch(setPlaylistplaying({id:index,action:true}))
     setTimeout(()=>{
       setIsDisabled(false)
     },5000)
-}
+  }
 
   const styles = StyleSheet.create({
     Main: {
@@ -400,56 +362,51 @@ const handleDelete = async () => {
   const Description = data[index].desc;
   const Uname = user?.user_metadata.username;
   const minHeight = 1000
+
+  //This function is used to play a song when Play/pause button is clicked
   const togglePlayPause = async () => {
-
+    console.error("Current state:", playbackState);
+    if(playbackState.state === State.Playing){
+        await TrackPlayer.pause()
+    }
+    if(playlistNo!=index){
+      console.warn("moving to diff playlist")
+      dispatch(changePlaylist(index))
+      addMusicIntoRNTP({tracks:data[index].songs,resetQueue:true})
+      await TrackPlayer.play();
+      dispatch(setPlaylistplaying({id:index,action:true})) // ✅ start right away
+      return;
+    }
+    // Initialize playlist once
     if (!playRef.current) {
-      //console.warn("no current songs")
-      if (playlistNo != index) {
-        dispatch(changePlaylist(index))
-      }
-      //console.warn(data[index].songs)
-      dispatch(addType(data[index].songs))
-      dispatch(changeLoad(false))
-      dispatch(load(false));
-      setTimeout(() => {
-        dispatch(changeLoad(true))
-      }, 500);
-      dispatch(setPlaylistplaying({ action: true, id: index }));
-      dispatch(setIsPlaying(true));
-
-    } else {
-      //console.warn("reached playlist toggle");
-      //console.warn(playlistNo, index);
-      if (playlistNo != index) {
-        dispatch(changePlaylist(index))
-        dispatch(addType(data[index].songs))
-        dispatch(changeLoad(false))
-        dispatch(load(false));
-        dispatch(setPlaylistplaying({ action: true, id: index }));
-
-        setTimeout(() => {
-          dispatch(changeLoad(true))
-        }, 500);
-
-        //await playRef.current.playAsync();
-      }
-      else if (isplaying) {
-        //console.warn("isplaying", isplaying)
-        await playRef.current.pauseAsync();
-        dispatch(setPlaylistplaying({ action: false, id: index }));
-        dispatch(progress(-1));
-        //updatePlaybackState(false, seek); //added
-      } else {
-        //console.warn("isplaying", isplaying)
-        await playRef.current.playAsync(); // resumes from last position
-        dispatch(setPlaylistplaying({ action: true, id: index }));
-        dispatch(progress(-1));
-        //updatePlaybackState(true, seek); //added
-      }
-
-      dispatch(setIsPlaying("toggle"));
+      console.error("not in ref...adding")
+      playRef.current = true;
+      soundRef.current = false;
+      addMusicIntoRNTP({tracks:data[index].songs,resetQueue:true})
+      await TrackPlayer.play();
+      dispatch(setPlaylistplaying({id:index,action:true})) // ✅ start right away
+      return;
+    }
+  
+    // Toggle play/pause depending on current state
+    if (playbackState.state == State.Playing) {
+      console.log("Pausing...");
+      await TrackPlayer.pause();
+      dispatch(setPlaylistplaying({id:index,action:false}))
+    } 
+    else if(playbackState.state == State.Ended){
+      console.warn("ended state")
+      await TrackPlayer.seek(0)
+      await TrackPlayer.play()
+      dispatch(setPlaylistplaying({id:index,action:false}))
+    }
+    else {
+      console.log("Playing...");
+      await TrackPlayer.play();
+      dispatch(setPlaylistplaying({id:index,action:true}))
     }
   };
+
 
   
 
@@ -494,6 +451,7 @@ const handleDelete = async () => {
         handleDelete={handleDelete}
         index={index}
         colors={colors}
+        playbackState={playbackState.state}
       />
       <Flatlist data={data[index].songs || []} 
           styles={styles} 
@@ -521,7 +479,8 @@ const Information = ({
   goToNewPage,
   handleDelete,
   index,
-  colors
+  colors,
+  playbackState
 }) => {
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -650,7 +609,7 @@ const Information = ({
                 onPress={() => togglePlayPause()}
                 style={styles.miniPlayPauseButton}
               >
-                {data.isPlaying ? (
+                {data.isPlaying && (playbackState === State.Playing || playbackState === State.Buffering) ? (
                   <View style={styles.pauseLinesContainer}>
                     <View style={styles.miniPauseLine} />
                     <View style={styles.miniPauseLine} />

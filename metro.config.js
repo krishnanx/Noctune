@@ -2,11 +2,19 @@ const { getDefaultConfig } = require("expo/metro-config");
 
 const defaultConfig = getDefaultConfig(__dirname);
 
-const customConfig = {
+module.exports = {
+  ...defaultConfig,
   resolver: {
+    ...defaultConfig.resolver,
     unstable_conditionNames: ["browser", "require", "react-native"],
+    extraNodeModules: {
+      "react-native-track-player": require.resolve(
+        "react-native-track-player/lib/src/index.js"
+      ),
+    },
   },
   transformer: {
+    ...defaultConfig.transformer,
     getTransformOptions: async () => ({
       transform: {
         experimentalImportSupport: false,
@@ -16,19 +24,6 @@ const customConfig = {
   },
 };
 
-// Manually merge defaultConfig and customConfig
-module.exports = {
-  ...defaultConfig,
-  ...customConfig,
-  resolver: {
-    ...defaultConfig.resolver,
-    ...customConfig.resolver,
-  },
-  transformer: {
-    ...defaultConfig.transformer,
-    ...customConfig.transformer,
-  },
-};
 
 // // metro.config.js
 // const { getDefaultConfig } = require("expo/metro-config");
