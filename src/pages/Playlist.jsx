@@ -19,7 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import icon from "../../assets/LikedSongs/heart.png"
 import normIcon from "../../assets/LikedSongs/Frame 4.png";
-import { playRef, soundRef } from "../functions/MusicLoaders/music";
+import { playRef, soundRef } from "../../App.jsx";
 import { load, progress, setIsPlaying } from "../../Store/MusicSlice";
 import { changePlaylist, setPlaylistplaying,deletePlaylist,removePlaylist } from "../../Store/PlaylistSlice";
 import { addPath, addSong, download } from "../../Store/DownloadSlice";
@@ -95,9 +95,9 @@ const Playlist = ({}) => {
     (state) => state.playlistload
   );
     
-  const currentTrack = canLoad ? data && pos >= 0 && pos < data.length ? data[pos] : null : playload? song && position >= 0 && position < song.length ? song[position] : null :
-      !canLoad? data && pos >= 0 && pos < data.length ? data[pos] : null : song && position >= 0 && position < song.length ? song[position] : null
-
+  var currentTrack = soundRef.current ? data && pos >= 0 && pos < data.length ? data[pos] : null : playRef.current? song && position >= 0 && position < song.length ? song[position] : null :
+      !soundRef.current? data && pos >= 0 && pos < data.length ? data[pos] : null : song && position >= 0 && position < song.length ? song[position] : null
+  console.error("current track from playlist:", currentTrack,soundRef.current,playRef.current,position,song.length)
   const goToNewPage = () => {
     // //console.warn("DATA: ", JSON.stringify(data, null, 2));
     // data[0].songs?.forEach((song, idx) => {
@@ -118,6 +118,12 @@ const Playlist = ({}) => {
     }
   }, [currentTrack]);
 
+  const changeTrack = () => {
+    currentTrack = soundRef.current ? data && pos >= 0 && pos < data.length ? data[pos] : null : playRef.current? song && position >= 0 && position < song.length ? song[position] : null :
+      !soundRef.current? data && pos >= 0 && pos < data.length ? data[pos] : null : song && position >= 0 && position < song.length ? song[position] : null
+      console.error("current track from playlist(after):", currentTrack,soundRef.current,playRef.current,position,song.length)
+  }
+
   const handleDelete = async () => {
     try {
       await dispatch(deletePlaylist({ playlistId: data[index].id, userid: user.id })).unwrap();
@@ -130,7 +136,7 @@ const Playlist = ({}) => {
     }
   };
 
-  //This function is used to play a song when a song is clicked from playlist
+  //This function is used to play a song, when a song is clicked from playlist
   const handlePressLogic = async(item,pos) => {
     if(isDisabled && songid===item.id) return;
     setIsDisabled(true)

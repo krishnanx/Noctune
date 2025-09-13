@@ -1,5 +1,5 @@
 // THIS IS MINIPLAYER
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef,useState } from "react";
 import {
   View,
   Text,
@@ -18,7 +18,7 @@ import {
   load,
   setSearchedMusic,
 } from "../../Store/MusicSlice";
-import { loadAudio, playRef, soundRef } from "../functions/MusicLoaders/music.js";
+import { playRef, soundRef } from "../../App.jsx";
 // import { addMusicinPlaylist } from "../../Store/PlaylistSlice";
 // import MarqueeText from "react-native-marquee";
 // import TextTicker from "react-native-text-ticker";
@@ -28,7 +28,7 @@ import MediaNotificationManager from "../functions/MediaNotification";
 import { showNotification } from "../functions/MediaNotification";
 import { setPlaylistplaying } from "../../Store/PlaylistSlice";
 import NotificationSync from "../functions/NotificationSync.js";
-
+import TrackPlayer,{state,usePlaybackState} from "react-native-track-player";
 
 const Player = () => {
   const { colors } = useTheme();
@@ -41,14 +41,38 @@ const Player = () => {
   const { song, pos: position, seek: seekk, load } = useSelector(
     (state) => state.playlistload
   );
-  const currentTrack = soundRef.current ? data && pos >= 0 && pos < data.length ? data[pos] : null : playRef.current? song && position >= 0 && position < song.length ? song[position] : null :
-      !soundRef.current? data && pos >= 0 && pos < data.length ? data[pos] : null : song && position >= 0 && position < song.length ? song[position] : null
-
-  //const mediaListenersInitialized = useRef(false);
-  const currentSong = data[pos] || {};
-
+  
   const togglePlayPauseRef = useRef(null);
+  const playbackState = usePlaybackState();
+  const [currentTrack, setCurrentTrack] = useState(null);
 
+  const getCurrentTrackInfo = async () => {
+    try {
+      const track = await TrackPlayer.getActiveTrack(); 
+      if (track) {
+        setCurrentTrack(track); // store track in state
+      } else {
+        setCurrentTrack(null);
+      }
+    } catch (error) {
+      console.error("Error getting current track info:", error);
+      setCurrentTrack(null);
+    }
+  };
+
+  useEffect(() => {
+    getCurrentTrackInfo();
+
+    // optional: update when track changes
+    const listener = TrackPlayer.addEventListener("playback-track-changed", async () => {
+      await getCurrentTrackInfo();
+    });
+
+    return () => {
+      listener.remove();
+    };
+  }, []);
+  
   const changePlayPause = async () => {
     if (!soundRef.current) {
       //console.warn("sound ref is null")
@@ -137,7 +161,7 @@ const Player = () => {
       position: "absolute",
       // bottom: 100,
       width: "95%",
-      height: "7%",
+      height:50,
       backgroundColor: "gray",
       flexDirection: "row",
       alignItems: "center",
@@ -434,7 +458,7 @@ const Player = () => {
           <View style={styles.miniPlayer} activeOpacity={0.9}>
             <View style={styles.miniPlayerInfo}>
               <Image
-                source={{ uri: currentTrack?.image || null }}
+                source={{ uri: currentTrack?.artwork || null }}
                 style={styles.miniPlayerThumbnail}
               />
               <View style={styles.miniPlayerTextContainer}>

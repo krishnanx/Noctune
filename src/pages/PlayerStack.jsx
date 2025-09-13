@@ -28,7 +28,7 @@ import {
   isplaying,
   setSearchedMusic
 } from "../../Store/MusicSlice";
-import { loadAudio, playRef, soundRef } from "../functions/MusicLoaders/music.js";
+import { playRef, soundRef } from "../../App.jsx";
 // import { addMusicinPlaylist } from "../../Store/PlaylistSlice";
 // import MarqueeText from "react-native-marquee";
 // import TextTicker from "react-native-text-ticker";
@@ -50,7 +50,7 @@ import {setFullLyrics,setCurrentSongId} from "../../Store/LyricsSlice.js";
 import { changeLoad } from "../../Store/Playdataslice.js";
 import { addMusictoPlaylist,addMusicinPlaylist,addPlaylist ,AddNewPlaylist,removeMusicFromPlaylist} from "../../Store/PlaylistSlice";
 import { current } from "@reduxjs/toolkit";
-import TrackPlayer, { State, usePlaybackState } from 'react-native-track-player';
+import TrackPlayer, { State, usePlaybackState,useActiveTrack } from 'react-native-track-player';
 import { setupPlayer } from "../functions/player.js";
 //import { BlurView } from "expo-blur";
 import Constants from "expo-constants"
@@ -73,10 +73,7 @@ const PlayerStack = () => {
     (state) => state.playlistload
   );
   //console.warn("Load:",load)
-  
-  const currentTrack = soundRef.current ? data && pos >= 0 && pos < data.length ? data[pos] : null : playRef.current? song && position >= 0 && position < song.length ? song[position] : null :
-      !soundRef.current? data && pos >= 0 && pos < data.length ? data[pos] : null : song && position >= 0 && position < song.length ? song[position] : null
-
+  console.warn("currentTrack", currentTrack)
   //const mediaListenersInitialized = useRef(false);
 
   const [lyrics, setLyrics] = useState(null);
@@ -95,6 +92,35 @@ const PlayerStack = () => {
   };
 
   const playbackState = usePlaybackState();
+  const [currentTrack, setCurrentTrack] = useState(null);
+  const getCurrentTrackInfo = async () => {
+    try {
+      const track = await TrackPlayer.getActiveTrack(); 
+      if (track) {
+        setCurrentTrack(track); // store track in state
+        console.error(track)
+      } else {
+        setCurrentTrack(null);
+      }
+    } catch (error) {
+      console.error("Error getting current track info:", error);
+      setCurrentTrack(null);
+    }
+  };
+
+  useEffect(() => {
+    getCurrentTrackInfo();
+
+    // optional: update when track changes
+    const listener = TrackPlayer.addEventListener("playback-track-changed", async () => {
+      await getCurrentTrackInfo();
+    });
+
+    return () => {
+      listener.remove();
+    };
+  }, []);
+
   useEffect(() => {
     const fetchLyrics = async () => {
       setLyricsLoading(true);
@@ -243,70 +269,6 @@ const handleFetchFullLyrics = async () => {
       dispatch(load(true));
       
       }
-
-  
-    // const timeNow = Date.now();
-
-    // if (timeNow - lastPressRef.current < DOUBLE_PRESS_DELAY) {
-    //   // Double press detected
-    //   if (singlePressTimeoutRef.current) {
-    //     clearTimeout(singlePressTimeoutRef.current);
-    //     singlePressTimeoutRef.current = null;
-    //   }
-    //   //console.warn("Double press detected!");
-    //   if (soundRef.previous) {
-    //     //console.error("prev ref exsists")
-    //     await soundRef.previous.playAsync()
-    //   }
-    //   else {
-        
-    //     if(soundRef.current == null){
-          
-    //       dispatch(changePlaylistPos(value));
-    //       dispatch(setSearchedMusic(true))
-    //       dispatch(load(false));
-    //       dispatch(load(true));
-    //     }
-    //     else{
-    //      dispatch(changePos(value));
-    //       dispatch(setSearchedMusic(true))
-    //       dispatch(changeLoad(false));
-    //       dispatch(changeLoad(true));
-    //     }
-        
-    //   }
-    // } else {
-    //   // Set timeout for single press
-    //   singlePressTimeoutRef.current = setTimeout(async () => {
-    //     //console.warn("Single press detected");
-    //     if(value == 1){
-    //        if(soundRef.current == null){
-    //           dispatch(changePlaylistPos(value));
-    //           dispatch(setSearchedMusic(true))
-    //           dispatch(load(false));
-    //           dispatch(load(true));
-    //         }
-    //         else{
-    //           dispatch(changePos(value));
-    //           dispatch(setSearchedMusic(true))
-    //           dispatch(changeLoad(false));
-    //           dispatch(changeLoad(true));
-    //         }
-    //     }
-    //     else{
-    //       dispatch(progress(0));
-    //       if(soundRef.current){
-    //         await soundRef.current.playFromPositionAsync(0);
-    //       }
-    //       else{
-    //         await playRef.current.playFromPositionAsync(0)
-    //       }
-    //     }
-        
-    //   }, DOUBLE_PRESS_DELAY);
-    // }
-
-    // lastPressRef.current = timeNow;
   };
 
   const TOTAL_DURATION = data ? data[pos]?.duration : 0;
@@ -632,7 +594,7 @@ const handleFetchFullLyrics = async () => {
       }}
     >
       <ImageBackground
-          source={{uri: currentTrack?.image}}
+          source={{uri: currentTrack?.artwork}}
           style={StyleSheet.absoluteFill}
           imageStyle={styles.imageStyle}
           blurRadius={50} 
@@ -676,9 +638,9 @@ const handleFetchFullLyrics = async () => {
         {/* <WaveformVisualizer ytUrl={currentTrack?.url} seconds={seek} /> */}
         <Metadata
           data={
-            canLoad ? data && data[pos]
-              ? data[pos]
-              : { title: "Unknown Song", uploader: "Unknown Artist" } : song && song[position] ? song[position] : { title: "Unknown Song", uploader: "Unknown Artist" }
+                currentTrack
+                  ? { title: currentTrack.title, artist: currentTrack.artist, image:currentTrack.artwork }
+                  : { title: "Unknown Song", uploader: "Unknown Artistt" }
           }
           colors={colors}
           liked={liked}
@@ -721,10 +683,10 @@ const handleFetchFullLyrics = async () => {
 
         <Custom_modal
           data={
-            canLoad ? data && data[pos]
-              ? data[pos]
-              : { title: "Unknown Song", uploader: "Unknown Artist" } : song && song[position] ? song[position] : { title: "Unknown Song", uploader: "Unknown Artist" }
-          }
+                currentTrack
+                  ? { title: currentTrack.title, artist: currentTrack.artist,image:currentTrack.artwork }
+                  : { title: "Unknown Song", uploader: "Unknown Artist" }
+              }
           isModalVisible={isModalVisible}
           styles={styles}
           toggleModal={toggleModal}
@@ -760,58 +722,58 @@ const Metadata = ({
   }, [seek, isDragging, userSetPosition]);
 
   
- const playlists = useSelector(state => state.playlist?.data || []);  //fetch playlists 
+  const playlists = useSelector(state => state.playlist?.data || []);  //fetch playlists 
   const {user} = useSelector(state => state.user)
   const likedPlaylist = playlists.find(p => p.id === 0); // search for playlists with  id:0  ie Liked Songs
   const likedSongs = likedPlaylist?.songs || [];         //get the song from the liked songs playlist
   const isLiked = likedSongs.some(song => song.id === data.id); // checking if song is liked already
 
  
-const handleLikePress = async () => {
-  const upscaledSong = {
-    ...data,
-    image: data.image?.replace(/w\d+-h\d+/, "w500-h500"),
-  };
+  const handleLikePress = async () => {
+    const upscaledSong = {
+      ...data,
+      image: data.image?.replace(/w\d+-h\d+/, "w500-h500"),
+    };
 
-  const isAlreadyLiked = likedSongs.some(song => song.id === data.id);
+    const isAlreadyLiked = likedSongs.some(song => song.id === data.id);
 
-  if (isAlreadyLiked) {   //Unliking a song
-    try {
-      dispatch(removeMusicFromPlaylist({ id: 0, musicId: data.id }));  //remove from redux
-    } catch (error) {
-      console.error("Error removing song from liked playlist:", error);
-    }
-  } else { //Like a soong
-    try {
-      if (!likedPlaylist) {
-        const newLiked = {
-          id: 0,
-          name: "Liked Songs",
-          desc: "Your favorite tracks",
-          songs: [upscaledSong],
-          image: upscaledSong.image || null,
-          Time: upscaledSong.duration || 0,
-          isPlaying: false,
-        };
-
-        await dispatch(AddNewPlaylist({ data: newLiked, userid: user.id }));   //if Liked song playlist doesnt exist,create one with current song
-        dispatch(addPlaylist({ playlist: newLiked }));
-      } else {
-        dispatch(addMusicinPlaylist({ id: 0, music: upscaledSong }));  //if Liked songs playlist exist,add the song
-        
-        dispatch(addMusictoPlaylist({    //send add req to backend
-          playlist: likedPlaylist,
-          user: user.id,
-          music: upscaledSong
-        }));
+    if (isAlreadyLiked) {   //Unliking a song
+      try {
+        dispatch(removeMusicFromPlaylist({ id: 0, musicId: data.id }));  //remove from redux
+      } catch (error) {
+        console.error("Error removing song from liked playlist:", error);
       }
-    } catch (error) {
-      console.error("Error adding song to liked playlist:", error);
-      // Optionally revert the Redux state 
-      dispatch(removeMusicFromPlaylist({ id: 0, musicId: data.id }));
+    } else { //Like a soong
+      try {
+        if (!likedPlaylist) {
+          const newLiked = {
+            id: 0,
+            name: "Liked Songs",
+            desc: "Your favorite tracks",
+            songs: [upscaledSong],
+            image: upscaledSong.image || null,
+            Time: upscaledSong.duration || 0,
+            isPlaying: false,
+          };
+
+          await dispatch(AddNewPlaylist({ data: newLiked, userid: user.id }));   //if Liked song playlist doesnt exist,create one with current song
+          dispatch(addPlaylist({ playlist: newLiked }));
+        } else {
+          dispatch(addMusicinPlaylist({ id: 0, music: upscaledSong }));  //if Liked songs playlist exist,add the song
+          
+          dispatch(addMusictoPlaylist({    //send add req to backend
+            playlist: likedPlaylist,
+            user: user.id,
+            music: upscaledSong
+          }));
+        }
+      } catch (error) {
+        console.error("Error adding song to liked playlist:", error);
+        // Optionally revert the Redux state 
+        dispatch(removeMusicFromPlaylist({ id: 0, musicId: data.id }));
+      }
     }
-  }
-};
+  };
   return (
     <>  
     {/* {console.warn(data)} */}
@@ -822,7 +784,7 @@ const handleLikePress = async () => {
             <Text style={styles.songName}>{data?.title || "Unknown Song"}</Text>
           </View>
           <Text style={styles.singerName}>
-            {data?.uploader || data?.artist || "Unknown Artist"}
+            {data?.artist || "Unknown Artist"}
           </Text>
         </View>
 
