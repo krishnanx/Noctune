@@ -137,7 +137,7 @@ const Player = () => {
       position: "absolute",
       // bottom: 100,
       width: "95%",
-      height: "7%",
+      height:50,
       backgroundColor: "gray",
       flexDirection: "row",
       alignItems: "center",
