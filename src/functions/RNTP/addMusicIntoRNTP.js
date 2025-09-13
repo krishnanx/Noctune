@@ -21,21 +21,26 @@ export async function addMusicIntoRNTP({tracks, resetQueue = false}) {
         artist: t.artist || "Unknown Artist",
         artwork: t.image,
         duration: t.duration, // optional, seconds
+        type: 'default'
       }));
 
       await TrackPlayer.add(track);
       return;
     }
 
-    console.warn(tracks)
-
+    console.warn("LETS ADDD:",tracks)
+    const upscaledUrl = tracks.image.replace(
+        /w\d+-h\d+/,
+        "w500-h500"
+      );
     const track = {
       id: tracks.id,
       url: `${Constants.expoConfig.extra.SERVER}/api/stream?url=${encodeURIComponent(tracks.url)}`,
       title: tracks.title || "Unknown Title",
       artist: tracks.artist || "Unknown Artist",
-      artwork: tracks.image,
+      artwork: upscaledUrl,
       duration: tracks.duration, // optional, seconds
+      type: 'default'
     }
 
     await TrackPlayer.add([track]);

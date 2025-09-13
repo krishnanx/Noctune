@@ -41,7 +41,6 @@ import eventBus from './src/functions/eventBus.js';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import store from "./Store/store.js";
 import * as Notifications from 'expo-notifications';
-import { playRef, soundRef } from "./src/functions/MusicLoaders/music.js";
 import MediaNotificationManager from "./src/functions/MediaNotification.js";
 import { isPending } from "@reduxjs/toolkit";
 import { setupPlayer } from "./src/functions/player.js";
@@ -55,6 +54,12 @@ Notifications.setNotificationHandler({
   }),
 });
 
+export const soundRef = {
+  current: true,
+};
+export const playRef = {
+  current: false
+}
 
 export default function App() {
   const insets = useSafeAreaInsets();
@@ -129,38 +134,38 @@ export default function App() {
       subscription.remove();
     };
   }, []);
-  useEffect(() => {
-      const loadLastSong = async () => {
-        try {
-          const jsonValue = await AsyncStorage.getItem("Queue");
-          const jsonPos = await AsyncStorage.getItem("position")
-          console.warn("Queue:",jsonValue)
-          console.warn("position:",jsonPos)
-          if (jsonValue != null && jsonPos != null) {
-            const Queue = JSON.parse(jsonValue);
-            const QueuePos = JSON.parse(jsonPos)
+  // useEffect(() => {
+  //     const loadLastSong = async () => {
+  //       try {
+  //         const jsonValue = await AsyncStorage.getItem("Queue");
+  //         const jsonPos = await AsyncStorage.getItem("position")
+  //         console.warn("Queue:",jsonValue)
+  //         console.warn("position:",jsonPos)
+  //         if (jsonValue != null && jsonPos != null) {
+  //           const Queue = JSON.parse(jsonValue);
+  //           const QueuePos = JSON.parse(jsonPos)
             
-            if (Queue.length > 0) {
-              // First, dispatch action to add song to store
-              dispatch(changeDATA(Queue));
-              dispatch(setIsLoadedFromAsyncStorage(true));
-              await addMusicIntoRNTP({tracks:Queue})
-              await TrackPlayer.skip(QueuePos)
-              const currentIndex = await TrackPlayer.getActiveTrackIndex();
-              const track = await TrackPlayer.getTrack(currentIndex);
-              console.warn("Now playing:", track);
+  //           if (Queue.length > 0) {
+  //             // First, dispatch action to add song to store
+  //             dispatch(changeDATA(Queue));
+  //             dispatch(setIsLoadedFromAsyncStorage(true));
+  //             await addMusicIntoRNTP({tracks:Queue})
+  //             await TrackPlayer.skip(QueuePos)
+  //             const currentIndex = await TrackPlayer.getActiveTrackIndex();
+  //             const track = await TrackPlayer.getTrack(currentIndex);
+  //             console.warn("Now playing:", track);
 
-            } else {
-              console.warn("No valid song data found in AsyncStorage");
-            }
-          }
-        } catch (e) {
-          console.error("Error loading last song", e);
-        }
-      };
+  //           } else {
+  //             console.warn("No valid song data found in AsyncStorage");
+  //           }
+  //         }
+  //       } catch (e) {
+  //         console.error("Error loading last song", e);
+  //       }
+  //     };
   
-      loadLastSong();
-  }, []);
+  //     loadLastSong();
+  // }, []);
 
 
  

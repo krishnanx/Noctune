@@ -10,14 +10,7 @@ import eventBus from '../eventBus.js';
 import { changeLoad, changePlaylistPos } from "../../../Store/Playdataslice.js";
 import { sendSongFinishedNotification } from "../../functions/LocalNotification.js"
 let currentLoadToken = null;
-export const soundRef = {
-  previous: null,
-  current: null,
-  next: null
-};
-export const playRef = {
-  current: null
-}
+
 export const loadAudio = async (
   data,
   pos,

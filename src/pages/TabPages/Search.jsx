@@ -32,7 +32,7 @@ import {
   setSearchedMusic,
   setSearchedMusicHistory
 } from "../../../Store/MusicSlice.js";
-import { loadAudio, soundRef, unloadAudio } from "../../functions/MusicLoaders/music.js";
+import { soundRef,playRef } from "../../../App.jsx";
 import Audioloader from "../../functions/MusicLoaders/Audioloader.jsx";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
