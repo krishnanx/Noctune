@@ -205,6 +205,16 @@ const handleFetchFullLyrics = async () => {
 
   const togglePlayPauseRef = useRef(null);
 
+  useEffect(() => {
+    if (playbackState.state === State.Ended) {
+      (async () => {
+        await TrackPlayer.seekTo(0);   // jump back to start
+        await TrackPlayer.pause();     // stays paused at 0
+        // OR use TrackPlayer.play() if you want auto-replay
+      })();
+    }
+  }, [playbackState]);
+
   const togglePlayPause = async () => {
     console.warn("toggle")
     console.warn(playbackState)
@@ -214,8 +224,9 @@ const handleFetchFullLyrics = async () => {
     }
     else if(playbackState.state == State.Ended){
       console.warn("ended state")
-      await TrackPlayer.seekTo(0)
-      await TrackPlayer.play()
+      // await TrackPlayer.seekTo(0)
+      // await new Promise(resolve => setTimeout(resolve, 2000));
+      // await TrackPlayer.play()
     } 
     else {
       await TrackPlayer.play();

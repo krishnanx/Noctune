@@ -11,7 +11,7 @@ import ToastReducer from './ToastSlice.js'
 import Playdataslice from "./Playdataslice.js"
 import LyricsSlice from "./LyricsSlice.js"
 import VersionSlice from "./VersionSlice.js";
-
+import WaveformSlice from "./waveform.js"
 const store = configureStore({
     reducer: {
         theme: ThemeSlice,
@@ -25,7 +25,8 @@ const store = configureStore({
         playlistload: Playdataslice,
         toast: ToastReducer,
         lyrics: LyricsSlice,
-        version: VersionSlice
+        version: VersionSlice,
+        waveform: WaveformSlice,
     }
 })
 export default store;

@@ -3,6 +3,8 @@ import { View, StyleSheet, Dimensions, Text, ScrollView } from 'react-native';
 import Constants from "expo-constants";
 import Svg, { Rect } from 'react-native-svg';
 import TrackPlayer, { State, usePlaybackState, useProgress, useActiveTrack } from 'react-native-track-player';
+import { useDispatch,useSelector } from 'react-redux';
+import { updateWaveformPosition } from '../../Store/waveform';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const BAR_WIDTH = 7;
@@ -11,17 +13,13 @@ const HEIGHT = 100;
 
 const WaveformVisualizer = ({ ytUrl }) => {
   const [waveformData, setWaveformData] = useState([]);
-  const [loading, setLoading] = useState(true);
   const scrollViewRef = useRef();
+  const [tick, setTick] = useState(0);
 
-  const [smoothPosition, setSmoothPosition] = useState(0);
+  const smoothPositionRef = useRef(0);  
+  const smoothFillsRef = useRef([]); // smooth fill per bar
   const animationRef = useRef();
   const lastUpdateTimeRef = useRef(performance.now());
-  const targetPositionRef = useRef(0);
-
-  const waveWidth = (waveformData?.length || 0) * (BAR_WIDTH + SPACING);
-  const leftPadding = SCREEN_WIDTH / 2;
-  const paddedWidth = waveWidth + leftPadding * 2;
 
   const progress = useProgress(100);
   const position = progress.position;
@@ -29,40 +27,43 @@ const WaveformVisualizer = ({ ytUrl }) => {
   const activeTrack = useActiveTrack();
   const duration = activeTrack?.duration && activeTrack.duration > 0 
     ? activeTrack.duration 
-    : progress.duration || 1; // fallback so never 0
+    : progress.duration || 1; 
 
-  const pixelsPerSecond = waveWidth / duration;
+  const pixelsPerSecond = (waveformData?.length || 0) * (BAR_WIDTH + SPACING) / duration;
   const playbackState = usePlaybackState();
   const isPlaying = playbackState === State.Playing;
 
-  
-
   const scrollXRef = useRef(0);
 
+  const waveWidth = (waveformData?.length || 0) * (BAR_WIDTH + SPACING);
+  const leftPadding = SCREEN_WIDTH / 2;
+  const paddedWidth = waveWidth + leftPadding * 2;
+
+  const lastScrollX = useSelector(state => state.waveform.lastScrollX);
+  const lastSmoothPosition = useSelector(state => state.waveform.lastSmoothPosition);
+  const dispatch = useDispatch();
+
   useEffect(() => {
-    if (!scrollViewRef.current) return;
+    smoothPositionRef.current = lastSmoothPosition;
+    scrollXRef.current = lastScrollX;
+  }, []);
 
-    const targetX = Math.max(0, smoothPosition);
-    const diff = targetX - scrollXRef.current;
+  // Save position on unmount
+  useEffect(() => {
+    const interval = setInterval(() => {
+      dispatch(updateWaveformPosition({
+        lastScrollX: scrollXRef.current,
+        lastSmoothPosition: smoothPositionRef.current
+      }));
+    }, 1000); // every 1 second
+    return () => clearInterval(interval);
+  }, []);
 
-    // Ease a bit toward target
-    scrollXRef.current += diff * 0.15;
-
-    scrollViewRef.current.scrollTo({
-      x: scrollXRef.current,
-      animated: false,
-    });
-  }, [smoothPosition]);
-
-
-
-  // Fetch waveform data
   useEffect(() => {
     if (!ytUrl) return;
 
     const fetchWaveform = async () => {
       try {
-        setLoading(true);
         const placeholderData = Array(100).fill(0);
         setWaveformData(placeholderData);
 
@@ -76,101 +77,84 @@ const WaveformVisualizer = ({ ytUrl }) => {
         setWaveformData(json?.waveform || []);
       } catch (err) {
         console.error("Waveform fetch error:", err);
-      } finally {
-        setLoading(false);
       }
     };
 
     fetchWaveform();
   }, [ytUrl]);
 
-// Animate smooth position
-useEffect(() => {
+// **Initialize smoothFillsRef when waveformData changes**
+  useEffect(() => {
+    if (waveformData && waveformData.length > 0) {
+      smoothFillsRef.current = waveformData.map(() => 0);
+    }
+  }, [waveformData]);
+
+
+  // Animate smooth position + per-bar fills
+  useEffect(() => {
   const animate = (currentTime) => {
     const deltaTime = (currentTime - lastUpdateTimeRef.current) / 1000;
+    lastUpdateTimeRef.current = currentTime;
 
-    setSmoothPosition(prev => {
-      const targetPixels = position * pixelsPerSecond;
+    setTick(t => t + 1); // triggers useMemo to re-render bars
 
-      if (isPlaying) {
-        // Move forward at real-time speed
-        return prev + deltaTime * pixelsPerSecond;
-      } else {
-        // Ease towards the target
-        const diff = targetPixels - prev;
-        if (Math.abs(diff) < 1) return targetPixels;
-        return prev + diff * 0.1;
-      }
+    const targetPixels = position * pixelsPerSecond;
+
+    // Smooth waveform position
+    if (isPlaying) {
+      smoothPositionRef.current += deltaTime * pixelsPerSecond;
+    } else {
+      smoothPositionRef.current += (targetPixels - smoothPositionRef.current) * 0.05; // small catch-up
+    }
+
+    // Smooth scroll
+    if (scrollViewRef.current) {
+      const diff = Math.max(0, smoothPositionRef.current) - scrollXRef.current;
+      scrollXRef.current += diff * (1 - Math.exp(-deltaTime * 8));
+      scrollViewRef.current.scrollTo({ x: scrollXRef.current, animated: false });
+    }
+
+    // Smooth fill per bar using frame-rate-independent exponential smoothing
+    waveformData.forEach((_, i) => {
+      const barStart = (i / waveformData.length) * duration;
+      const barEnd = ((i + 1) / waveformData.length) * duration;
+
+      let targetFill = 0;
+      const currentTimeSec = smoothPositionRef.current / pixelsPerSecond;
+      if (currentTimeSec >= barEnd) targetFill = 1;
+      else if (currentTimeSec > barStart) targetFill = (currentTimeSec - barStart) / (barEnd - barStart);
+
+      // Exponential smoothing
+      const smoothFactor = 8; // higher = faster catch-up
+      smoothFillsRef.current[i] += (targetFill - smoothFillsRef.current[i]) * (1 - Math.exp(-deltaTime * smoothFactor));
+      
+      // Clamp between 0 and 1
+      smoothFillsRef.current[i] = Math.min(1, Math.max(0, smoothFillsRef.current[i]));
     });
 
-    lastUpdateTimeRef.current = currentTime;
     animationRef.current = requestAnimationFrame(animate);
   };
 
   animationRef.current = requestAnimationFrame(animate);
   return () => cancelAnimationFrame(animationRef.current);
-}, [isPlaying, position, pixelsPerSecond]);
-
-// Update target only (don’t snap smoothPosition)
-useEffect(() => {
-  targetPositionRef.current = position;
-}, [position]);
-
-  // Auto scroll
- useEffect(() => {
-  if (
-    scrollViewRef.current &&
-    waveformData.length > 0 &&
-    Number.isFinite(smoothPosition)
-  ) {
-    const diff = Math.max(0, smoothPosition) - scrollXRef.current;
-    scrollXRef.current += diff * 0.1; // keep smooth scrolling
-
-    scrollViewRef.current.scrollTo({
-      x: scrollXRef.current,
-      animated: false,
-    });
-  }
-}, [smoothPosition, waveformData]);
+}, [isPlaying, position, waveformData, pixelsPerSecond, duration]);
 
 
-
-  // Calculate bars
+  // Render bars
   const bars = useMemo(() => {
-    if (!Array.isArray(waveformData) || waveformData.length === 0) return [];
-    const progressRatio = smoothPosition / waveWidth;
+    if (!waveformData || waveformData.length === 0) return [];
 
     return waveformData.map((amp, i) => {
       const height = Math.max(4, (amp / 100) * HEIGHT);
-      
-      // Time coverage of this bar
-      const barStart = (i / waveformData.length) * duration;
-      const barEnd = ((i + 1) / waveformData.length) * duration;
-
-      // Current progress in seconds
-      const currentTime = smoothPosition / pixelsPerSecond;
-
-      // Fill ratio for this bar (0 → 1)
-      let fillRatio = 0;
-      if (currentTime >= barEnd) {
-        fillRatio = 1; // fully filled
-      } else if (currentTime > barStart) {
-        fillRatio = (currentTime - barStart) / (barEnd - barStart);
-      }
-
       return {
         id: i,
         height,
         x: i * (BAR_WIDTH + SPACING),
-        fillRatio,
+        fillRatio: smoothFillsRef.current[i] ?? 0,
       };
     });
-
-  }, [waveformData, smoothPosition, waveWidth]);
-
-  // if (loading || bars.length === 0) {
-  //   return null;
-  // }
+  }, [waveformData,tick]);
 
   const formatTime = (seconds) => {
     if (!seconds || !isFinite(seconds)) return "0:00";
@@ -182,7 +166,7 @@ useEffect(() => {
   return (
     <View style={styles.wrapper}>
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 5 }}>
-        <Text style={styles.timeText}>{formatTime(smoothPosition / pixelsPerSecond)}</Text>
+        <Text style={styles.timeText}>{formatTime(smoothPositionRef.current / pixelsPerSecond)}</Text>
         <Text style={styles.timeText}>{formatTime(duration)}</Text>
       </View>
 
@@ -233,7 +217,6 @@ useEffect(() => {
                 opacity={0.5}
                 rx={2}
               />
-
             </React.Fragment>
           ))}
         </Svg>
