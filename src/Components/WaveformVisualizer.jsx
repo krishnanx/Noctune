@@ -23,7 +23,7 @@ const WaveformVisualizer = ({ ytUrl }) => {
   const leftPadding = SCREEN_WIDTH / 2;
   const paddedWidth = waveWidth + leftPadding * 2;
 
-  const progress = useProgress(250);
+  const progress = useProgress(150);
   const position = progress.position;
 
   const activeTrack = useActiveTrack();
@@ -34,6 +34,27 @@ const WaveformVisualizer = ({ ytUrl }) => {
   const pixelsPerSecond = waveWidth / duration;
   const playbackState = usePlaybackState();
   const isPlaying = playbackState === State.Playing;
+
+  
+
+  const scrollXRef = useRef(0);
+
+  useEffect(() => {
+    if (!scrollViewRef.current) return;
+
+    const targetX = Math.max(0, smoothPosition);
+    const diff = targetX - scrollXRef.current;
+
+    // Ease a bit toward target
+    scrollXRef.current += diff * 0.15;
+
+    scrollViewRef.current.scrollTo({
+      x: scrollXRef.current,
+      animated: false,
+    });
+  }, [smoothPosition]);
+
+
 
   // Fetch waveform data
   useEffect(() => {
@@ -96,18 +117,23 @@ useEffect(() => {
 }, [position]);
 
   // Auto scroll
-  useEffect(() => {
-    if (
-      scrollViewRef.current &&
-      waveformData.length > 0 &&
-      Number.isFinite(smoothPosition)
-    ) {
-      scrollViewRef.current.scrollTo({
-        x: Math.max(0, smoothPosition),
-        animated: false,
-      });
-    }
-  }, [smoothPosition, waveformData]);
+ useEffect(() => {
+  if (
+    scrollViewRef.current &&
+    waveformData.length > 0 &&
+    Number.isFinite(smoothPosition)
+  ) {
+    const diff = Math.max(0, smoothPosition) - scrollXRef.current;
+    scrollXRef.current += diff * 0.1; // keep smooth scrolling
+
+    scrollViewRef.current.scrollTo({
+      x: scrollXRef.current,
+      animated: false,
+    });
+  }
+}, [smoothPosition, waveformData]);
+
+
 
   // Calculate bars
   const bars = useMemo(() => {
@@ -116,13 +142,30 @@ useEffect(() => {
 
     return waveformData.map((amp, i) => {
       const height = Math.max(4, (amp / 100) * HEIGHT);
+      
+      // Time coverage of this bar
+      const barStart = (i / waveformData.length) * duration;
+      const barEnd = ((i + 1) / waveformData.length) * duration;
+
+      // Current progress in seconds
+      const currentTime = smoothPosition / pixelsPerSecond;
+
+      // Fill ratio for this bar (0 → 1)
+      let fillRatio = 0;
+      if (currentTime >= barEnd) {
+        fillRatio = 1; // fully filled
+      } else if (currentTime > barStart) {
+        fillRatio = (currentTime - barStart) / (barEnd - barStart);
+      }
+
       return {
         id: i,
         height,
         x: i * (BAR_WIDTH + SPACING),
-        isPlayed: i < waveformData.length * progressRatio,
+        fillRatio,
       };
     });
+
   }, [waveformData, smoothPosition, waveWidth]);
 
   // if (loading || bars.length === 0) {
@@ -153,24 +196,44 @@ useEffect(() => {
         <Svg width={waveWidth} height={HEIGHT * 2}>
           {bars.map((bar) => (
             <React.Fragment key={bar.id}>
+              {/* Played part */}
               <Rect
                 x={leftPadding + bar.x}
                 y={HEIGHT - bar.height}
-                width={BAR_WIDTH}
+                width={BAR_WIDTH * bar.fillRatio}
                 height={bar.height}
-                fill={bar.isPlayed ? '#2A2A2A' : '#AAA'}
+                fill="#2A2A2A"
                 rx={2}
-                opacity={bar.isPlayed ? 1 : 0.5}
               />
               <Rect
                 x={leftPadding + bar.x}
                 y={HEIGHT}
-                width={BAR_WIDTH}
+                width={BAR_WIDTH * bar.fillRatio}
                 height={bar.height}
-                fill={bar.isPlayed ? '#2A2A2A' : '#AAA'}
+                fill="#2A2A2A"
                 rx={2}
-                opacity={bar.isPlayed ? 1 : 0.5}
               />
+
+              {/* Remaining part */}
+              <Rect
+                x={leftPadding + bar.x + BAR_WIDTH * bar.fillRatio}
+                y={HEIGHT - bar.height}
+                width={BAR_WIDTH * (1 - bar.fillRatio)}
+                height={bar.height}
+                fill="#AAA"
+                opacity={0.5}
+                rx={2}
+              />
+              <Rect
+                x={leftPadding + bar.x + BAR_WIDTH * bar.fillRatio}
+                y={HEIGHT}
+                width={BAR_WIDTH * (1 - bar.fillRatio)}
+                height={bar.height}
+                fill="#AAA"
+                opacity={0.5}
+                rx={2}
+              />
+
             </React.Fragment>
           ))}
         </Svg>
