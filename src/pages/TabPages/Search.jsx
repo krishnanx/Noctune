@@ -121,12 +121,22 @@ const Search = () => {
     }
     try {
       await addMusicIntoRNTP({ tracks: song });
+      await skipToLast()
       console.warn("Dispatches complete");
       navigation.navigate('PlayerStack');
     } catch (e) {
       console.error("Error adding to RNTP:", e);
     }
   };
+
+  async function skipToLast() {
+    const queue = await TrackPlayer.getQueue();
+    if (queue.length > 0) {
+      const lastIndex = queue.length - 1;
+      await TrackPlayer.skip(lastIndex); 
+      await TrackPlayer.play();
+    }
+  }
 
   const saveLastPlayedSong = async (song) => {
     try {

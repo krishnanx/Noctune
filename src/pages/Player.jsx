@@ -28,7 +28,7 @@ import MediaNotificationManager from "../functions/MediaNotification";
 import { showNotification } from "../functions/MediaNotification";
 import { setPlaylistplaying } from "../../Store/PlaylistSlice";
 import NotificationSync from "../functions/NotificationSync.js";
-import TrackPlayer,{state,usePlaybackState} from "react-native-track-player";
+import TrackPlayer,{State,usePlaybackState,useProgress} from "react-native-track-player";
 
 const Player = () => {
   const { colors } = useTheme();
@@ -45,7 +45,7 @@ const Player = () => {
   const togglePlayPauseRef = useRef(null);
   const playbackState = usePlaybackState();
   const [currentTrack, setCurrentTrack] = useState(null);
-
+  const progress = useProgress(100);
   const getCurrentTrackInfo = async () => {
     try {
       const track = await TrackPlayer.getActiveTrack(); 
@@ -73,34 +73,20 @@ const Player = () => {
     };
   }, []);
   
-  const changePlayPause = async () => {
-    if (!soundRef.current) {
-      //console.warn("sound ref is null")
-      //console.warn(soundRef.current)
-      if (playRef.current) {
-        if (isplaying) {
-          //console.error("secomd")
-          await playRef.current.pauseAsync();
-          dispatch(progress(-1));
-        } else {
-          await playRef.current.playAsync(); // resumes from last position
-          dispatch(progress(-1));
-          //console.error("second")
-        }
-        dispatch(setIsPlaying("toggle"));
-        dispatch(setPlaylistplaying({ action: "toggle", id: playlistNo }));
-      }
+  const togglePlayPause = async () => {
+    console.warn("toggle")
+    console.warn(playbackState)
+    
+    if (playbackState.state === State.Playing || playbackState.state === State.Buffering) {
+      await TrackPlayer.pause();
     }
-    else if (isplaying) {
-      //console.warn("paused")
-      await soundRef.current.pauseAsync();
-      dispatch(progress(-1));
-      dispatch(setIsPlaying(false));
-    } else {
-      //console.warn("resumed")
-      await soundRef.current.playAsync(); // resumes from last position
-      dispatch(progress(-1));
-      dispatch(setIsPlaying(true));
+    else if(playbackState.state == State.Ended){
+      console.warn("ended state")
+      await TrackPlayer.seekTo(0)
+      await TrackPlayer.play()
+    } 
+    else {
+      await TrackPlayer.play();
     }
     
   };
@@ -110,42 +96,7 @@ const Player = () => {
     navigation.navigate('PlayerStack');
   };
 
-  const TOTAL_DURATION = canLoad? data ? data[pos]?.duration : 0 : song ? song[position]?.duration : 0
-
-  useEffect(() => {
-    togglePlayPauseRef.current = changePlayPause;
-    console.log("hola");
-  }, [changePlayPause]);
-
-  useEffect(() => {
-    let mediaListenersInitialized = false;
-    if (!mediaListenersInitialized) {
-      console.log("Setting up media notification listeners");
-
-
-      MediaNotificationManager.registerPlayPauseHandler(() => {
-        console.log("Play/Pause triggered from notification");
-        if (togglePlayPauseRef.current) {
-          togglePlayPauseRef.current();
-        } else {
-          //console.warn("togglePlayPauseRef is not available");
-        }
-      });
-
-      mediaListenersInitialized = true;
-      return () => {
-        console.log("Cleaning up media notification listeners");
-        MediaNotificationManager.removeAllListeners();
-        MediaNotificationManager.hideNotification();
-      };
-    }
-  }, []);
-
-  //Update notification when playback state changes
-  useEffect(() => {
-    MediaNotificationManager.updatePlaybackStatus(isplaying,seek);
-  }, [isplaying]);
-
+  const TOTAL_DURATION = currentTrack ? currentTrack.duration : 0
 
   const styles = StyleSheet.create({
     Main: {
@@ -227,7 +178,7 @@ const Player = () => {
     },
     miniProgressBar: {
       position: "absolute",
-      top: 54,
+      top: 47,
       left: 7,
       right: 3,
       height: 3,
@@ -476,10 +427,10 @@ const Player = () => {
 
             <View style={styles.miniPlayerControls}>
               <TouchableOpacity
-                onPress={changePlayPause}
+                onPress={togglePlayPause}
                 style={styles.miniPlayPauseButton}
               >
-                {isplaying ? (
+                {playbackState.state == State.Playing || playbackState.state == State.Buffering ? (
                   <View style={styles.pauseLinesContainer}>
                     <View style={styles.miniPauseLine} />
                     <View style={styles.miniPauseLine} />
@@ -496,7 +447,7 @@ const Player = () => {
                 style={[
                   styles.miniProgressBarFill,
                   {
-                    width: `${TOTAL_DURATION ? (seek / TOTAL_DURATION) * 100 : 0
+                    width: `${TOTAL_DURATION ? (progress.position / TOTAL_DURATION) * 100 : 0
                       }%`,
                   },
                 ]}
