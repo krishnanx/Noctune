@@ -208,13 +208,19 @@ const handleFetchFullLyrics = async () => {
   const togglePlayPause = async () => {
     console.warn("toggle")
     console.warn(playbackState)
-    console.warn(State.Playing)
     
-    if (playbackState.state === State.Playing) {
+    if (playbackState.state === State.Playing || playbackState.state === State.Buffering) {
       await TrackPlayer.pause();
-    } else {
+    }
+    else if(playbackState.state == State.Ended){
+      console.warn("ended state")
+      await TrackPlayer.seekTo(0)
+      await TrackPlayer.play()
+    } 
+    else {
       await TrackPlayer.play();
     }
+    
   };
 
   const replaySound = async () => {
@@ -271,7 +277,7 @@ const handleFetchFullLyrics = async () => {
       }
   };
 
-  const TOTAL_DURATION = data ? data[pos]?.duration : 0;
+  const TOTAL_DURATION = currentTrack ? currentTrack.duration : 0
 
   const styles = StyleSheet.create({
     Main: {

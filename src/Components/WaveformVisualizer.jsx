@@ -23,7 +23,7 @@ const WaveformVisualizer = ({ ytUrl }) => {
   const leftPadding = SCREEN_WIDTH / 2;
   const paddedWidth = waveWidth + leftPadding * 2;
 
-  const progress = useProgress(150);
+  const progress = useProgress(100);
   const position = progress.position;
 
   const activeTrack = useActiveTrack();

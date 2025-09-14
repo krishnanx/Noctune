@@ -28,7 +28,7 @@ import MediaNotificationManager from "../functions/MediaNotification";
 import { showNotification } from "../functions/MediaNotification";
 import { setPlaylistplaying } from "../../Store/PlaylistSlice";
 import NotificationSync from "../functions/NotificationSync.js";
-import TrackPlayer,{state,usePlaybackState} from "react-native-track-player";
+import TrackPlayer,{State,usePlaybackState,useProgress} from "react-native-track-player";
 
 const Player = () => {
   const { colors } = useTheme();
@@ -45,7 +45,7 @@ const Player = () => {
   const togglePlayPauseRef = useRef(null);
   const playbackState = usePlaybackState();
   const [currentTrack, setCurrentTrack] = useState(null);
-
+  const progress = useProgress(100);
   const getCurrentTrackInfo = async () => {
     try {
       const track = await TrackPlayer.getActiveTrack(); 
@@ -479,7 +479,7 @@ const Player = () => {
                 onPress={changePlayPause}
                 style={styles.miniPlayPauseButton}
               >
-                {isplaying ? (
+                {playbackState.state == State.Playing || playbackState.state == State.Buffering ? (
                   <View style={styles.pauseLinesContainer}>
                     <View style={styles.miniPauseLine} />
                     <View style={styles.miniPauseLine} />

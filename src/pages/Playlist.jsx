@@ -97,7 +97,7 @@ const Playlist = ({}) => {
     
   var currentTrack = soundRef.current ? data && pos >= 0 && pos < data.length ? data[pos] : null : playRef.current? song && position >= 0 && position < song.length ? song[position] : null :
       !soundRef.current? data && pos >= 0 && pos < data.length ? data[pos] : null : song && position >= 0 && position < song.length ? song[position] : null
-  console.error("current track from playlist:", currentTrack,soundRef.current,playRef.current,position,song.length)
+  //console.error("current track from playlist:", currentTrack,soundRef.current,playRef.current,position,song.length)
   const goToNewPage = () => {
     // //console.warn("DATA: ", JSON.stringify(data, null, 2));
     // data[0].songs?.forEach((song, idx) => {
@@ -117,12 +117,6 @@ const Playlist = ({}) => {
       });
     }
   }, [currentTrack]);
-
-  const changeTrack = () => {
-    currentTrack = soundRef.current ? data && pos >= 0 && pos < data.length ? data[pos] : null : playRef.current? song && position >= 0 && position < song.length ? song[position] : null :
-      !soundRef.current? data && pos >= 0 && pos < data.length ? data[pos] : null : song && position >= 0 && position < song.length ? song[position] : null
-      console.error("current track from playlist(after):", currentTrack,soundRef.current,playRef.current,position,song.length)
-  }
 
   const handleDelete = async () => {
     try {
@@ -158,7 +152,6 @@ const Playlist = ({}) => {
       console.error("not in playref")
       playRef.current = true;
       soundRef.current = false;
-      
       dispatch(addType(data[index].songs))
       dispatch(changePlaylistPos(pos))
       addMusicIntoRNTP({tracks:data[index].songs,resetQueue:true})
@@ -402,7 +395,7 @@ const Playlist = ({}) => {
     } 
     else if(playbackState.state == State.Ended){
       console.warn("ended state")
-      await TrackPlayer.seek(0)
+      await TrackPlayer.seekTo(0)
       await TrackPlayer.play()
       dispatch(setPlaylistplaying({id:index,action:false}))
     }
