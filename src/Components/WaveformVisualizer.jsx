@@ -34,7 +34,7 @@ const WaveformVisualizer = ({ ytUrl }) => {
   const pixelsPerSecond = waveWidth / duration;
   const playbackState = usePlaybackState();
   const isPlaying = playbackState === State.Playing;
-
+  const [pausedFillRatios, setPausedFillRatios] = useState([]);
   
 
   const scrollXRef = useRef(0);
@@ -100,6 +100,7 @@ useEffect(() => {
         const diff = targetPixels - prev;
         if (Math.abs(diff) < 1) return targetPixels;
         return prev + diff * 0.1;
+        return targetPixels;
       }
     });
 
@@ -137,41 +138,41 @@ useEffect(() => {
 
   // Calculate bars
   const bars = useMemo(() => {
-    if (!Array.isArray(waveformData) || waveformData.length === 0) return [];
-    const progressRatio = smoothPosition / waveWidth;
+  if (!Array.isArray(waveformData) || waveformData.length === 0) return [];
+  
+  const currentTime = smoothPosition / pixelsPerSecond;
 
-    return waveformData.map((amp, i) => {
-      const height = Math.max(4, (amp / 100) * HEIGHT);
-      
-      // Time coverage of this bar
-      const barStart = (i / waveformData.length) * duration;
-      const barEnd = ((i + 1) / waveformData.length) * duration;
+  return waveformData.map((amp, i) => {
+    const height = Math.max(4, (amp / 100) * HEIGHT);
+    const barStart = (i / waveformData.length) * duration;
+    const barEnd = ((i + 1) / waveformData.length) * duration;
 
-      // Current progress in seconds
-      const currentTime = smoothPosition / pixelsPerSecond;
+    let fillRatio = 0;
+    if (currentTime >= barEnd) {
+      fillRatio = 1;
+    } else if (currentTime > barStart) {
+      fillRatio = (currentTime - barStart) / (barEnd - barStart);
+    }
 
-      // Fill ratio for this bar (0 → 1)
-      let fillRatio = 0;
-      if (currentTime >= barEnd) {
-        fillRatio = 1; // fully filled
-      } else if (currentTime > barStart) {
-        fillRatio = (currentTime - barStart) / (barEnd - barStart);
-      }
+    // If paused, override with saved ratio
+    if (!isPlaying && pausedFillRatios[i] !== undefined) {
+      fillRatio = pausedFillRatios[i];
+    }
 
-      return {
-        id: i,
-        height,
-        x: i * (BAR_WIDTH + SPACING),
-        fillRatio,
-      };
-    });
-
-  }, [waveformData, smoothPosition, waveWidth]);
+    return { id: i, height, x: i * (BAR_WIDTH + SPACING), fillRatio };
+  });
+}, [waveformData, smoothPosition, waveWidth, isPlaying, pausedFillRatios]);
 
   // if (loading || bars.length === 0) {
   //   return null;
   // }
-
+  useEffect(() => {
+  if (!isPlaying) {
+    setPausedFillRatios(
+      waveformData.map((_, i) => bars[i]?.fillRatio ?? 0)
+    );
+  }
+}, [isPlaying]);
   const formatTime = (seconds) => {
     if (!seconds || !isFinite(seconds)) return "0:00";
     const m = Math.floor(seconds / 60);
