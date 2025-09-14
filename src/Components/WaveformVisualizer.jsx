@@ -9,7 +9,7 @@ const BAR_WIDTH = 7;
 const SPACING = 5;
 const HEIGHT = 100;
 
-const WaveformVisualizer = ({ ytUrl }) => {
+const WaveformVisualizer = ({ ytUrl,duration="0:00" }) => {
   const [waveformData, setWaveformData] = useState([]);
   const [loading, setLoading] = useState(true);
   const scrollViewRef = useRef();
@@ -27,9 +27,7 @@ const WaveformVisualizer = ({ ytUrl }) => {
   const position = progress.position;
 
   const activeTrack = useActiveTrack();
-  const duration = activeTrack?.duration && activeTrack.duration > 0 
-    ? activeTrack.duration 
-    : progress.duration || 1; // fallback so never 0
+  //const duration = duration || "0:00" // fallback so never 0
 
   const pixelsPerSecond = waveWidth / duration;
   const playbackState = usePlaybackState();
@@ -125,9 +123,9 @@ useEffect(() => {
     });
   }, [waveformData, smoothPosition, waveWidth]);
 
-  if (loading || bars.length === 0) {
-    return null;
-  }
+  // if (loading || bars.length === 0) {
+  //   return null;
+  // }
 
   const formatTime = (seconds) => {
     if (!seconds || !isFinite(seconds)) return "0:00";
@@ -141,6 +139,7 @@ useEffect(() => {
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 5 }}>
         <Text style={styles.timeText}>{formatTime(smoothPosition / pixelsPerSecond)}</Text>
         <Text style={styles.timeText}>{formatTime(duration)}</Text>
+        {console.error("DURATION:",duration)}
       </View>
 
       <ScrollView

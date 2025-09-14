@@ -653,7 +653,7 @@ const handleFetchFullLyrics = async () => {
         />
         <View>
            <View style={{ height: 550 }} />
-            <WaveformVisualizer ytUrl={currentTrack?.url} seconds={seek}/>
+            <WaveformVisualizer ytUrl={currentTrack?.url} duration={currentTrack?.duration}/>
             <Controls
               togglePlayPause={togglePlayPause}
               playbackState={playbackState.state}
