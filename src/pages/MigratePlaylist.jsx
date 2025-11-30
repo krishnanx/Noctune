@@ -49,7 +49,7 @@ const MigratePlaylist = () => {
         if(!wsRef.current){
             initialiseWebsocket({id:user?.id,dispatch:dispatch,value:"migrate"})
         }
-        if (!playlistUrl.trim()) {
+        if (!migrationLink.trim()) {
             //dispatch(showToast({Title:"Migration started",message:"Please keep Noctune open until it completes."}));
             dispatch(showToast({Title:"Please enter a Spotify playlist URL",message:""}))
             return;
@@ -57,9 +57,11 @@ const MigratePlaylist = () => {
         // Here you would add your actual migration logic
         //console.warn('Migrating playlist:', playlistUrl);
         dispatch(showToast({Title:"Migration started",message:"Please wait for a few minutes."}));
-        dispatch(migrate({ Url: playlistUrl,user:user?.id }))
-        setPlaylistUrl("")
-
+        dispatch(migrate({ Url: migrationLink,user:user?.id }))
+        setTimeout(() => {
+            dispatch(addMigrationLink({ link: "" }));
+            setPlaylistUrl("");
+        }, 200); // 200ms delay
     };
 
     const handlePaste = async() => {

@@ -48,7 +48,7 @@ import { setupPlayer } from "./src/functions/player.js";
 import { addMusicIntoRNTP } from "./src/functions/RNTP/addMusicIntoRNTP.js";
 import TrackPlayer from "react-native-track-player";
 
-import { navigationRef } from "./src/functions/navigationRef.js";
+import { checkPendingNavigation, navigationRef, onNavigationReady, pendingNavigation } from "./src/functions/navigationRef.js";
 import { navigate } from "./src/functions/navigationRef.js";
 import { Link } from "react-native-feather";
 
@@ -394,8 +394,18 @@ export default function App() {
             style={{ flex: 1 }}
           >
             <View style={styles.container}>
-              <NavigationContainer
+             <NavigationContainer
                 ref={navigationRef}
+                onReady={() => {
+                  console.error("Navigation is ready!");
+                  // Check if we already start on Home
+                  const routeName = navigationRef.getCurrentRoute()?.name;
+                  checkPendingNavigation(routeName);
+                }}
+                onStateChange={() => {
+                  const routeName = navigationRef.getCurrentRoute()?.name;
+                  checkPendingNavigation(routeName);
+                }}
                 theme={Mode === "light" ? lightTheme : darkTheme}
               >
                 <UniversalNavi />
