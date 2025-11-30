@@ -7,7 +7,8 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Image,
-  Text, Animated,AppState,DeviceEventEmitter
+  Text, Animated,AppState,DeviceEventEmitter,
+NativeModules
 } from "react-native";
 import React, { useState, useEffect, useRef } from "react";
 import { NavigationContainer } from "@react-navigation/native";
@@ -35,7 +36,7 @@ import PlaylistLoader from "./src/functions/MusicLoaders/PlaylistLoader"
 import { YtMusicRef } from "./src/functions/YtMusicRef";
 import YoutubeMusicApi from "youtube-music-api";
 import ToastContainer from "./src/Components/ToastContainer";
-import { AddNewPlaylist, updatemigrateSliceSucess } from "./Store/PlaylistSlice";
+import { addMigrationLink, AddNewPlaylist, updatemigrateSliceSucess } from "./Store/PlaylistSlice";
 import { showToast } from "./Store/ToastSlice";
 import eventBus from './src/functions/eventBus.js';
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -46,6 +47,13 @@ import { isPending } from "@reduxjs/toolkit";
 import { setupPlayer } from "./src/functions/player.js";
 import { addMusicIntoRNTP } from "./src/functions/RNTP/addMusicIntoRNTP.js";
 import TrackPlayer from "react-native-track-player";
+
+import { navigationRef } from "./src/functions/navigationRef.js";
+import { navigate } from "./src/functions/navigationRef.js";
+import { Link } from "react-native-feather";
+
+
+
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -62,6 +70,52 @@ export const playRef = {
 }
 
 export default function App() {
+
+
+  useEffect(() => {
+      // Listen for share events
+      const subscription = DeviceEventEmitter.addListener('ShareReceived', async () => {
+        try {
+          const text = await NativeModules.ShareIntent.getText();
+          if (text) {
+            console.error("SPOTIFY LINK:", text);
+            
+            processIntent({text:text})
+            
+            // Clear the intent after processing
+            NativeModules.ShareIntent.clearIntent();
+          }
+        } catch (error) {
+          console.error("Error getting shared content:", error);
+        }
+      });
+
+      // Check immediately on mount in case share happened before listener was set up
+      checkSharedContent();
+
+      return () => {
+        subscription.remove();
+      };
+  }, []);
+
+  const checkSharedContent = async () => {
+    try {
+      const text = await NativeModules.ShareIntent.getText();
+      if (text) {
+        console.error("SPOTIFY LINK:", text);
+        processIntent({text:text})
+        NativeModules.ShareIntent.clearIntent();
+      }
+    } catch (error) {
+      console.error("Error getting shared content:", error);
+    }
+  };
+
+  const processIntent = ({text}) => {
+    dispatch(addMigrationLink({link:text}))
+    navigate("Migrate")
+    
+  }
   const insets = useSafeAreaInsets();
 
   useEffect(()=>{
@@ -341,6 +395,7 @@ export default function App() {
           >
             <View style={styles.container}>
               <NavigationContainer
+                ref={navigationRef}
                 theme={Mode === "light" ? lightTheme : darkTheme}
               >
                 <UniversalNavi />

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     SafeAreaView,
     StyleSheet,
@@ -14,23 +14,36 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useDispatch,useSelector } from 'react-redux';
-import { migrate } from '../../Store/PlaylistSlice';
+import { addMigrationLink, migrate } from '../../Store/PlaylistSlice';
 import { showToast } from '../../Store/ToastSlice';
 import BackArrow from '../Components/Icons/BackArrow';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation,useRoute } from '@react-navigation/native';
 import { wsRef } from '../Websocket/Websocket';
 import { initWebSocket } from '../Websocket/websocketfunc';
 import { initialiseWebsocket } from './Playlist';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from "@react-navigation/native";
+import Paste from '../Components/Icons/Paste';
 
 const MigratePlaylist = () => {
+    const route = useRoute();
+
+    const sharedLink = route.params?.sharedLink;
     const { colors } = useTheme();
+    const  migrationLink  = useSelector((state) => state.playlist.migrationLink);
     const [playlistUrl, setPlaylistUrl] = useState('');
     const userState = useSelector((state) => state.user || {});
     const { user, session, loading, error, clientID } = userState;
     const dispatch = useDispatch()
     const navigation = useNavigation()
+
+    useEffect(() => {
+        return () => {
+            // This runs when the component unmounts
+            dispatch(addMigrationLink({ link: "" }));
+        };
+    }, []);
+
     const handleSubmit = async() => {
         await AsyncStorage.setItem("migration","false")
         if(!wsRef.current){
@@ -133,7 +146,7 @@ const MigratePlaylist = () => {
         fontSize: 16,
         height: '100%',
     },
-    copyButton: {
+    PasteButton: {
         width: 24,
         height: 24,
         justifyContent: 'center',
@@ -264,11 +277,13 @@ const MigratePlaylist = () => {
                                     style={styles.input}
                                     placeholder="Spotify Playlist ()"
                                     placeholderTextColor="#8b9da5"
-                                    value={playlistUrl}
-                                    onChangeText={setPlaylistUrl}
+                                    value={migrationLink}
+                                    onChangeText={(text) =>
+                                        dispatch(addMigrationLink({ link: text }))
+                                    }
                                 />
                                 <TouchableOpacity style={styles.copyButton}>
-                                    <Text style={styles.copyIcon}>⟳</Text>
+                                    <Paste/>
                                 </TouchableOpacity>
                             </View>
                             <Text style={styles.reverseText}>spotify/playlist/URL</Text>
