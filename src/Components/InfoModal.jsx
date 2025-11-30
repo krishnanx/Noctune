@@ -34,7 +34,7 @@ const InfoModal = ({
     >
       <View style={styles.overlay}>
         <View style={styles.modal}>
-          <View style={styles.header}>
+          <View style={[styles.header]}>
             <Text style={styles.title}>{playlistName}</Text>
           </View>
           <View style={styles.descriptionContainer}>
@@ -73,6 +73,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 12,
+   
   },
   title: {
     fontSize: 20,
