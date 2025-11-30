@@ -36,6 +36,55 @@ class MainActivity : ReactActivity() {
             // Wait for React context to be ready before emitting event
             waitForReactContextAndEmit("AppStartedFresh")
         }
+        
+        // Handle share intent on app launch
+        handleShareIntent(intent)
+    }
+    
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        setIntent(intent) // Update the activity's intent - this is crucial!
+        
+        // Handle the new share intent
+        handleShareIntent(intent)
+    }
+    
+    private fun handleShareIntent(intent: Intent?) {
+        if (intent?.action == Intent.ACTION_SEND && intent.type == "text/plain") {
+            Log.d("ShareIntent", "Share intent detected")
+            
+            // Wait for React context and emit the share event
+            waitForReactContextAndEmitShare()
+        }
+    }
+    
+    private fun waitForReactContextAndEmitShare() {
+        handler.post(object : Runnable {
+            override fun run() {
+                try {
+                    val reactInstanceManager = getReactInstanceManager()
+                    val reactContext = reactInstanceManager?.currentReactContext
+                    
+                    if (reactContext != null) {
+                        // React context is ready, emit the share event
+                        reactContext.runOnUiQueueThread {
+                            try {
+                                reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                                    ?.emit("ShareReceived", null)
+                                Log.d("ShareIntent", "ShareReceived event emitted")
+                            } catch (e: Exception) {
+                                Log.e("ShareIntent", "Error emitting ShareReceived event", e)
+                            }
+                        }
+                    } else {
+                        // React context not ready yet, try again after a delay
+                        handler.postDelayed(this, 100)
+                    }
+                } catch (e: Exception) {
+                    Log.e("ShareIntent", "Error waiting for React context", e)
+                }
+            }
+        })
     }
     
     private fun waitForReactContextAndEmit(eventName: String) {

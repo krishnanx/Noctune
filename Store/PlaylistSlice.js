@@ -11,6 +11,7 @@ const PlaylistSlice = createSlice({
         playlistNo: -1,
         migrateSliceSucess: false,
         migratedPlaylist: [],
+        migrationLink:""
     },
     reducers: {
         addPlaylist(state, action) {
@@ -27,9 +28,9 @@ const PlaylistSlice = createSlice({
             state.migratedPlaylist = []
         },
         removePlaylist(state, action) { //this is to remove a single playlist from redux done after removing the same from redis too
-  const playlistId = action.payload;
-  state.data = state.data.filter(pl => pl.id !== playlistId);
-},
+            const playlistId = action.payload;
+            state.data = state.data.filter(pl => pl.id !== playlistId);
+        },
         updatemigrateSliceSucess(state, action) {
             state.migrateSliceSucess = action.payload.success
         },
@@ -150,6 +151,9 @@ const PlaylistSlice = createSlice({
             }
             }
         },
+        addMigrationLink(state,action){
+            state.migrationLink = action.payload.link
+        }
 
             
     },
@@ -216,31 +220,31 @@ const PlaylistSlice = createSlice({
 
                 const response = action.payload;
             })
-.addCase(editPlaylist.fulfilled, (state, action) => {
-    const { playlist, response } = action.payload;
-    
-    // Fix: Check for 'type' instead of 'status' to match your backend response
-    if (response.type === "success") {
-        // Find the playlist in state and update it
-        const playlistIndex = state.data.findIndex(p => p.id === playlist.id);
-        if (playlistIndex !== -1) {
-            state.data[playlistIndex] = {
-                ...state.data[playlistIndex],
-                ...playlist,
-                Time: playlist.songs.reduce((total, song) => total + (song.duration || 0), 0)
-            };
-        }
-        //console.warn("Playlist updated successfully in Redux");
-    } else {
-        //console.error("Backend returned unsuccessful response:", response);
-    }
-})
-.addCase(editPlaylist.pending, (state, action) => {
-    //console.warn("Editing playlist...");
-})
-.addCase(editPlaylist.rejected, (state, action) => {
-    //console.error("Failed to edit playlist:", action.payload);
-})
+            .addCase(editPlaylist.fulfilled, (state, action) => {
+                const { playlist, response } = action.payload;
+                
+                // Fix: Check for 'type' instead of 'status' to match your backend response
+                if (response.type === "success") {
+                    // Find the playlist in state and update it
+                    const playlistIndex = state.data.findIndex(p => p.id === playlist.id);
+                    if (playlistIndex !== -1) {
+                        state.data[playlistIndex] = {
+                            ...state.data[playlistIndex],
+                            ...playlist,
+                            Time: playlist.songs.reduce((total, song) => total + (song.duration || 0), 0)
+                        };
+                    }
+                    //console.warn("Playlist updated successfully in Redux");
+                } else {
+                    //console.error("Backend returned unsuccessful response:", response);
+                }
+            })
+            .addCase(editPlaylist.pending, (state, action) => {
+                //console.warn("Editing playlist...");
+            })
+            .addCase(editPlaylist.rejected, (state, action) => {
+                //console.error("Failed to edit playlist:", action.payload);
+            })
             .addCase(pullPlaylists.fulfilled, (state, action) => {
 
                 const response = action.payload;
@@ -268,7 +272,7 @@ const PlaylistSlice = createSlice({
 })
 
 export const { addPlaylist, addMusicinPlaylist, setPlaylistplaying, changePlaylist, updataID, updatemigrateSliceSucess, updatePlaylistData,  
-    resetPlaylists,deleteAllPlaylist,migrateSuccess,removeMusicFromPlaylist,removePlaylist  } = PlaylistSlice.actions;
+    resetPlaylists,deleteAllPlaylist,migrateSuccess,removeMusicFromPlaylist,removePlaylist,addMigrationLink  } = PlaylistSlice.actions;
 
 export default PlaylistSlice.reducer;
 export const migrate = createAsyncThunk('/migratedata', async ({ Url: data ,user:userID}) => {
