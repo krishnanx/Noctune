@@ -24,7 +24,7 @@ import { initialiseWebsocket } from './Playlist';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from "@react-navigation/native";
 import Paste from '../Components/Icons/Paste';
-
+import Clipboard from '@react-native-clipboard/clipboard';
 const MigratePlaylist = () => {
     const route = useRoute();
 
@@ -61,6 +61,18 @@ const MigratePlaylist = () => {
         setPlaylistUrl("")
 
     };
+
+    const handlePaste = async() => {
+        try {
+            const text = await Clipboard.getString();
+            dispatch(addMigrationLink({link:text}))
+            
+        } catch (e) {
+            console.error("Failed to read clipboard:", e);
+            dispatch(addMigrationLink({link:""}))
+            return null;
+        }
+    }
 
     const styles = StyleSheet.create({
     background: {
@@ -282,7 +294,9 @@ const MigratePlaylist = () => {
                                         dispatch(addMigrationLink({ link: text }))
                                     }
                                 />
-                                <TouchableOpacity style={styles.copyButton}>
+                                <TouchableOpacity style={styles.PasteButton}
+                                    onPress={()=>handlePaste()}
+                                >
                                     <Paste/>
                                 </TouchableOpacity>
                             </View>
