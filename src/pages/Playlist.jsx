@@ -220,7 +220,7 @@ const Playlist = ({}) => {
     },
     Name: {
       width: "100%",
-      height: 80,
+      minHeight: 80,
       
       //backgroundColor:"white"
     },
@@ -315,7 +315,7 @@ const Playlist = ({}) => {
       flexDirection: "row",
       alignItems: "center",
       //borderRadius: 25,
-          // /backgroundColor: "rgba(128,128,128,0.2)",
+          // /backgroundColor: "rgba(105, 49, 49, 0.2)",
          
          
           
@@ -422,48 +422,68 @@ const Playlist = ({}) => {
 
   };
   return (
-    <ScrollView
-      style={styles.Main}
-      contentContainerStyle={{
-        alignItems: "center",
-        paddingBottom: 100,
-        paddingHorizontal: 20,
-        paddingTop: 20,
-        height: 630 + (data[index].songs?.length * 90),
-        //backgroundColor: "white"
-      }}
+     <FlatList
+      data={data[index].songs}
+      keyExtractor={(item) => item.id.toString()}
+      renderItem={({item,index}) => <DataList styles={styles} item={item} handleCardPress={handlePressLogic} index={index} colors={colors} />
+
+      }
       showsVerticalScrollIndicator={false}
-      showsHorizontalScrollIndicator={false}
-      overScrollMode="never"
-    >
-      <Information
-        styles={styles}
-        Pname={Pname}
-        Uname={Uname}
-        data={data[index]}
-        navigation={navigation}
-        togglePlayPause={togglePlayPause}
-        handleDownload={handleDownload}
-        DownloadButton={DownloadButton}
-        Description={Description}
-        goToNewPage={goToNewPage}
-        handleDelete={handleDelete}
-        index={index}
-        colors={colors}
-        playbackState={playbackState.state}
-      />
-      <Flatlist data={data[index].songs || []} 
-          styles={styles} 
-          handleCardPress={handlePressLogic} 
+      ListHeaderComponent={() => (
+        <Information
+          styles={styles}
+          Pname={Pname}
+          Uname={Uname}
+          data={data[index]}
+          navigation={navigation}
+          togglePlayPause={togglePlayPause}
+          handleDownload={handleDownload}
+          DownloadButton={DownloadButton}
+          Description={Description}
+          goToNewPage={goToNewPage}
+          handleDelete={handleDelete}
+          index={index}
           colors={colors}
-          
-      />
-    </ScrollView>
+          playbackState={playbackState.state}
+        />
+      )}
+      initialNumToRender={10}
+      windowSize={10}
+      getItemLayout={(data, index) => ({ length: 80, offset: 80 * index, index })}
+    />
   );
 };
 
 export default Playlist;
 
+
+const DataList = ({ styles, item ,handleCardPress,index,colors}) => {
+  //console.warn("item", item,index);
+  return (
+    <TouchableHighlight
+      style={[styles.card,{paddingHorizontal:20}]}
+      onPress={() => handleCardPress(item,index)}
+
+      underlayColor="rgba(128,128,128,0.2)"
+      activeOpacity={0.7}
+    >
+      <View
+        style={{width:"100%",height:80,flexDirection:"row",justifyContent:"center",alignItems:"center",paddingHorizontal:5}}
+      >
+        <Image source={{ uri: item.image }} style={styles.cardImage} />
+        <View style={styles.textContainer}>
+          <Text numberOfLines={1} ellipsizeMode="tail" style={styles.songName}>
+            {item.title}
+          </Text>
+          <Text style={styles.artistName}>{item.uploader || item.artist}</Text>
+        </View>
+        <View style={styles.dotsContainer}>
+          <ThreeDots fill ={colors.text} />
+        </View>
+      </View>
+    </TouchableHighlight>
+  );
+};
 
 const Information = ({
   styles,
@@ -473,7 +493,6 @@ const Information = ({
   navigation,
   togglePlayPause,
   handleDownload,
-  DownloadButton,
   Description,
   goToNewPage,
   handleDelete,
@@ -496,7 +515,7 @@ const Information = ({
     setModalVisible(false);
   };
   return (
-    <View style={{ width: "100%" }}>
+    <View style={{ width: "100%",paddingHorizontal:20,paddingTop:10 }}>
       <View style={styles.top}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <BackArrow fill = {colors.text} />
@@ -541,6 +560,7 @@ const Information = ({
               fontWeight: "600",
               color: colors.text,
               marginBottom: 8,
+              backgroundColor:"red"
               
             }}
           >
@@ -623,46 +643,5 @@ const Information = ({
         </View>
       </View>
     </View>
-  );
-};
-const DataList = ({ styles, item ,handleCardPress,index,colors}) => {
-  //console.warn("item", item,index);
-  return (
-    <TouchableHighlight
-      style={styles.card}
-      onPress={() => handleCardPress(item,index)}
-
-      underlayColor="rgba(128,128,128,0.2)"
-      activeOpacity={0.7}
-    >
-      <View
-        style={{width:"100%",height:80,flexDirection:"row",justifyContent:"center",alignItems:"center",paddingHorizontal:5}}
-      >
-        <Image source={{ uri: item.image }} style={styles.cardImage} />
-        <View style={styles.textContainer}>
-          <Text numberOfLines={1} ellipsizeMode="tail" style={styles.songName}>
-            {item.title}
-          </Text>
-          <Text style={styles.artistName}>{item.uploader || item.artist}</Text>
-        </View>
-        <View style={styles.dotsContainer}>
-          <ThreeDots fill ={colors.text} />
-        </View>
-      </View>
-    </TouchableHighlight>
-  );
-};
-const Flatlist = ({ data, styles,handleCardPress,colors }) => {
-  return (
-    <FlatList
-      data={data}
-      keyExtractor={(item) => item.id.toString()}
-      scrollEnabled={false}
-      renderItem={({item,index}) => <DataList styles={styles} item={item} handleCardPress={handleCardPress} index={index} colors={colors} />
-
-      }
-      showsVerticalScrollIndicator={false}
-        showsHorizontalScrollIndicator={false}
-    />
   );
 };
