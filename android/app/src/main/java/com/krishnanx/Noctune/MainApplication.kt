@@ -37,7 +37,8 @@ class MainApplication : Application(), ReactApplication {
 
             packages.add(MediaNotificationPackage())
             packages.add(ShareIntentPackage())
-             add(MyAppPackage())
+            packages.add(MyAppPackage())
+
             return packages
           }
 

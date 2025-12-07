@@ -1,14 +1,16 @@
 package com.krishnanx.Noctune
-
+import android.util.Log
 import com.facebook.react.bridge.*
 import android.content.Intent
 import com.google.android.exoplayer2.MediaItem
 
+
 class AutoMediaModule(reactContext: ReactApplicationContext) : 
+
     ReactContextBaseJavaModule(reactContext) {
         
     override fun getName(): String = "AutoMedia"
-
+    private val TAG = "AutoMediaService"
     fun createPlayableMediaItem(
         id: String,
         title: String,
@@ -31,28 +33,52 @@ class AutoMediaModule(reactContext: ReactApplicationContext) :
 
 
     @ReactMethod
-    fun sendBrowseResult(callbackId: String, resultData: ReadableMap) {
-        // Convert resultData to MediaItems
+    fun sendBrowseResult(callbackId: String?, resultData: ReadableMap?) {
+        if (callbackId == null || resultData == null) {
+            // Just ignore the call
+            return
+        }
+        Log.d(TAG, "onLoadChildren called with callbackId: $callbackId")
+        // Now safe to use both non-null
         val itemsArray = resultData.getArray("items")
         val mediaItems = mutableListOf<MediaItem>()
+        Log.d(TAG, "Received resultData: $resultData")
+        if (itemsArray == null) {
+            Log.d(TAG, "itemsArray is null!")
+        } else {
+            Log.d(TAG, "itemsArray has ${itemsArray.size()} elements")
+        }
 
         itemsArray?.toArrayList()?.forEach { item ->
             if (item is ReadableMap) {
                 val id = item.getString("id") ?: return@forEach
-                val title = item.getString("title") ?: "Unknown"
-                val artist = item.getString("artist") ?: "Unknown Artist"
-                val album = item.getString("album") ?: ""
-                val artwork = item.getString("artwork")
-                val duration = item.getDouble("duration").toLong()
+                val title = item.getString("title") ?: "Untitled"
+                val artist = item.getString("artist") ?: "Various Artists"
+                val album = item.getString("album") ?: "Album"
+                val duration = item.getDouble("duration").toLong().takeIf { it > 0 } ?: 1000L
+                val artwork = item.getString("artwork") ?: "https://placeholder.com/cover.jpg"
+                Log.d(TAG, "Received item -> id: $id, title: $title, artist: $artist, album: $album, duration: $duration, artwork: $artwork")
 
                 mediaItems.add(createPlayableMediaItem(id, title, artist, album, artwork, duration))
             }
         }
 
-        // Now update the MediaSession queue
-        session.setQueue(mediaItems.mapIndexed { index, item ->
-            MediaSessionCompat.QueueItem(item.description, index.toLong())
-        })
+        val context = reactApplicationContext
+        val intent = Intent(context, AutoMediaService::class.java).apply {
+            putExtra("action", "SET_QUEUE_NATIVE")
+            putExtra("queue", Arguments.toBundle(resultData))
+        }
+        context.startService(intent)
+    }
+
+    @ReactMethod
+    fun addListener(eventName: String?) {
+        // Required for RN NativeEventEmitter; can be empty
+    }
+
+    @ReactMethod
+    fun removeListeners(count: Int) {
+        // Required for RN NativeEventEmitter; can be empty
     }
 
 

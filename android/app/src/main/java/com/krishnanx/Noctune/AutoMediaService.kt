@@ -19,7 +19,8 @@ import com.facebook.react.bridge.WritableMap
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import java.util.ArrayList
-
+import com.facebook.react.ReactInstanceManager
+import com.facebook.react.bridge.ReactContext
 class AutoMediaService : MediaBrowserServiceCompat() {
     private lateinit var session: MediaSessionCompat
     private lateinit var playbackStateBuilder: PlaybackStateCompat.Builder
@@ -254,20 +255,26 @@ class AutoMediaService : MediaBrowserServiceCompat() {
     }
 
     private fun sendEventToReactNative(eventName: String, params: WritableMap?) {
-        try {
-            val reactContext = (application as? MainApplication)
-                ?.reactNativeHost
-                ?.reactInstanceManager
-                ?.currentReactContext
-                
-            reactContext?.let { context ->
-                context.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-                    ?.emit(eventName, params)
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
+    val reactInstanceManager = (application as MainApplication).reactNativeHost.reactInstanceManager
+    val reactContext = reactInstanceManager.currentReactContext
+
+    if (reactContext != null) {
+        reactContext
+            .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+            ?.emit(eventName, params)
+    } else {
+        // Queue for later
+        reactInstanceManager.addReactInstanceEventListener(object : ReactInstanceManager.ReactInstanceEventListener {
+        override fun onReactContextInitialized(reactContext: ReactContext) {
+            reactContext
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                ?.emit(eventName, params)
         }
+    })
+
     }
+}
+
 
     override fun onGetRoot(
         clientPackageName: String, 
@@ -277,18 +284,12 @@ class AutoMediaService : MediaBrowserServiceCompat() {
         // You can implement authentication here if needed
         return BrowserRoot("root", null)
     }
+    private val pendingResults = mutableMapOf<String, Result<MutableList<MediaItem>>>() 
 
-    override fun onLoadChildren(
-    parentId: String, 
-    result: Result<MutableList<MediaItem>>
-) {
-    val mediaItems = mutableListOf<MediaItem>()
-
+    override fun onLoadChildren(parentId: String, result: Result<MutableList<MediaItem>>) {
     when (parentId) {
-        
         "root" -> {
-            // Main categories
-            Log.d(TAG, "onLoadChildren called with parentId: $parentId, mediaItems.size=${mediaItems.size}")
+            val mediaItems = mutableListOf<MediaItem>()
             mediaItems.add(createBrowsableMediaItem("queue", "Current Queue"))
             mediaItems.add(createBrowsableMediaItem("playlists", "Playlists"))
             mediaItems.add(createBrowsableMediaItem("artists", "Artists"))
@@ -296,33 +297,50 @@ class AutoMediaService : MediaBrowserServiceCompat() {
             mediaItems.add(createBrowsableMediaItem("songs", "All Songs"))
             mediaItems.add(createBrowsableMediaItem("recent", "Recently Played"))
             result.sendResult(mediaItems)
-
         }
 
-        "playlists" -> {
-            Log.d(TAG, "onLoadChildren called with parentId: $parentId, mediaItems.size=${mediaItems.size}")
+        "playlists", "playlist_*" -> {
+            // Detach result for async response
+            result.detach()
+
+            // Store result in map with parentId
+            pendingResults[parentId] = result
+
+            // Send event to JS
             sendBrowseRequest(parentId)
-            result.sendResult(mutableListOf<MediaItem>())
         }
 
         else -> {
-            // Third level: playlist clicked
-            
-            Log.d(TAG, "onLoadChildren called with parentId: $parentId, mediaItems.size=${mediaItems.size}")
-            if (parentId.startsWith("playlist_")) {
-                sendBrowseRequest(parentId) // Event to RN: load tracks for this playlist
-            }
-            result.sendResult(mediaItems)
+            result.sendResult(mutableListOf())
         }
     }
 }
 
-    private fun sendBrowseRequest(parentId: String) {
-        val params = Arguments.createMap().apply {
-            putString("parentId", parentId)
-        }
-        sendEventToReactNative(AutoMediaModule.EVENT_BROWSE_REQUEST, params)
-    }
+private fun sendBrowseRequest(parentId: String) {
+    val params = Arguments.createMap().apply { putString("parentId", parentId) }
+
+    val reactInstanceManager = (application as MainApplication).reactNativeHost.reactInstanceManager
+    val reactContext = reactInstanceManager.currentReactContext
+
+    reactContext?.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+        ?.emit(AutoMediaModule.EVENT_BROWSE_REQUEST, params)
+}
+
+// JS sends results back here
+fun onBrowseResult(parentId: String, items: List<ReadableMap>) {
+    val result = pendingResults.remove(parentId) ?: return
+
+    val mediaItems = items.map { item ->
+        createBrowsableMediaItem(
+            item.getString("id") ?: "",
+            item.getString("title") ?: "Untitled"
+        )
+    }.toMutableList()
+
+    result.sendResult(mediaItems)
+}
+
+
 
     private fun createBrowsableMediaItem(
         mediaId: String, 

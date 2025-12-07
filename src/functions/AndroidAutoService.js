@@ -58,13 +58,12 @@ class AndroidAutoService {
  */
    // Load all playlists
     async loadAllPlaylists() {
-    // Replace with your database / storage
-    const playlists = [
-        { id: 'playlist_1', title: 'Top Hits', artwork: 'https://example.com/p1.jpg', duration: 0 },
-        { id: 'playlist_2', title: 'Chill Vibes', artwork: 'https://example.com/p2.jpg', duration: 0 },
-    ];
-    return playlists;
+      return [
+        { id: 'playlist_1', title: 'Top Hits', artist: '', album: '', artwork: 'https://example.com/p1.jpg', duration: 0 },
+        { id: 'playlist_2', title: 'Chill Vibes', artist: '', album: '', artwork: 'https://example.com/p2.jpg', duration: 0 },
+      ];
     }
+
 
     // Load tracks inside a playlist
     async loadPlaylistTracks(playlistId) {
@@ -126,22 +125,16 @@ class AndroidAutoService {
 
     // Browse request from Android Auto (e.g., clicking a playlist)
     this.listeners.push(
-            autoMediaEmitter.addListener('ANDROID_AUTO_BROWSE_REQUEST', async (data) => {
-            const { parentId, callbackId } = data;
-            console.log('Browse request from Kotlin:', parentId);
+      autoMediaEmitter.addListener('ANDROID_AUTO_BROWSE_REQUEST', async (data) => {
+        const { parentId } = data;
+        console.error(parentId)
+        let items = [];
+        if (parentId === 'playlists') items = await this.loadAllPlaylists();
+        else if (parentId.startsWith('playlist_')) items = await this.loadPlaylistTracks(parentId.split('_')[1]);
 
-            let items = [];
-
-            if (parentId === 'playlists') {
-                items = await this.loadAllPlaylists();
-            } else if (parentId.startsWith('playlist_')) {
-                const playlistId = parentId.split('_')[1];
-                items = await this.loadPlaylistTracks(playlistId);
-            }
-
-            // Send result back to Kotlin
-            await AutoMedia.sendBrowseResult(callbackId, { items });
-        })
+        // Send result back with parentId
+        await AutoMedia.sendBrowseResult(parentId, { items });
+      })
 
 
 
