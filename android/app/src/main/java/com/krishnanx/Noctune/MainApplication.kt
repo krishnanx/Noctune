@@ -16,9 +16,15 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.uimanager.ViewManager
 import expo.modules.ApplicationLifecycleDispatcher
 import expo.modules.ReactNativeHostWrapper
-
+import com.facebook.react.bridge.NativeModule
 import com.krishnanx.Noctune.medianotification.MediaNotificationPackage
+class MyAppPackage : ReactPackage {
+    override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> {
+        return listOf(AutoMediaModule(reactContext))
+    }
 
+    override fun createViewManagers(reactContext: ReactApplicationContext) = emptyList<ViewManager<*, *>>()
+}
 class MainApplication : Application(), ReactApplication {
 
   override val reactNativeHost: ReactNativeHost = ReactNativeHostWrapper(
@@ -31,6 +37,7 @@ class MainApplication : Application(), ReactApplication {
 
             packages.add(MediaNotificationPackage())
             packages.add(ShareIntentPackage())
+             add(MyAppPackage())
             return packages
           }
 

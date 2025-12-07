@@ -51,7 +51,7 @@ import TrackPlayer from "react-native-track-player";
 import { checkPendingNavigation, navigationRef, onNavigationReady, pendingNavigation } from "./src/functions/navigationRef.js";
 import { navigate } from "./src/functions/navigationRef.js";
 import { Link } from "react-native-feather";
-
+import AndroidAutoService from "./src/functions/AndroidAutoService.js";
 
 
 Notifications.setNotificationHandler({
@@ -70,7 +70,56 @@ export const playRef = {
 }
 
 export default function App() {
+  useEffect(() => {
+    AndroidAutoService.initialize();
+    return () => AndroidAutoService.destroy();
+  }, []);
+  //  useEffect(() => {
+  //   // Initialize Android Auto integration
+  //   initializeAndroidAuto();
 
+  //   // Cleanup on unmount
+  //   return () => {
+  //     AndroidAutoService.destroy();
+  //   };
+  // }, []);
+
+  // const initializeAndroidAuto = async () => {
+  //   try {
+  //     // Initialize the Android Auto service
+  //     await AndroidAutoService.initialize();
+      
+  //     console.log('Android Auto integration ready!');
+  //   } catch (error) {
+  //     console.error('Failed to initialize Android Auto:', error);
+  //   }
+  // };
+  // const handleLoadAndPlay = async () => {
+  //   try {
+  //     // Add tracks to RNTP
+  //     await TrackPlayer.reset();
+  //     await TrackPlayer.add(sampleTracks);
+      
+  //     // Update Android Auto queue
+  //     await AndroidAutoService.updateQueue(sampleTracks);
+      
+  //     // Start playing
+  //     await TrackPlayer.play();
+      
+  //     console.log('Playing tracks with Android Auto support!');
+  //   } catch (error) {
+  //     console.error('Error loading tracks:', error);
+  //   }
+  // };
+
+  // const handleForceSync = async () => {
+  //   try {
+  //     await AndroidAutoService.forceSync();
+  //     console.log('Manually synced to Android Auto');
+  //   } catch (error) {
+  //     console.error('Error syncing:', error);
+  //   }
+  // };
 
   useEffect(() => {
       // Listen for share events
