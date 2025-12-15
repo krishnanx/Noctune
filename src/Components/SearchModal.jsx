@@ -122,9 +122,10 @@ const styles = StyleSheet.create({
             <Text style={styles.option}>Add to Playlist</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.optionTouch}>
+        {/*  <TouchableOpacity style={styles.optionTouch}>
             <Text style={styles.option}>Share</Text>
           </TouchableOpacity>
+          
 
           <TouchableOpacity
             style={styles.optionTouch}
@@ -135,6 +136,12 @@ const styles = StyleSheet.create({
           >
             <Text style={styles.option}>Add to Queue</Text>
           </TouchableOpacity>
+         * */}
+
+           <TouchableOpacity style={styles.optionTouch}>
+            <Text style={styles.option}>Download Now</Text>
+          </TouchableOpacity>
+
         </View>
       </TouchableOpacity>
     </Modal>
