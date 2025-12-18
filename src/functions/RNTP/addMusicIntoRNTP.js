@@ -13,18 +13,55 @@ export async function addMusicIntoRNTP({tracks, resetQueue = false}) {
     }
 
 
-    if (Array.isArray(tracks)) {
-      const track = tracks.map((t) => ({
-        id: t.id,
-        url: `${Constants.expoConfig.extra.SERVER}/api/stream?url=${encodeURIComponent(t.url)}`,
-        title: t.title || "Unknown Title",
-        artist: t.artist || "Unknown Artist",
-        artwork: t.image,
-        duration: t.duration, // optional, seconds
-        type: 'default'
-      }));
+    // if (Array.isArray(tracks)) {
+    //   const track = tracks.map((t) => ({
+    //     id: t.id,
+    //     url: `${Constants.expoConfig.extra.SERVER}/api/stream?url=${encodeURIComponent(t.url)}`,
+    //     title: t.title || "Unknown Title",
+    //     artist: t.artist || "Unknown Artist",
+    //     artwork: t.image,
+    //     duration: t.duration, // optional, seconds
+    //     type: 'default'
+    //   }));
 
-      await TrackPlayer.add(track);
+    //   await TrackPlayer.add(track);
+    //   return;
+    // }
+
+    if (Array.isArray(tracks)) {
+      const track = tracks.map((t) => {
+        // --- DEBUG LOGS ---
+        console.log(`[DEBUG] Processing: ${t.title}`);
+        console.log(`[DEBUG] Raw URL from DB: ${t.url}`);
+        
+        // Check if the URL is actually missing
+        if (!t.url) {
+          console.warn(`[WARN] Song "${t.title}" has NO URL. This will cause the IO Error.`);
+        }
+
+        return {
+          id: t.id?.toString() || Math.random().toString(),
+          // Use fallback to avoid sending "undefined" to your server
+          url: t.url 
+            ? `${Constants.expoConfig.extra.SERVER}/api/stream?url=${encodeURIComponent(t.url)}`
+            : "", 
+          title: t.title || "Unknown Title",
+          artist: t.artist || "Unknown Artist",
+          artwork: t.image,
+          duration: t.duration,
+          type: 'default'
+        };
+      });
+
+      // Only add tracks that actually have a URL
+      const validTracks = track.filter(t => t.url !== "");
+      
+      if (validTracks.length === 0) {
+        console.error("❌ No valid songs with URLs found in this playlist!");
+        return;
+      }
+
+      await TrackPlayer.add(validTracks);
       return;
     }
 
