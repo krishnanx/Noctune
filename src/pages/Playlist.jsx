@@ -560,7 +560,7 @@ const Information = ({
               fontWeight: "600",
               color: colors.text,
               marginBottom: 8,
-              backgroundColor:"red"
+              //backgroundColor:"red"
               
             }}
           >
