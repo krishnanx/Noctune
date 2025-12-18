@@ -25,6 +25,7 @@ import { useTheme } from "@react-navigation/native";
 import { AddNewPlaylist } from "../../Store/PlaylistSlice";
 import Tick from "react-native-vector-icons/MaterialIcons";
 import { addMusictoPlaylist } from "../../Store/PlaylistSlice";
+import { addMusicIntoRNTP } from "../functions/RNTP/addMusicIntoRNTP";
 const PlaylistChoose = () => {
   const navigation = useNavigation();
   const { user } = useSelector((state) => state.user || {});
@@ -41,7 +42,6 @@ const PlaylistChoose = () => {
   const [playlistName, setPlaylistName] = useState("");
   const [description, setDescription] = useState("");
   const { colors } = useTheme();
-
 
   
   //const backgroundImage = song?.image || index?.image;
@@ -81,11 +81,7 @@ const PlaylistChoose = () => {
       // Optionally show a message that no playlists were selected
       return;
     }
-    // const upscaledUrl = song.image.replace(
-    //   /w\d+-h\d+/,
-    //   "w500-h500"
-    // );
-    // song.image = upscaledUrl
+
 
     if (song?.image) {
       const upscaledUrl = song.image.replace(/w\d+-h\d+/, "w500-h500");
@@ -97,12 +93,15 @@ const PlaylistChoose = () => {
     // Add the song to all selected playlists
     selectedIndices?.forEach((playlistIndex) => {
       dispatch(addMusicinPlaylist({ id: playlistIndex, music: musicToAdd }));
-      //console.error(data[playlistIndex])
+      
+      // The logic to add music to playlist and also add it too RNTP if the current playlist is being played
+      if(data[playlistIndex].isPlaying){ 
+        console.warn("music is playing")
+        addMusicIntoRNTP({tracks:musicToAdd})}
+
       dispatch(addMusictoPlaylist({ playlist: data[playlistIndex], user: user?.id, music: musicToAdd }))
     });
-
-    // Show success message or toast here if desired
-
+    
     // Navigate back
     navigation.goBack();
   };
