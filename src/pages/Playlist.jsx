@@ -194,6 +194,53 @@ const Playlist = ({}) => {
     },5000)
   }
 
+  //This function is used to play a song when Play/pause button is clicked
+  const togglePlayPause = async () => {
+    console.error("Current state:", playbackState);
+    if(playbackState.state === State.Playing){
+        await TrackPlayer.pause()
+    }
+    if(playlistNo!=index){
+      console.warn("moving to diff playlist")
+      dispatch(changePlaylist(index))
+      dispatch(addType(data[index].songs))
+      addMusicIntoRNTP({tracks:data[index].songs,resetQueue:true})
+      await TrackPlayer.play();
+      dispatch(setPlaylistplaying({id:index,action:true})) // ✅ start right away
+      return;
+    }
+    // Initialize playlist once
+    if (!playRef.current) {
+      console.error("not in ref...adding")
+      playRef.current = true;
+      soundRef.current = false;
+      addMusicIntoRNTP({tracks:data[index].songs,resetQueue:true})
+      dispatch(addType(data[index].songs))
+      await TrackPlayer.play();
+      dispatch(setPlaylistplaying({id:index,action:true})) // ✅ start right away
+      return;
+    }
+  
+    // Toggle play/pause depending on current state
+    if (playbackState.state == State.Playing) {
+      console.log("Pausing...");
+      await TrackPlayer.pause();
+      dispatch(setPlaylistplaying({id:index,action:false}))
+    } 
+    else if(playbackState.state == State.Ended){
+      console.warn("ended state")
+      await TrackPlayer.seekTo(0)
+      await TrackPlayer.play()
+      dispatch(addType(data[index].songs))
+      dispatch(setPlaylistplaying({id:index,action:false}))
+    }
+    else {
+      console.log("Playing...");
+      await TrackPlayer.play();
+      dispatch(setPlaylistplaying({id:index,action:true}))
+    }
+  };
+
   const styles = StyleSheet.create({
     Main: {
       flex: 1,
@@ -386,53 +433,6 @@ const Playlist = ({}) => {
   const Uname = user?.user_metadata.username;
   const minHeight = 1000
 
-  //This function is used to play a song when Play/pause button is clicked
-  const togglePlayPause = async () => {
-    console.error("Current state:", playbackState);
-    if(playbackState.state === State.Playing){
-        await TrackPlayer.pause()
-    }
-    if(playlistNo!=index){
-      console.warn("moving to diff playlist")
-      dispatch(changePlaylist(index))
-      addMusicIntoRNTP({tracks:data[index].songs,resetQueue:true})
-      await TrackPlayer.play();
-      dispatch(setPlaylistplaying({id:index,action:true})) // ✅ start right away
-      return;
-    }
-    // Initialize playlist once
-    if (!playRef.current) {
-      console.error("not in ref...adding")
-      playRef.current = true;
-      soundRef.current = false;
-      addMusicIntoRNTP({tracks:data[index].songs,resetQueue:true})
-      await TrackPlayer.play();
-      dispatch(setPlaylistplaying({id:index,action:true})) // ✅ start right away
-      return;
-    }
-  
-    // Toggle play/pause depending on current state
-    if (playbackState.state == State.Playing) {
-      console.log("Pausing...");
-      await TrackPlayer.pause();
-      dispatch(setPlaylistplaying({id:index,action:false}))
-    } 
-    else if(playbackState.state == State.Ended){
-      console.warn("ended state")
-      await TrackPlayer.seekTo(0)
-      await TrackPlayer.play()
-      dispatch(setPlaylistplaying({id:index,action:false}))
-    }
-    else {
-      console.log("Playing...");
-      await TrackPlayer.play();
-      dispatch(setPlaylistplaying({id:index,action:true}))
-    }
-  };
-
-
-  
-
   const handleDownload = async () => {
     //console.warn("reached download function");
     const id = Math.random().toString(36).slice(2, 8);
@@ -585,7 +585,7 @@ const Information = ({
               fontWeight: "600",
               color: colors.text,
               marginBottom: 8,
-              backgroundColor:"red"
+              //backgroundColor:"red"
               
             }}
           >
