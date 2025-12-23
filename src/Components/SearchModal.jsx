@@ -7,9 +7,17 @@ import {
   StyleSheet,
   Image,
 } from "react-native";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { folderPicker } from "../functions/FileFunctions/StoragePicker";
+import { showToast } from "../../Store/ToastSlice";
+
 import { useTheme } from "@react-navigation/native";
 import { BlurView } from '@react-native-community/blur';
+import { initialiseWebsocket } from "../pages/Playlist";
+import { addPath, addSong, download } from "../../Store/DownloadSlice";
+
+
+
 
 const SearchModal = ({
   isModalVisible,
@@ -19,6 +27,43 @@ const SearchModal = ({
   song,
 }) => {
   const { data, pos } = useSelector((state) => state.data);
+  const user = useSelector((state) => state.user?.user);
+  
+  const handleDownload = async () => {
+  if (!song || !user?.id) {
+    console.error("Song or user not available");
+    return;
+  }
+
+  try {
+    initialiseWebsocket({
+      id: user.id,
+      dispatch,
+      value: "download",
+    });
+
+    const path = await folderPicker();
+    if (!path) return;
+
+     dispatch(showToast({
+      Title: "Downloading",
+      message: `${song.title} is downloading...`
+    }));
+
+    dispatch(addPath({ path }));
+    dispatch(addSong({ data: [song] })); 
+    dispatch(download({ data: [song], ClientId: user.id }));
+
+    toggleModal();
+  } catch (error) {
+    console.error("Download failed:", error);
+    dispatch(showToast({
+      Title: "Download Failed",
+      message: "Something went wrong"
+    }));
+  }
+};
+
 const colors = useTheme()
   
 const styles = StyleSheet.create({
@@ -138,9 +183,13 @@ const styles = StyleSheet.create({
           </TouchableOpacity>
          * */}
 
-           <TouchableOpacity style={styles.optionTouch}>
-            <Text style={styles.option}>Download Now</Text>
-          </TouchableOpacity>
+          <TouchableOpacity
+  style={styles.optionTouch}
+  onPress={handleDownload}
+>
+  <Text style={styles.option}>Download Now</Text>
+</TouchableOpacity>
+
 
         </View>
       </TouchableOpacity>
