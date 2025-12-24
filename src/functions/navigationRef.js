@@ -7,7 +7,8 @@ let pendingNavigation = null;
 
 // Navigate function
 export function navigate(name, params) {
-  if (navigationRef.isReady() && navigationRef.getCurrentRoute()?.name === "Home") {
+  if (navigationRef.isReady() && (navigationRef.getCurrentRoute()?.name != "getstarted" || navigationRef.getCurrentRoute()?.name != "signin"|| 
+  navigationRef.getCurrentRoute()?.name != "signup")) {
     navigationRef.navigate(name, params);
   } else {
     // Save pending navigation to run later when on Home
