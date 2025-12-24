@@ -130,6 +130,30 @@ const Playlist = ({}) => {
     }
   };
 
+//   const handleDelete = async () => {
+//   try {
+//     const playlistId = data[index]?.id;
+//     if (!playlistId) {
+//       throw new Error("Playlist not found");
+//     }
+
+//     // Call the delete thunk
+//     await dispatch(deletePlaylist({ playlistId, userid: user.id })).unwrap();
+
+//     // Find the actual index of the playlist in data before removing
+//     const actualIndex = data.findIndex(pl => pl.id === playlistId);
+//     if (actualIndex !== -1) {
+//       dispatch(removePlaylist(playlistId));
+//     }
+
+//     navigation.goBack();
+//   } catch (error) {
+//     console.error("Failed to delete playlist:", error);
+//     dispatch(showToast({ Title: "Error", message: "Could not delete playlist. Please try again later!" }));
+//   }
+// };
+
+
   //This function is used to play a song, when a song is clicked from playlist
   const handlePressLogic = async(item,pos) => {
     if(isDisabled && songid===item.id) return;
@@ -424,7 +448,8 @@ const Playlist = ({}) => {
   return (
      <FlatList
       data={data[index].songs}
-      keyExtractor={(item) => item.id.toString()}
+      //keyExtractor={(item) => item.id.toString()}
+      keyExtractor={(item, idx) => (item?.id ? item.id.toString() : `key-${idx}`)}
       renderItem={({item,index}) => <DataList styles={styles} item={item} handleCardPress={handlePressLogic} index={index} colors={colors} />
 
       }

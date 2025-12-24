@@ -659,6 +659,7 @@ const handleFetchFullLyrics = async () => {
                   ? { title: currentTrack.title, artist: currentTrack.artist, image:currentTrack.artwork }
                   : { title: "Unknown Song", uploader: "Unknown Artistt" }
           }
+          activeTrack = {currentTrack}
           colors={colors}
           liked={liked}
           setLiked={setLiked}
@@ -722,6 +723,7 @@ const Metadata = ({
   data,
   colors,
   seek,
+  activeTrack,
   TOTAL_DURATION,
   formatTime,
   styles,
@@ -743,14 +745,26 @@ const Metadata = ({
   const {user} = useSelector(state => state.user)
   const likedPlaylist = playlists.find(p => p.id === 0); // search for playlists with  id:0  ie Liked Songs
   const likedSongs = likedPlaylist?.songs || [];         //get the song from the liked songs playlist
-  const isLiked = likedSongs.some(song => song.id === data.id); // checking if song is liked already
+  //const isLiked = likedSongs.some(song => song.id === data.id); // checking if song is liked already
+
+  const currentSongId = activeTrack?.id || data?.id;
+  const isLiked = likedSongs.some(song => String(song.id) === String(currentSongId));
 
  
   const handleLikePress = async () => {
+
+    const source = activeTrack || data;
+
     const upscaledSong = {
-      ...data,
-      image: data.image?.replace(/w\d+-h\d+/, "w500-h500"),
+      id: source.id || data.id,
+      title: source.title || data.title,
+      artist: source.artist || source.uploader || data.artist,
+      image: (source.artwork || source.image || data.image)?.replace(/w\d+-h\d+/, "w500-h500"),
+      url: source.url, // THIS CAPTURES THE GAS (URL)
+      duration: source.duration || 0,
     };
+
+    console.log("PLAYBACK LINK CAPTURED:", upscaledSong.url);
 
     const isAlreadyLiked = likedSongs.some(song => song.id === data.id);
 
@@ -809,7 +823,7 @@ const Metadata = ({
           <Icon
             name={isLiked ? "heart" : "heart-o"}
             size={28}
-            color={isLiked ? colors.text : "white"}
+            color={isLiked ? "#FF4081" : "white"}
           />
         </TouchableOpacity>
         
