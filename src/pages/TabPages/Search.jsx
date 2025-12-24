@@ -157,20 +157,20 @@ const Search = () => {
     }
   };
 
-const loadSearchHistory = async (userId, dispatch) => {
-  try {
-    const stored = await AsyncStorage.getItem(`searchHistory_${userId}`);
-    if (stored) {
-      const historyArray = JSON.parse(stored);
-      dispatch(setSearchTextHistory(historyArray));
-      console.warn('Search history loaded for user:', userId, historyArray);
+  const loadSearchHistory = async (userId, dispatch) => {
+    try {
+      const stored = await AsyncStorage.getItem(`searchHistory_${userId}`);
+      if (stored) {
+        const historyArray = JSON.parse(stored);
+        dispatch(setSearchTextHistory(historyArray));
+        console.warn('Search history loaded for user:', userId, historyArray);
+      }
+    } catch (e) {
+      console.error("Error loading search history", e);
+    } finally {
+      setHistoryLoaded(true);
     }
-  } catch (e) {
-    console.error("Error loading search history", e);
-  } finally {
-    setHistoryLoaded(true);
-  }
-};
+  };
 
   // Add useEffect to load search history when component mounts
   useEffect(() => {
@@ -191,15 +191,15 @@ const loadSearchHistory = async (userId, dispatch) => {
     setModalVisible(true);
   };
 
-useEffect(() => {
-  if (userId && historyLoaded && searchTextHistory.length > 0) {
-    const timeoutId = setTimeout(() => {
-      saveSearchHistory(userId, searchTextHistory);
-    }, 500);
+  useEffect(() => {
+    if (userId && historyLoaded && searchTextHistory.length > 0) {
+      const timeoutId = setTimeout(() => {
+        saveSearchHistory(userId, searchTextHistory);
+      }, 500);
 
-    return () => clearTimeout(timeoutId);
-  }
-}, [searchTextHistory, userId, historyLoaded]);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [searchTextHistory, userId, historyLoaded]);
 
 
   const fetchRecent = async () => {
