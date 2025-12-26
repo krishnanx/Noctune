@@ -238,6 +238,11 @@ const handlePlay = (item) => {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Noctune</Text>
         <View style={styles.headerIcons}>
+           <TouchableOpacity style={styles.downloadBtn}
+           onPress={() => navigation.navigate("Download")} >
+            
+            <Text style={styles.sectionTitle}>Downloads</Text>
+           </TouchableOpacity>
           <TouchableOpacity style={styles.headerIcon}>
             <Ionicons name="notifications-outline" size={24} color={colors.text} />
           </TouchableOpacity>
