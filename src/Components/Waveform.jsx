@@ -22,7 +22,7 @@ import { pingServer } from "../functions/PingRedis/ping";
 const Waveform = () => {
   const { Mode } = useSelector((state) => state.theme)
   const { user } = useSelector((state) => state.user)
-  const { isConnected, nettype, hasChecked } = useDispatch((state) => state.network)
+  const { isConnected, nettype, hasChecked } = useSelector((state) => state.network)
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [deviceName, setDeviceName] = useState(null);
@@ -176,11 +176,11 @@ const styles = StyleSheet.create({
       >
         𝙂𝙚𝙩𝙩𝙞𝙣𝙜 𝙇𝙤𝙨𝙩 𝙞𝙣 𝙀𝙫𝙚𝙧𝙮 𝙉𝙤𝙩𝙚
       </Text>
-      <Text
+      <View
         style={{ textAlign: "center", alignItems: "center", paddingTop: 160 }}
       >
         <WaveformLoader />
-      </Text>
+      </View>
 
       <View style={styles.container}>
         {/* <TypewriterText quotes={musicQuotes} style={styles.typewriter} /> */}
