@@ -65,7 +65,6 @@ const MusicSlice = createSlice({
         title: action.payload.title || null,
         uploader: action.payload.artist || null,
         image: upscaledUrl || null,
-        duration: action.payload.duration || null,
         url: action.payload.url || null,
         duration: action.payload.duration || 0,
        
