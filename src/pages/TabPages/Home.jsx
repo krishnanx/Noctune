@@ -66,7 +66,6 @@ const Home = () => {
     //console.error(item.uploader)
     dispatch(addMusic(item));
     dispatch(setSearchedMusic(true))
-    console.warn("ITEM!!: ", item)
     navigation.navigate("PlayerModal", {
       screen: "PlayerStack",
       params: {

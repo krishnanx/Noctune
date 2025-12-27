@@ -31,8 +31,8 @@ export async function addMusicIntoRNTP({tracks, resetQueue = false}) {
     if (Array.isArray(tracks)) {
       const track = tracks.map((t) => {
         // --- DEBUG LOGS ---
-        console.log(`[DEBUG] Processing: ${t.title}`);
-        console.log(`[DEBUG] Raw URL from DB: ${t.url}`);
+        console.warn(`[DEBUG] Processing: ${t.title}`);
+        console.warn(`[DEBUG] Raw URL from DB: ${t.url}`);
         
         // Check if the URL is actually missing
         if (!t.url) {
@@ -74,7 +74,7 @@ export async function addMusicIntoRNTP({tracks, resetQueue = false}) {
       id: tracks.id,
       url: `${Constants.expoConfig.extra.SERVER}/api/stream?url=${encodeURIComponent(tracks.url)}`,
       title: tracks.title || "Unknown Title",
-      artist: tracks.artist || "Unknown Artist",
+      artist: tracks.artist ||  tracks.uploader || "Unknown Artist",
       artwork: upscaledUrl,
       duration: tracks.duration, // optional, seconds
       type: 'default'
