@@ -8,20 +8,31 @@ const DownloadSlice = createSlice({
   initialState: {
     songs: [],
     status: "idle",
-    completed: 0,
+   // completed: 0,
     path: "",
     finalData: [],
   },
   reducers: {
     addSong(state, action) {
-      const array = action.payload.data.map(item => ({ ...item, progress: 0 })
+      const array = action.payload.data.map(item => ({ ...item, progress: 0 ,completed: false})
 
       )
       state.songs = array
     },
-    changeProgress(state, action) {
-      state.songs[action.payload.index].progress = action.payload.progress
-    },
+   changeProgress(state, action) {
+  const { index, progress } = action.payload;
+
+  const song = state.songs[index];
+
+  if (song) {
+    song.progress = progress;
+
+    if (progress >= 100 && !song.completed) {
+      song.completed = true;   
+    }
+  }
+}
+,
     setCompleted(state, action) {
       if (action.payload == 1) {
         state.completed += action.payload
