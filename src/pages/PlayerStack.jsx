@@ -91,7 +91,10 @@ const PlayerStack = () => {
     return `${artist}-${title}`.toLowerCase().replace(/[^\w\s]/gi, '').replace(/\s+/g, '-');
   };
 
+  
+
   const playbackState = usePlaybackState();
+
   const [currentTrack, setCurrentTrack] = useState(null);
   const getCurrentTrackInfo = async () => {
     try {
@@ -198,19 +201,19 @@ const handleFetchFullLyrics = async () => {
     But in 99% cases, [pos, data.length] is enough for you. */
     //(pos, data.length), soundRef.current
   }
-  useEffect(() => {
-    console.log("sec:", seek);
-    console.log("isPlaying?...:", isplaying);
-  }, [seek, isplaying]);
-
-  const togglePlayPauseRef = useRef(null);
 
   useEffect(() => {
+    console.warn("STATE:",playbackState.state)
     if (playbackState.state === State.Ended) {
       (async () => {
         await TrackPlayer.seekTo(0);   // jump back to start
         await TrackPlayer.pause();     // stays paused at 0
         // OR use TrackPlayer.play() if you want auto-replay
+      })();
+    }
+    if(playbackState == State.Error){
+      (async () => {
+        await TrackPlayer.retry()
       })();
     }
   }, [playbackState]);
@@ -235,21 +238,7 @@ const handleFetchFullLyrics = async () => {
   };
 
   const replaySound = async () => {
-    
-    if (soundRef.current) {
-      await soundRef.current.setPositionAsync(0);
-      dispatch(setIsPlaying(true))
-      await soundRef.current.playAsync();
-      
-    }
-    else if (playRef.current) {
-      await playRef.current.setPositionAsync(0);
-      dispatch(setPlaylistplaying({ action:true, id: playlistNo }))
-      await playRef.current.playAsync();
-      
-    }
-    dispatch(progress(0));
-    
+    await TrackPlayer.seekTo(0);
   };
 
   const formatTime = (seconds) => {
@@ -273,19 +262,25 @@ const handleFetchFullLyrics = async () => {
   let singlePressTimeout = null;
 
   const handlePress = async (value) => {
-
+    console.warn("handle press")
     if(soundRef.current==null){
-        dispatch(changePlaylistPos({value:value,jump:-1}));
-        dispatch(setSearchedMusic(true))
-        dispatch(changeLoad(false));
-        dispatch(changeLoad(true));
+      dispatch(changePlaylistPos({value:value,jump:-1}));
+      dispatch(setSearchedMusic(true))
+     
     }else{
       dispatch(changePos(value));
-      dispatch(setSearchedMusic(true))
-      dispatch(load(false));
-      dispatch(load(true));
-      
-      }
+      dispatch(setSearchedMusic(true))  
+    }
+    if(value == 1){
+      await TrackPlayer.skipToNext()
+      await TrackPlayer.play()
+      console.warn("handle press to next")
+    }
+    else if(value == -1){
+      await TrackPlayer.skipToPrevious()
+      await TrackPlayer.play()
+      console.warn("handle press to previous")
+    }
   };
 
   const TOTAL_DURATION = currentTrack ? currentTrack.duration : 0
@@ -872,7 +867,7 @@ const Controls = ({
             style={styles.playPauseButton}
             onPress={() => togglePlayPause()}
           >
-            {playbackState == State.Playing || playbackState == State.Buffering? (
+            {playbackState == State.Playing || playbackState == State.Buffering || playbackState == State.Loading? (
               <View style={styles.pauseLinesContainer}>
                 <View style={styles.pauseLine} />
                 <View style={styles.pauseLine} />
