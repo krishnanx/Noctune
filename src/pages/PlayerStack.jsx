@@ -1,5 +1,5 @@
 // THIS IS EXTENDED PLAYER PAGE (BIG)
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef,useCallback } from "react";
 import {
   View,
   Text,
@@ -12,13 +12,15 @@ import {
   TouchableWithoutFeedback,
   Button,
   ImageBackground,
-  ScrollView
+  ScrollView,
+  StatusBar,
+  BackHandler
 } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { SkipBack, SkipForward } from "react-native-feather";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation,useRoute, useFocusEffect } from "@react-navigation/native";
 import {
   changePos,
   progress,
@@ -54,7 +56,28 @@ import TrackPlayer, { State, usePlaybackState,useActiveTrack } from 'react-nativ
 import { setupPlayer } from "../functions/player.js";
 //import { BlurView } from "expo-blur";
 import Constants from "expo-constants"
-const PlayerStack = () => {
+  const PlayerStack = () => {
+  const route = useRoute();
+  const [currentTrack, setCurrentTrack] = useState(
+    route.params?.track || null
+  );
+  const [isReady, setIsReady] = useState(!!route.params?.track);
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        // Always dismiss JS stack first
+        navigation.getParent()?.goBack();
+        return true; // prevent native default
+      };
+
+      BackHandler.addEventListener("hardwareBackPress", onBackPress);
+
+      return () =>
+        BackHandler.removeEventListener("hardwareBackPress", onBackPress);
+    }, [navigation])
+  );
+
+
   const { colors } = useTheme();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [liked, setLiked] = useState(false);
@@ -72,6 +95,14 @@ const PlayerStack = () => {
   const { song, pos: position, seek: seekk, load: newLoad } = useSelector(
     (state) => state.playlistload
   );
+  const [deferredReady, setDeferredReady] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setDeferredReady(true), 250);
+    return () => clearTimeout(t);
+  }, []);
+
+
   //console.warn("Load:",load)
   console.warn("currentTrack", currentTrack)
   //const mediaListenersInitialized = useRef(false);
@@ -95,96 +126,93 @@ const PlayerStack = () => {
 
   const playbackState = usePlaybackState();
 
-  const [currentTrack, setCurrentTrack] = useState(null);
   const getCurrentTrackInfo = async () => {
     try {
-      const track = await TrackPlayer.getActiveTrack(); 
+      const track = await TrackPlayer.getActiveTrack();
       if (track) {
-        setCurrentTrack(track); // store track in state
-        console.error(track)
-      } else {
-        setCurrentTrack(null);
+        setCurrentTrack(prev => prev ?? track); // DON'T override passed data
+        setIsReady(true);
       }
-    } catch (error) {
-      console.error("Error getting current track info:", error);
-      setCurrentTrack(null);
+    } catch (e) {
+      console.error(e);
     }
   };
 
-  useEffect(() => {
-    getCurrentTrackInfo();
-
-    // optional: update when track changes
-    const listener = TrackPlayer.addEventListener("playback-track-changed", async () => {
-      await getCurrentTrackInfo();
-    });
-
-    return () => {
-      listener.remove();
-    };
-  }, []);
 
   useEffect(() => {
-    const fetchLyrics = async () => {
-      setLyricsLoading(true);
-      setLyrics(null); // Clear previous lyrics
+  if (!deferredReady) return;
+
+  const listener = TrackPlayer.addEventListener(
+    "playback-track-changed",
+    getCurrentTrackInfo
+  );
+
+  return () => listener.remove();
+}, [deferredReady]);
+
+
+  // useEffect(() => {
+  //   const fetchLyrics = async () => {
+  //     setLyricsLoading(true);
+  //     setLyrics(null); // Clear previous lyrics
       
-      try {
+  //     try {
         
-        const artist = currentTrack.uploader;
-        const title = currentTrack.title;
-        console.warn(artist)
-        console.warn(title)
+  //       const artist = currentTrack.uploader;
+  //       const title = currentTrack.title;
+  //       console.warn(artist)
+  //       console.warn(title)
         
-        // Clean up the search terms (remove special characters, extra spaces)
-        const cleanArtist = artist.replace(/[^\w\s]/gi, '').replace(/\s+/g, '-').toLowerCase();
-        const cleanTitle = title.replace(/[^\w\s]/gi, '').replace(/\s+/g, '-').toLowerCase();
+  //       // Clean up the search terms (remove special characters, extra spaces)
+  //       const cleanArtist = artist.replace(/[^\w\s]/gi, '').replace(/\s+/g, '-').toLowerCase();
+  //       const cleanTitle = title.replace(/[^\w\s]/gi, '').replace(/\s+/g, '-').toLowerCase();
         
-        // Construct Genius URL
-        const geniusUrl = `https://genius.com/${cleanArtist}-${cleanTitle}-lyrics`;
-        console.warn(geniusUrl)
-        console.error("Lyrics Request made:");
+  //       // Construct Genius URL
+  //       const geniusUrl = `https://genius.com/${cleanArtist}-${cleanTitle}-lyrics`;
+  //       console.warn(geniusUrl)
+  //       console.error("Lyrics Request made:");
         
         
-        const response = await fetch(`${Constants.expoConfig.extra.SERVER}/api/lyrics`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            url: geniusUrl,
-            artist: artist,
-            title: title
-          })
-        });
+  //       const response = await fetch(`${Constants.expoConfig.extra.SERVER}/api/lyrics`, {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //         body: JSON.stringify({
+  //           url: geniusUrl,
+  //           artist: artist,
+  //           title: title
+  //         })
+  //       });
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch lyrics');
-        }
+  //       if (!response.ok) {
+  //         throw new Error('Failed to fetch lyrics');
+  //       }
 
-        const lyricsData = await response.text();
-        //console.error(lyricsData);
+  //       const lyricsData = await response.text();
+  //       //console.error(lyricsData);
         
-        if (lyricsData && lyricsData.trim()) {
-            const songId = generateSongId(currentTrack);
-            dispatch(setCurrentSongId(songId));
-            dispatch(setFullLyrics(lyricsData));     //store full lyrics data to redux
-            const previewLyrics = lyricsData.split('\n').slice(0, 8).join('\n') + '\n...';   //preview only first 8 lines
-          setLyrics(previewLyrics);             //to see preview lyrics
-        } else {
-          setLyrics("Lyrics not found for this song");
-        }
+  //       if (lyricsData && lyricsData.trim()) {
+  //           const songId = generateSongId(currentTrack);
+  //           dispatch(setCurrentSongId(songId));
+  //           dispatch(setFullLyrics(lyricsData));     //store full lyrics data to redux
+  //           const previewLyrics = lyricsData.split('\n').slice(0, 8).join('\n') + '\n...';   //preview only first 8 lines
+  //         setLyrics(previewLyrics);             //to see preview lyrics
+  //       } else {
+  //         setLyrics("Lyrics not found for this song");
+  //       }
         
-      } catch (error) {
-        console.error('Error fetching lyrics:', error);
-        setLyrics("Unable to load lyrics at this time");
-      } finally {
-        setLyricsLoading(false);
-      }
-    };
+  //     } catch (error) {
+  //       console.error('Error fetching lyrics:', error);
+  //       setLyrics("Unable to load lyrics at this time");
+  //     } finally {
+  //       setLyricsLoading(false);
+  //     }
+  //   };
 
-    fetchLyrics();
-  }, [canLoad, data, pos, song, position]); 
+  //   if (!deferredReady || !currentTrack) return;
+  //   fetchLyrics();
+  // }, [canLoad, data, pos, song, position,deferredReady]); 
 
 
 const handleFetchFullLyrics = async () => {
@@ -599,6 +627,7 @@ const handleFetchFullLyrics = async () => {
     <View style ={{flex:1}}>
     <Animated.View
       style={{
+        flex:1,
         backgroundColor: "white", // or your styling
         borderTopLeftRadius: 16,
         borderTopRightRadius: 16,
@@ -666,7 +695,13 @@ const handleFetchFullLyrics = async () => {
         />
         <View>
            <View style={{ height: 550 }} />
-            <WaveformVisualizer ytUrl={currentTrack?.url} duration={currentTrack?.duration}/>
+           {deferredReady && (
+              <WaveformVisualizer
+                ytUrl={currentTrack?.url}
+                duration={currentTrack?.duration}
+              />
+            )}
+
             <Controls
               togglePlayPause={togglePlayPause}
               playbackState={playbackState.state}

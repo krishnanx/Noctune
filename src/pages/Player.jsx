@@ -92,9 +92,24 @@ const Player = () => {
   };
 
   const togglePlayerSize = () => {
+    if (!currentTrack) return;
 
-    navigation.navigate('PlayerStack');
+    navigation.navigate("PlayerModal", {
+      screen: "PlayerStack",
+      params: {
+        track: {
+          id: currentTrack.id,
+          title: currentTrack.title,
+          artist: currentTrack.artist || currentTrack.uploader,
+          artwork: currentTrack.artwork,
+          duration: currentTrack.duration,
+          url: currentTrack.url,
+        },
+      },
+    });
+
   };
+
 
   const TOTAL_DURATION = currentTrack ? currentTrack.duration : 0
 
