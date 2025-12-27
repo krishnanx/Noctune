@@ -11,7 +11,7 @@ export async function saveBase64AsMp3ToSAF(
         // Write the base64 data to the file
         await writeFile(fileUri, base64Data, 'base64');
 
-        console.log('MP3 file saved at:', fileUri);
+        //console.warn('MP3 file saved at:', fileUri);
         return fileUri; // You can return the full URI of the saved file
     } catch (error) {
         //console.error('Error saving file in SAF:', error);

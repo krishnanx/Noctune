@@ -163,6 +163,7 @@ const Websocket = () => {
 
     // Add to the queue
     setDownloadQueue((prev) => {
+      //console.warn("queue is ready")
       const newQueue = [...prev, { encodedData, onComplete }];
       return newQueue;
     });
@@ -170,11 +171,12 @@ const Websocket = () => {
 
   // Monitor queue changes
   useEffect(() => {
+    //console.warn("outside if in use effect")
     if (downloadQueue.length > 0 && !isDownloading) {
       //console.warn("Queue has items and not downloading, starting process");
       processQueue(); // Process queue when items are added and not currently downloading
     }
-  }, [downloadQueue, isDownloading]);
+  }, [downloadQueue]);
 
   useEffect(() => {
     const fetchDeviceName = async () => {
@@ -239,13 +241,13 @@ const Websocket = () => {
               );
             }
             if (parsed.type == "file") {
-              //console.warn("file is ready");
+              console.warn("file is ready");
 
               // We have a path, proceed normally
               //console.warn(path);
               //console.error("starting....");
               addDownloadTask(parsed.value, () => {
-                //console.warn("Download Complete");
+                console.warn("Download Complete......");
               });
               dispatch(addData({ final: parsed.value }));
             }

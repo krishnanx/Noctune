@@ -246,6 +246,7 @@ const PlaylistSlice = createSlice({
                 //console.error("Failed to edit playlist:", action.payload);
             })
             .addCase(pullPlaylists.fulfilled, (state, action) => {
+                console.log("FULL DATA FROM SERVER:", JSON.stringify(action.payload, null, 2));
 
                 const response = action.payload;
                 var array = []
