@@ -22,7 +22,8 @@ const DownloadPage = () => {
   // Static data for the download items
   const colors = useTheme();
   const dispatch = useDispatch();
-  const { songs, status, completed } = useSelector((state) => state.download);
+  const { songs, status } = useSelector((state) => state.download);
+  const completed = songs.filter(song => song.completed).length;
 
 
   const navigation = useNavigation();
