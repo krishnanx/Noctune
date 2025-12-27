@@ -19,6 +19,7 @@ import { changeLoad } from "../../../Store/Playdataslice.js";
 import { addMusic,load, setSearchedMusic } from '../../../Store/MusicSlice';
 import FadeWrapper from '../../../Navigation/FadeWrapper.jsx';
 import { useTheme } from "@react-navigation/native";
+import Download from "../../Components/Icons/Download";
 
 
 const QuickPickCard = ({ title, imageUrl,item,handlePlay,styles }) => (
@@ -238,11 +239,13 @@ const handlePlay = (item) => {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Noctune</Text>
         <View style={styles.headerIcons}>
-           <TouchableOpacity style={styles.downloadBtn}
-           onPress={() => navigation.navigate("Download")} >
-            
-            <Text style={styles.sectionTitle}>Downloads</Text>
-           </TouchableOpacity>
+           <TouchableOpacity
+  style={styles.headerIcon}
+  onPress={() => navigation.navigate("Download")}
+>
+  <Download fill={colors.text} />
+</TouchableOpacity>
+
           <TouchableOpacity style={styles.headerIcon}>
             <Ionicons name="notifications-outline" size={24} color={colors.text} />
           </TouchableOpacity>
