@@ -80,6 +80,9 @@ const handlePlay = (item) => {
       dispatch(changeLoad(false)) //playlist
   navigation.navigate('PlayerStack');
 }
+const downloadStatus = useSelector((state) => state.download.status);
+const showRedDot = downloadStatus === "downloading";
+
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -228,7 +231,22 @@ const handlePlay = (item) => {
       width:"100%",
       justifyContent:"space-between",
       paddingHorizontal:6
-    }
+    },
+    downloadWrapper: {
+      position: "relative",
+      marginLeft: 15,
+    },
+
+    redDot: {
+      position: "absolute",
+      top: -2,
+      right: -2,
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: "red",
+    },
+
   });
 
 
@@ -239,12 +257,13 @@ const handlePlay = (item) => {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Noctune</Text>
         <View style={styles.headerIcons}>
-           <TouchableOpacity
-  style={styles.headerIcon}
-  onPress={() => navigation.navigate("Download")}
->
-  <Download fill={colors.text} />
-</TouchableOpacity>
+          <TouchableOpacity
+            style={styles.downloadWrapper}
+            onPress={() => navigation.navigate("Download")}  >
+            <Download fill={colors.text} />
+
+            {showRedDot && <View style={styles.redDot} />}
+          </TouchableOpacity>
 
           <TouchableOpacity style={styles.headerIcon}>
             <Ionicons name="notifications-outline" size={24} color={colors.text} />
