@@ -11,6 +11,7 @@ import { Keyboard } from "react-native";
 import Playlist from "../src/pages/PlaylistChoose";
 import Library from "../src/pages/TabPages/Library";
 import { changeState } from "../Store/KeyboardSlice";
+import EQTester from "../src/pages/TabPages/EQTester";
 const Tab = createBottomTabNavigator();
 
 const MainTab = () => {
@@ -84,7 +85,7 @@ const MainTab = () => {
         <Tab.Screen name="Home" component={Home} />
         <Tab.Screen name="Search" component={Search} />
         <Tab.Screen name="Library" component={Library} />
-        <Tab.Screen name="Settings" component={Settings} />
+        <Tab.Screen name="Settings" component={EQTester} />
       </Tab.Navigator>
 
       {displayPlayer && !isKeyboardVisible && <Player />}

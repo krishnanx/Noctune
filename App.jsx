@@ -8,7 +8,7 @@ import {
   Keyboard,
   Image,
   Text, Animated,AppState,DeviceEventEmitter,
-NativeModules
+  NativeModules
 } from "react-native";
 import React, { useState, useEffect, useRef } from "react";
 import { NavigationContainer } from "@react-navigation/native";
@@ -46,13 +46,11 @@ import MediaNotificationManager from "./src/functions/MediaNotification.js";
 import { isPending } from "@reduxjs/toolkit";
 import { setupPlayer } from "./src/functions/player.js";
 import { addMusicIntoRNTP } from "./src/functions/RNTP/addMusicIntoRNTP.js";
-import TrackPlayer from "react-native-track-player";
-
 import { checkPendingNavigation, navigationRef, onNavigationReady, pendingNavigation } from "./src/functions/navigationRef.js";
 import { navigate } from "./src/functions/navigationRef.js";
 import { Link } from "react-native-feather";
-
-
+import TrackPlayer, { State, usePlaybackState } from 'react-native-track-player';
+import { testEQ } from "./src/functions/Equailizer/EqualiserTest.js";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -161,7 +159,7 @@ export default function App() {
     }
   }, []);
 
-
+  const playbackState = usePlaybackState();
   const { Mode } = useSelector((state) => state.theme);
   const { user, loading, waveload } = useSelector((state) => state.user || {});
   const { data: array, id, playlistNo, migrateSliceSucess, migratedPlaylist } = useSelector((state) => state.playlist);
@@ -219,37 +217,36 @@ export default function App() {
   //     };
   
   //     loadLastSong();
-  // }, []);
-
+  // }, []);  
 
  
-  useEffect(() => {
-      const autoPlayIfUserSearched = async (sound) => {
-        //console.warn("Sound changed event received", sound);
-        //if (!sound) return;
-        //console.error("hi: ")
-        //console.warn(searchedMusic)
-        if (searchedMusic && data[pos]) {
-          try {
-            dispatch(setSearchedMusic(false))
-            //console.warn("auto play")
-            await sound.playAsync();
-            dispatch(setIsPlaying(true));
-          } catch (error) {
-            //console.error("Error auto-playing after search", error);
-          }
-        } else {
-          console.log(
-            "Song loaded from AsyncStorage or no valid song, skipping auto-play"
-          );
-        }
-      };
+  // useEffect(() => {
+  //     const autoPlayIfUserSearched = async (sound) => {
+  //       //console.warn("Sound changed event received", sound);
+  //       //if (!sound) return;
+  //       //console.error("hi: ")
+  //       //console.warn(searchedMusic)
+  //       if (searchedMusic && data[pos]) {
+  //         try {
+  //           dispatch(setSearchedMusic(false))
+  //           //console.warn("auto play")
+  //           await sound.playAsync();
+  //           dispatch(setIsPlaying(true));
+  //         } catch (error) {
+  //           //console.error("Error auto-playing after search", error);
+  //         }
+  //       } else {
+  //         console.log(
+  //           "Song loaded from AsyncStorage or no valid song, skipping auto-play"
+  //         );
+  //       }
+  //     };
   
   
-      eventBus.on("soundChanged", autoPlayIfUserSearched);
-      return () => eventBus.off("soundChanged", autoPlayIfUserSearched);
+  //     eventBus.on("soundChanged", autoPlayIfUserSearched);
+  //     return () => eventBus.off("soundChanged", autoPlayIfUserSearched);
   
-    }, [searchedMusic]);
+  //   }, [searchedMusic]);
   useEffect(() => {
     const unsubscribe = addEventListener(state => {
       //console.error('Connection type', state.type);
@@ -414,8 +411,8 @@ export default function App() {
             </View>
 
             <Websocket />
-            {canLoad && <Audioloader />}
-            {playload && <PlaylistLoader />}
+            {/* {canLoad && <Audioloader />}
+            {playload && <PlaylistLoader />} */}
           </KeyboardAvoidingView>
         </View>
       </View>

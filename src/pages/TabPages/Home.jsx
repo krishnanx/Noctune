@@ -21,7 +21,6 @@ import FadeWrapper from '../../../Navigation/FadeWrapper.jsx';
 import { useTheme } from "@react-navigation/native";
 import TrackPlayer from 'react-native-track-player';
 import { addMusicIntoRNTP } from '../../functions/RNTP/addMusicIntoRNTP.js';
-import { reset } from 'react-native-track-player/lib/src/trackPlayer.js';
 
 
 const QuickPickCard = ({ title, imageUrl,item,handlePlay,styles }) => (
