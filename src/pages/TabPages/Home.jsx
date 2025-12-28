@@ -22,6 +22,7 @@ import { useTheme } from "@react-navigation/native";
 import TrackPlayer from 'react-native-track-player';
 import { addMusicIntoRNTP } from '../../functions/RNTP/addMusicIntoRNTP.js';
 import { reset } from 'react-native-track-player/lib/src/trackPlayer.js';
+import Download from "../../Components/Icons/Download";
 
 
 const QuickPickCard = ({ title, imageUrl,item,handlePlay,styles }) => (
@@ -82,6 +83,9 @@ const Home = () => {
     addMusicIntoRNTP({tracks:item,resetQueue:true})
     await TrackPlayer.setPlayWhenReady(true)
   }
+const downloadStatus = useSelector((state) => state.download.status);
+const showRedDot = downloadStatus === "downloading";
+
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -230,7 +234,22 @@ const Home = () => {
       width:"100%",
       justifyContent:"space-between",
       paddingHorizontal:6
-    }
+    },
+    downloadWrapper: {
+      position: "relative",
+      marginLeft: 15,
+    },
+
+    redDot: {
+      position: "absolute",
+      top: -2,
+      right: -2,
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: "red",
+    },
+
   });
 
 
@@ -241,11 +260,14 @@ const Home = () => {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Noctune</Text>
         <View style={styles.headerIcons}>
-           <TouchableOpacity style={styles.downloadBtn}
-           onPress={() => navigation.navigate("Download")} >
-            
-            <Text style={styles.sectionTitle}>Downloads</Text>
-           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.downloadWrapper}
+            onPress={() => navigation.navigate("Download")}  >
+            <Download fill={colors.text} />
+
+            {showRedDot && <View style={styles.redDot} />}
+          </TouchableOpacity>
+
           <TouchableOpacity style={styles.headerIcon}>
             <Ionicons name="notifications-outline" size={24} color={colors.text} />
           </TouchableOpacity>
