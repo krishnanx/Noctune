@@ -14,7 +14,8 @@ import {
   ImageBackground,
   ScrollView,
   StatusBar,
-  BackHandler
+  BackHandler,
+  TouchableHighlight
 } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { SkipBack, SkipForward } from "react-native-feather";
@@ -56,6 +57,7 @@ import TrackPlayer, { State, usePlaybackState,useActiveTrack } from 'react-nativ
 import { setupPlayer } from "../functions/player.js";
 //import { BlurView } from "expo-blur";
 import Constants from "expo-constants"
+import SingleProgressBar from "../Components/SingleProgressBar.jsx";
   const PlayerStack = () => {
   const route = useRoute();
   const [currentTrack, setCurrentTrack] = useState(
@@ -510,7 +512,16 @@ const handleFetchFullLyrics = async () => {
       marginHorizontal: 2,
       borderRadius: 1,
     },
-    skipButton: { /*top: 65,*/ marginHorizontal: 20 },
+    skipButton: { 
+      /*top: 65,*/ 
+      marginHorizontal: 15,
+      width:60,
+      height:60,
+      borderRadius:30,
+      justifyContent:"center",
+      alignItems:"center"
+
+    },
     container: {
       position: "absolute",
       top: 490,
@@ -581,7 +592,12 @@ const handleFetchFullLyrics = async () => {
       width: "100%",
     },
     button: {
-      padding: 6,
+      paddingLeft:5,
+      width:60,
+      height:60,
+      borderRadius:30,
+      justifyContent:"center",
+      alignItems:"center"
       // position: "absolute",
       // top: 35,
       // left: 30,
@@ -659,22 +675,26 @@ const handleFetchFullLyrics = async () => {
             zIndex: 10,
           }}
         >
-          <TouchableOpacity
+          <TouchableHighlight
+            underlayColor="rgba(255,255,255,0.1)"
             style={[
               styles.button,
               {
                 transform: [{ rotate: "90deg" }],
-                justifyContent: "center",
-                alignItems: "center",
+  
               },
             ]}
             onPress={togglePlayerSize}
           >
             <ChevronForward width={28} height={28} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => toggleModal()}>
+          </TouchableHighlight>
+          <TouchableHighlight 
+            onPress={() => toggleModal()}
+            underlayColor="rgba(255,255,255,0.1)"
+            style={{width: 60,height:60,borderRadius:30,justifyContent:"center",alignItems:"center"}}
+            >
             <ThreeDots height={28} width={28} />
-          </TouchableOpacity>
+          </TouchableHighlight>
         </View>
         {/* <WaveformVisualizer ytUrl={currentTrack?.url} seconds={seek} /> */}
         <Metadata
@@ -695,12 +715,13 @@ const handleFetchFullLyrics = async () => {
         />
         <View>
            <View style={{ height: 550 }} />
-           {deferredReady && (
+           {/* {deferredReady && (
               <WaveformVisualizer
                 ytUrl={currentTrack?.url}
                 duration={currentTrack?.duration}
               />
-            )}
+            )} */}
+            <SingleProgressBar/>
 
             <Controls
               togglePlayPause={togglePlayPause}
@@ -881,22 +902,28 @@ const Controls = ({
     <View style={styles.controlsContainer}>
       <View style={styles.controls}>
         <View>
-          <TouchableOpacity onPress={() => setSleepTimerVisible(true)}>
+          <TouchableHighlight 
+          onPress={() => setSleepTimerVisible(true)}
+          underlayColor="rgba(255,255,255,0.1)"
+          style={{width:60,height:60,borderRadius:30,justifyContent:"center",alignItems:"center"}}
+          >
+
             <TimerIcon
               name="timer"
               color={isTimerActive ? "#F5DEB3" : "white"}
             />
-          </TouchableOpacity>
+          </TouchableHighlight>
         </View>
         <View style={styles.playpause}>
-          <TouchableOpacity
+          <TouchableHighlight
             style={styles.skipButton}
+            underlayColor="rgba(255,255,255,0.1)"
             onPress={() => {
               handlePress(-1);
             }}
           >
             <SkipBack width={35} height={35} stroke={"white"} />
-          </TouchableOpacity>
+          </TouchableHighlight>
 
           <TouchableOpacity
             style={styles.playPauseButton}
@@ -912,19 +939,23 @@ const Controls = ({
             )}
           </TouchableOpacity>
 
-          <TouchableOpacity
+          <TouchableHighlight
             style={styles.skipButton}
+            underlayColor="rgba(255,255,255,0.1)"
             onPress={() => {
               handlePress(+1);
             }}
           >
             <SkipForward width={35} height={35} stroke={"white"} />
-          </TouchableOpacity>
+          </TouchableHighlight>
         </View>
         <View>
-          <TouchableOpacity onPress={() => replaySound()}>
+          <TouchableHighlight onPress={() => replaySound()} 
+            underlayColor="rgba(255,255,255,0.1)"
+            style = {{width:60,height:60,borderRadius:30,justifyContent:"center",alignItems:"center"}} 
+          >
             <Replay height={24} width={24} fill={"white"} />
-          </TouchableOpacity>
+          </TouchableHighlight>
         </View>
       </View>
     </View>
