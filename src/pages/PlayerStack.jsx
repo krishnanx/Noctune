@@ -57,6 +57,7 @@ import TrackPlayer, { State, usePlaybackState,useActiveTrack } from 'react-nativ
 import { setupPlayer } from "../functions/player.js";
 //import { BlurView } from "expo-blur";
 import Constants from "expo-constants"
+import SingleProgressBar from "../Components/SingleProgressBar.jsx";
   const PlayerStack = () => {
   const route = useRoute();
   const [currentTrack, setCurrentTrack] = useState(
@@ -714,12 +715,13 @@ const handleFetchFullLyrics = async () => {
         />
         <View>
            <View style={{ height: 550 }} />
-           {deferredReady && (
+           {/* {deferredReady && (
               <WaveformVisualizer
                 ytUrl={currentTrack?.url}
                 duration={currentTrack?.duration}
               />
-            )}
+            )} */}
+            <SingleProgressBar/>
 
             <Controls
               togglePlayPause={togglePlayPause}
