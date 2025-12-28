@@ -1,5 +1,5 @@
 // THIS IS EXTENDED PLAYER PAGE (BIG)
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef,useCallback } from "react";
 import {
   View,
   Text,
@@ -12,13 +12,16 @@ import {
   TouchableWithoutFeedback,
   Button,
   ImageBackground,
-  ScrollView
+  ScrollView,
+  StatusBar,
+  BackHandler,
+  TouchableHighlight
 } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { SkipBack, SkipForward } from "react-native-feather";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation,useRoute, useFocusEffect } from "@react-navigation/native";
 import {
   changePos,
   progress,
@@ -54,7 +57,29 @@ import TrackPlayer, { State, usePlaybackState,useActiveTrack } from 'react-nativ
 import { setupPlayer } from "../functions/player.js";
 //import { BlurView } from "expo-blur";
 import Constants from "expo-constants"
-const PlayerStack = () => {
+import SingleProgressBar from "../Components/SingleProgressBar.jsx";
+  const PlayerStack = () => {
+  const route = useRoute();
+  const [currentTrack, setCurrentTrack] = useState(
+    route.params?.track || null
+  );
+  const [isReady, setIsReady] = useState(!!route.params?.track);
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        // Always dismiss JS stack first
+        navigation.getParent()?.goBack();
+        return true; // prevent native default
+      };
+
+      BackHandler.addEventListener("hardwareBackPress", onBackPress);
+
+      return () =>
+        BackHandler.removeEventListener("hardwareBackPress", onBackPress);
+    }, [navigation])
+  );
+
+
   const { colors } = useTheme();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [liked, setLiked] = useState(false);
@@ -72,6 +97,14 @@ const PlayerStack = () => {
   const { song, pos: position, seek: seekk, load: newLoad } = useSelector(
     (state) => state.playlistload
   );
+  const [deferredReady, setDeferredReady] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setDeferredReady(true), 250);
+    return () => clearTimeout(t);
+  }, []);
+
+
   //console.warn("Load:",load)
   console.warn("currentTrack", currentTrack)
   //const mediaListenersInitialized = useRef(false);
@@ -91,97 +124,97 @@ const PlayerStack = () => {
     return `${artist}-${title}`.toLowerCase().replace(/[^\w\s]/gi, '').replace(/\s+/g, '-');
   };
 
+  
+
   const playbackState = usePlaybackState();
-  const [currentTrack, setCurrentTrack] = useState(null);
+
   const getCurrentTrackInfo = async () => {
     try {
-      const track = await TrackPlayer.getActiveTrack(); 
+      const track = await TrackPlayer.getActiveTrack();
       if (track) {
-        setCurrentTrack(track); // store track in state
-        console.error(track)
-      } else {
-        setCurrentTrack(null);
+        setCurrentTrack(prev => prev ?? track); // DON'T override passed data
+        setIsReady(true);
       }
-    } catch (error) {
-      console.error("Error getting current track info:", error);
-      setCurrentTrack(null);
+    } catch (e) {
+      console.error(e);
     }
   };
 
-  useEffect(() => {
-    getCurrentTrackInfo();
-
-    // optional: update when track changes
-    const listener = TrackPlayer.addEventListener("playback-track-changed", async () => {
-      await getCurrentTrackInfo();
-    });
-
-    return () => {
-      listener.remove();
-    };
-  }, []);
 
   useEffect(() => {
-    const fetchLyrics = async () => {
-      setLyricsLoading(true);
-      setLyrics(null); // Clear previous lyrics
+  if (!deferredReady) return;
+
+  const listener = TrackPlayer.addEventListener(
+    "playback-track-changed",
+    getCurrentTrackInfo
+  );
+
+  return () => listener.remove();
+}, [deferredReady]);
+
+
+  // useEffect(() => {
+  //   const fetchLyrics = async () => {
+  //     setLyricsLoading(true);
+  //     setLyrics(null); // Clear previous lyrics
       
-      try {
+  //     try {
         
-        const artist = currentTrack.uploader;
-        const title = currentTrack.title;
-        console.warn(artist)
-        console.warn(title)
+  //       const artist = currentTrack.uploader;
+  //       const title = currentTrack.title;
+  //       console.warn(artist)
+  //       console.warn(title)
         
-        // Clean up the search terms (remove special characters, extra spaces)
-        const cleanArtist = artist.replace(/[^\w\s]/gi, '').replace(/\s+/g, '-').toLowerCase();
-        const cleanTitle = title.replace(/[^\w\s]/gi, '').replace(/\s+/g, '-').toLowerCase();
+  //       // Clean up the search terms (remove special characters, extra spaces)
+  //       const cleanArtist = artist.replace(/[^\w\s]/gi, '').replace(/\s+/g, '-').toLowerCase();
+  //       const cleanTitle = title.replace(/[^\w\s]/gi, '').replace(/\s+/g, '-').toLowerCase();
         
-        // Construct Genius URL
-        const geniusUrl = `https://genius.com/${cleanArtist}-${cleanTitle}-lyrics`;
-        console.warn(geniusUrl)
-        console.error("Lyrics Request made:");
+  //       // Construct Genius URL
+  //       const geniusUrl = `https://genius.com/${cleanArtist}-${cleanTitle}-lyrics`;
+  //       console.warn(geniusUrl)
+  //       console.error("Lyrics Request made:");
         
         
-        const response = await fetch(`${Constants.expoConfig.extra.SERVER}/api/lyrics`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            url: geniusUrl,
-            artist: artist,
-            title: title
-          })
-        });
+  //       const response = await fetch(`${Constants.expoConfig.extra.SERVER}/api/lyrics`, {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //         body: JSON.stringify({
+  //           url: geniusUrl,
+  //           artist: artist,
+  //           title: title
+  //         })
+  //       });
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch lyrics');
-        }
+  //       if (!response.ok) {
+  //         throw new Error('Failed to fetch lyrics');
+  //       }
 
-        const lyricsData = await response.text();
-        //console.error(lyricsData);
+  //       const lyricsData = await response.text();
+  //       //console.error(lyricsData);
         
-        if (lyricsData && lyricsData.trim()) {
-            const songId = generateSongId(currentTrack);
-            dispatch(setCurrentSongId(songId));
-            dispatch(setFullLyrics(lyricsData));     //store full lyrics data to redux
-            const previewLyrics = lyricsData.split('\n').slice(0, 8).join('\n') + '\n...';   //preview only first 8 lines
-          setLyrics(previewLyrics);             //to see preview lyrics
-        } else {
-          setLyrics("Lyrics not found for this song");
-        }
+  //       if (lyricsData && lyricsData.trim()) {
+  //           const songId = generateSongId(currentTrack);
+  //           dispatch(setCurrentSongId(songId));
+  //           dispatch(setFullLyrics(lyricsData));     //store full lyrics data to redux
+  //           const previewLyrics = lyricsData.split('\n').slice(0, 8).join('\n') + '\n...';   //preview only first 8 lines
+  //         setLyrics(previewLyrics);             //to see preview lyrics
+  //       } else {
+  //         setLyrics("Lyrics not found for this song");
+  //       }
         
-      } catch (error) {
-        console.error('Error fetching lyrics:', error);
-        setLyrics("Unable to load lyrics at this time");
-      } finally {
-        setLyricsLoading(false);
-      }
-    };
+  //     } catch (error) {
+  //       console.error('Error fetching lyrics:', error);
+  //       setLyrics("Unable to load lyrics at this time");
+  //     } finally {
+  //       setLyricsLoading(false);
+  //     }
+  //   };
 
-    fetchLyrics();
-  }, [canLoad, data, pos, song, position]); 
+  //   if (!deferredReady || !currentTrack) return;
+  //   fetchLyrics();
+  // }, [canLoad, data, pos, song, position,deferredReady]); 
 
 
 const handleFetchFullLyrics = async () => {
@@ -198,19 +231,19 @@ const handleFetchFullLyrics = async () => {
     But in 99% cases, [pos, data.length] is enough for you. */
     //(pos, data.length), soundRef.current
   }
-  useEffect(() => {
-    console.log("sec:", seek);
-    console.log("isPlaying?...:", isplaying);
-  }, [seek, isplaying]);
-
-  const togglePlayPauseRef = useRef(null);
 
   useEffect(() => {
+    console.warn("STATE:",playbackState.state)
     if (playbackState.state === State.Ended) {
       (async () => {
         await TrackPlayer.seekTo(0);   // jump back to start
         await TrackPlayer.pause();     // stays paused at 0
         // OR use TrackPlayer.play() if you want auto-replay
+      })();
+    }
+    if(playbackState == State.Error){
+      (async () => {
+        await TrackPlayer.retry()
       })();
     }
   }, [playbackState]);
@@ -235,21 +268,7 @@ const handleFetchFullLyrics = async () => {
   };
 
   const replaySound = async () => {
-    
-    if (soundRef.current) {
-      await soundRef.current.setPositionAsync(0);
-      dispatch(setIsPlaying(true))
-      await soundRef.current.playAsync();
-      
-    }
-    else if (playRef.current) {
-      await playRef.current.setPositionAsync(0);
-      dispatch(setPlaylistplaying({ action:true, id: playlistNo }))
-      await playRef.current.playAsync();
-      
-    }
-    dispatch(progress(0));
-    
+    await TrackPlayer.seekTo(0);
   };
 
   const formatTime = (seconds) => {
@@ -273,19 +292,25 @@ const handleFetchFullLyrics = async () => {
   let singlePressTimeout = null;
 
   const handlePress = async (value) => {
-
+    console.warn("handle press")
     if(soundRef.current==null){
-        dispatch(changePlaylistPos({value:value,jump:-1}));
-        dispatch(setSearchedMusic(true))
-        dispatch(changeLoad(false));
-        dispatch(changeLoad(true));
+      dispatch(changePlaylistPos({value:value,jump:-1}));
+      dispatch(setSearchedMusic(true))
+     
     }else{
       dispatch(changePos(value));
-      dispatch(setSearchedMusic(true))
-      dispatch(load(false));
-      dispatch(load(true));
-      
-      }
+      dispatch(setSearchedMusic(true))  
+    }
+    if(value == 1){
+      await TrackPlayer.skipToNext()
+      await TrackPlayer.play()
+      console.warn("handle press to next")
+    }
+    else if(value == -1){
+      await TrackPlayer.skipToPrevious()
+      await TrackPlayer.play()
+      console.warn("handle press to previous")
+    }
   };
 
   const TOTAL_DURATION = currentTrack ? currentTrack.duration : 0
@@ -487,7 +512,16 @@ const handleFetchFullLyrics = async () => {
       marginHorizontal: 2,
       borderRadius: 1,
     },
-    skipButton: { /*top: 65,*/ marginHorizontal: 20 },
+    skipButton: { 
+      /*top: 65,*/ 
+      marginHorizontal: 15,
+      width:60,
+      height:60,
+      borderRadius:30,
+      justifyContent:"center",
+      alignItems:"center"
+
+    },
     container: {
       position: "absolute",
       top: 490,
@@ -558,7 +592,12 @@ const handleFetchFullLyrics = async () => {
       width: "100%",
     },
     button: {
-      padding: 6,
+      paddingLeft:5,
+      width:60,
+      height:60,
+      borderRadius:30,
+      justifyContent:"center",
+      alignItems:"center"
       // position: "absolute",
       // top: 35,
       // left: 30,
@@ -604,6 +643,7 @@ const handleFetchFullLyrics = async () => {
     <View style ={{flex:1}}>
     <Animated.View
       style={{
+        flex:1,
         backgroundColor: "white", // or your styling
         borderTopLeftRadius: 16,
         borderTopRightRadius: 16,
@@ -635,22 +675,26 @@ const handleFetchFullLyrics = async () => {
             zIndex: 10,
           }}
         >
-          <TouchableOpacity
+          <TouchableHighlight
+            underlayColor="rgba(255,255,255,0.1)"
             style={[
               styles.button,
               {
                 transform: [{ rotate: "90deg" }],
-                justifyContent: "center",
-                alignItems: "center",
+  
               },
             ]}
             onPress={togglePlayerSize}
           >
             <ChevronForward width={28} height={28} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => toggleModal()}>
+          </TouchableHighlight>
+          <TouchableHighlight 
+            onPress={() => toggleModal()}
+            underlayColor="rgba(255,255,255,0.1)"
+            style={{width: 60,height:60,borderRadius:30,justifyContent:"center",alignItems:"center"}}
+            >
             <ThreeDots height={28} width={28} />
-          </TouchableOpacity>
+          </TouchableHighlight>
         </View>
         {/* <WaveformVisualizer ytUrl={currentTrack?.url} seconds={seek} /> */}
         <Metadata
@@ -671,7 +715,14 @@ const handleFetchFullLyrics = async () => {
         />
         <View>
            <View style={{ height: 550 }} />
-            <WaveformVisualizer ytUrl={currentTrack?.url} duration={currentTrack?.duration}/>
+           {/* {deferredReady && (
+              <WaveformVisualizer
+                ytUrl={currentTrack?.url}
+                duration={currentTrack?.duration}
+              />
+            )} */}
+            <SingleProgressBar/>
+
             <Controls
               togglePlayPause={togglePlayPause}
               playbackState={playbackState.state}
@@ -851,28 +902,34 @@ const Controls = ({
     <View style={styles.controlsContainer}>
       <View style={styles.controls}>
         <View>
-          <TouchableOpacity onPress={() => setSleepTimerVisible(true)}>
+          <TouchableHighlight 
+          onPress={() => setSleepTimerVisible(true)}
+          underlayColor="rgba(255,255,255,0.1)"
+          style={{width:60,height:60,borderRadius:30,justifyContent:"center",alignItems:"center"}}
+          >
+
             <TimerIcon
               name="timer"
               color={isTimerActive ? "#F5DEB3" : "white"}
             />
-          </TouchableOpacity>
+          </TouchableHighlight>
         </View>
         <View style={styles.playpause}>
-          <TouchableOpacity
+          <TouchableHighlight
             style={styles.skipButton}
+            underlayColor="rgba(255,255,255,0.1)"
             onPress={() => {
               handlePress(-1);
             }}
           >
             <SkipBack width={35} height={35} stroke={"white"} />
-          </TouchableOpacity>
+          </TouchableHighlight>
 
           <TouchableOpacity
             style={styles.playPauseButton}
             onPress={() => togglePlayPause()}
           >
-            {playbackState == State.Playing || playbackState == State.Buffering? (
+            {playbackState == State.Playing || playbackState == State.Buffering || playbackState == State.Loading? (
               <View style={styles.pauseLinesContainer}>
                 <View style={styles.pauseLine} />
                 <View style={styles.pauseLine} />
@@ -882,19 +939,23 @@ const Controls = ({
             )}
           </TouchableOpacity>
 
-          <TouchableOpacity
+          <TouchableHighlight
             style={styles.skipButton}
+            underlayColor="rgba(255,255,255,0.1)"
             onPress={() => {
               handlePress(+1);
             }}
           >
             <SkipForward width={35} height={35} stroke={"white"} />
-          </TouchableOpacity>
+          </TouchableHighlight>
         </View>
         <View>
-          <TouchableOpacity onPress={() => replaySound()}>
+          <TouchableHighlight onPress={() => replaySound()} 
+            underlayColor="rgba(255,255,255,0.1)"
+            style = {{width:60,height:60,borderRadius:30,justifyContent:"center",alignItems:"center"}} 
+          >
             <Replay height={24} width={24} fill={"white"} />
-          </TouchableOpacity>
+          </TouchableHighlight>
         </View>
       </View>
     </View>

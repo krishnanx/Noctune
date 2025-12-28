@@ -4,6 +4,7 @@ import {
   TransitionPresets,
   createStackNavigator
 } from '@react-navigation/stack';
+import PlayerNavigator from "./Player.js";
 const Stack = createNativeStackNavigator();
 
 const RootNavigator = () => {
@@ -44,9 +45,12 @@ const RootNavigator = () => {
         getComponent={() => require("../src/pages/PlaylistEdit").default}
       />
       <Stack.Screen
-        name="PlayerStack"
-        options={{animation:"fade"}}
-        getComponent={() => require("../src/pages/PlayerStack").default}
+        name="PlayerModal"
+        component={PlayerNavigator}
+        options={{
+          presentation: "transparentModal",
+          animation: "none", // let JS stack handle animation
+        }}
       />
       <Stack.Screen
         name="InviteCollab"

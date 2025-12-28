@@ -19,6 +19,9 @@ import { changeLoad } from "../../../Store/Playdataslice.js";
 import { addMusic,load, setSearchedMusic } from '../../../Store/MusicSlice';
 import FadeWrapper from '../../../Navigation/FadeWrapper.jsx';
 import { useTheme } from "@react-navigation/native";
+import TrackPlayer from 'react-native-track-player';
+import { addMusicIntoRNTP } from '../../functions/RNTP/addMusicIntoRNTP.js';
+import { reset } from 'react-native-track-player/lib/src/trackPlayer.js';
 import Download from "../../Components/Icons/Download";
 
 
@@ -59,27 +62,27 @@ const Home = () => {
   
   const dispatch = useDispatch()
 
-const handlePlay = (item) => {
-  //console.error(item)
-  //console.error(item.uploader)
-  dispatch(addMusic(item));
-  dispatch(setSearchedMusic(true))
-  if (canLoad) {
-        dispatch(load(false))
-        //dispatch(load(true))
-        setTimeout(() => {
-          dispatch(load(true))
-           // musics queue
-        }, 1)
-      }
-      else {
-        
-        dispatch(load(true))
-        
-      }
-      dispatch(changeLoad(false)) //playlist
-  navigation.navigate('PlayerStack');
-}
+  const handlePlay = async(item) => {
+    //console.error(item)
+    //console.error(item.uploader)
+    dispatch(addMusic(item));
+    dispatch(setSearchedMusic(true))
+    navigation.navigate("PlayerModal", {
+      screen: "PlayerStack",
+      params: {
+        track: {
+          id: item.id,
+          title: item.title,
+          artist: item.artist || item.uploader,
+          artwork: item.artwork || item.image,
+          duration: item.duration,
+          url: item.url,
+        },
+      },
+    });
+    addMusicIntoRNTP({tracks:item,resetQueue:true})
+    await TrackPlayer.setPlayWhenReady(true)
+  }
 const downloadStatus = useSelector((state) => state.download.status);
 const showRedDot = downloadStatus === "downloading";
 
