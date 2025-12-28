@@ -48,8 +48,7 @@ const Player = () => {
   const progress = useProgress(100);
   const getCurrentTrackInfo = async () => {
     try {
-      const track = await TrackPlayer.getActiveTrack();
-      console.warn("track from mini player: ",track) 
+      const track = await TrackPlayer.getActiveTrack(); 
       if (track) {
         setCurrentTrack(track); // store track in state
       } else {
@@ -94,7 +93,7 @@ const Player = () => {
 
   const togglePlayerSize = () => {
     if (!currentTrack) return;
-    console.warn("yes lessgoo")
+
     navigation.navigate("PlayerModal", {
       screen: "PlayerStack",
       params: {
