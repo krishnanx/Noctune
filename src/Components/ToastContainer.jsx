@@ -1,17 +1,18 @@
 // src/components/ToastContainer.js
-import React, { useEffect } from 'react';
+import React, { useEffect ,useRef} from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Animated, Text, StyleSheet, Dimensions } from 'react-native';
+import { Animated, Text, StyleSheet, Dimensions,TouchableOpacity } from 'react-native';
 import { hideToast } from "../../Store/ToastSlice";
+import RightArrow from "./Icons/RightArrow";
 
 const { width } = Dimensions.get('window');
 
-const ToastContainer = () => {
-  const { visible, message,Title } = useSelector((state) => state.toast);
+const ToastContainer = ({}) => {
+  const { visible, message,Title,showArrow,callback } = useSelector((state) => state.toast);
   const dispatch = useDispatch();
-
-  const opacity = new Animated.Value(0);
-
+  
+ 
+ const opacity = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     if (visible) {
       Animated.timing(opacity, {
@@ -38,6 +39,17 @@ const ToastContainer = () => {
     <Animated.View style={[styles.toastContainer, { opacity }]}>
       <Text style={styles.toastText}>{Title}</Text>
       {message!=""?<Text style={{color:"white",textAlign:"center"}}>{message}</Text>:<></>}
+{showArrow && callback ? (
+  <TouchableOpacity
+    onPress={() => {
+      dispatch(hideToast());
+      callback(); 
+    }}
+  >
+    <RightArrow width={20} height={20} />
+  </TouchableOpacity>
+) : null}
+
     </Animated.View>
   );
 };

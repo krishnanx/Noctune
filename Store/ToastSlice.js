@@ -6,17 +6,23 @@ const ToastSlice = createSlice({
     initialState: {
         visible: false,
         message: '',
-        Title:''
+        Title:'',
+        showArrow: false,       
+        callback: null
     },
     reducers: {
         showToast: (state, action) => {
             state.visible = true;
             state.message = action.payload.message;
-            state.Title = action.payload.Title
+            state.Title = action.payload.Title;
+            state.showArrow = action.payload.showArrow || false;
+            state.callback = action.payload.callback|| null;
         },
         hideToast: (state) => {
             state.visible = false;
             state.message = '';
+            state.showArrow = false;
+            state.callback = null;
         },
     },
 });

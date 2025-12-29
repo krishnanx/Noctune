@@ -47,7 +47,9 @@ const SearchModal = ({
 
      dispatch(showToast({
       Title: "Downloading",
-      message: `${song.title} is downloading...`
+      message: `${song.title} is downloading...`,
+      showArrow: true,
+      callback: () => navigation.navigate("Download") 
     }));
 
     dispatch(addPath({ path }));
