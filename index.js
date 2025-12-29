@@ -9,7 +9,13 @@ import TrackPlayer from 'react-native-track-player';
 import playbackService from "./src/functions/service.js"
 enableScreens();
 // Wrap App inside Provider
-TrackPlayer.registerPlaybackService(() => playbackService);
+
+console.warn("🔥 index.js EXECUTED");
+try {
+  TrackPlayer.registerPlaybackService(() => playbackService);
+} catch (e) {
+  console.error("RNTP registerPlaybackService failed:", e);
+}
 const ReduxApp = () => (
     <Provider store={store}>
         <PaperProvider>
