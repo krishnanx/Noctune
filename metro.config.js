@@ -10,9 +10,7 @@ config.resolver.unstable_conditionNames = [
 ];
 
 // REQUIRED so Metro watches the fork
-config.watchFolders = [
-  require("path").resolve(__dirname, "../react-native-track-player"),
-];
+config.watchFolders = [];
 
 module.exports = config;
 

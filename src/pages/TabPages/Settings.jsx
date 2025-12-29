@@ -64,6 +64,12 @@ const Settings = ({ navigation }) => {
       fontSize: 28,
       
     },
+
+    headerLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    
     profileButton: {
       alignItems:"center",
       justifyContent:"center",
@@ -116,11 +122,21 @@ const Settings = ({ navigation }) => {
       style={styles.container}
       contentContainerStyle={{ minHeight: 900 }}
     >
-      {/* Header with Profile Picture */}
+      {/* Header with Bck button and Profile Picture */}
       <View style={styles.headerContainer}>
-        <Text style={styles.header}>Settings</Text>
+        <View style={styles.headerLeft}>
+        {/* NEW BACK BUTTON */}
+          <TouchableOpacity 
+             onPress={() => navigation.goBack()} 
+             style={{ marginRight: 15 }}
+          >
+             <Ionicons name="chevron-back" size={28} color={colors.text} />
+          </TouchableOpacity>
+          <Text style={styles.header}>Settings</Text>
+        </View>
+  
         <TouchableOpacity onPress={navigateToAccount} style={styles.profileButton}>
-          <Profile width={35} height={35} fill={colors.text}/>
+         <Profile width={35} height={35} fill={colors.text}/>
         </TouchableOpacity>
       </View>
 
