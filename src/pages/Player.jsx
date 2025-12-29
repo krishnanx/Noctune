@@ -28,7 +28,7 @@ import MediaNotificationManager from "../functions/MediaNotification";
 import { showNotification } from "../functions/MediaNotification";
 import { setPlaylistplaying } from "../../Store/PlaylistSlice";
 import NotificationSync from "../functions/NotificationSync.js";
-import TrackPlayer,{State,usePlaybackState,useProgress} from "react-native-track-player";
+import TrackPlayer,{State,useActiveTrack,usePlaybackState,useProgress,useTrackPlayerEvents, Event} from "react-native-track-player";
 
 const Player = () => {
   const { colors } = useTheme();
@@ -46,32 +46,41 @@ const Player = () => {
   const playbackState = usePlaybackState();
   const [currentTrack, setCurrentTrack] = useState(null);
   const progress = useProgress(100);
-  const getCurrentTrackInfo = async () => {
-    try {
-      const track = await TrackPlayer.getActiveTrack(); 
-      if (track) {
-        setCurrentTrack(track); // store track in state
-      } else {
-        setCurrentTrack(null);
-      }
-    } catch (error) {
-      console.error("Error getting current track info:", error);
-      setCurrentTrack(null);
+  useEffect(()=>{console.warn("currentTrack: ",currentTrack)},[currentTrack])
+
+  useTrackPlayerEvents([Event.PlaybackActiveTrackChanged], (event) => {
+    if (event.track) {
+      console.warn("Track loaded:", event.track);
+      setCurrentTrack(event.track)
     }
-  };
+  });
+  // const getCurrentTrackInfo = async () => {
+  //   try {
+  //     const track = await TrackPlayer.getActiveTrack(); 
+  //     console.warn("track in mini player: ", track)
+  //     if (track) {
+  //       setCurrentTrack(track); // store track in state
+  //     } else {
+  //       setCurrentTrack(null);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error getting current track info:", error);
+  //     setCurrentTrack(null);
+  //   }
+  // };
 
-  useEffect(() => {
-    getCurrentTrackInfo();
+  // useEffect(() => {
+  //   getCurrentTrackInfo();
+    
+  //   // optional: update when track changes
+  //   const listener = TrackPlayer.addEventListener("playback-track-changed", async () => {
+  //     await getCurrentTrackInfo();
+  //   });
 
-    // optional: update when track changes
-    const listener = TrackPlayer.addEventListener("playback-track-changed", async () => {
-      await getCurrentTrackInfo();
-    });
-
-    return () => {
-      listener.remove();
-    };
-  }, []);
+  //   return () => {
+  //     listener.remove();
+  //   };
+  // }, []);
   
   const togglePlayPause = async () => {
     console.warn("toggle")
@@ -91,7 +100,7 @@ const Player = () => {
     
   };
 
-  const togglePlayerSize = () => {
+ const togglePlayerSize = () => {
     if (!currentTrack) return;
 
     navigation.navigate("PlayerModal", {
@@ -109,7 +118,6 @@ const Player = () => {
     });
 
   };
-
 
   const TOTAL_DURATION = currentTrack ? currentTrack.duration : 0
 

@@ -1,0 +1,76 @@
+diff --git a/node_modules/react-native-dial/Dial.js b/node_modules/react-native-dial/Dial.js
+index 6eb7f25..cf9b6f1 100644
+--- a/node_modules/react-native-dial/Dial.js
++++ b/node_modules/react-native-dial/Dial.js
+@@ -90,14 +90,29 @@ export class Dial extends Component {
+     })
+   }
+ 
+-  updateAngle (gestureState) {
+-    let { deg, radius } = this.calcAngle(gestureState)
+-    if (deg < 0) deg += 360
+-    if (Math.abs(this.state.angle - deg) > this.props.precision) {
+-      this.updateState({ deg, radius })
+-    }
++  updateAngle(gestureState) {
++  let { deg, radius } = this.calcAngle(gestureState);
++
++  if (this.lastDeg === undefined) {
++    this.lastDeg = deg;
++    return;
+   }
+ 
++  const delta = this.getDeltaAngle(this.lastDeg, deg);
++  this.lastDeg = deg;
++
++  this.updateState({ delta, radius });
++}
++
++
++  getDeltaAngle(prev, next) {
++  let delta = next - prev;
++  if (delta > 180) delta -= 360;
++  if (delta < -180) delta += 360;
++  return delta;
++}
++
++
+   calcAngle (gestureState) {
+     const { pageX, pageY, moveX, moveY } = gestureState
+     const [x, y] = [pageX || moveX, pageY || moveY]
+@@ -108,19 +123,25 @@ export class Dial extends Component {
+     }
+   }
+ 
+-  updateState ({ deg, radius = this.state.radius }) {
+-    radius = this.state.releaseRadius + radius - this.state.startingRadius
+-    if (radius < this.props.radiusMin) radius = this.props.radiusMin
+-    else if (radius > this.props.radiusMax) radius = this.props.radiusMax
++updateState({ delta, radius = this.state.radius }) {
++  let nextAngle = this.state.angle + delta;
+ 
+-    const angle = deg + this.state.releaseAngle - this.state.startingAngle
+-    if (deg < 0) deg += 360
++  const { minAngle, maxAngle } = this.props;
+ 
+-    if (angle !== this.state.angle || radius !== this.state.radius) {
+-      this.setState({ angle, radius })
+-      if (this.props.onValueChange) this.props.onValueChange(angle, radius)
+-    }
++  if (nextAngle > maxAngle) nextAngle = maxAngle;
++  if (nextAngle < minAngle) nextAngle = minAngle;
++
++  this.setState({ angle: nextAngle });
++
++  if (this.props.onValueChange) {
++    this.props.onValueChange(nextAngle, radius);
+   }
++}
++
++
++
++
++
+ 
+   render () {
+     const rotate = this.props.fixed ? '0deg' : `${this.state.angle}deg`

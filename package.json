@@ -6,7 +6,8 @@
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
@@ -44,6 +45,7 @@
     "music-metadata-browser": "^2.5.11",
     "react": "18.3.1",
     "react-native": "^0.76.9",
+    "react-native-dial": "^1.0.12",
     "react-native-draggable-flatlist": "^4.0.3",
     "react-native-feather": "^1.1.2",
     "react-native-gesture-handler": "^2.20.2",
@@ -61,16 +63,17 @@
     "react-native-svg-transformer": "^1.5.0",
     "react-native-text-ticker": "^1.14.0",
     "react-native-toast-message": "^2.1.5",
-    "react-native-track-player": "^4.1.2",
+    "react-native-track-player": "github:krishnanx/react-native-track-player",
     "react-native-vector-icons": "^10.2.0",
     "react-native-ytdl": "^4.8.3",
     "react-redux": "^9.2.0",
+    "rn-vertical-slider-matyno": "^1.0.1",
     "youtube-music-api": "^1.0.6",
     "youtube-search-api": "^1.2.2"
   },
   "devDependencies": {
     "babel-plugin-transform-remove-console": "^6.9.4",
-    "patch-package": "^8.0.0",
+    "patch-package": "^8.0.1",
     "postinstall-postinstall": "^2.1.0"
   },
   "private": true

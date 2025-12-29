@@ -10,9 +10,7 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { folderPicker } from "../functions/FileFunctions/StoragePicker";
 import { showToast } from "../../Store/ToastSlice";
-
 import { useTheme } from "@react-navigation/native";
-import { BlurView } from '@react-native-community/blur';
 import { initialiseWebsocket } from "../pages/Playlist";
 import { addPath, addSong, download } from "../../Store/DownloadSlice";
 
