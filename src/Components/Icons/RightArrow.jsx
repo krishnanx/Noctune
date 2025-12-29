@@ -1,10 +1,17 @@
-import React from 'react'
-import Svg, { Path } from "react-native-svg";
-const RightArrow = ({ width = 24, height = 24, fill =   "#fff" }) =>{
-    return(
-        <Svg xmlns="http://www.w3.org/2000/svg" height={height} viewBox="0 -960 960 960" width={width} fill={fill}>
-        <Path d="M560 720L504 662L646 520H160v-80h486L504 298l56-58 240 240-240 240Z" />            
-        </Svg>
-    )
-}
-export default RightArrow
+import React from 'react';
+import Svg, { Path } from 'react-native-svg';
+
+const RightArrow = ({ width = 24, height = 24, fill = "#fff" }) => {
+  return (
+    <Svg
+      width={width}
+      height={height}
+      viewBox="0 0 24 24"
+      fill={fill}
+    >
+      <Path d="M12 4l8 8-8 8-1.41-1.41L17.17 12H4v-2h13.17l-6.58-6.59L12 4z" />
+    </Svg>
+  );
+};
+
+export default RightArrow;

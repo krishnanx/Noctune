@@ -817,11 +817,11 @@ const Metadata = ({
 
     console.log("PLAYBACK LINK CAPTURED:", upscaledSong.url);
 
-    const isAlreadyLiked = likedSongs.some(song => song.id === data.id);
+    //const isAlreadyLiked = likedSongs.some(song => song.id === data.id);
 
-    if (isAlreadyLiked) {   //Unliking a song
+    if (isLiked) {   //Unliking a song
       try {
-        dispatch(removeMusicFromPlaylist({ id: 0, musicId: data.id }));  //remove from redux
+        dispatch(removeMusicFromPlaylist({ id: 0, musicId: currentSongId }));  //remove from redux
       } catch (error) {
         console.error("Error removing song from liked playlist:", error);
       }

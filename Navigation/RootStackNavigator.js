@@ -62,6 +62,14 @@ const RootNavigator = () => {
         options={{animation:"fade"}}
         getComponent={() => require("../src/pages/Notification").default}
       />
+      <Stack.Screen
+        name="Settings"
+        options={{
+          animation: "slide_from_right",
+          headerShown: false
+        }}
+        getComponent={() => require("../src/pages/TabPages/Settings").default}
+     />
     </Stack.Navigator>
   );
 };

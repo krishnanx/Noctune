@@ -133,17 +133,17 @@ const PlaylistSlice = createSlice({
         },
         removeMusicFromPlaylist: (state, action) => {
             const { id, musicId } = action.payload;
-            const playlistIndex = state.data.findIndex(playlist => playlist.id === id);
-            if (playlistIndex !== -1) {
-                const playlist = state.data[playlistIndex]
+            const playlist = state.data.find(pl => pl.id === id);
+            if (playlist) {
+                
 
-                const songToRemove = playlist.songs.find(song => song.id === musicId);
+                const songToRemove = playlist.songs.find(s => String(s.id) === String(musicId));
                 if (songToRemove) {
-                    playlist.Time -= songToRemove.duration || 0;
+                    playlist.Time -= (songToRemove.duration || 0);
                 }
 
                 playlist.songs = playlist.songs.filter(
-                song => song.id !== musicId
+                song => String(song.id) !== String(musicId)
                 );
             
             if (playlist.songs.length === 0) {
