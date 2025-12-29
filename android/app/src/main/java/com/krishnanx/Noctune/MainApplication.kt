@@ -30,6 +30,7 @@ class MainApplication : Application(), ReactApplication {
             // packages.add(new MyReactNativePackage());
 
             packages.add(MediaNotificationPackage())
+            //packages.add(AudioEqualizerPackage())
             packages.add(ShareIntentPackage())
             return packages
           }
