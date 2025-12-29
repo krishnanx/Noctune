@@ -22,6 +22,7 @@ import { useTheme } from "@react-navigation/native";
 import TrackPlayer from 'react-native-track-player';
 import { addMusicIntoRNTP } from '../../functions/RNTP/addMusicIntoRNTP.js';
 import Download from "../../Components/Icons/Download";
+import SettingsIcon from "../../Components/Icons/SettingsIcon";
 
 
 const QuickPickCard = ({ title, imageUrl,item,handlePlay,styles }) => (
@@ -267,11 +268,11 @@ const showRedDot = downloadStatus === "downloading";
             {showRedDot && <View style={styles.redDot} />}
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.headerIcon}>
-            <Ionicons name="notifications-outline" size={24} color={colors.text} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.headerIcon}>
-            <Ionicons name="time-outline" size={24} color={colors.text} />
+          <TouchableOpacity 
+            style={[styles.headerIcon , {marginBottom: 4} ]} 
+            onPress={() => navigation.navigate("Settings")} >
+          
+           <SettingsIcon color={colors.text} width={26} height={26} />
           </TouchableOpacity>
           
         </View>
