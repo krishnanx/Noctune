@@ -6,7 +6,6 @@ export function testBass(level = 1000) {
   console.warn('Setting bass to', level);
   AudioEqualizer.setBass(level);
 }
-
 // Reset EQ
 export function resetEQ() {
   console.warn('Resetting EQ');

@@ -116,6 +116,21 @@ export default function App() {
   }
   const insets = useSafeAreaInsets();
 
+  const clearEQData = async () => {
+    try {
+      await AsyncStorage.removeItem('EQ_SETTINGS');
+      await AsyncStorage.removeItem('BASS_LEVEL');
+      await AsyncStorage.removeItem('TREBLE_LEVEL');
+      await AsyncStorage.removeItem('EQ_ENABLED');
+      console.warn('Old EQ data cleared successfully!');
+    } catch (error) {
+      console.error('Error clearing EQ data: ', error);
+    }
+  };
+
+  // Call this once when you want to clear
+  //clearEQData();
+
   useEffect(()=>{
     setupPlayer()
   },[])

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import SimpleLineIcon from "react-native-vector-icons/SimpleLineIcons";
 import Home from "../src/pages/TabPages/Home";
 import Player from "../src/pages/Player";
 import Settings from "../src/pages/TabPages/Settings";
@@ -12,6 +13,7 @@ import Playlist from "../src/pages/PlaylistChoose";
 import Library from "../src/pages/TabPages/Library";
 import { changeState } from "../Store/KeyboardSlice";
 import EQTester from "../src/pages/TabPages/EQTester";
+import EqualizerScreen from "../src/pages/Equalizer/EqualizerScreen";
 const Tab = createBottomTabNavigator();
 
 const MainTab = () => {
@@ -58,16 +60,20 @@ const MainTab = () => {
       <Tab.Navigator
         screenOptions={({ route }) => {
           let iconName;
+          let IconComponent = Icon; // default icon library
           if (route.name === "Home") iconName = "home-outline";
           else if (route.name === "Search") iconName = "magnify";
           else if (route.name === "Library")
             iconName = "music-box-multiple-outline";
-          else if (route.name === "Settings") iconName = "cog-outline";
+          else if (route.name === "Equalizer"){
+            iconName = "equalizer"
+          IconComponent = SimpleLineIcon; // override for this tab;
+          }
 
           return {
             
             tabBarIcon: ({ color, size }) => (
-              <Icon name={iconName} size={size} color={color} />
+              <IconComponent name={iconName} size={size} color={color} />
             ),
             headerShown: false,
             //tabBarHideOnKeyboard: true,
@@ -83,9 +89,10 @@ const MainTab = () => {
         initialRouteName="Home"
       >
         <Tab.Screen name="Home" component={Home} />
+        <Tab.Screen name="Equalizer" component={EqualizerScreen} />
         <Tab.Screen name="Search" component={Search} />
         <Tab.Screen name="Library" component={Library} />
-        <Tab.Screen name="Settings" component={EQTester} />
+        
       </Tab.Navigator>
 
       {displayPlayer && !isKeyboardVisible && <Player />}
