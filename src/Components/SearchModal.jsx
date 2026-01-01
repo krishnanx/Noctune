@@ -170,18 +170,19 @@ const styles = StyleSheet.create({
         {/*  <TouchableOpacity style={styles.optionTouch}>
             <Text style={styles.option}>Share</Text>
           </TouchableOpacity>
+          */
           
 
           <TouchableOpacity
             style={styles.optionTouch}
-            // onPress={() => {
-            //   toggleModal();
-            //   dispatch({ type: "ADD_TO_QUEUE", payload: song });
-            // }}
+             onPress={() => {
+               toggleModal();
+           
+             }}
           >
             <Text style={styles.option}>Add to Queue</Text>
           </TouchableOpacity>
-         * */}
+         }
 
           <TouchableOpacity
   style={styles.optionTouch}

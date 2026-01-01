@@ -1020,19 +1020,11 @@ const Custom_modal = ({
             <Text style={styles.option}>Media Quality</Text>
           </TouchableOpacity> */}
 
-          <TouchableOpacity style={styles.optionTouch}>
+          {/* <TouchableOpacity style={styles.optionTouch}>
             <Text style={styles.option}>Share</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
-          <TouchableOpacity
-            style={styles.optionTouch}
-          // onPress={() => {
-          //   toggleModal();
-          //   dispatch({ type: "ADD_TO_QUEUE", payload: data });
-          // }}
-          >
-            <Text style={styles.option}>Add to Queue</Text>
-          </TouchableOpacity>
+          
         </View>
       </TouchableOpacity>
     </Modal>
