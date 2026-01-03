@@ -165,6 +165,9 @@ const MusicSlice = createSlice({
     },
     setSearchedMusic(state, action) {
       state.searchedMusic = action.payload
+    },
+    syncPosWithTrackPlayer(state, action) {
+    state.pos = action.payload;
     }
   },  
 
@@ -206,7 +209,8 @@ export const {
   addSearchTextHistory,
   clearSearchTextHistory,
   setSearchTextHistory,
-  deleteSearchedMusicHistory
+  deleteSearchedMusicHistory,
+  syncPosWithTrackPlayer
 } = MusicSlice.actions;
 export default MusicSlice.reducer;
 
