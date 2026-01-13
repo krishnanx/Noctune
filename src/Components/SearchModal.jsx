@@ -13,7 +13,8 @@ import { showToast } from "../../Store/ToastSlice";
 import { useTheme } from "@react-navigation/native";
 import { initialiseWebsocket } from "../pages/Playlist";
 import { addPath, addSong, download } from "../../Store/DownloadSlice";
-
+import TrackPlayer from "react-native-track-player";
+import { addMusicIntoRNTP } from "../functions/RNTP/addMusicIntoRNTP";
 
 
 
@@ -62,6 +63,30 @@ const SearchModal = ({
       message: "Something went wrong"
     }));
   }
+};
+
+const handleAddNext = async () => {
+    if (!song) return;
+    try {
+      const currentIndex = await TrackPlayer.getActiveTrackIndex();
+      const nextIndex = (currentIndex !== undefined && currentIndex !== null) 
+        ? currentIndex + 1 
+        : 0;
+
+      await addMusicIntoRNTP({ 
+        tracks: song, 
+        insertBeforeIndex: nextIndex 
+      });
+
+      dispatch(showToast({
+        Title: "Queue Updated",
+        message: `"${song.title}" will play next`
+      }));
+
+      toggleModal();
+    } catch (error) {
+      console.error("Failed to add next:", error);
+    }
 };
 
 const colors = useTheme()
@@ -170,18 +195,16 @@ const styles = StyleSheet.create({
         {/*  <TouchableOpacity style={styles.optionTouch}>
             <Text style={styles.option}>Share</Text>
           </TouchableOpacity>
+          */
           
 
           <TouchableOpacity
             style={styles.optionTouch}
-            // onPress={() => {
-            //   toggleModal();
-            //   dispatch({ type: "ADD_TO_QUEUE", payload: song });
-            // }}
+             onPress={handleAddNext}
           >
             <Text style={styles.option}>Add to Queue</Text>
           </TouchableOpacity>
-         * */}
+         }
 
           <TouchableOpacity
   style={styles.optionTouch}

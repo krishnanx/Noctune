@@ -29,7 +29,8 @@ import {
   load,
   isLoadedFromAsyncStorage,
   isplaying,
-  setSearchedMusic
+  setSearchedMusic,
+  syncPosWithTrackPlayer
 } from "../../Store/MusicSlice";
 import { playRef, soundRef } from "../../App.jsx";
 // import { addMusicinPlaylist } from "../../Store/PlaylistSlice";
@@ -131,9 +132,15 @@ import SingleProgressBar from "../Components/SingleProgressBar.jsx";
   const getCurrentTrackInfo = async () => {
     try {
       const track = await TrackPlayer.getActiveTrack();
+      const index = await TrackPlayer.getActiveTrackIndex();
       if (track) {
-        setCurrentTrack(prev => prev ?? track); // DON'T override passed data
+        console.log("Track changed to:", track.title);
+        setCurrentTrack({...track}); 
         setIsReady(true);
+
+        if (index !== undefined && index !== null) {
+        dispatch(syncPosWithTrackPlayer(index));
+        }
       }
     } catch (e) {
       console.error(e);
@@ -141,17 +148,36 @@ import SingleProgressBar from "../Components/SingleProgressBar.jsx";
   };
 
 
-  useEffect(() => {
+ useEffect(() => {
   if (!deferredReady) return;
+
+  const updateTrackInfo = async () => {
+    const track = await TrackPlayer.getActiveTrack();
+    const index = await TrackPlayer.getActiveTrackIndex();
+    
+    if (track) {
+      // Create a fresh object to ensure React sees the change
+      setCurrentTrack({...track});
+      // Update Redux position
+      if (index !== undefined && index !== null) {
+        dispatch(syncPosWithTrackPlayer(index));
+      }
+    }
+  };
 
   const listener = TrackPlayer.addEventListener(
     "playback-track-changed",
-    getCurrentTrackInfo
-  );
+    (event) => {
+      if (event.nextTrack !== undefined && event.nextTrack !== null) {
+        console.warn("Valid Track Change Detected");
+        updateTrackInfo();
+      }}
+  );  
+
+  updateTrackInfo(); // Run once on load
 
   return () => listener.remove();
-}, [deferredReady]);
-
+}, [deferredReady, dispatch]);
 
   // useEffect(() => {
   //   const fetchLyrics = async () => {
@@ -698,21 +724,18 @@ const handleFetchFullLyrics = async () => {
         </View>
         {/* <WaveformVisualizer ytUrl={currentTrack?.url} seconds={seek} /> */}
         <Metadata
-          data={
-                currentTrack
-                  ? { title: currentTrack.title, artist: currentTrack.artist, image:currentTrack.artwork }
-                  : { title: "Unknown Song", uploader: "Unknown Artistt" }
-          }
-          activeTrack = {currentTrack}
-          colors={colors}
-          liked={liked}
-          setLiked={setLiked}
-          seek={seek}
-          TOTAL_DURATION={TOTAL_DURATION}
-          formatTime={formatTime}
-          styles={styles}
-          dispatch={dispatch}
-        />
+  key={currentTrack?.id || 'loading'}
+  data={currentTrack}
+  activeTrack={currentTrack}
+  colors={colors}
+  liked={liked}
+  setLiked={setLiked}
+  seek={seek}
+  TOTAL_DURATION={TOTAL_DURATION}
+  formatTime={formatTime}
+  styles={styles}
+  dispatch={dispatch}
+/>
         <View>
            <View style={{ height: 550 }} />
            {/* {deferredReady && (
@@ -798,6 +821,24 @@ const Metadata = ({
   const likedSongs = likedPlaylist?.songs || [];         //get the song from the liked songs playlist
   //const isLiked = likedSongs.some(song => song.id === data.id); // checking if song is liked already
 
+ const [displayInfo, setDisplayInfo] = useState({
+    title: activeTrack?.title || data?.title || "Unknown Song",
+    artist: activeTrack?.artist || activeTrack?.uploader || data?.artist || "Unknown Artist",
+    image: activeTrack?.artwork || activeTrack?.image || data?.image,
+    id: activeTrack?.id || data?.id
+  });
+
+  useEffect(() => {
+    if (activeTrack) {
+      setDisplayInfo({
+        title: activeTrack.title,
+        artist: activeTrack.artist || activeTrack.uploader,
+        image: activeTrack.artwork || activeTrack.image,
+        id: activeTrack.id
+      });
+    }
+  }, [activeTrack?.id, activeTrack?.title]); // Watches for ID or Title changes
+
   const currentSongId = activeTrack?.id || data?.id;
   const isLiked = likedSongs.some(song => String(song.id) === String(currentSongId));
 
@@ -859,14 +900,14 @@ const Metadata = ({
   return (
     <>  
     {/* {console.warn(data)} */}
-      <Image source={{ uri: data?.image }} style={styles.albumArt} />
+      <Image source={{ uri: displayInfo.image }} style={styles.albumArt} />
       <View style={styles.container}>
         <View style={{ height: "100%" }}>
           <View style={{ width: 300 }}>
-            <Text style={styles.songName}>{data?.title || "Unknown Song"}</Text>
+            <Text style={styles.songName}>{displayInfo.title}</Text>
           </View>
           <Text style={styles.singerName}>
-            {data?.artist || "Unknown Artist"}
+            {displayInfo.artist}
           </Text>
         </View>
 
@@ -1020,19 +1061,11 @@ const Custom_modal = ({
             <Text style={styles.option}>Media Quality</Text>
           </TouchableOpacity> */}
 
-          <TouchableOpacity style={styles.optionTouch}>
+          {/* <TouchableOpacity style={styles.optionTouch}>
             <Text style={styles.option}>Share</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
-          <TouchableOpacity
-            style={styles.optionTouch}
-          // onPress={() => {
-          //   toggleModal();
-          //   dispatch({ type: "ADD_TO_QUEUE", payload: data });
-          // }}
-          >
-            <Text style={styles.option}>Add to Queue</Text>
-          </TouchableOpacity>
+          
         </View>
       </TouchableOpacity>
     </Modal>

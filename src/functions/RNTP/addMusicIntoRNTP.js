@@ -5,7 +5,7 @@ import Constants from 'expo-constants';
  * @param {Object|Array} tracks - A single track object or an array of track objects
  * @param {boolean} resetQueue - Whether to clear the queue before adding
  */
-export async function addMusicIntoRNTP({tracks, resetQueue = false}) {
+export async function addMusicIntoRNTP({tracks, resetQueue = false, insertBeforeIndex}) {
   try {
 
     if (resetQueue) {
@@ -80,7 +80,7 @@ export async function addMusicIntoRNTP({tracks, resetQueue = false}) {
       type: 'default'
     }
 
-    await TrackPlayer.add([track]);
+    await TrackPlayer.add([track], insertBeforeIndex);
 
     console.warn(`🎵 Added track(s) to queue`);
   } catch (error) {
